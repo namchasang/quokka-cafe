@@ -236,6 +236,8 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
 #dlg{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 18px);max-width:640px;margin:0 auto;padding:18px 18px 14px;z-index:8;cursor:pointer}
 #dlg .who{position:absolute;top:-13px;left:14px;padding:3px 12px;background:var(--panel-solid);border:1px solid var(--gold);border-radius:4px;font-family:var(--display);font-size:14px;color:var(--gold);letter-spacing:.06em}
 #dlg p{margin:0;font-size:15px;line-height:1.6;min-height:3.2em;max-width:65ch}
+/* phones and touch screens: dialog sits in the middle of the screen, clear of the touch buttons */
+@media (max-width:900px),(pointer:coarse){#dlg{top:50%;bottom:auto;transform:translateY(-50%)}}
 #dlg .more{position:absolute;right:14px;bottom:8px;color:var(--gold);font-size:12px;animation:blink 1s steps(2) infinite}
 @keyframes blink{50%{opacity:0}}
 
