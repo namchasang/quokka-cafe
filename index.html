@@ -891,6 +891,10 @@ const counterC=planks(['#8a5a36','#7e5232','#946240'],'#4e3018',true,25);
 const awnC=(()=>{const c=mk(16,16),x=c.getContext('2d');for(let i=0;i<4;i++){x.fillStyle=i%2?'#f6ead2':'#e2584f';x.fillRect(i*4,0,4,16);}x.fillStyle='rgba(0,0,0,.12)';x.fillRect(0,15,16,1);return c;})();
 const waterC=(()=>{const c=mk(32,32),x=c.getContext('2d');x.fillStyle='#2a8db2';x.fillRect(0,0,32,32);const r=mulberry32(31);x.fillStyle='#4cb1cd';for(let i=0;i<16;i++)x.fillRect(r()*32|0,r()*32|0,3+(r()*3|0),1);x.fillStyle='#a9e6f0';for(let i=0;i<5;i++)x.fillRect(r()*32|0,r()*32|0,2,1);return c;})();
 const pinkC=(()=>{const c=mk(16,16),x=c.getContext('2d');x.fillStyle='#ef9fb3';x.fillRect(0,0,16,16);const r=mulberry32(41);x.fillStyle='#f9c6d3';for(let i=0;i<8;i++)x.fillRect(r()*16|0,r()*16|0,3,1);return c;})();
+const paveC=(()=>{const S=32,c=mk(S,S),x=c.getContext('2d'),r=mulberry32(91);x.fillStyle='#d8ccb0';x.fillRect(0,0,S,S);
+  for(let j=0;j<4;j++)for(let i=0;i<4;i++){const ox=(j%2)*4;const tone=['#dccfb2','#d2c5a6','#e3d8be','#cdbf9f'][(i+j*3+(r()*4|0))%4];x.fillStyle=tone;x.fillRect((i*8+ox)%S+1,j*8+1,7,7);if(ox&&i===3){x.fillRect(0,j*8+1,3,7);}}
+  x.fillStyle='#b8aa8a';for(let j=0;j<4;j++){x.fillRect(0,j*8,S,1);for(let i=0;i<4;i++)x.fillRect((i*8+(j%2)*4)%S,j*8,1,8);}
+  [['#c4b593',60],['#ece3cc',50],['#a89a7a',14]].forEach(([col,n])=>{x.fillStyle=col;for(let i=0;i<n;i++)x.fillRect(r()*S|0,r()*S|0,1,1);});return c;})();
 function lmat(c,rep,extra){return new THREE.MeshLambertMaterial(Object.assign({map:ctex(c,rep?{rep}:{})},extra||{}));}
 
 function box(w,h,d,mat,x,y,z,opts){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=!(opts&&opts.noCast);m.receiveShadow=true;scene.add(m);return m;}
@@ -1341,7 +1345,7 @@ const SHOP_POS={market:{x:163.5,z:1},servo:{x:135.5,z:1},seeds:{x:156,z:1.2}};
   col(P.x-1.5,P.z-1.1,P.x+1.5,P.z+1.1);})();
 
 // ---------- South Perth streets and homes ----------
-box(56,.5,28,lmat(stoneC,[24,10]),141,-.26,10,{noCast:true});
+box(56,.5,28,lmat(paveC,[24,10]),141,-.26,10,{noCast:true});
 flat(18,13.6,lmat(grassC,[3,2.2]),122,.009,4.2);flat(18,1.6,lmat(pathC,[9,.8]),122,.014,-3.2);
 flat(56,12.6,lmat(grassC,[9.3,2.1]),141,.009,17.7);
 const asphC=(()=>{const c=mk(16,16),x=c.getContext('2d'),r=mulberry32(61);x.fillStyle='#4a4d55';x.fillRect(0,0,16,16);x.fillStyle='#55585f';for(let i=0;i<30;i++)x.fillRect(r()*16|0,r()*16|0,1,1);x.fillStyle='#3e4148';for(let i=0;i<20;i++)x.fillRect(r()*16|0,r()*16|0,1,1);return c;})();
@@ -1451,7 +1455,7 @@ function trafficTick(dt,t){tlT=(tlT+dt)%14;const ew=tlT<6?'g':tlT<7.5?'a':'r';co
   SP_FADE.forEach(f=>{const near=z==='sp'&&Math.abs(player.x-(f.x1+f.x2)/2)<30;const tgt=near&&(segHitsBox(camera.position.x,camera.position.z,player.x,player.z,f,.4)||(player.x>f.x1-.6&&player.x<f.x2+.6&&player.z>f.z1-.6&&player.z<f.z2+.6))?.2:1;if(Math.abs(tgt-f.o)>.01){f.o+=(tgt-f.o)*.15;f.mats.forEach(m=>{m.opacity=f.o;m.depthWrite=f.o>.9;});}});}
 
 // ---------- Mill Point Road continues east: Angelo Street shops ----------
-box(32,.5,14.6,lmat(stoneC,[16,7]),184.5,-.26,16.9,{noCast:true});flat(31,10,lmat(grassC,[5,1.6]),184.5,.009,15);
+box(32,.5,14.6,lmat(paveC,[16,7]),184.5,-.26,16.9,{noCast:true});flat(31,10,lmat(grassC,[5,1.6]),184.5,.009,15);
 flat(31,2.4,lmat(asphC,[15.5,1.2]),184.5,.02,22.2);flat(31,.6,lmat(pathC,[15.5,.3]),184.5,.024,20.7);flat(31,.6,lmat(pathC,[15.5,.3]),184.5,.024,23.7);
 for(let x=170;x<200;x+=2.4)flat(1.1,.1,new THREE.MeshLambertMaterial({color:0xf3efe6}),x,.026,22.2);
 flat(1.6,10,lmat(pavC,[1,6]),178,.022,15.4);
@@ -1477,7 +1481,7 @@ function bld(x,z,w,d,h,wcol,o){o=o||{};const g=new THREE.Group();const m=new THR
   if(o.sign){const t=makeSign([o.sign],Math.max(48,o.sign.length*6+8),12,o.signBg||'#2c3b38',o.signFg||'#f5ecd8');const s=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w-.2,o.sign.length*.17+.4),.36),new THREE.MeshBasicMaterial({map:t}));s.position.set(0,o.signY||Math.min(h-.4,2.6),d/2+.02);g.add(s);}
   g.position.set(x,0,z);if(o.ry)g.rotation.y=o.ry;scene.add(g);if(!o.noCol)col(x-w/2,z-d/2,x+w/2,z+d/2+(o.ver?.1:0));return g;}
 // ground, streets, parks, beach, harbour boardwalk
-box(60,.5,29.6,lmat(stoneC,[30,15]),304,-.26,-.4,{noCast:true});box(42,.5,7.4,lmat(stoneC,[20,4]),313,-.26,17.9,{noCast:true});
+box(60,.5,29.6,lmat(paveC,[30,15]),304,-.26,-.4,{noCast:true});box(42,.5,7.4,lmat(paveC,[20,4]),313,-.26,17.9,{noCast:true});
 flat(19,8.2,lmat(grassC,[3.2,1.4]),290.5,.012,9.5);flat(10,6,lmat(grassC,[1.7,1]),311,.012,-6);flat(6.4,6.4,lmat(sandC,[2,2]),277.3,.012,5.2);
 flat(16,.7,lmat(deckC,[8,1]),284,.03,13.8);flat(3.2,4.6,lmat(deckC,[1,3]),288,.04,-16.6);
 [[299.5,-2,42,1.8],[292,4.5,24,1.6],[319,20.4,30,1.6]].forEach(([x,z,w,d])=>flat(w,d,lmat(asphC,[w/2,1]),x,.02,z));flat(2.2,25,lmat(asphC,[1,12]),304,.021,9);
@@ -1553,7 +1557,7 @@ const swans=[0,1,2,3].map(i=>{const m=spriteMesh([pix(["...oo.........","..obbo.
 const pelican=spriteMesh([pix(["...ooo........","..owwwo.......","..owewo.......",".yyyyyyo......","..yyyyo.o.....","...owwwwwo....","..owwwwwwwo...","..owwwkkwwwo..","..owwkkkkwwo..","...owwwwwwo...","....oowwoo....",".....o..o.....","....oo..oo....",".............."],{o:'#2a2a30',w:'#f6f6f0',e:'#1a1a1a',y:'#f2c45a',k:'#2a2a30'})],1.1,1.1);pelican.position.set(436,0,6.4);scene.add(pelican);
 [[406,-8],[407,8.5],[435.5,-8.2],[425.5,8.6]].forEach(([x,z])=>{const v=treeVariants[1];const g=new THREE.PlaneGeometry(v.w,v.h);g.translate(0,v.h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});});
 // ---------- Victoria Park: Albany Highway ----------
-box(74,.5,30,lmat(stoneC,[37,15]),525,-.26,0,{noCast:true});
+box(74,.5,30,lmat(paveC,[37,15]),525,-.26,0,{noCast:true});
 flat(74,2.4,lmat(asphC,[37,1.2]),525,.02,0);for(let x=490;x<562;x+=2.4)flat(1.1,.1,new THREE.MeshLambertMaterial({color:0xf3d24a}),x,.026,0);
 flat(74,.8,lmat(pathC,[37,.4]),525,.022,-1.6);flat(74,.8,lmat(pathC,[37,.4]),525,.022,1.6);
 flat(54,7,lmat(deckC,[12,2]),525,.018,6.6);flat(6,6,lmat(grassC,[1,1]),494,.015,7);flat(6,6,lmat(grassC,[1,1]),556,.015,7);
@@ -2082,6 +2086,7 @@ function QUESTS(){const g=S.qg||{};return[
  {id:'main',title:'Bring Mum & Dad to Wadjemup',giver:'Kip’s own goal',desc:'Kip left home to open a little café on Rottnest. Save enough coins to build a spare room and buy two ferry tickets, so Mum and Dad can move to the island and help run the café.',
   steps:[['Open Quokka Cafe each morning and serve tourists to earn coins',(S.servedTotal||0)>0],['Build the spare room for Mum & Dad (Wishlist · 120 coins)',!!S.wish.room],['Buy two ferry tickets (Wishlist · 150 coins)',!!S.wish.tickets]],reward:'Mum and Dad move in and help at the café every day',open:true},
  ...storyQuests(),
+ ...sqQuests(),
  {id:'shells',title:'Nana Wren’s lost shells',giver:'From Nana Wren · beside Wadjemup Lighthouse',desc:'The morning tide carried off Nana Wren’s shell collection. Three shells washed up on East Beach. They only show up after the café closes at 4pm.',
   steps:[['Talk to Nana Wren by the lighthouse after 16:00',S.quest>=1],['Find shell 1 on East Beach',!!S.shells[0]],['Find shell 2 on East Beach',!!S.shells[1]],['Find shell 3 on East Beach',!!S.shells[2]],['Bring all three shells back to Nana Wren',S.quest>=2]],reward:'30 coins',open:true},
  {id:'lore',title:'Stories of Wadjemup',giver:'From the island',desc:'Three carved stones around the island each hold a piece of its history. Look for the glowing sparkle above them.',
@@ -2131,6 +2136,7 @@ function trackTarget(id){const near=list=>{let b=null,bd=1e9;list.forEach(o=>{co
   if(id==='pantry'){const lo=lowStock();return lo&&zoneOf(player.x)==='island'?{x:GSTORE.x,z:GSTORE.z+1.9,label:'Buy '+STOCK_INFO[lo].name.toLowerCase()+' at the General Store'}:null;}
   if(id==='postcards')return nearestPostcard();
   if(id.startsWith('story_'))return storyTarget(id.slice(6));
+  if(id.startsWith('sq_'))return sqTarget(id.slice(3));
   if(id==='vpfood'){if(zoneOf(player.x)!=='vp')return null;const left=VP_SHOPS.filter(sh=>sh.dish&&!(S.fq&&S.fq['vp_'+sh.id]));if(!left.length)return null;let b=left[0],bd=1e9;left.forEach(sh=>{const d=Math.hypot(sh.npc.x-player.x,sh.npc.z-player.z);if(d<bd){bd=d;b=sh;}});return{x:b.npc.x,z:b.npc.z,label:b.dish+' at '+b.name};}
   if(id==='lore'){const l=LORE.filter((L,i)=>!S.lore[i]);if(l.length){const L=near(l);return{x:L.x,z:L.z+.55,label:'Lore stone: '+L.title};}return null;}
   if(id==='garden'){const rdy=S.plots.findIndex(p=>p&&p.g>=CROPS[p.k].days);if(rdy>=0)return{x:PLOTS[rdy].x,z:PLOTS[rdy].z+1.05,label:'Harvest '+CROPS[S.plots[rdy].k].name};
@@ -2375,6 +2381,7 @@ const GUIDE_SYS=[
  ['Homes and rent','Owned homes pay rent every night, plus 2 coins for each piece of furniture placed.'],
  ['Bag','See basket, furniture, seeds, keys and collections. Change outfits.'],
  ['Perth Pass','Rottnest Island, South Perth and Heirisson Island are free. Fremantle and Victoria Park need the Perth Pass: buy it on itch.io or Payhip, then open \u2630 \u2192 Perth Pass and type your code. The full itch.io and Google Play versions include it.'],
+ ['Side quests','15 funny and heartfelt errands across Rottnest, South Perth, Heirisson Island, Fremantle and Victoria Park. They show in Quests with a laughing or heart icon. Track one to follow the red line; walk up to the marked place to talk. Some need a drink carried from the café counter, fish in your basket, or a visit after dark.'],
  ['Area stories','Each area has its own story in chapters: Rottnest (3), South Perth (3), Heirisson Island (1), Fremantle (3) and Victoria Park (2). A chapter starts when you arrive and leads you to places, people and activities, mostly by taking their postcards. Open Quests and press Track to follow the red line. Each finished chapter pays coins and opens the next one.'],
  ['Pause','Press the pause button (two bars) at the top right, or Esc on a keyboard, to stop time. The game also pauses by itself when you switch apps or tabs.'],
  ['Special events','Some mornings bring a surprise: a staff sick day (serve everyone yourself for bonus coins), a cruise crowd (double tourists), a heatwave (smoothies sell best) or a food critic (serve them fast for 80 coins). The event shows at 7:00 and in the clock box.'],
@@ -3126,6 +3133,18 @@ function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCach
   if(snap){const lab=labelsOnly(draw);const x=snap.getContext('2d');x.drawImage(lab,0,0);c=snap;}else c=draw();
   zoneCache[k]=c;return c;}
 const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB})[z];
+// ---------- Phase 1 look on the mainland: same tussocks, wildflowers and pixel bushes as Rottnest ----------
+(()=>{const R2=mulberry32(4711);const areas=[];scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map||o.material.map.image!==grassC||!o.geometry||o.geometry.type!=='PlaneGeometry')return;const wp=new THREE.Vector3();o.getWorldPosition(wp);if(wp.x<100||Math.abs(o.rotation.x+Math.PI/2)>.01||o.rotation.z)return;const w=o.geometry.parameters.width*o.scale.x,h=o.geometry.parameters.height*o.scale.y;if(w*h<6)return;areas.push({x1:wp.x-w/2,x2:wp.x+w/2,z1:wp.z-h/2,z2:wp.z+h/2,a:w*h});});
+  const grassMeshes=new Set();scene.traverse(o=>{if(o.isMesh&&o.material&&o.material.map&&o.material.map.image===grassC)grassMeshes.add(o);});
+  const over=[];const bb=new THREE.Box3();scene.updateMatrixWorld(true);scene.traverse(o=>{if(!o.isMesh||grassMeshes.has(o)||BB.includes(o)||!o.geometry)return;bb.setFromObject(o);if(bb.max.x<100||bb.max.y<.004||bb.min.y>3)return;if((bb.max.x-bb.min.x)*(bb.max.z-bb.min.z)>900)return;over.push([bb.min.x-.15,bb.max.x+.15,bb.min.z-.15,bb.max.z+.15]);});
+  const covered=(x,z)=>over.some(q=>x>q[0]&&x<q[1]&&z>q[2]&&z<q[3]);
+  let nT=0,nF=0,nB=0;const near=[];const free=(x,z,rr)=>{if(blocked(x,z)||covered(x,z))return false;for(const q of near)if(Math.abs(q[0]-x)<rr&&Math.abs(q[1]-z)<rr)return false;return true;};
+  areas.forEach(A=>{const tuss=Math.min(90,Math.round(A.a*.28)),flw=Math.min(30,Math.round(A.a*.07)),bsh=Math.min(10,Math.round(A.a*.018));
+    const spot=()=>[A.x1+.5+R2()*(A.x2-A.x1-1),A.z1+.5+R2()*(A.z2-A.z1-1)];
+    for(let i=0,n=0;i<tuss*4&&n<tuss;i++){const [x,z]=spot();if(!free(x,z,.35))continue;const s=.65+R2()*.55;const g=new THREE.PlaneGeometry(1.1*s,.8*s);g.translate(0,.4*s,0);const m=new THREE.Mesh(g,tussockMats[R2()<.5?0:2]);m.position.set(x,0,z);scene.add(m);BB.push(m);near.push([x,z]);n++;nT++;}
+    for(let i=0,n=0;i<flw*4&&n<flw;i++){const [x,z]=spot();if(!free(x,z,.4))continue;const g=new THREE.PlaneGeometry(.75,.52);g.translate(0,.26,0);const m=new THREE.Mesh(g,flowerMats[(n+i)%3]);m.position.set(x,0,z);scene.add(m);BB.push(m);near.push([x,z]);n++;nF++;}
+    for(let i=0,n=0;i<bsh*6&&n<bsh;i++){const [x,z]=spot();if(!free(x,z,1.2))continue;const v=bushVariants[(n+i)%2];const g=new THREE.PlaneGeometry(1.6,1);g.translate(0,.5,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);near.push([x,z]);n++;nB++;}});
+  window.__p1decor={areas:areas.length,tussocks:nT,flowers:nF,bushes:nB};})();
 // ---------- bus between South Perth, Heirisson Island and Victoria Park ----------
 function busTo(dest){if(transit||VISIT)return;if(dest==='vp'&&needPass('vp'))return;const D=BUS_STOPS[dest];transit=true;fadeTarget=.95;toast('Bus to '+D.name+'…',2);
   setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;player.x=D.land[0];player.z=D.land[1];updateCamera(0,true);fadeTarget=0;transit=false;S.fq=S.fq||{};
@@ -3244,6 +3263,98 @@ function storyQuests(){return STORY_ORDER.map(a=>{const D=STORY_DEF()[a];const n
   if(!c)return{id:'story_'+a,title:D.short+' story · complete',giver:D.name,desc:'Every chapter of the '+D.name+' story is done. Thanks for exploring!',steps:D.chapters.map((ch,i)=>['Chapter '+(i+1)+': '+ch.title,true]),reward:'All chapter rewards collected',open:storyOpen(a)};
   return{id:'story_'+a,title:D.short+' · Ch '+(n+1)+'/'+tot+': '+c.title,giver:'Story · '+c.giver,desc:c.intro,steps:chapSteps(c).map(st=>[st[0],stepDone(st)]),reward:c.coins+' coins'+(n+1<tot?' and the next chapter':' and the '+D.name+' story is complete'),open:storyOpen(a)};});}
 function storyTarget(a){if(zoneOf(player.x)!==a)return null;const c=storyChap(a);if(!c)return null;const st=chapSteps(c).find(x=>!stepDone(x));return st?stepTarget(st):null;}
+
+// ---------- Side quests: funny and heartfelt errands across every area ----------
+// step: {l:label, at:'pc:<postcard id>'|[x,z], say:[lines], carry:'<item>', have:{k,n,take}, after:<minutes>, pc:'<postcard id>'}
+const SIDEQ=[
+ {id:'glasses',zone:'island',mood:'funny',title:'The Cyclist’s Sunglasses',giver:'Dale the cyclist',coins:40,desc:'Dale rented a bike, stopped for a selfie with a quokka, and the quokka rode off with his designer sunglasses. Well, hopped off.',
+  steps:[{l:'Talk to Dale at Kip’s Pedal Hire',at:'pc:pedal',say:[{who:'Dale',text:'Mate. MATE. A quokka just nicked my sunnies. Two hundred bucks! It smiled at me while it did it!'},{who:'Dale',text:'Last I saw, it was heading for The Basin. Looking very cool, I might add.'}]},
+   {l:'Search The Basin for a stylish quokka',at:'pc:basin',say:['Kip: There! A quokka in mirrored sunglasses, lying on a rock like a movie star.','Kip: …It won’t give them back until I tell it it looks fabulous. Fine. You look fabulous.','The quokka hands over the sunglasses. Kip swears it winked.']},
+   {l:'Return the sunglasses to Dale',at:'pc:pedal',say:[{who:'Dale',text:'You legend! Wait, why are they covered in tiny paw prints and sand? …You know what, worth it.'}]}],
+  outro:'Dale hires a bike every summer now. He still won’t wear sunglasses near a quokka.'},
+ {id:'keeper',zone:'island',mood:'heart',title:'Coffee for the Old Keeper',giver:'Nana Wren',coins:55,desc:'Bill kept Wadjemup Lighthouse for forty years. He still walks up every morning, but nobody brings him a coffee any more.',
+  steps:[{l:'Talk to Nana Wren',at:'pc:wren',say:[{who:'Nana Wren',text:'Tweet… Bill was keeper of the lighthouse when I was a hatchling. His wife used to bring him a flat white every morning.'},{who:'Nana Wren',text:'She’s gone now. He still climbs the hill, every morning, out of habit. Maybe a little café could keep the tradition going?'}]},
+   {l:'Carry a Flat White up to Wadjemup Lighthouse',at:'pc:wadjemup',carry:'flat',say:[{who:'Bill',text:'For me? A flat white… just like Margaret used to make. Two sugars? …You remembered without even knowing.'},{who:'Bill',text:'Sit with me a minute, young one. On a clear day you can see all the way to Perth. She loved that.'}]},
+   {l:'Tell Nana Wren how it went',at:'pc:wren',say:[{who:'Nana Wren',text:'He smiled? Truly? Then the lighthouse is shining again, in its way. Thank you, Kip.'}]}],
+  outro:'Bill now drops by the café on Sundays. He always leaves a coin in the tip jar for Margaret.'},
+ {id:'joey',zone:'island',mood:'heart',title:'The Littlest Quokka',giver:'Pip, a worried quokka mum',coins:60,desc:'Little Bean wandered off from Quokka Village during nap time. Pip is beside herself.',
+  steps:[{l:'Talk to Pip in Quokka Village',at:'pc:village',say:[{who:'Pip',text:'Kip! My little Bean is gone! He said he wanted to “see a real boat” and now he’s nowhere!'},{who:'Pip',text:'He’s only this big. He has one floppy ear. Please…'}]},
+   {l:'Look for Bean near the boats at Geordie Bay',at:'pc:geordie',say:['Kip: A tiny quokka with one floppy ear, fast asleep in a coil of rope beside a dinghy.','Bean: …is this a real boat? It’s so big. I wanted to tell Mum I was brave.','Kip: You were very brave. Shall we go tell her together?']},
+   {l:'Walk Bean home to Quokka Village',at:'pc:village',say:[{who:'Pip',text:'BEAN! Oh, my Bean!'},{who:'Bean',text:'Mum! I saw a REAL BOAT! Kip says I’m brave!'},{who:'Pip',text:'You’ll always have a seat by our campfire, Kip. Always.'}]}],
+  outro:'Bean now waves at every ferry. Every single one.'},
+ {id:'gull',zone:'island',mood:'funny',title:'The Great Seagull Heist',giver:'Gus the ferry master',coins:35,desc:'A seagull snatched Gus’s lunch right out of his hand. Gus is taking it very personally.',
+  steps:[{l:'Talk to Gus at Main Jetty',at:'pc:jetty',say:[{who:'Gus',text:'Forty years on the water and I’ve never been robbed like that. One second, meat pie. Next second, seagull.'},{who:'Gus',text:'It flew towards East Beach, laughing. Seagulls can’t laugh, Kip. This one did.'}]},
+   {l:'Track down the thief at East Beach',at:'pc:eastbeach',say:['Kip: Found it. A very round seagull, sitting on the pie crust like a throne.','Kip: It looks at me. I look at it. It burps. The pie is gone.']},
+   {l:'Bring Gus a Lamington to make up for it',at:'pc:jetty',carry:'lam',say:[{who:'Gus',text:'A lamington? For me? Kip, you’re a better friend than that bird will ever be.'},{who:'Gus',text:'…I’ll eat it inside the cabin. With the door shut.'}]}],
+  outro:'Gus now eats lunch with one eye on the sky. The seagull, rumour says, has started a family.'},
+ {id:'bottle',zone:'island',mood:'heart',title:'A Letter from 1962',giver:'A bottle on the beach',coins:50,desc:'A green glass bottle washed up by the hammock, with a letter inside dated 1962.',
+  steps:[{l:'Check the bottle by the beach hammock',at:'pc:hammock',say:['Kip: There’s a letter inside… “Dear Rose, if this reaches you, I’m sorry I missed the last ferry. I’ll be at the cottages every summer. Love, Arthur.”','Kip: 1962… I wonder if anyone at the Settlement cottages remembers?']},
+   {l:'Ask around the Settlement cottages',at:'pc:cottages',say:[{who:'Rose',text:'Where did you find this? …That’s Arthur’s handwriting.'},{who:'Rose',text:'He did come back, you know. Every summer for fifty years. We were married right here in 1965.'},{who:'Rose',text:'He never told me he wrote this. Thank you for bringing him back to me, just for a moment.'}]}],
+  outro:'Rose framed the letter. It hangs by her door, facing the sea.'},
+ {id:'propose',zone:'sp',mood:'heart',title:'Flowers for the Ferry',giver:'Sam, very nervous',coins:60,desc:'Sam plans to propose on the evening ferry, but forgot the flowers and is quietly panicking.',
+  steps:[{l:'Talk to Sam at Mends Street Jetty',at:'pc:mends',say:[{who:'Sam',text:'Okay. Okay okay okay. I’m proposing to Jess on the 6pm ferry and I forgot the flowers. I have the ring. I have no flowers.'},{who:'Sam',text:'Can you grab some from Swan Seeds? I can’t leave. If I move I’ll lose my nerve.'}]},
+   {l:'Pick up a bouquet at Swan Seeds Nursery',at:'pc:seeds',say:['Kip: The florist wraps a bunch of everlastings and kangaroo paw. “For a proposal? Then they’re free. Tell me if she says yes!”']},
+   {l:'Rush the flowers back to Sam',at:'pc:mends',say:[{who:'Sam',text:'You’re a lifesaver. Here she comes…'},{who:'Jess',text:'Sam? Why are you kneeling? Why is a quokka holding flowers? …Oh. OH. Yes! YES!'},{who:'Sam',text:'She said yes! Kip, you’re invited to the wedding. You’re doing the coffee.'}]}],
+  outro:'The florist cried. Captain Ruth blew the ferry horn three times.'},
+ {id:'hat',zone:'sp',mood:'funny',title:'Captain Ruth’s Lucky Hat',giver:'Captain Ruth',coins:40,desc:'A gust off the river took Captain Ruth’s lucky captain’s hat. She refuses to sail without it.',
+  steps:[{l:'Talk to Captain Ruth',at:'pc:ruthpc',say:[{who:'Captain Ruth',text:'Thirty years I’ve worn that hat. Never missed a sailing. Then a puff of wind and whoosh, gone up Mends Street.'},{who:'Captain Ruth',text:'I can’t sail without it, love. It’s not superstition. It’s policy. My policy.'}]},
+   {l:'Follow the wind to the Origami Quokka sculpture',at:'pc:origami',say:['Kip: The giant origami quokka is wearing a captain’s hat. It looks… extremely distinguished.','Kip: A tourist is taking photos of it. “Is this official public art?” Kip: “Not for long.”']},
+   {l:'Return the hat to Captain Ruth',at:'pc:ruthpc',say:[{who:'Captain Ruth',text:'My hat! And it’s been promoted, I see. Right, all aboard! Nobody tell head office.'}]}],
+  outro:'Ruth now ties her hat on with a ribbon. She denies everything.'},
+ {id:'reg',zone:'sp',mood:'heart',title:'The Postman’s Last Round',giver:'Reg, retired postman',coins:50,desc:'Reg delivered mail on Mill Point Road for 45 years. His eyes aren’t what they were, so he asks Kip to deliver his last three thank-you cards.',
+  steps:[{l:'Meet Reg at the Old Post Office',at:'pc:postoffice',say:[{who:'Reg',text:'Forty-five years on this street, son. I wrote thank-you cards to the folks who made every day a good one.'},{who:'Reg',text:'My knees won’t do the round any more. Would you deliver them for an old postie?'}]},
+   {l:'Deliver a card at The Mill Point Hotel',at:'pc:millhotel',say:['Kip: The barman reads it and laughs. “Reg! He used to sneak our dog biscuits. That dog adored him.”']},
+   {l:'Deliver a card at Mill Point Towers',at:'pc:residences',say:['Kip: An elderly lady opens the card and goes quiet. “He brought my letters from my son in the war. Every single one, with a smile.”']},
+   {l:'Tell Reg the cards arrived',at:'pc:postoffice',say:[{who:'Reg',text:'They remembered me? …Well. That’s my round finished, then. Best round I ever did.'}]}],
+  outro:'The street threw Reg a surprise morning tea. Kip did the scones.'},
+ {id:'census',zone:'hi',mood:'funny',title:'The Roo Census',giver:'Ranger Tash',coins:45,desc:'Ranger Tash needs the yearly kangaroo count. The kangaroos do not want to be counted.',
+  steps:[{l:'Meet Ranger Tash at the Heirisson bus stop',at:[432,-6.6],say:[{who:'Ranger Tash',text:'Census day! I count, you tick. Easy. The only rule: they must not know they’re being counted.'},{who:'Ranger Tash',text:'They always know.'}]},
+   {l:'Count the roos in the west paddock',at:[410,2],say:['Kip: One… two… three… the third one hopped behind the first one. Two? Four? One roo is lying down and pretending to be a rock.']},
+   {l:'Count the roos near the middle',at:[420,-4],say:['Kip: Seven! No, the same roo keeps hopping past to be counted again. It’s looking at me. It knows.']},
+   {l:'Report back to Ranger Tash',at:[432,-6.6],say:[{who:'Ranger Tash',text:'You got… eleven and a half? The half is fine. We always get a half. Same as last year! Perfect census.'}]}],
+  outro:'The official report lists 11.5 kangaroos and one very convincing rock.'},
+ {id:'pelican',zone:'hi',mood:'funny',title:'The Pelican’s Lunch Order',giver:'A very large pelican',coins:40,desc:'A pelican has decided Kip is its personal waiter.',
+  steps:[{l:'Approach the pelican by the water',at:'pc:pelican',say:['The pelican stares at Kip. Then at Kip’s basket. Then at Kip again. It clacks its beak twice. That is clearly an order.']},
+   {l:'Bring the pelican a fish from your basket',at:'pc:pelican',have:{k:'fish',n:1,take:true},say:['Kip offers a fish. The pelican swallows it whole, lifts one foot, and bows. Kip has never received better service feedback.']}],
+  outro:'Every time Kip visits Heirisson Island, the pelican waddles over expectantly. Regular customer.'},
+ {id:'song',zone:'freo',mood:'heart',title:'The Busker’s Lost Song',giver:'Lily, a street violinist',coins:60,desc:'Lily wrote a song for her grandmother’s 90th birthday. The wind scattered the pages across Freo.',
+  steps:[{l:'Talk to Lily on the Cappuccino Strip',at:'pc:strip',say:[{who:'Lily',text:'It’s Nanna’s 90th tonight. I wrote her a song. She taught me violin on this very street.'},{who:'Lily',text:'A gust took the pages. I saw two blow toward the park and the beach. Please, I can’t play it from memory yet.'}]},
+   {l:'Find a page in Esplanade Park',at:'pc:esplanade',say:['Kip: A page, caught on a Norfolk pine. The title says “For Nanna, who taught my hands to sing.”']},
+   {l:'Find the last page at Bathers Beach',at:'pc:bathers',say:['Kip: The last page, weighed down by a shell, damp but readable. Someone drew a little heart on the corner.']},
+   {l:'Bring the pages back to Lily',at:'pc:strip',say:[{who:'Lily',text:'All of them! Stay and listen?'},'Lily plays. A crowd gathers. An old woman in the front row is crying and smiling at the same time.',{who:'Nanna',text:'That’s my girl.'}]}],
+  outro:'Lily now plays the song every Sunday. She calls it “Kip’s Encore”.'},
+ {id:'chiccos',zone:'freo',mood:'funny',title:'Chicco’s Fish Emergency',giver:'Chicco',coins:55,desc:'Chicco’s Fish & Chips has run out of fish. A fish and chip shop. With no fish.',
+  steps:[{l:'Talk to Chicco',at:'pc:chiccos',say:[{who:'Chicco',text:'Kip, it’s a disaster. A bus of eighty tourists and I have chips, chips, more chips, and zero fish.'},{who:'Chicco',text:'I’m selling “chips and chips”. People are confused. Bring me three fish and I’ll name a dish after you.'}]},
+   {l:'Bring Chicco 3 fish from your basket',at:'pc:chiccos',have:{k:'fish',n:3,take:true},say:[{who:'Chicco',text:'FISH! Beautiful fish! Everyone, the special today is the Kip Classic!'},{who:'Chicco',text:'It’s fish and chips. But with a little quokka flag in it.'}]}],
+  outro:'The Kip Classic is now on the menu permanently. The flag costs extra.'},
+ {id:'ghost',zone:'freo',mood:'funny',title:'The Ghost of Fremantle Prison',giver:'The prison guide',coins:60,desc:'Night tours report a ghost: soft footsteps, a ghostly wail, and missing sandwiches.',
+  steps:[{l:'Talk to the prison guide',at:'pc:guide',say:[{who:'Prison guide',text:'Every night after six: footsteps, a wail, and someone’s sandwich vanishes. The tourists love it. I do not.'},{who:'Prison guide',text:'Come back after dark and see for yourself. Bring courage. And maybe a sandwich.'}]},
+   {l:'Visit Fremantle Prison after 6pm',at:'pc:prisonpc',after:1080,say:['Kip: Footsteps… a long, eerie “mrrrrooooow”…','Kip: It’s a cat. A big ginger cat with half a ham sandwich, looking deeply unbothered.','Kip: The collar says “Boo — if found, return to the Round House.”']},
+   {l:'Return Boo to the Round House',at:'pc:roundhouse',say:[{who:'Round House volunteer',text:'BOO! We’ve been looking for you for a week! He likes old buildings. And sandwiches.'},{who:'Round House volunteer',text:'Tell the guide the ghost is retired. Well. Semi-retired.'}]}],
+  outro:'The night tour now ends with “meet the ghost”. Boo charges in head scratches.'},
+ {id:'student',zone:'vp',mood:'funny',title:'The Hungry Uni Student',giver:'Minh, final year student',coins:45,desc:'Minh has an exam tomorrow and has eaten nothing but instant noodles for a week.',
+  steps:[{l:'Talk to Minh at Victoria Park Station',at:'pc:station',say:[{who:'Minh',text:'I’ve had instant noodles for nine meals in a row. I think I’m becoming a noodle. Is that a symptom?'},{who:'Minh',text:'Help me pick a real dinner on Albany Highway? Try a few places and tell me which is best.'}]},
+   {l:'Try 3 dishes along Albany Highway',at:'pc:albany',chk:()=>Object.keys(S.fq||{}).filter(k=>k.startsWith('vp_')).length>=3,say:['Kip: Three dishes in, Kip is very full and has strong opinions. Time to report back.']},
+   {l:'Give Minh your food review',at:'pc:station',say:[{who:'Minh',text:'You ate three dinners for me? That’s the most supportive thing anyone’s done all semester.'},{who:'Minh',text:'If I pass, I’m buying you bubble tea. If I fail, I’m buying you bubble tea and crying.'}]}],
+  outro:'Minh passed. The bubble tea was extra large.'},
+ {id:'mural',zone:'vp',mood:'heart',title:'The Unfinished Mural',giver:'Mia, a street artist',coins:60,desc:'Mia’s mural on Albany Highway shows everyone who makes the street feel like home. One space is still empty.',
+  steps:[{l:'Talk to Mia at the street mural',at:'pc:mural',say:[{who:'Mia',text:'Every face on this wall is someone who made Vic Park home for me. The noodle lady. The bus driver. My first friend here.'},{who:'Mia',text:'There’s one space left. I want someone new to the area. Will you ask around who it should be?'}]},
+   {l:'Ask the busker on Albany Hwy',at:'pc:busker',say:[{who:'Busker',text:'Who’s new and makes this street better? Mate, it’s the little quokka who keeps buying everyone dinner. Obviously.'}]},
+   {l:'Report back to Mia',at:'pc:mural',say:[{who:'Mia',text:'Everyone said the same thing. Hold still…'},'Mia paints for an hour. When she steps back, there’s a small quokka in an apron, smiling, holding a coffee.',{who:'Mia',text:'Welcome home, Kip.'}]}],
+  outro:'Tourists now take selfies next to the mural quokka. Kip pretends not to notice. Kip absolutely notices.'}];
+function sqPos(st){if(Array.isArray(st.at))return{x:st.at[0],z:st.at[1]};const id=String(st.at||'').replace('pc:','');const p=PCS.find(q=>q.id===id);if(!p)return null;let l=[];try{l=p.pos();}catch(e){}if(!l.length)return null;let b=l[0],bd=1e9;l.forEach(q=>{const d=Math.hypot(q[0]-player.x,q[1]-player.z);if(d<bd){bd=d;b=q;}});return{x:b[0],z:b[1]};}
+function sqOpen(q){return q.zone==='island'||!!(S.seenZ&&S.seenZ[q.zone]);}
+function sqStep(q){return(S.sq&&S.sq[q.id])||0;}
+function sqReady(st){if(st.carry&&player.carry!==st.carry)return false;if(st.have&&!((S.inv[st.have.k]||0)>=st.have.n))return false;if(st.after&&S.time<st.after)return false;if(st.chk&&!st.chk())return false;return true;}
+let sqT=0;
+function sqTick(dt){if(VISIT||!running||dlgOpen()||overlay||transit)return;sqT-=dt;if(sqT>0)return;sqT=.4;S.sq=S.sq||{};const z=zoneOf(player.x);
+  for(const q of SIDEQ){if(q.zone!==z||!sqOpen(q))continue;const i=sqStep(q);if(i>=q.steps.length)continue;const st=q.steps[i];const P=sqPos(st);if(!P)continue;if(Math.hypot(P.x-player.x,P.z-player.z)>2.6)continue;
+    if(!sqReady(st)){const k='sqhint_'+q.id+i;if(!sqTick[k]||performance.now()-sqTick[k]>9000){sqTick[k]=performance.now();toast(st.carry?'\u2615 Bring a '+ITEMS[st.carry].name+' from the café counter':st.have?'\u{1F9FA} You need '+st.have.n+' '+(CROPS[st.have.k]?(st.have.n>1?CROPS[st.have.k].plural:CROPS[st.have.k].name):st.have.k)+' in your basket':st.after?'Come back after '+fmtTime(st.after):'Not yet: '+st.l,3);}continue;}
+    if(st.carry)player.carry=null;if(st.have&&st.have.take)S.inv[st.have.k]-=st.have.n;S.sq[q.id]=i+1;save();const fin=i+1>=q.steps.length;
+    const lines=(st.say||[]).slice();if(fin){S.coins+=q.coins;lines.push({who:(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} ')+'Side quest complete',text:q.title+' \u00b7 +'+q.coins+' coins. '+q.outro});if(S.track==='sq_'+q.id)S.track=null;}
+    say(lines);return;}}
+function sqQuests(){return SIDEQ.map(q=>{const i=sqStep(q),done=i>=q.steps.length;return{id:'sq_'+q.id,title:(done?'':(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} '))+'Side \u00b7 '+q.title,giver:q.giver+' \u00b7 '+({island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park'})[q.zone],desc:q.desc,steps:q.steps.map((st,k)=>[st.l,k<i]),reward:q.coins+' coins',open:sqOpen(q)};});}
+function sqTarget(id){const q=SIDEQ.find(x=>x.id===id);if(!q||zoneOf(player.x)!==q.zone)return null;const i=sqStep(q);const st=q.steps[i];if(!st)return null;if(st.carry&&player.carry!==st.carry){const k=STATIONS.find(x=>x.key===st.carry);if(k)return{x:k.x,z:k.z+.9,label:'Make a '+ITEMS[st.carry].name};}const P=sqPos(st);return P?{x:P.x,z:P.z,label:st.l}:null;}
 let snapPending=null;
 function snapPhoto(){if(!running||overlay||transit)return;if(VISIT){toast('Photo saved to your camera roll memories! (postcards only count on your own island)',2.5);const fl=$('#flash');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');return;}const p=pcCandidate();if(!p){toast('Nothing new to photograph here');return;}
   dtInc('photo');S.pc=S.pc||{};S.pc[p.id]=S.day;const n=pcCount();S.coins+=isSpecial(p.cat)?20:5;snapPending=p.id;const fl=$('#flash');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
@@ -3461,7 +3572,7 @@ function applyTime(){const h=clamp(S.time/60,0,24);let i=0;while(i<KEYS.length-2
 
 // ---------- day flow ----------
 function update(dt){if(RIDE){rideTick(dt);}
-  storyTick(dt);if(!dlgOpen()&&!VISIT){const gm=dt*2*(player.lying?5:1);S.time+=gm;stamTick(gm);branchIncomeTick(gm);if(S.time>=1440)newDay();}
+  storyTick(dt);sqTick(dt);if(!dlgOpen()&&!VISIT){const gm=dt*2*(player.lying?5:1);S.time+=gm;stamTick(gm);branchIncomeTick(gm);if(S.time>=1440)newDay();}
   if(phase()==='cafe'&&S.closed&&S.openedDay!==S.day){S.closed=false;S.openedDay=S.day;spawnT=2.5;staff.forEach(st=>{st.job=null;st.state='idle';st.c=null;st.x=st.home[0];st.z=st.home[1];staffIcon(st,null);});toast('7:00 \u00b7 Quokka Cafe is open! The first ferry is on its way.',3);evRoll();setTimeout(evAnnounce,600);}
   if(phase()==='cafe'){FERRY_ARR.forEach((a,i)=>{if(S.time>=a&&!S.waves[i]){S.waves[i]=1;const fam=i===0&&S.familyNext?S.familyNext*3:0;if(fam){S.familyNext=0;toast('Your room guests are back with their whole family!',3);for(let k=0;k<fam;k++)arrivals.push(20+k*2.4);}const fe0=festToday();const n=Math.round((3+(Math.random()*3|0)-(S.wx===2?1:0))*JMULT[S.jetty||0]*(evToday('crowd')?1.8:1)*(fe0&&fe0.id==='swim'?2:fe0&&fe0.where==='island'?1.3:1)*(cafeLv()>=4?1.2:1));for(let k=0;k<n;k++)arrivals.push(k*3.2);popText('Ferry in!',{x:-18,y:2.2,z:5.4});bizWave(n);}});
     if((S.jetty||0)>=4&&S.time>=600&&!S.waves.ship){S.waves.ship=1;for(let k=0;k<12;k++)arrivals.push(4+k*2.2);bizWave(12);toast('The Spirit of the Indian Ocean has docked! A big crowd is coming.'+(S.pc&&S.pc.ship?'':' \u{1F4F7} Snap it from Main Jetty for a postcard!'),4);}
