@@ -2832,7 +2832,9 @@ function unstuck(){RIDE=null;if(CINE)endCine();transit=false;fadeTarget=0;player
    BUILD 'web'  : Rottnest, South Perth, Heirisson free; Fremantle + Vic Park need a Perth Pass code (Payhip / itch.io).
    BUILD 'full' : everything unlocked (paid itch.io download, Google Play paid app). */
 const BUILD='web';
-const PASS_LINKS={itch:'',payhip:''};const PASS_PRICE='A$6.99';
+const PASS_LINKS={payhip:'',itch:''};const PASS_PRICE='A$4.99';
+function passBuyUrl(){return PASS_LINKS.payhip||PASS_LINKS.itch||'';}
+function goBuyPass(){const u=passBuyUrl();if(!u){$('#psMsg').textContent='The Perth Pass shop opens soon. Check back in a few days!';$('#psMsg').className='psMsg bad';return false;}try{const w=window.open(u,'_blank','noopener');if(!w)location.href=u;}catch(e){location.href=u;}return true;}
 const PC_AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function pcSum(body){let h=2166136261;const t='wadjemup|'+body;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return PC_AB[h%32]+PC_AB[(h>>>5)%32];}
 function passCodeOk(raw){const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!/^QCP[A-Z0-9]{10}$/.test(c))return false;const body=c.slice(3,11);if([...body].some(ch=>!PC_AB.includes(ch)))return false;return pcSum(body)===c.slice(11);}
@@ -2840,10 +2842,10 @@ function hasPass(){if(BUILD==='full')return true;if(S&&S.pass)return true;try{re
 let passFor=null;
 function openPass(where){if(VISIT)return;passFor=where||null;hideOverlays();const own=hasPass();$('#psTitle').textContent=own?'Perth Pass \u2713':(where==='freo'?'Fremantle needs the Perth Pass':where==='vp'?'Victoria Park needs the Perth Pass':'Unlock Fremantle & Victoria Park');
   $('#psSub').textContent=own?'You own the Perth Pass. Fremantle and Victoria Park are open on this device. Thanks for supporting Quokka Caf\u00e9!':'Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass ('+PASS_PRICE+', one-time) opens the last two towns for good.';
-  const B=$('#psBuy');B.innerHTML='';[['itch','Buy on itch.io'],['payhip','Buy on Payhip']].forEach(([k,t])=>{if(!PASS_LINKS[k]||own)return;const a=document.createElement('a');a.className='btn';a.href=PASS_LINKS[k];a.target='_blank';a.rel='noopener';a.textContent=t;B.appendChild(a);});
-  if(!own&&!B.children.length){const sp=document.createElement('span');sp.className='bgE';sp.textContent='Store links coming soon.';B.appendChild(sp);}
+  const B=$('#psBuy');B.innerHTML='';if(!own){const a=document.createElement('button');a.type='button';a.className='btn';a.id='psBuyBtn';a.textContent='Buy Perth Pass \u00b7 '+PASS_PRICE;a.onclick=goBuyPass;B.appendChild(a);}
+  
   $('#psInput').value='';$('#psMsg').textContent='';$('#psMsg').className='psMsg';$('#psInput').closest('label').hidden=own;$('#psRedeem').hidden=own;showOverlay('pass');}
-function redeemPass(){const v=$('#psInput').value;const m=$('#psMsg');if(!passCodeOk(v)){m.textContent='That code doesn\u2019t look right. Check the letters and try again.';m.className='psMsg bad';return;}
+function redeemPass(){const v=$('#psInput').value;const m=$('#psMsg');if(!passCodeOk(v)){const opened=goBuyPass();if(opened){m.textContent=(v.trim()?'That code isn\u2019t valid. ':'')+'Opening the Perth Pass shop ('+PASS_PRICE+'). Your code arrives by email after you pay.';m.className='psMsg bad';}return;}
   S.pass=true;try{localStorage.setItem('qc-perth-pass','1');}catch(e){}save();m.textContent='Perth Pass unlocked! Fremantle and Victoria Park are open.';m.className='psMsg ok';$('#passBtn').textContent='Perth Pass \u2713';
   setTimeout(()=>{hideOverlays();toast('\u{1F39F} Perth Pass unlocked \u00b7 Fremantle & Victoria Park are open',3.5);},900);}
 function needPass(where){if(hasPass())return false;openPass(where);return true;}
