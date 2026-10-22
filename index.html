@@ -2019,6 +2019,7 @@ function qflag(k){S.qg=S.qg||{};if(!S.qg[k]){S.qg[k]=1;save();}}
 function QUESTS(){const g=S.qg||{};return[
  {id:'main',title:'Bring Mum & Dad to Wadjemup',giver:'Kip’s own goal',desc:'Kip left home to open a little café on Rottnest. Save enough coins to build a spare room and buy two ferry tickets, so Mum and Dad can move to the island and help run the café.',
   steps:[['Open Quokka Cafe each morning and serve tourists to earn coins',(S.servedTotal||0)>0],['Build the spare room for Mum & Dad (Wishlist · 120 coins)',!!S.wish.room],['Buy two ferry tickets (Wishlist · 150 coins)',!!S.wish.tickets]],reward:'Mum and Dad move in and help at the café every day',open:true},
+ ...storyQuests(),
  {id:'shells',title:'Nana Wren’s lost shells',giver:'From Nana Wren · beside Wadjemup Lighthouse',desc:'The morning tide carried off Nana Wren’s shell collection. Three shells washed up on East Beach. They only show up after the café closes at 4pm.',
   steps:[['Talk to Nana Wren by the lighthouse after 16:00',S.quest>=1],['Find shell 1 on East Beach',!!S.shells[0]],['Find shell 2 on East Beach',!!S.shells[1]],['Find shell 3 on East Beach',!!S.shells[2]],['Bring all three shells back to Nana Wren',S.quest>=2]],reward:'30 coins',open:true},
  {id:'lore',title:'Stories of Wadjemup',giver:'From the island',desc:'Three carved stones around the island each hold a piece of its history. Look for the glowing sparkle above them.',
@@ -2067,6 +2068,7 @@ function trackTarget(id){const near=list=>{let b=null,bd=1e9;list.forEach(o=>{co
   if(id==='friends'){const z=zoneOf(player.x);const f=FRIENDS.filter(q=>q.zone===z&&fr(q.id).chat!==S.day)[0];if(!f)return null;const p=f.pos();return{x:p[0],z:p[1],label:'Chat with '+f.name};}
   if(id==='pantry'){const lo=lowStock();return lo&&zoneOf(player.x)==='island'?{x:GSTORE.x,z:GSTORE.z+1.9,label:'Buy '+STOCK_INFO[lo].name.toLowerCase()+' at the General Store'}:null;}
   if(id==='postcards')return nearestPostcard();
+  if(id.startsWith('story_'))return storyTarget(id.slice(6));
   if(id==='vpfood'){if(zoneOf(player.x)!=='vp')return null;const left=VP_SHOPS.filter(sh=>sh.dish&&!(S.fq&&S.fq['vp_'+sh.id]));if(!left.length)return null;let b=left[0],bd=1e9;left.forEach(sh=>{const d=Math.hypot(sh.npc.x-player.x,sh.npc.z-player.z);if(d<bd){bd=d;b=sh;}});return{x:b.npc.x,z:b.npc.z,label:b.dish+' at '+b.name};}
   if(id==='lore'){const l=LORE.filter((L,i)=>!S.lore[i]);if(l.length){const L=near(l);return{x:L.x,z:L.z+.55,label:'Lore stone: '+L.title};}return null;}
   if(id==='garden'){const rdy=S.plots.findIndex(p=>p&&p.g>=CROPS[p.k].days);if(rdy>=0)return{x:PLOTS[rdy].x,z:PLOTS[rdy].z+1.05,label:'Harvest '+CROPS[S.plots[rdy].k].name};
@@ -2142,9 +2144,9 @@ function renderShop(){const sh=SHOPS[shopSel];$('#shEyebrow').textContent=sh.who
     b.addEventListener('click',()=>{if(S.coins<it.price)return;S.coins-=it.price;S.buffs=S.buffs||{};S.unlock=S.unlock||{};it.buy();save();renderShop();toast('Bought: '+it.name);});L.appendChild(d);});}
 
 const PROP_LIST=[
- {id:'apt',name:'Apartment 21B, Mill Point Towers',price:4000,rent:60,x:161,z:18,desc:'A two-bedroom apartment high in the glass towers on Mill Point Road, with river and city views.'},
- {id:'house',name:'Federation bungalow, Mill Point Road',price:5000,rent:80,x:132.2,z:17.8,desc:'A classic 1920s South Perth bungalow with a front veranda and a picket fence.'},
- {id:'river',name:'Riverfront house, South Perth foreshore',price:12000,rent:180,x:121,z:2.7,desc:'A modern glass house on the Swan River with its own little jetty and city views.'}];
+ {id:'apt',name:'Apartment 21B, Mill Point Towers',price:40000,rent:60,x:161,z:18,desc:'A two-bedroom apartment high in the glass towers on Mill Point Road, with river and city views.'},
+ {id:'house',name:'Federation bungalow, Mill Point Road',price:50000,rent:80,x:132.2,z:17.8,desc:'A classic 1920s South Perth bungalow with a front veranda and a picket fence.'},
+ {id:'river',name:'Riverfront house, South Perth foreshore',price:120000,rent:180,x:121,z:2.7,desc:'A modern glass house on the Swan River with its own little jetty and city views.'}];
 const propSigns={};
 function applyProps(){PROP_LIST.forEach(P=>{if(!propSigns[P.id])propSigns[P.id]=forSale(P.x+1.6,P.z-.2,P.price);propSigns[P.id].visible=!propOwned(P.id);});}
 function propOwned(id){return!!(S.props&&S.props[id]);}
@@ -2265,7 +2267,7 @@ const GUIDE_PLACES=[
  ['sp','Swan Seeds Nursery','Tomato, lemon and avocado seeds, plus the garden sprinkler.'],
  ['sp','Mends Street shops','Mends Gelato, Piccolo Trattoria, Swan Home & Living (furniture) and Mends Lane.'],
  ['sp','The Mill Point Hotel and Old Post Office','Heritage buildings at the Mends St and Mill Point Road corner.'],
- ['sp','Homes for sale','Mill Point Towers apartment 4,000, Federation bungalow 5,000, riverfront house 12,000. Rent pays every night; decorate inside.'],
+ ['sp','Homes for sale','Mill Point Towers apartment 40,000, Federation bungalow 50,000, riverfront house 120,000. Rent pays every night; decorate inside.'],
  ['sp','Bus stop, Mill Point Road','Buses to Heirisson Island (15 min) and Victoria Park (30 min).'],
  ['hi','Kangaroo sanctuary','Western grey kangaroos, including a mother with a joey. Great for postcards.'],
  ['hi','Yagan Memorial','Statue honouring the Noongar leader Yagan. Read the plaque.'],
@@ -2311,6 +2313,7 @@ const GUIDE_SYS=[
  ['Homes and rent','Owned homes pay rent every night, plus 2 coins for each piece of furniture placed.'],
  ['Bag','See basket, furniture, seeds, keys and collections. Change outfits.'],
  ['Perth Pass','Rottnest Island, South Perth and Heirisson Island are free. Fremantle and Victoria Park need the Perth Pass: buy it on itch.io or Payhip, then open \u2630 \u2192 Perth Pass and type your code. The full itch.io and Google Play versions include it.'],
+ ['Area stories','Each area has its own story in chapters: Rottnest (3), South Perth (3), Heirisson Island (1), Fremantle (3) and Victoria Park (2). A chapter starts when you arrive and leads you to places, people and activities, mostly by taking their postcards. Open Quests and press Track to follow the red line. Each finished chapter pays coins and opens the next one.'],
  ['Unstuck','If Kip ever gets stuck or can\u2019t move, open \u2630 \u2192 Unstuck. Kip hops to the nearest road sign or bus stop and any stuck ride or dialog is cleared.'],
  ['Saving','The game saves automatically to one of 6 slots. Load another slot from the title screen.'],
  ['Island Code (visit friends online)','\u2630 \u2192 Island Code \u2192 Get my island code. You get a code like QK-4821 and your game backs up to the cloud by itself. Friends type your code to visit the newest version of your island, even when you are offline. While visiting you can \u2661 like the caf\u00e9, \u270e sign the guestbook and \U0001F381 leave a gift. Gifts and notes arrive in Island Code \u2192 Mailbox. Keep your recovery key secret: with it you can restore the island on a new phone. No internet? The Offline code tab still makes a Dream Code to paste.'],
@@ -3031,6 +3034,58 @@ const pcThumbKey=()=>'quokka-cafe-pc-'+SLOT;let pcThumbs={};
 function loadThumbs(){try{pcThumbs=JSON.parse(localStorage.getItem(pcThumbKey())||'{}');}catch(e){pcThumbs={};}}
 function nearestPostcard(){const z=zoneOf(player.x);let best=null,bd=1e9;PCS.forEach(p=>{if(p.zone!==z||(S.pc&&S.pc[p.id]))return;let list;try{list=p.pos();}catch(e){list=[];}list.forEach(([x,y])=>{if(p.r<=1)return;const d=Math.hypot(x-player.x,y-player.z);if(d<bd){bd=d;best={x,z:y,label:'Postcard: '+p.name};}});});return best;}
 function pcCandidate(){const z=zoneOf(player.x);let best=null,bd=1e9;PCS.forEach(p=>{if(p.zone!==z||(S.pc&&S.pc[p.id]))return;let list;try{list=p.pos();}catch(e){list=[];}list.forEach(([x,y])=>{const d=Math.hypot(x-player.x,y-player.z);if(d<=p.r&&d<bd){bd=d;best=p;}});});return best;}
+
+// ---------- Area stories: chapters per area that lead Kip to places, people, activities and postcards ----------
+// step = [label, postcard id] or [label, {check:()=>bool, at:()=>({x,z}) }]
+let _story=null;
+function STORY_DEF(){if(_story)return _story;const g=()=>S.qg||{};const vpDish=()=>VP_SHOPS.filter(sh=>sh.dish).slice(0,4);
+ _story={
+ island:{name:'Rottnest Island',short:'Rottnest',chapters:[
+  {title:'Welcome to Wadjemup',giver:'Gus',intro:'G’day, Kip! Every new islander does the welcome walk. Snap the jetty, your café, a quokka and, well, me. Send the postcards home to Mum and Dad!',outro:'Ha! Now you’re a proper Rottnest local. The lighthouse keepers up the hill have a story for you next.',coins:40,
+   steps:[['Photograph Main Jetty','jetty'],['Open the café and serve your first tourist',{check:()=>(S.servedTotal||0)>0,at:()=>({x:0,z:-1.65,label:'Café counter'})}],['Photograph Quokka Cafe','cafe'],['Find and photograph a wild quokka','quokka'],['Take a photo of Gus the ferry master','gus']]},
+  {title:'Lights on the hill',giver:'Nana Wren',intro:'Tweet! Two lighthouses guard this island, and between them sits a lake as pink as a galah. Walk up there after the café closes and you’ll see.',outro:'You read the old stone too? Then you know Wadjemup is much older than any lighthouse. Off you go west now, the bays are waiting.',coins:60,
+   steps:[['Climb to Wadjemup Lighthouse','wadjemup'],['Photograph the pink salt lake','pinklake'],['Read the Pink lakes stone','lore3'],['Visit Bathurst Lighthouse','bathurst'],['Catch a seagull on camera','gull']]},
+  {title:'Bays of the west end',giver:'Kip’s map',intro:'Kip: The island keeps going west. Swimming bays, an old gun battery and a tiny train. Let’s explore it all.',outro:'Kip: I’ve seen every corner of Wadjemup! Time to take this postcard collection up the Swan River.',coins:80,
+   steps:[['Swim spot: The Basin','basin'],['Ride or walk to Geordie Bay','geordie'],['Snack stop: Geordie Bay Store','geostore'],['Explore Oliver Hill Battery','oliverhill'],['Photograph the Quokka Express train','qexpress'],['Visit Quokka Village','village']]}]},
+ sp:{name:'South Perth',short:'South Perth',chapters:[
+  {title:'Up the Swan River',giver:'Captain Ruth',intro:'Welcome to Mends Street, love. Best view of the city is from right here on the foreshore. Grab a few snaps before you get busy.',outro:'Lovely. Mei at the grocer has been asking about you, go say hi.',coins:40,
+   steps:[['Photograph Mends Street Jetty','mends'],['Take a photo with Captain Ruth','ruthpc'],['Find the Origami Quokka sculpture','origami'],['Photograph the Perth city skyline from the foreshore','skyline']]},
+  {title:'Market morning',giver:'Mei',intro:'Kip! I buy the best produce on the river. Bring me something from your garden, and check out the market and nursery while you’re here.',outro:'Fresh from Rottnest! You’re going to do well here. Have a wander down Mill Point Road some time.',coins:60,
+   steps:[['Photograph Mei at the Swan River Grocer','meipc'],['Sell your garden produce to Mei',{check:()=>!!g().sold,at:()=>({x:mei.x,z:mei.z,label:'Sell produce to Mei'})}],['Visit Swan Market','market'],['Browse Swan Seeds Nursery','seeds'],['Fill up at Mends Servo','servo']]},
+  {title:'A Mill Point stroll',giver:'Kip’s map',intro:'Kip: Purple jacarandas, an old post office and those tall towers. Mill Point Road is worth a slow walk.',outro:'Kip: South Perth done! Next stop: the bus to Heirisson Island.',coins:80,
+   steps:[['Walk Mill Point Road','millpoint'],['Find the Old Post Office','postoffice'],['Photograph The Mill Point Hotel','millhotel'],['Look up at Mill Point Towers','residences'],['Catch a jacaranda in bloom','jacaranda']]}]},
+ hi:{name:'Heirisson Island',short:'Heirisson',chapters:[
+  {title:'Kangaroos in the city',giver:'Sanctuary sign',intro:'Sign: Western grey kangaroos live on this island in the middle of the Swan River. Please walk quietly and keep your distance.',outro:'Kip: A joey peeked out of the pouch! Best day ever. Victoria Park is one more bus stop away.',coins:60,
+   steps:[['Spot a western grey kangaroo','roo'],['Find a joey in the pouch','joey'],['Photograph the black swans','swan'],['Find the Australian pelican','pelican'],['Visit the Yagan Memorial','yagan']]}]},
+ freo:{name:'Fremantle',short:'Freo',chapters:[
+  {title:'The port city',giver:'Skipper Lou',intro:'Welcome to Walyalup, Fremantle! I’ve sailed in here a thousand times. Start with the harbour: the B-Shed, the museum and the Round House on the hill.',outro:'Now you’ve got your sea legs. Go and have a coffee on the strip.',coins:60,
+   steps:[['Photograph B-Shed ferry terminal','bshed'],['Take a photo with Skipper Lou','lou'],['Visit the WA Maritime Museum','museum'],['Climb up to the Round House','roundhouse'],['Walk Bathers Beach','bathers']]},
+  {title:'Cappuccino Strip',giver:'Khun Noi',intro:'Sawasdee ka, Kip! I run Tasty Thai on the strip. Come and eat, then explore the market behind us.',outro:'You’re family here now. The harbour and the old prison have more stories.',coins:80,
+   steps:[['Walk the Cappuccino Strip','strip'],['Coffee at Nino’s','ninos'],['Eat at Tasty Thai Freo','tastythai'],['Take a photo with Khun Noi','noipc'],['Shop at Freo Markets','freomkts']]},
+  {title:'Harbour and history',giver:'Prison guide',intro:'Fremantle Prison is the oldest building of its kind in WA. Before the tour, enjoy the park, the wheel and the best fish and chips in town.',outro:'Tour’s over! You’ve seen the best of Freo, mate.',coins:100,
+   steps:[['Relax at Esplanade Park','esplanade'],['Ride past the Ferris wheel','wheelpc'],['Find the I ♥ FREO sign','ilovefreo'],['Fish and chips at Chicco’s','chiccos'],['Fishing Boat Harbour','fbh'],['Visit Fremantle Prison','prisonpc'],['Take a photo with the prison guide','guide']]}]},
+ vp:{name:'Victoria Park',short:'Vic Park',chapters:[
+  {title:'Welcome to Albany Highway',giver:'Albany Hwy busker',intro:'Hey hey! This strip has food from all over Asia, street art and the train to the city. Have a look around.',outro:'Now you’re hungry, right? Go eat!',coins:60,
+   steps:[['Photograph Albany Highway','albany'],['Take a photo of the busker','busker'],['Find the street mural','mural'],['Visit Victoria Park Station','station']]},
+  {title:'Food street',giver:'Kip’s appetite',intro:'Kip: Pho, BBQ, ramen, bubble tea… I’m going to try them one by one.',outro:'Kip: Best food street in Perth. I’ll bring Mum and Dad here!',coins:80,
+   steps:()=>vpDish().map(sh=>['Eat '+sh.dish+' at '+sh.name,{check:()=>!!(S.fq&&S.fq['vp_'+sh.id]),at:()=>({x:sh.npc.x,z:sh.npc.z,label:sh.dish+' at '+sh.name})}]).concat([['Night market after 5:30pm','nightmkt']])}]}};
+ return _story;}
+const STORY_ORDER=['island','sp','hi','freo','vp'];
+function storyChap(a){const D=STORY_DEF()[a];const n=(S.story&&S.story[a])||0;return n<D.chapters.length?D.chapters[n]:null;}
+function chapSteps(c){return typeof c.steps==='function'?c.steps():c.steps;}
+function stepDone(st){const t=st[1];if(typeof t==='string')return !!(S.pc&&S.pc[t]);try{return !!t.check();}catch(e){return false;}}
+function stepTarget(st){const t=st[1];if(typeof t==='string'){const p=PCS.find(q=>q.id===t);if(!p)return null;let l=[];try{l=p.pos();}catch(e){}if(!l.length)return null;let b=l[0],bd=1e9;l.forEach(q=>{const d=Math.hypot(q[0]-player.x,q[1]-player.z);if(d<bd){bd=d;b=q;}});return{x:b[0],z:b[1],label:'\u{1F4F7} '+p.name};}try{return t.at();}catch(e){return null;}}
+function storyOpen(a){if(a==='island')return true;S.seenZ=S.seenZ||{};return !!S.seenZ[a];}
+let storyT=0;
+function storyTick(dt){if(VISIT||!running||dlgOpen())return;storyT-=dt;if(storyT>0)return;storyT=.6;S.story=S.story||{};S.seenZ=S.seenZ||{};S.storyIntro=S.storyIntro||{};
+  const z=zoneOf(player.x);if(!S.seenZ[z]){S.seenZ[z]=1;save();}
+  const c=storyChap(z);if(c){const key=z+':'+(S.story[z]||0);if(!S.storyIntro[key]&&!overlay&&!transit){S.storyIntro[key]=1;save();const D=STORY_DEF()[z];say([{who:c.giver,text:c.intro},{who:'New chapter',text:D.short+' story · Chapter '+((S.story[z]||0)+1)+': '+c.title+'. Open Quests to track it.'}]);return;}}
+  STORY_ORDER.forEach(a=>{const ch=storyChap(a);if(!ch||!storyOpen(a)||!S.storyIntro[a+':'+(S.story[a]||0)])return;if(chapSteps(ch).every(stepDone)){const D=STORY_DEF()[a];S.story[a]=(S.story[a]||0)+1;S.coins+=ch.coins;save();const nx=storyChap(a);
+    say([{who:ch.giver,text:ch.outro},{who:'Chapter complete',text:D.short+' · '+ch.title+' · +'+ch.coins+' coins'+(nx?'. Next: '+nx.title:'. '+D.name+' story complete!')}]);if(S.track==='story_'+a&&!nx)S.track=null;}});}
+function storyQuests(){return STORY_ORDER.map(a=>{const D=STORY_DEF()[a];const n=(S.story&&S.story[a])||0,tot=D.chapters.length;const c=storyChap(a);
+  if(!c)return{id:'story_'+a,title:D.short+' story · complete',giver:D.name,desc:'Every chapter of the '+D.name+' story is done. Thanks for exploring!',steps:D.chapters.map((ch,i)=>['Chapter '+(i+1)+': '+ch.title,true]),reward:'All chapter rewards collected',open:storyOpen(a)};
+  return{id:'story_'+a,title:D.short+' · Ch '+(n+1)+'/'+tot+': '+c.title,giver:'Story · '+c.giver,desc:c.intro,steps:chapSteps(c).map(st=>[st[0],stepDone(st)]),reward:c.coins+' coins'+(n+1<tot?' and the next chapter':' and the '+D.name+' story is complete'),open:storyOpen(a)};});}
+function storyTarget(a){if(zoneOf(player.x)!==a)return null;const c=storyChap(a);if(!c)return null;const st=chapSteps(c).find(x=>!stepDone(x));return st?stepTarget(st):null;}
 let snapPending=null;
 function snapPhoto(){if(!running||overlay||transit)return;if(VISIT){toast('Photo saved to your camera roll memories! (postcards only count on your own island)',2.5);const fl=$('#flash');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');return;}const p=pcCandidate();if(!p){toast('Nothing new to photograph here');return;}
   dtInc('photo');S.pc=S.pc||{};S.pc[p.id]=S.day;const n=pcCount();S.coins+=isSpecial(p.cat)?20:5;snapPending=p.id;const fl=$('#flash');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');
@@ -3077,7 +3132,7 @@ function talkStar(){const s=star.s;S.stars=S.stars||{};const st=S.stars[s.id]||0
   say([{who:s.name,text:'Best café in Australia. I’m telling all my fans!'}]);}
 // ---------- tracked-quest banner ----------
 let trackT=0;
-function updateTrackBar(dt){trackT-=dt;if(trackT>0)return;trackT=.3;const el=$('#trackBar');if(!running||overlay==='title'){el.hidden=true;return;}
+function updateTrackBar(dt){trackT-=dt;if(trackT>0)return;trackT=.3;const el=$('#trackBar');{const op=document.querySelector('.right.open');let top='';if(op&&innerWidth>900){let mb=0;op.querySelectorAll('.hudBtn').forEach(e=>{if(e.offsetParent===null)return;const q=e.getBoundingClientRect();if(q.width&&q.top<innerHeight*.45)mb=Math.max(mb,q.bottom);});if(mb)top=(mb+10)+'px';}if(el.style.top!==top)el.style.top=top;}if(!running||overlay==='title'){el.hidden=true;return;}
   const q=QUESTS().find(x=>x.id===S.track&&x.open);if(!q){el.hidden=true;return;}const nx=q.steps.find(x=>!x[1]);el.hidden=false;$('#tbTitle').textContent=q.title;
   const tg=curQuest;const d=tg?Math.round(Math.hypot(tg.x-player.x,tg.z-player.z)*10):null;$('#tbStep').textContent=(nx?nx[0]:'All steps done — reward unlocked!')+(tg&&d!=null?' · '+d+' m':'');}
 // ---------- Perth overview map ----------
@@ -3232,7 +3287,7 @@ function applyTime(){const h=clamp(S.time/60,0,24);let i=0;while(i<KEYS.length-2
 
 // ---------- day flow ----------
 function update(dt){if(RIDE){rideTick(dt);}
-  if(!dlgOpen()&&!VISIT){const gm=dt*2*(player.lying?5:1);S.time+=gm;stamTick(gm);branchIncomeTick(gm);if(S.time>=1440)newDay();}
+  storyTick(dt);if(!dlgOpen()&&!VISIT){const gm=dt*2*(player.lying?5:1);S.time+=gm;stamTick(gm);branchIncomeTick(gm);if(S.time>=1440)newDay();}
   if(phase()==='cafe'&&S.closed&&S.openedDay!==S.day){S.closed=false;S.openedDay=S.day;spawnT=2.5;staff.forEach(st=>{st.job=null;st.state='idle';st.c=null;st.x=st.home[0];st.z=st.home[1];staffIcon(st,null);});toast('7:00 \u00b7 Quokka Cafe is open! The first ferry is on its way.',3);}
   if(phase()==='cafe'){FERRY_ARR.forEach((a,i)=>{if(S.time>=a&&!S.waves[i]){S.waves[i]=1;const fam=i===0&&S.familyNext?S.familyNext*3:0;if(fam){S.familyNext=0;toast('Your room guests are back with their whole family!',3);for(let k=0;k<fam;k++)arrivals.push(20+k*2.4);}const fe0=festToday();const n=Math.round((3+(Math.random()*3|0)-(S.wx===2?1:0))*JMULT[S.jetty||0]*(fe0&&fe0.id==='swim'?2:fe0&&fe0.where==='island'?1.3:1)*(cafeLv()>=4?1.2:1));for(let k=0;k<n;k++)arrivals.push(k*3.2);popText('Ferry in!',{x:-18,y:2.2,z:5.4});bizWave(n);}});
     if((S.jetty||0)>=4&&S.time>=600&&!S.waves.ship){S.waves.ship=1;for(let k=0;k<12;k++)arrivals.push(4+k*2.2);bizWave(12);toast('The Spirit of the Indian Ocean has docked! A big crowd is coming.',3.4);}
