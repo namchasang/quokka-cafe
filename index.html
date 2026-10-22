@@ -2087,8 +2087,8 @@ function QUESTS(){const g=S.qg||{};return[
   steps:LORE.map((L,i)=>['Read the '+L.title+' stone',!!S.lore[i]]),reward:'5 coins per stone',open:true},
  {id:'biz',title:'Island entrepreneur',giver:'Kip\u2019s next goal',desc:'Rottnest has no private cars, and visitors explore by bike and love an ice cream at the beach. Buy the lots near the jetty and the beach and earn from every ferry wave. Visit each business to collect its till.',
   steps:[['Buy Kip\u2019s Pedal Hire (lot by the jetty \u00b7 150 coins)',!!(S.biz&&S.biz.bikes&&S.biz.bikes.own)],['Buy Rotto Scoops (lot near the beach \u00b7 200 coins)',!!(S.biz&&S.biz.ice&&S.biz.ice.own)],['Stock Rotto Scoops with garden strawberries or nectarines',!!(S.qg&&S.qg.stocked)],['Earn 100 coins from your businesses',BIZ.reduce((a,b)=>a+((S.biz&&S.biz[b.id]&&S.biz[b.id].total)||0),0)>=100]],reward:'More island businesses unlock (next update)',open:true},
- {id:'freo',title:'The road to Fremantle',giver:'Gus \u00b7 Main Jetty',desc:'Fremantle is the second half of Kip\u2019s story. Upgrade Main Jetty to the deep-water cruise berth, then start your own ferry company on the Fremantle\u2013Rottnest route.',
-  steps:[['Upgrade Main Jetty step by step at the harbour board (level '+Math.min(4,S.jetty||0)+'/4)',(S.jetty||0)>=4],['Start Kip\u2019s Ferry Co. at the harbour board (1,500 coins)',!!(S.ferryco&&S.ferryco.own)]],reward:'The ferry route to Fremantle opens, plus 3 coins per ferry passenger',open:true},
+ {id:'freo',title:'The road to Fremantle',giver:'Gus \u00b7 Main Jetty',desc:'Fremantle is the second half of Kip\u2019s story. Upgrade Main Jetty to level 3 (Berth 4), then start your own ferry company on the Fremantle\u2013Rottnest route.',
+  steps:[['Upgrade Main Jetty step by step at the harbour board (level '+Math.min(3,S.jetty||0)+'/3)',(S.jetty||0)>=3],['Start Kip\u2019s Ferry Co. at the harbour board (1,500 coins)',!!(S.ferryco&&S.ferryco.own)]],reward:'The ferry route to Fremantle opens, plus 3 coins per ferry passenger',open:true},
  {id:'freoday',title:'A day out in Freo',giver:'Kip\u2019s list for Mum & Dad',desc:'Fremantle\u2019s famous spots, one by one. Some shops also sell recipes you can take home to the caf\u00e9 menu.',
   steps:FREO_STOPS.map(f=>[f.label,!!(S.fq&&S.fq[f.id])]),reward:'New caf\u00e9 recipes to buy, and Mum and Dad\u2019s best day ever',open:freoUnlocked()||!!(S.fq&&S.fq.arrived)},
  {id:'star',title:star?'Star guest: '+star.s.name:'Star guests',giver:star?star.s.name+' · '+star.s.role+' from '+star.s.from:'Celebrities on holiday',desc:'Famous visitors from Australia, China, Korea, England and the USA sometimes drop into the café, dressed to stand out. Look for the gold star. Help them out and take a photo together for a special Star postcard.',
@@ -2188,7 +2188,7 @@ const SHOPS={
   {id:'j2',name:'Level 2 \u00b7 Longer jetty, shelter and berth 3',price:5000,desc:'Three ferries per wave. About 80% more tourists.',need:()=>(S.jetty||0)>=1?'':'Build level 1 first',own:()=>(S.jetty||0)>=2,buy:()=>{S.jetty=2;applyJetty();}},
   {id:'j3',name:'Level 3 \u00b7 Berth 4',price:15000,desc:'Four ferries per wave. More than double the tourists.',need:()=>(S.jetty||0)>=2?'':'Build level 2 first',own:()=>(S.jetty||0)>=3,buy:()=>{S.jetty=3;applyJetty();}},
   {id:'j4',name:'Level 4 \u00b7 Deep-water cruise berth',price:30000,desc:'The big cruise ferry Spirit of the Indian Ocean docks at 10:00 every morning with 12 extra visitors, on top of 2.5\u00d7 ferry waves.',need:()=>(S.jetty||0)>=3?'':'Build level 3 first',own:()=>(S.jetty||0)>=4,buy:()=>{S.jetty=4;applyJetty();}},
-  {id:'ferryco',name:'Start Kip\u2019s Ferry Co. \u00b7 Fremantle \u2194 Rottnest',price:1500,desc:'Your own ferry company on the Fremantle route. Every ferry wave pays you 3 coins per passenger, and the Fremantle map opens for Kip.',need:()=>(S.jetty||0)>=4?'':'Upgrade Main Jetty to level 4 first',own:()=>!!(S.ferryco&&S.ferryco.own),buy:()=>{S.ferryco={own:true,total:0};applyFerryCo();setTimeout(()=>say([{who:'Gus',text:'Kip\u2019s Ferry Co.! Your own boats on the Fremantle run. The whole of Freo is waiting, mate.'},{who:'',text:'\u2728 Fremantle is now unlocked. Sail from the end of Main Jetty.'}]),400);}}]},
+  {id:'ferryco',name:'Start Kip\u2019s Ferry Co. \u00b7 Fremantle \u2194 Rottnest',price:1500,desc:'Your own ferry company on the Fremantle route. Every ferry wave pays you 3 coins per passenger, and the Fremantle map opens for Kip.',need:()=>(S.jetty||0)>=3?'':'Upgrade Main Jetty to level 3 first',own:()=>!!(S.ferryco&&S.ferryco.own),buy:()=>{S.ferryco={own:true,total:0};applyFerryCo();setTimeout(()=>say([{who:'Gus',text:'Kip\u2019s Ferry Co.! Your own boats on the Fremantle run. The whole of Freo is waiting, mate.'},{who:'',text:'\u2728 Fremantle is now unlocked. Sail from the end of Main Jetty.'}]),400);}}]},
  seeds:{name:'Swan Seeds Nursery',who:'Ollie',desc:'Seeds and seedlings for Perth gardens. New crops can then be planted in your garden beds.',items:[
   {id:'u_tom',name:'Cherry tomato seeds',price:30,desc:'Unlocks cherry tomatoes: ready in 1 day, 5 per harvest.',own:()=>!!(S.unlock&&S.unlock.u_tom),buy:()=>{S.unlock.u_tom=1;}},
   {id:'u_lemon',name:'Lemon tree seedling',price:50,desc:'Unlocks lemons: ready in 3 days, 6 per harvest.',own:()=>!!(S.unlock&&S.unlock.u_lemon),buy:()=>{S.unlock.u_lemon=1;}},
@@ -2337,7 +2337,7 @@ const GUIDE_PLACES=[
  ['vp','Asia Mart','Chilli, lemongrass, bok choy and dragon fruit seeds.'],
  ['vp','Kmax','Aprons, beanies, scarves; Kmax Home & Electricals sells TVs, fridges and more.'],
  ['vp','Night market and station','Stalls light up from 17:30. Trains pass Victoria Park Station.'],
- ['freo','Fremantle (unlocks later)','Upgrade Main Jetty to level 4, then start Kip\u2019s Ferry Co. at the harbour board.'],
+ ['freo','Fremantle (unlocks later)','Upgrade Main Jetty to level 3, then start Kip\u2019s Ferry Co. at the harbour board.'],
  ['freo','Cappuccino Strip, Freo Markets, Fishing Boat Harbour','Cafés, fish & chips, Tasty Thai, the market (seeds, vintage furniture, hats).'],
  ['freo','Round House, Prison, Esplanade, ferris wheel','Landmarks for the “A day out in Freo” quest and postcards.']];
 const GUIDE_NPCS=[
@@ -2575,7 +2575,7 @@ const UNLOCKS=[
  {id:'stars',name:'Celebrity guests',how:'Bring Mum & Dad to Wadjemup',ok:()=>!!(S.wish&&S.wish.tickets),mail:['Kip’s notebook','Mum says the café is in the newspaper! Famous people might start visiting. Look for the gold star.']},
  {id:'coach',name:'Quokka Coach island bus',how:'Reach day 3',ok:()=>S.day>=3,mail:['Rottnest Island Authority','The Quokka Coach now loops the whole island: Settlement, The Basin, the lighthouse, Geordie Bay, Little Salmon Bay and the West End. Look for the blue BUS signs.']},
  {id:'train',name:'Quokka Express train',how:'Ride the Quokka Coach once',ok:()=>!!(S.qg&&(S.qg.coach_geordie||S.qg.coach_salmon||S.qg.coach_west||S.qg.coach_basin||S.qg.coach_light||S.qg.coach_settle)),mail:['Quokka Express','The little train now runs from Settlement Station to Oliver Hill, with a tour of the old gun battery.']},
- {id:'freo',name:'Fremantle',how:'Upgrade Main Jetty to level 4 and start Kip\u2019s Ferry Co.',ok:()=>typeof freoUnlocked==='function'&&freoUnlocked()}];
+ {id:'freo',name:'Fremantle',how:'Upgrade Main Jetty to level 3 and start Kip\u2019s Ferry Co.',ok:()=>typeof freoUnlocked==='function'&&freoUnlocked()}];
 function unlocked(id){if(isGM())return true;const u=UNLOCKS.find(q=>q.id===id);return!u||u.ok();}
 let unlT=0;function unlockTick(dt){unlT-=dt;if(unlT>0||!running||VISIT)return;unlT=1.5;S.unl=S.unl||{};UNLOCKS.forEach(u=>{if(!S.unl[u.id]&&u.ok()){S.unl[u.id]=S.day;if(u.mail){S.mail=S.mail||[];S.mail.unshift({day:S.day,from:u.mail[0],text:u.mail[1],coins:u.mail[2]||0,read:false,got:false});}save();setTimeout(()=>toast('✨ New: '+u.name+'! Check your mailbox.',4),300);syncDayVisuals&&syncDayVisuals();}});}
 
@@ -2796,7 +2796,7 @@ const BRANCHES=[
  {id:'geordie',name:'Geordie Bay',zone:'island',x:71.6,z:-3.4,ry:0,price:900,base:5,lock:()=>unlocked('coach'),lockTxt:'Ride the Quokka Coach (from day 3)',blurb:'A seaside kiosk for cyclists and holiday-house families on the north coast.'},
  {id:'sp',name:'South Perth',zone:'sp',x:127,z:4.6,ry:0,price:1500,base:8,lock:()=>true,lockTxt:'',blurb:'A riverside café on the foreshore with views of the city skyline.'},
  {id:'vp',name:'Victoria Park',zone:'vp',x:556,z:5.4,ry:Math.PI,price:1800,base:9,lock:()=>unlocked('bus'),lockTxt:'Sell produce to Mei to unlock the bus',blurb:'A busy corner café at the end of the Albany Highway food strip.'},
- {id:'freo',name:'Fremantle',zone:'freo',x:320.5,z:-7.2,ry:0,price:2500,base:12,lock:()=>freoUnlocked(),lockTxt:'Unlock Fremantle (harbour Lv4 + Kip’s Ferry Co.)',blurb:'A heritage café near the old town, packed with weekend market crowds.'}];
+ {id:'freo',name:'Fremantle',zone:'freo',x:320.5,z:-7.2,ry:0,price:2500,base:12,lock:()=>freoUnlocked(),lockTxt:'Unlock Fremantle (harbour Lv3 + Kip’s Ferry Co.)',blurb:'A heritage café near the old town, packed with weekend market crowds.'}];
 const BR_UP=[0,500,1000,1600],BR_MULT=[0,1,1.6,2.4,3.4];
 const BR_COL={classic:['#7fb3ad','#e2584f','#f6ead2'],cottage:['#efe6d2','#c8a058','#e0bc70'],riviera:['#f0c4a0','#1d3a6e','#ffffff'],ryokan:['#4a3426','#3a3e48','#d8342a'],mykonos:['#f8f8f4','#1f5fae','#ffffff']};
 const brMeshes={};
@@ -2972,7 +2972,7 @@ const FB={x1:250,x2:353,z1:-19.5,z2:21.5};
 function freoWalk(x,z){if(x>286.9&&x<289.1&&z>-19&&z<=-14.4)return true;if(x<274.5||x>333.5||z<-14.4||z>21.6)return false;if(x<292&&z>14.1)return false;return true;}
 const ferrySign=(()=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(2.4,.5),new THREE.MeshBasicMaterial({map:makeSign(["KIP'S FERRY CO."],72,14,'#1d3a6e','#ffd34d'),side:THREE.DoubleSide}));m.position.set(-15,2.3,4.1);m.visible=false;scene.add(m);[-16.1,-13.9].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,2.3,6),legMat);p.position.set(x,1.15,4.1);p.visible=false;scene.add(p);m.userData[x]=p;});return m;})();
 function applyFerryCo(){const on=!!(S.ferryco&&S.ferryco.own);ferrySign.visible=on;Object.values(ferrySign.userData).forEach(p=>p.visible=on);}
-function freoUnlocked(){return isGM()||(S.jetty||0)>=4&&!!(S.ferryco&&S.ferryco.own);}
+function freoUnlocked(){return isGM()||(S.jetty||0)>=3&&!!(S.ferryco&&S.ferryco.own);}
 const FREO_STOPS=[
  {id:'capp',label:'Cappuccino at Nino’s',x:302.2,z:10},{id:'fishchips',label:'Fish & chips at Chicco’s',x:295.4,z:17.4},{id:'padthai',label:'Pad Thai at Tasty Thai Freo',x:308.6,z:11},
  {id:'souvenir',label:'Souvenir from Freo Markets',x:309.5,z:19},{id:'gift',label:'Gift for Mum & Dad at YOLO Freo',x:312.8,z:-10},{id:'prison',label:'Fremantle Prison tour',x:325,z:12.6},
@@ -3284,7 +3284,7 @@ function renderPerthMap(c){const x=c.getContext('2d'),W=c.width,H=c.height;x.ima
   x.font='800 '+Math.round(9*2.6)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=8;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',16,26);x.fillStyle='#ffd34d';x.fillText('N↑',16,26);
   x.textAlign='left';x.textBaseline='alphabetic';x.font='700 26px "M PLUS Rounded 1c", sans-serif';x.lineWidth=6;[['- - -  Ferry','#f5ecd8',28],['━━  Bus','#3ec46a',210],['●  You are here','#ffd34d',360]].forEach(([t,col,px])=>{x.strokeText(t,px,532);x.fillStyle=col;x.fillText(t,px,532);});x.textAlign='right';x.fillStyle='#f5ecd8';x.strokeText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);x.fillText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);}
 function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park'}[id];if(zoneOf(player.x)===id)return{ok:false,why:'You are already in '+nm+'.',nm};
-  if(id==='freo'&&!freoUnlocked())return{ok:false,why:'Fremantle is still locked: upgrade Main Jetty to Lv4 and start Kip\u2019s Ferry Co.',nm};
+  if(id==='freo'&&!freoUnlocked())return{ok:false,why:'Fremantle is still locked: upgrade Main Jetty to Lv3 and start Kip\u2019s Ferry Co.',nm};
   if(!isGM()&&id!=='island'&&!(S.seenZ&&S.seenZ[id]))return{ok:false,why:'Visit '+nm+' once by ferry or bus before you can fast travel there.',nm};
   return{ok:true,nm};}
 function ftSelect(id){ftSel=id;const c=ftCheck(id);const h=$('#ftHint'),g=$('#ftGo');h.hidden=false;g.hidden=!c.ok;if(c.ok){h.textContent='\u2708 Fast travel to '+c.nm+' for '+FT_COST+' coins? (you have '+S.coins+')';g.textContent='Fast travel \u00b7 '+FT_COST+' coins';g.disabled=S.coins<FT_COST;}else h.textContent=c.why;renderPerthMap($('#bigMap'));}
