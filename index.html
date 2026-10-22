@@ -2870,7 +2870,7 @@ function unstuck(){RIDE=null;if(CINE)endCine();transit=false;fadeTarget=0;player
    BUILD 'web'  : Rottnest, South Perth, Heirisson free; Fremantle + Vic Park need a Perth Pass code (Payhip / itch.io).
    BUILD 'full' : everything unlocked (paid itch.io download, Google Play paid app). */
 const BUILD='web';
-const PASS_LINKS={payhip:'',itch:''};const PASS_PRICE='A$4.99';
+const PASS_LINKS={payhip:'https://payhip.com/b/moA03',itch:''};const PASS_PRICE='A$4.99';
 function passBuyUrl(){return PASS_LINKS.payhip||PASS_LINKS.itch||'';}
 function goBuyPass(){const u=passBuyUrl();if(!u){$('#psMsg').textContent='The Perth Pass shop opens soon. Check back in a few days!';$('#psMsg').className='psMsg bad';return false;}try{const w=window.open(u,'_blank','noopener');if(!w)location.href=u;}catch(e){location.href=u;}return true;}
 const PC_AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
