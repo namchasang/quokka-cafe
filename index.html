@@ -323,6 +323,7 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
 #gmOv .gmTp{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:6px}
 #gmBtn{color:#ffd34d!important}
 #gmBtn[hidden]{display:none!important}
+.pcHint{color:#f0c86e!important;font-size:10.5px!important;line-height:1.3;margin-top:2px}
 </style>
 
 <div id="app">
@@ -3202,8 +3203,14 @@ function renderAlbum(){const got=S.pc||{};$('#alCount').textContent=pcCount()+' 
   const G=$('#alGrid');G.innerHTML='';const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park'};
   PCS.forEach((p,i)=>{if(pcFilter!=='all'&&p.cat!==pcFilter)return;const has=!!got[p.id];const d=document.createElement('div');d.className='pc'+(has?'':' miss');d.style.setProperty('--c',PCAT[p.cat].col);
     const ph=document.createElement('div');ph.className='ph';if(has&&pcThumbs[p.id]){const im=document.createElement('img');im.src=pcThumbs[p.id];im.alt=p.name;ph.appendChild(im);}else ph.textContent=has?'✓':'?';
-    const nm=document.createElement('div');nm.className='nm';nm.textContent=has?p.name:'#'+(i+1);const zz=document.createElement('div');zz.className='zn';zz.textContent=zn[p.zone];d.append(ph,nm,zz);if(!has&&PC_HINTS[p.id]){const hn=document.createElement('div');hn.className='zn';hn.style.color='#f0c86e';hn.textContent='Hint: '+PC_HINTS[p.id];d.appendChild(hn);}G.appendChild(d);});}
-const PC_HINTS={ship:'Spirit of the Indian Ocean \u00b7 upgrade Main Jetty to Lv4, it docks 9:45\u201312:15 (not on rainy days)',sunset:'Main Jetty around 6:30pm',plankton:'Walk the shore at night',fireflies:'Out and about late at night',ferry:'Any ferry at the jetty',nightmkt:'Albany Hwy after 5:30pm'};
+    const nm=document.createElement('div');nm.className='nm';nm.textContent=has?p.name:'#'+(i+1);const zz=document.createElement('div');zz.className='zn';zz.textContent=zn[p.zone];d.append(ph,nm,zz);if(!has){const hn=document.createElement('div');hn.className='zn pcHint';hn.textContent='Hint: '+pcHint(p);d.appendChild(hn);}G.appendChild(d);});}
+const PC_FEST={f_swim:'swim',f_lny:'lny',f_whale:'whales',f_fireworks:'fireworks',f_quokkaday:'quokkaday',f_wild:'wildflower',f_arts:'streetarts'};
+const PC_TIP={place:'a landmark, stand close and tap Photo',animal:'wanders around, keep an eye out while exploring',people:'a local, walk up close and tap Photo',food:'a shop or food stop, photograph it from outside'};
+function pcHint(p){if(PC_HINTS[p.id])return PC_HINTS[p.id];const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park'}[p.zone];
+  if(p.cat==='festival'){const f=FESTIVALS.find(q=>q.id===PC_FEST[p.id]);return f?p.name+' \u00b7 only during '+f.name+' ('+SEASONS[f.s].n+' '+f.d+(f.len?'\u2013'+(f.d+f.len-1):'')+') in '+zn:p.name+' \u00b7 festival day';}
+  if(p.cat==='star')return p.name+' \u00b7 a star guest who visits the caf\u00e9 sometimes. Help them, then take a photo together';
+  return p.name+' \u00b7 '+(PC_TIP[p.cat]||'take a photo');}
+const PC_HINTS={gull:'Seagull \u00b7 often over the jetty and beaches',quokka:'Wild quokka \u00b7 they hop around the bush and paths',wren:'Nana Wren \u00b7 beside Wadjemup Lighthouse',mum:'Mum \u00b7 at the caf\u00e9 once she moves to the island (Ferry tickets on the Wishlist)',dad:'Dad \u00b7 at the caf\u00e9 till once he moves to the island',skyline:'Perth city skyline \u00b7 South Perth foreshore, look north across the river',jacaranda:'Jacaranda in bloom \u00b7 the purple trees in South Perth',roo:'Western grey kangaroo \u00b7 Heirisson Island sanctuary',joey:'Joey in the pouch \u00b7 look closely at the kangaroos on Heirisson Island',swan:'Black swans \u00b7 on the water around Heirisson Island',qexpress:'Quokka Express train \u00b7 rides between the Settlement and Oliver Hill',train:'Train to Perth \u00b7 Victoria Park Station when a train is in',cyclist:'Island cyclist \u00b7 riders on the bike lane and paths',butterfly:'Butterfly \u00b7 flutters over the grass on sunny days',ship:'Spirit of the Indian Ocean \u00b7 upgrade Main Jetty to Lv4, it docks 9:45\u201312:15 (not on rainy days)',sunset:'Main Jetty around 6:30pm',plankton:'Walk the shore at night',fireflies:'Out and about late at night',ferry:'Any ferry at the jetty',nightmkt:'Albany Hwy after 5:30pm'};
 // ---------- café pantry ----------
 const STOCK_INFO={beans:{name:'Coffee beans',buy:'General Store (island) · Luna Coffee (Vic Park) · Swan Market'},milk:{name:'Milk',buy:'General Store (island) · Swan Market'},mango:{name:'Mango',buy:'General Store (island) · Swan Market. Garden strawberries or nectarines work too'},mix:{name:'Lamington mix',buy:'General Store (island)'},tea:{name:'Tea',buy:'Asia Mart (Vic Park) · General Store (island)'}};
 const RECIPE={fc:{fish:1}};/* pantry stock removed: only Fish & chips needs a caught fish */
