@@ -146,8 +146,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
  .clock .wx{font-size:10px;padding:1px 5px}.clock .obj{font-size:11.5px}.clock .carry{font-size:11px}
  .right{flex-direction:column;align-items:flex-end;max-width:none;gap:5px}
  #menuBtn{display:block;font-size:16px;padding:5px 11px}
- .right .hudBtn:not(#menuBtn){display:none}
- .right.open .hudBtn:not(#menuBtn){display:block;min-width:96px;text-align:center}
+ .right .hudBtn:not(#menuBtn):not(#pauseBtn){display:none}
+ .right.open .hudBtn:not(#menuBtn):not(#pauseBtn){display:block;min-width:96px;text-align:center}
  .coins{padding:5px 9px;font-size:13px}
  #rot{grid-template-columns:repeat(2,34px);gap:6px;bottom:calc(env(safe-area-inset-bottom,0px) + 112px)}
  #rot button{width:34px;height:34px}
@@ -299,6 +299,18 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
 .icGifts button.on{border-color:#f0c86e;color:#fff3d6;background:rgba(240,200,110,.15)}
 #visitBar .vbAct{display:flex;gap:4px}#visitBar .vbAct .btn{padding:6px 9px;font-size:14px}
 #visitBar .vbAct .btn.liked{color:#ff8fa3;border-color:#ff8fa3}
+#pauseBtn{display:flex;align-items:center;justify-content:center;padding:6px 11px;min-width:0}
+.pzI{display:block;width:12px;height:14px;border-left:4px solid currentColor;border-right:4px solid currentColor;box-sizing:border-box}
+.coinRow{display:flex;gap:6px;align-items:stretch}
+.radioIco{pointer-events:auto;position:relative;display:flex;align-items:center;justify-content:center;padding:4px 8px;cursor:pointer;color:var(--gold,#f0c86e)}
+.radioIco svg{image-rendering:pixelated;display:block}
+.radioIco .rn{position:absolute;right:2px;top:-6px;font-size:12px;opacity:0;pointer-events:none}
+.radioIco.on .rn{opacity:1;animation:rnote 1.2s ease-in-out infinite}
+.radioIco.off svg{filter:grayscale(1) brightness(.7)}
+.radioIco.off::after{content:'';position:absolute;left:6px;right:6px;top:50%;height:2px;background:#ff8a7a;transform:rotate(-30deg)}
+@keyframes rnote{0%{transform:translateY(2px);opacity:.2}50%{transform:translateY(-3px);opacity:1}100%{transform:translateY(2px);opacity:.2}}
+#rdQuick{display:flex;gap:8px;justify-content:center;margin:6px 0 10px}
+#wishBtn{display:none!important}
 </style>
 
 <div id="app">
@@ -323,7 +335,8 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
     </div>
     </div>
     <div class="right">
-      <div class="coins panel"><i></i><span id="coinLbl">0</span></div>
+      <div class="coinRow"><button class="panel radioIco" id="radioIco" type="button" aria-label="Radio" title="Radio"><svg viewBox="0 0 16 14" width="20" height="18" aria-hidden="true" shape-rendering="crispEdges"><rect x="3" y="0" width="1" height="4" fill="#c9cfe0"/><rect x="0" y="4" width="16" height="10" fill="#c8344a"/><rect x="1" y="5" width="14" height="8" fill="#e8584a"/><rect x="2" y="6" width="6" height="6" fill="#2a1d1a"/><rect x="3" y="7" width="1" height="1" fill="#6b5a50"/><rect x="5" y="7" width="1" height="1" fill="#6b5a50"/><rect x="4" y="9" width="1" height="1" fill="#6b5a50"/><rect x="6" y="10" width="1" height="1" fill="#6b5a50"/><rect x="3" y="11" width="1" height="1" fill="#6b5a50"/><rect x="9" y="6" width="5" height="2" fill="#fff3d6"/><rect x="11" y="6" width="1" height="2" fill="#c8344a"/><rect x="9" y="9" width="2" height="2" fill="#f0c86e"/><rect x="12" y="9" width="2" height="2" fill="#f0c86e"/></svg><span class="rn">♪</span></button><div class="coins panel"><i></i><span id="coinLbl">0</span></div></div>
+      <button class="panel hudBtn" id="pauseBtn" type="button" aria-label="Pause game" title="Pause (Esc)"><span class="pzI"></span></button>
       <button class="panel hudBtn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false">☰</button>
       <button class="panel hudBtn" id="bagBtn" type="button">Bag</button>
       <button class="panel hudBtn more" id="visitBtn" type="button">Island Code</button>
@@ -374,7 +387,7 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
         <b>Ride</b><span>Ride button · V</span>
         <b>Postcards</b><span>Photo button · P · Album · O</span>
         <b>Map</b><span>Tap the minimap · M</span>
-        <b>Wishlist</b><span>Top-right button · I</span>
+        <b>Wishlist</b><span>Café HQ → Wishlist tab · I</span>
         <b>Guide</b><span>Guide button · H</span>
       </div>
     </div>
@@ -558,7 +571,8 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
       <div class="eyebrow">Café HQ · <span id="cfCoins"></span></div>
       <h2 id="cfLevel">Level 1</h2>
       <div class="qtabs" id="cfTabs"></div>
-      <div class="btns" style="margin:4px 0"><button class="btn" id="cfCollectAll" type="button" hidden>Collect all</button></div>
+      <div class="btns" style="margin:4px 0"><button class="btn" id="cfCollectAll" type="button" hidden>Collect all</button><button class="btn" id="cfTp" type="button" hidden>Teleport here · free</button></div>
+      <div class="gdBody" id="cfWish" style="max-height:60vh" hidden></div>
       <div class="gdBody" id="cfBranch" style="max-height:60vh" hidden></div>
       <div class="gdBody" id="cfMain" style="max-height:60vh">
         <h3 class="bgH">Upgrade level</h3>
@@ -575,6 +589,7 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
       <div class="eyebrow">Café radio</div>
       <h2>Wadjemup FM</h2>
       <p class="bgE" id="rdNow"></p>
+      <div id="rdQuick"><button class="btn" id="rdToggle" type="button">Turn radio off</button></div>
       <div class="rdList" id="rdList"></div>
       <label class="rdVol">Volume <input type="range" id="rdVol" min="0" max="100" value="50"></label>
       <div class="btns"><button class="btn ghost" id="rdClose" type="button">Close</button></div>
@@ -626,6 +641,15 @@ body.cineOn #hud,body.cineOn #act,body.cineOn #rot,body.cineOn #camBtn,body.cine
       </div>
       <p class="bgE" id="icMsg" role="status"></p>
       <div class="btns"><button class="btn ghost" id="vsClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseOv" hidden>
+    <div class="card panel" style="text-align:center;max-width:360px">
+      <div class="eyebrow">Game paused</div>
+      <h2>Paused</h2>
+      <p class="bgE" id="pzInfo">Time is stopped. Kip, customers and the clock wait for you.</p>
+      <div class="btns" style="justify-content:center;flex-wrap:wrap"><button class="btn" id="pzResume" type="button">▶ Resume</button><button class="btn ghost" id="pzSave" type="button">Save</button><button class="btn ghost" id="pzGuide" type="button">Guide</button></div>
     </div>
   </div>
 
@@ -1904,7 +1928,7 @@ ui.dlg.addEventListener('pointerdown',e=>{e.stopPropagation();nextLine();});
 // ---------- input ----------
 const keys=new Set();
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
-  if(k==='escape'){closeOverlays();return;}
+  if(k==='escape'){if(!overlay&&running&&!dlgOpen()){openPause();return;}closeOverlays();return;}
   if(overlay){if((k==='enter'||k===' ')&&overlay==='day'){sleep();}if(k==='m'&&overlay==='map')hideOverlays();if(k==='j'&&overlay==='quest')hideOverlays();return;}
   if(k===' '||k==='e'||k==='enter'){if(!e.repeat)doAction();return;}
   if(k==='i'){openWish();return;}if(k==='m'){openMap();return;}if(k==='p'){snapPhoto();return;}if(k==='g'){openBag();return;}if(k==='h'){openGuide();return;}if(k==='f'){openFriend();return;}if(k==='c'){openCalendar();return;}if(k==='o'){openAlbum();return;}if((k==='b'||k==='v')){toggleRide();return;}if(k==='j'){openQuest();return;}
@@ -2101,7 +2125,7 @@ function renderBiz(){const b=BIZ_BY[bizSel],st=bizState(bizSel);$('#bzEyebrow').
 function buyBiz(id){const b=BIZ_BY[id],st=bizState(id);if(st.own||S.coins<b.price)return;S.coins-=b.price;st.own=true;applyBiz();save();hideOverlays();toast('You now own '+b.name+'!',3);qflag('buy_'+id);}
 function collectBiz(id){const st=bizState(id);if(!st.till)return;const v=st.till;S.coins+=v;st.till=0;save();renderBiz();popText('+'+v,{x:LOTS[id].x,y:2.2,z:LOTS[id].z});}
 
-function lieDown(){player.bike=false;player.carry=null;player.lying=true;player.x=BEACH.x;player.z=BEACH.z+1.1;toast('Swinging in the hammock\u2026 time drifts by. Move to get up.',3);}
+function lieDown(){player.bike=false;player.carry=null;player.lying=true;player.x=BEACH.x;player.z=BEACH.z+1.1;toast('Swinging in the hammock\u2026 time drifts by and stamina refills. Move to get up.',3);}
 function getUp(){player.lying=false;player.x=BEACH.x;player.z=BEACH.z+1.1;}
 function drinkJuice(){S.juice=false;S.refreshed=true;save();popText('Ahh!',{x:BEACH.x+2.1,y:1.3,z:BEACH.z});say(['Kip: Fresh-squeezed WA oranges. Perfect.',{who:'Refreshed',text:'Kip walks 20% faster for the rest of the day. The glass gets refilled every morning.'}]);}
 const SHOPS={
@@ -2296,7 +2320,7 @@ const GUIDE_ACTS=[
  ['Host guests','Offer stranded tourists a room. They come back with family the next morning.'],
  ['Decorate homes','Buy furniture in three districts and place it in any home you own.'],
  ['Dress Kip','Buy aprons, hats and accessories, then change in the Bag.'],
- ['Relax','Lie in the beach hammock, watch fireflies and glowing plankton until 22:00.'],
+ ['Relax','Lie in the beach hammock to refill stamina (full in about 3 game hours) and watch fireflies and glowing plankton until 22:00.'],
  ['Make friends (Stardew style)','Press \u2665 Friend (F) near Gus, Nana Wren, Elder Wattle, Mei, Captain Ruth, Ollie, Khun Noi, Rosa or the busker. Chat daily, give one gift a day, unlock heart events at 3, 6 and 10 hearts.'],
  ['Fish','Fishing spots: Main Jetty, Mends St Jetty and the Causeway. Hold the reel button (or Space) to keep the fish in the green bar. Different fish by season, river and night.'],
  ['Dig and beachcomb (Animal Crossing style)','Four dig spots (an X in the ground) appear on Rottnest each day: fossils, coins or seeds. A message in a bottle sometimes washes up on the beach.'],
@@ -2314,6 +2338,7 @@ const GUIDE_SYS=[
  ['Bag','See basket, furniture, seeds, keys and collections. Change outfits.'],
  ['Perth Pass','Rottnest Island, South Perth and Heirisson Island are free. Fremantle and Victoria Park need the Perth Pass: buy it on itch.io or Payhip, then open \u2630 \u2192 Perth Pass and type your code. The full itch.io and Google Play versions include it.'],
  ['Area stories','Each area has its own story in chapters: Rottnest (3), South Perth (3), Heirisson Island (1), Fremantle (3) and Victoria Park (2). A chapter starts when you arrive and leads you to places, people and activities, mostly by taking their postcards. Open Quests and press Track to follow the red line. Each finished chapter pays coins and opens the next one.'],
+ ['Pause','Press the pause button (two bars) at the top right, or Esc on a keyboard, to stop time. The game also pauses by itself when you switch apps or tabs.'],
  ['Unstuck','If Kip ever gets stuck or can\u2019t move, open \u2630 \u2192 Unstuck. Kip hops to the nearest road sign or bus stop and any stuck ride or dialog is cleared.'],
  ['Saving','The game saves automatically to one of 6 slots. Load another slot from the title screen.'],
  ['Island Code (visit friends online)','\u2630 \u2192 Island Code \u2192 Get my island code. You get a code like QK-4821 and your game backs up to the cloud by itself. Friends type your code to visit the newest version of your island, even when you are offline. While visiting you can \u2661 like the caf\u00e9, \u270e sign the guestbook and \U0001F381 leave a gift. Gifts and notes arrive in Island Code \u2192 Mailbox. Keep your recovery key secret: with it you can restore the island on a new phone. No internet? The Offline code tab still makes a Dream Code to paste.'],
@@ -2529,8 +2554,8 @@ function applyCafe(){const st=cafeStyle(),L=cafeLv(),C=CAFE_STYLES[st];
   (STYLE_DECOR.mykonos||[]).forEach(o=>{if(o.geometry&&o.geometry.type!=='SphereGeometry'&&o.geometry.type!=='CylinderGeometry')return;if(o.position&&o.position.z===-4.4)o.position.y=(o.geometry.type==='SphereGeometry'?3.25:3.1)+(L>=4?2.45:0);});
   LV_DECOR[4].forEach(o=>{if(o.isGroup&&o.children.length===10){if(st==='mykonos')o.position.set(0,2.1,0);else o.position.set(0,-.12,1.95);}});
   sign.scale.setScalar(1);const x=signC.getContext('2d');x.fillStyle=C.sign[0];x.fillRect(0,0,96,20);x.fillStyle='#e2c27c';x.fillRect(0,0,96,1);x.fillRect(0,19,96,1);x.fillRect(0,0,1,20);x.fillRect(95,0,1,20);x.fillStyle=C.sign[1];x.font='bold 12px "Pixelify Sans", monospace';x.textAlign='center';x.textBaseline='middle';x.fillText('QUOKKA CAFE',48,11);signTex.needsUpdate=true;}
-function openCafe(){if(!running||overlay)return;renderCafe();showOverlay('cafe');}
-function renderCafe(){renderHQTabs();const isMain=hqTab==='main';$('#cfMain').hidden=!isMain;$('#cfBranch').hidden=isMain;$('#cfCoins').textContent=S.coins+' coins';if(!isMain){renderBranch(BRANCHES.find(b=>b.id===hqTab));return;}const L=cafeLv();$('#cfLevel').textContent='Rottnest \u00b7 Level '+L+' \u00b7 '+CAFE_LV[L-1].n;const lv=$('#cfLv');lv.innerHTML='';
+function openCafe(){if(!running||overlay)return;if(hqTab==='wish')hqTab='main';renderCafe();showOverlay('cafe');}
+function renderCafe(){renderHQTabs();const isMain=hqTab==='main',isWish=hqTab==='wish';$('#cfMain').hidden=!isMain;$('#cfBranch').hidden=isMain||isWish;$('#cfWish').hidden=!isWish;$('#cfCoins').textContent=S.coins+' coins';hqTpButton();if(isWish){$('#cfLevel').textContent='Wishlist';$('#cfCollectAll').hidden=true;renderWish();return;}if(!isMain){renderBranch(BRANCHES.find(b=>b.id===hqTab));return;}const L=cafeLv();$('#cfLevel').textContent='Rottnest \u00b7 Level '+L+' \u00b7 '+CAFE_LV[L-1].n;const lv=$('#cfLv');lv.innerHTML='';
   CAFE_LV.forEach((q,i)=>{const d=document.createElement('div');d.className='cfL'+(i<L?' done':i===L?' next':'');const b=document.createElement('b');b.textContent=(i+1)+'. '+q.n;const s=document.createElement('span');s.textContent=q.fx;d.append(b,s);if(i===L){const bt=document.createElement('button');bt.type='button';bt.className='btn';bt.id='cfUp';bt.textContent='Upgrade · '+q.price+' coins';bt.disabled=S.coins<q.price;bt.onclick=()=>{if(S.coins<q.price)return;S.coins-=q.price;S.cafeLv=i+1;save();applyCafe();renderCafe();toast('Quokka Cafe is now a '+q.n+'!',3);};d.appendChild(bt);}lv.appendChild(d);});
   const G=$('#cfStyles');G.innerHTML='';S.cafeStyles=S.cafeStyles||{classic:1};Object.keys(CAFE_STYLES).forEach(k=>{const C=CAFE_STYLES[k],own=!!S.cafeStyles[k],cur=cafeStyle()===k;const d=document.createElement('div');d.className='cfS'+(cur?' on':'');
     const sw=document.createElement('div');sw.className='cfSw';C.sw.forEach(c=>{const i=document.createElement('i');i.style.background=c;sw.appendChild(i);});const n=document.createElement('b');n.textContent=C.name;const p=document.createElement('p');p.textContent=C.desc;
@@ -2545,7 +2570,7 @@ const RSTATIONS={
  lofi:{name:'Island Lo-fi',desc:'Warm electric piano, lazy drums and vinyl crackle.',bpm:78},
  breeze:{name:'Asian Breeze',desc:'Pentatonic plucks like a koto or guzheng over a calm pad.',bpm:66},
  off:{name:'Radio off',desc:'Just the island.'}};
-try{const v=JSON.parse(localStorage.getItem('quokka-radio')||'null');if(v){RADIO.st=v.st||'seaside';RADIO.vol=v.vol!=null?v.vol:.5;}else RADIO.st='seaside';}catch(e){RADIO.st='seaside';}
+try{const v=JSON.parse(localStorage.getItem('quokka-radio')||'null');if(v){RADIO.st=v.st||'seaside';RADIO.vol=v.vol!=null?v.vol:.5;}else RADIO.st='seaside';}catch(e){RADIO.st='seaside';}try{if(!localStorage.getItem('quokka-radio-v2')){localStorage.setItem('quokka-radio-v2','1');if(RADIO.st==='off')RADIO.st='seaside';}}catch(e){}
 function radioSave(){try{localStorage.setItem('quokka-radio',JSON.stringify({st:RADIO.st,vol:RADIO.vol}));}catch(e){}}
 function radioInit(){if(RADIO.ctx)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;try{const c=new AC();RADIO.ctx=c;RADIO.master=c.createGain();RADIO.master.gain.value=0;
   const comp=c.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=3;RADIO.master.connect(comp);comp.connect(c.destination);
@@ -2595,10 +2620,10 @@ function radioPlay(st){if(st)RADIO.st=st;radioSave();RADIO.nodes.forEach(n=>{try
   if(!radioInit())return;const c=RADIO.ctx;if(c.state==='suspended')c.resume();RADIO.master.gain.setTargetAtTime(RADIO.vol*.9,c.currentTime,.6);RADIO.next=c.currentTime+.1;RADIO.step=0;RADIO.bar=Math.floor(Math.random()*4);
   if(RADIO.st==='seaside')loopNoise('wave');if(RADIO.st==='lofi')loopNoise('crackle');if(!RADIO.timer)RADIO.timer=setInterval(radioSchedule,120);radioSchedule();radioLabel();}
 function radioVol(v){RADIO.vol=v;radioSave();if(RADIO.master&&RADIO.st!=='off')RADIO.master.gain.setTargetAtTime(v*.9,RADIO.ctx.currentTime,.1);}
-function radioLabel(){const b=$('#radioBtn');if(b)b.textContent=RADIO.st==='off'?'Radio':'♫ '+RSTATIONS[RADIO.st].name.split(' ')[0];}
+function radioLabel(){const ic=$('#radioIco');if(ic){const on=RADIO.st!=='off';ic.classList.toggle('on',on);ic.classList.toggle('off',!on);ic.title=on?'Radio: '+RSTATIONS[RADIO.st].name+' (tap to change)':'Radio off (tap to turn on)';}const b=$('#radioBtn');if(b)b.textContent=RADIO.st==='off'?'Radio':'♫ '+RSTATIONS[RADIO.st].name.split(' ')[0];}
 document.addEventListener('visibilitychange',()=>{if(!RADIO.ctx)return;if(document.hidden)RADIO.ctx.suspend();else if(RADIO.st!=='off')RADIO.ctx.resume();});
 function openRadio(){if(!running||overlay)return;renderRadio();showOverlay('radio');}
-function renderRadio(){const G=$('#rdList');G.innerHTML='';Object.keys(RSTATIONS).forEach(k=>{const S2=RSTATIONS[k];const b=document.createElement('button');b.type='button';b.className='rdS'+(RADIO.st===k?' on':'');b.id='rd-'+k;const n=document.createElement('b');n.textContent=(RADIO.st===k&&k!=='off'?'♫ ':'')+S2.name;const p=document.createElement('span');p.textContent=S2.desc;b.append(n,p);b.onclick=()=>{radioPlay(k);renderRadio();};G.appendChild(b);});
+function renderRadio(){{const t=$('#rdToggle');if(t)t.textContent=RADIO.st==='off'?'\u25b6 Turn radio on':'\u23f9 Turn radio off';}const G=$('#rdList');G.innerHTML='';Object.keys(RSTATIONS).forEach(k=>{const S2=RSTATIONS[k];const b=document.createElement('button');b.type='button';b.className='rdS'+(RADIO.st===k?' on':'');b.id='rd-'+k;const n=document.createElement('b');n.textContent=(RADIO.st===k&&k!=='off'?'♫ ':'')+S2.name;const p=document.createElement('span');p.textContent=S2.desc;b.append(n,p);b.onclick=()=>{radioPlay(k);renderRadio();};G.appendChild(b);});
   $('#rdVol').value=Math.round(RADIO.vol*100);$('#rdNow').textContent=RADIO.st==='off'?'Radio is off':'Now playing: '+RSTATIONS[RADIO.st].name+' · Wadjemup FM 96.9';}
 
 function openCoach(from){openTravel('Where to?','Quokka Coach \u00b7 island bus',COACH.map(b=>({id:b.id,name:b.name,here:b.id===from,note:b.id===from?'':'Ride about '+Math.max(2,Math.round(Math.abs(COACH_IDX[b.id]-COACH_IDX[from])*1.5))+' min',ride:()=>coachRide(from,b.id),tp:()=>coachTo(b)})));}
@@ -2706,7 +2731,7 @@ function leaveVisit(){if(!VISIT)return;const v=VISIT;VISIT=null;S=v.back;S.time=
 // ---------- stamina, food and the nursing post ----------
 const STAM_MAX=100,STAM_RATE=STAM_MAX/(3*1440);
 function eat(n,what){S.stamina=Math.min(STAM_MAX,(S.stamina==null?STAM_MAX:S.stamina)+n);S.stamWarn=0;popText('+'+n+' stamina',{x:player.x,y:2,z:player.z});if(what)toast('Kip ate '+what+' \u00b7 stamina '+Math.round(S.stamina)+'%',2.4);save();}
-function stamTick(gameMin){if(VISIT||!running)return;if(S.stamina==null)S.stamina=STAM_MAX;S.stamina=Math.max(0,S.stamina-gameMin*STAM_RATE);
+function stamTick(gameMin){if(VISIT||!running)return;if(S.stamina==null)S.stamina=STAM_MAX;if(player.lying){const was=S.stamina;S.stamina=Math.min(STAM_MAX,S.stamina+gameMin*(STAM_MAX/180));S.stamWarn=0;if(was<STAM_MAX&&S.stamina>=STAM_MAX)toast('\u{1F634} Kip is fully rested \u00b7 stamina 100%',2.6);return;}S.stamina=Math.max(0,S.stamina-gameMin*STAM_RATE);
   if(S.stamina<=30&&(S.stamWarn||0)<1){S.stamWarn=1;toast('Kip is getting hungry. Buy food at the General Store, Mends Gelato, Albany Hwy or Freo.',4);}
   if(S.stamina<=10&&(S.stamWarn||0)<2){S.stamWarn=2;toast('\u26a0 Kip is about to faint! Eat something now.',4.5);}
   if(S.stamina<=0&&!transit)blackout();}
@@ -2761,7 +2786,7 @@ function branchIncomeTick(gameMin){if(VISIT||!running||S.wx===3)return;if(S.time
 function branchMidnight(){BRANCHES.forEach(b=>{const st=brState(b.id);if(st.own&&st.mgr&&st.till>0){const fee=10;const v=Math.max(0,st.till-fee);S.coins+=v;st.till=0;toast('Manager at '+b.name+' banked '+v+' coins (wage 10)',3);}});}
 function brGuestsTick(){const open=S.time>=OPEN&&S.time<CLOSE&&S.wx!==3;Object.values(brMeshes).forEach(g=>{(g.userData.guests||[]).forEach(m=>m.visible=open);});}
 let hqTab='main';
-function renderHQTabs(){const T=$('#cfTabs');T.innerHTML='';[['main','Rottnest (home)']].concat(BRANCHES.map(b=>[b.id,b.name])).forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(hqTab===k?' on':'');b.id='hq-'+k;const st=k==='main'?null:brState(k);b.textContent=l+(st&&st.own&&st.till>0?' · '+st.till+'c':'')+(st&&!st.own?' · for sale':'');b.onclick=()=>{hqTab=k;renderCafe();};T.appendChild(b);});
+function renderHQTabs(){const T=$('#cfTabs');T.innerHTML='';[['main','Rottnest (home)'],['wish','Wishlist']].concat(BRANCHES.map(b=>[b.id,b.name])).forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(hqTab===k?' on':'');b.id='hq-'+k;const st=k==='main'?null:brState(k);b.textContent=l+(st&&st.own&&st.till>0?' · '+st.till+'c':'')+(st&&!st.own?' · for sale':'');b.onclick=()=>{hqTab=k;renderCafe();};T.appendChild(b);});
   const tot=BRANCHES.reduce((a,b)=>a+(brState(b.id).own?brState(b.id).till:0),0);$('#cfCollectAll').hidden=!tot;$('#cfCollectAll').textContent='Collect all tills · '+tot+' coins';}
 function renderBranch(b){const st=brState(b.id),body=$('#cfBranch');body.innerHTML='';const P=t=>{const p=document.createElement('p');p.className='bgE';p.textContent=t;body.appendChild(p);return p;};
   const btn=(id,t,dis,fn,ghost)=>{const e=document.createElement('button');e.type='button';e.className='btn'+(ghost?' ghost':'');e.id=id;e.textContent=t;e.disabled=!!dis;e.onclick=fn;return e;};const row=()=>{const d=document.createElement('div');d.className='btns';body.appendChild(d);return d;};
@@ -2852,6 +2877,9 @@ function redeemPass(){const v=$('#psInput').value;const m=$('#psMsg');if(!passCo
   S.pass=true;try{localStorage.setItem('qc-perth-pass','1');}catch(e){}save();m.textContent='Perth Pass unlocked! Fremantle and Victoria Park are open.';m.className='psMsg ok';$('#passBtn').textContent='Perth Pass \u2713';
   setTimeout(()=>{hideOverlays();toast('\u{1F39F} Perth Pass unlocked \u00b7 Fremantle & Victoria Park are open',3.5);},900);}
 function needPass(where){if(hasPass())return false;openPass(where);return true;}
+function openPause(){if(!running||overlay)return;$('#pzInfo').textContent='Time is stopped at '+fmtTime(S.time)+' on '+dayLabel()+'. Kip, customers and the clock wait for you.';showOverlay('pause');}
+function togglePause(){if(overlay==='pause'){hideOverlays();return;}openPause();}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&running&&!overlay&&!VISIT&&!transit)openPause();});
 let propSel=null;
 function openProp(id){if(!running||overlay)return;if(VISIT){toast('This is your friend\u2019s property',2);return;}if(!unlocked('homes')){say([{who:'For sale sign',text:'Viewing by appointment. Swan River Realty will contact you once you own a business on Rottnest.'}]);return;}propSel=id;renderProp();showOverlay('biz');}
 function renderProp(){const P=PROP_LIST.find(p=>p.id===propSel),own=propOwned(P.id);$('#bzEyebrow').textContent=own?'Your home · South Perth':'For sale · South Perth';$('#bzTitle').textContent=P.name;$('#bzDesc').textContent=P.desc;
@@ -3308,10 +3336,15 @@ function sleep(){if(S.time>=OPEN)newDay();S.time=OPEN-1;S.closed=true;customers.
   toast((player.x<-10?'Took the first ferry home from South Perth. ':'')+'Day '+S.day+' · '+WEATHERS[S.wx].label+', '+S.temp+'\u00b0C',3.4);}
 
 // ---------- overlays ----------
-function showOverlay(n){overlay=n;['title','wish','day','end','map','plant','quest','biz','shop','slots','album','home','bag','guide','cal','friend','fish','museum','board','mail','cafe','radio','coach','visit','hosp','pass','vact'].forEach(k=>$('#'+k+'Ov').hidden=k!==n);ui.hud.hidden=n==='title';ui.act.hidden=n==='title';$('#camBtn').hidden=n==='title';$('#rideBtn').hidden=n==='title';if(n==='title')$('#frBtn').hidden=true;$('#rot').hidden=n==='title';if(n)joyEnd({pointerId:joyId});}
-function hideOverlays(){overlay=null;['title','wish','day','end','map','plant','quest','biz','shop','slots','album','home','bag','guide','cal','friend','fish','museum','board','mail','cafe','radio','coach','visit','hosp','pass','vact'].forEach(k=>$('#'+k+'Ov').hidden=true);ui.hud.hidden=false;ui.act.hidden=false;$('#camBtn').hidden=false;$('#rideBtn').hidden=false;$('#rot').hidden=false;}
-function closeOverlays(){if(['wish','map','plant','quest','biz','shop','album','home','bag','guide','cal','friend','fish','museum','board','mail','cafe','radio','coach','visit'].includes(overlay))hideOverlays();}
-function openWish(){if(!running||overlay)return;renderWish();showOverlay('wish');}
+function showOverlay(n){overlay=n;['title','wish','day','end','map','plant','quest','biz','shop','slots','album','home','bag','guide','cal','friend','fish','museum','board','mail','cafe','radio','coach','visit','hosp','pass','vact','pause'].forEach(k=>$('#'+k+'Ov').hidden=k!==n);ui.hud.hidden=n==='title';ui.act.hidden=n==='title';$('#camBtn').hidden=n==='title';$('#rideBtn').hidden=n==='title';if(n==='title')$('#frBtn').hidden=true;$('#rot').hidden=n==='title';if(n)joyEnd({pointerId:joyId});}
+function hideOverlays(){overlay=null;['title','wish','day','end','map','plant','quest','biz','shop','slots','album','home','bag','guide','cal','friend','fish','museum','board','mail','cafe','radio','coach','visit','hosp','pass','vact','pause'].forEach(k=>$('#'+k+'Ov').hidden=true);ui.hud.hidden=false;ui.act.hidden=false;$('#camBtn').hidden=false;$('#rideBtn').hidden=false;$('#rot').hidden=false;}
+function closeOverlays(){if(['wish','map','plant','quest','biz','shop','album','home','bag','guide','cal','friend','fish','museum','board','mail','cafe','radio','coach','visit','pause','pass','vact'].includes(overlay))hideOverlays();}
+function openWish(){if(!running||(overlay&&overlay!=='cafe'))return;hqTab='wish';renderCafe();showOverlay('cafe');}
+function hqTpSpot(x,z){const off=[[0,2.6],[0,3.4],[2.4,2.4],[-2.4,2.4],[0,-2.6],[2.8,0],[-2.8,0],[0,4.4]];for(const [dx,dz] of off){if(!blocked(x+dx,z+dz))return[x+dx,z+dz];}return[x,z+2.6];}
+function hqTpTarget(){if(hqTab==='main')return{x:0,z:2.9,name:'Quokka Cafe, Rottnest',zone:'island',exact:true};if(hqTab==='wish')return null;const b=BRANCHES.find(q=>q.id===hqTab);if(!b||!brState(b.id).own)return null;return{x:b.x,z:b.z,name:'Quokka Cafe '+b.name,zone:b.zone};}
+function hqTpButton(){const t=hqTpTarget(),btn=$('#cfTp');btn.hidden=!t||!!VISIT;if(t){const here=zoneOf(player.x)===t.zone&&Math.hypot(player.x-t.x,player.z-t.z)<6;btn.disabled=here;btn.textContent=here?'You are here':'Teleport to '+t.name+' \u00b7 free';}}
+function hqTeleport(){const t=hqTpTarget();if(!t||transit||VISIT)return;if((t.zone==='freo'||t.zone==='vp')&&!hasPass()){hideOverlays();needPass(t.zone);return;}hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2728 Teleporting to '+t.name+'\u2026',2);
+  setTimeout(()=>{const sp=t.exact?[t.x,t.z]:hqTpSpot(t.x,t.z);player.bike=false;player.carry=null;player.x=sp[0];player.z=sp[1];updateCamera(0,true);fadeTarget=0;transit=false;},800);}
 function renderWish(){const L=$('#wishList');L.innerHTML='';
   WISH.forEach(w=>{const isStaff=w.id==='staff';const done=isStaff?(S.staff||0)>=3:!!S.wish[w.id];const locked=w.id==='tickets'&&!S.wish.room;const can=!done&&!locked&&S.coins>=w.price;
     const d=document.createElement('div');d.className='wi'+(done?' done':'');
@@ -3354,13 +3387,13 @@ $('#slBack').addEventListener('click',()=>{overlay='title';$('#slotsOv').hidden=
 $('#wishBtn').addEventListener('click',openWish);
   $('#slExport').addEventListener('click',()=>{const o={};for(let i=1;i<=SLOTS;i++){try{const v=localStorage.getItem(slotKey(i));if(v)o[i]=JSON.parse(v);}catch(e){}}const code='QC1:'+btoa(unescape(encodeURIComponent(JSON.stringify(o))));const ta=$('#slCode');ta.value=code;ta.select();const n=Object.keys(o).length;
     const done=ok=>{$('#slMsg').textContent=n?(ok?'Copied '+n+' save(s). Paste the code on your other device.':'Code is in the box. Select it and copy.'):'No saves to copy yet.';};try{navigator.clipboard.writeText(code).then(()=>done(true),()=>done(false));}catch(e){done(false);}});
-  $('#slImport').addEventListener('click',()=>{const raw=$('#slCode').value.trim();try{if(!raw.startsWith('QC1:'))throw 0;const o=JSON.parse(decodeURIComponent(escape(atob(raw.slice(4)))));let n=0;Object.keys(o).forEach(k=>{const i=+k;if(i>=1&&i<=SLOTS&&o[k]&&o[k].day){localStorage.setItem(slotKey(i),JSON.stringify(o[k]));n++;}});$('#slMsg').textContent=n?'Imported '+n+' save(s).':'No saves found in that code.';renderSlots();renderTitle();}catch(e){$('#slMsg').textContent='That code did not work. Copy the whole code, starting with QC1:';}});$('#calBtn').addEventListener('click',openCalendar);$('#cineSkip').addEventListener('click',skipRide);$('#unstuckBtn').addEventListener('click',unstuck);$('#vbLike').addEventListener('click',vbLike);$('#vbBook').addEventListener('click',vbBook);$('#vbGift').addEventListener('click',vbGift);$('#vaClose').addEventListener('click',hideOverlays);$('#passBtn').addEventListener('click',()=>{if(running)openPass();});$('#psRedeem').addEventListener('click',redeemPass);$('#psClose').addEventListener('click',hideOverlays);$('#psInput').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')redeemPass();});if(BUILD==='full')$('#passBtn').hidden=true;$('#cafeBtn').addEventListener('click',()=>{hqTab='main';openCafe();});$('#cfCollectAll').addEventListener('click',()=>{let t=0;BRANCHES.forEach(b=>{const st=brState(b.id);if(st.own){t+=st.till;st.till=0;}});S.coins+=t;save();toast('Collected '+t+' coins from your caf\u00e9s',2.5);renderCafe();});$('#hpOk').addEventListener('click',()=>{hideOverlays();say([{who:'Kip',text:'Note to self: buy food before I run out of stamina!'}]);});$('#visitBtn').addEventListener('click',openVisit);$('#vsClose').addEventListener('click',hideOverlays);$('#vbLeave').addEventListener('click',leaveVisit);
+  $('#slImport').addEventListener('click',()=>{const raw=$('#slCode').value.trim();try{if(!raw.startsWith('QC1:'))throw 0;const o=JSON.parse(decodeURIComponent(escape(atob(raw.slice(4)))));let n=0;Object.keys(o).forEach(k=>{const i=+k;if(i>=1&&i<=SLOTS&&o[k]&&o[k].day){localStorage.setItem(slotKey(i),JSON.stringify(o[k]));n++;}});$('#slMsg').textContent=n?'Imported '+n+' save(s).':'No saves found in that code.';renderSlots();renderTitle();}catch(e){$('#slMsg').textContent='That code did not work. Copy the whole code, starting with QC1:';}});$('#calBtn').addEventListener('click',openCalendar);$('#cineSkip').addEventListener('click',skipRide);$('#unstuckBtn').addEventListener('click',unstuck);$('#cfTp').addEventListener('click',hqTeleport);{const cw=$('#cfWish');['#wishList','#journal'].forEach(id=>{const e=$(id);if(e)cw.appendChild(e);});}$('#wishBtn').hidden=true;$('#radioIco').addEventListener('click',e=>{e.stopPropagation();if(!running)return;if(overlay==='radio'){hideOverlays();return;}if(RADIO.st==='off'&&!RADIO.lastOn){}openRadio();});$('#rdToggle').addEventListener('click',()=>{if(RADIO.st==='off'){radioPlay(RADIO.lastOn||'seaside');}else{RADIO.lastOn=RADIO.st;radioPlay('off');}renderRadio();});document.addEventListener('pointerdown',function kick(){if(RADIO.st!=='off'&&running&&(!RADIO.ctx||RADIO.ctx.state!=='running')){try{radioPlay();}catch(e){}}if(RADIO.ctx&&RADIO.ctx.state==='running')document.removeEventListener('pointerdown',kick);},true);radioLabel();$('#pauseBtn').addEventListener('click',e=>{e.stopPropagation();togglePause();});$('#pzResume').addEventListener('click',hideOverlays);$('#pzSave').addEventListener('click',()=>{save();toast('Game saved to slot '+SLOT,2);});$('#pzGuide').addEventListener('click',()=>{hideOverlays();openGuide();});$('#vbLike').addEventListener('click',vbLike);$('#vbBook').addEventListener('click',vbBook);$('#vbGift').addEventListener('click',vbGift);$('#vaClose').addEventListener('click',hideOverlays);$('#passBtn').addEventListener('click',()=>{if(running)openPass();});$('#psRedeem').addEventListener('click',redeemPass);$('#psClose').addEventListener('click',hideOverlays);$('#psInput').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')redeemPass();});if(BUILD==='full')$('#passBtn').hidden=true;$('#cafeBtn').addEventListener('click',()=>{hqTab='main';openCafe();});$('#cfCollectAll').addEventListener('click',()=>{let t=0;BRANCHES.forEach(b=>{const st=brState(b.id);if(st.own){t+=st.till;st.till=0;}});S.coins+=t;save();toast('Collected '+t+' coins from your caf\u00e9s',2.5);renderCafe();});$('#hpOk').addEventListener('click',()=>{hideOverlays();say([{who:'Kip',text:'Note to self: buy food before I run out of stamina!'}]);});$('#visitBtn').addEventListener('click',openVisit);$('#vsClose').addEventListener('click',hideOverlays);$('#vbLeave').addEventListener('click',leaveVisit);
   $('#vsMake').addEventListener('click',async()=>{const o=$('#vsOwner').value.trim(),i=$('#vsIsland').value.trim();try{localStorage.setItem('quokka-owner',o);localStorage.setItem('quokka-island',i);}catch(e){}const code=await makeDreamCode(o,i);const ta=$('#vsCode');ta.value=code;ta.select();
     const done=ok=>$('#vsMsg').textContent=(ok?'Copied! ':'Code is in the box. Select it and copy. ')+'Send it to a friend. ('+code.length+' characters)';try{navigator.clipboard.writeText(code).then(()=>done(true),()=>done(false));}catch(e){done(false);}});
   $('#vsGo').addEventListener('click',()=>startVisit($('#vsCode').value.trim()));$('#chClose').addEventListener('click',hideOverlays);$('#radioBtn').addEventListener('click',openRadio);$('#rdClose').addEventListener('click',hideOverlays);$('#rdVol').addEventListener('input',e=>radioVol(e.target.value/100));radioLabel();$('#cfClose').addEventListener('click',hideOverlays);$('#saveBtn').addEventListener('click',()=>{if(!running)return;save();let ok=false;try{ok=!!localStorage.getItem(slotKey(SLOT));}catch(e){}toast(ok?'Game saved to slot '+SLOT+' \u00b7 '+dayLabel()+' \u00b7 '+S.coins+' coins':'Could not save: this browser is blocking storage',3);});$('#dayLbl').style.cursor='pointer';$('#dayLbl').title='Open the calendar';$('#dayLbl').addEventListener('click',e=>{e.stopPropagation();openCalendar();});['cal','fr','ms','bd','ml'].forEach(k=>$('#'+k+'Close').addEventListener('click',hideOverlays));
   $('#fsClose').addEventListener('click',()=>{fishG=null;hideOverlays();});const fh=v=>e=>{e.preventDefault();if(fishG)fishG.hold=v;};const fr_=$('#fsReel');fr_.addEventListener('pointerdown',fh(true));['pointerup','pointerleave','pointercancel'].forEach(ev=>fr_.addEventListener(ev,fh(false)));
   addEventListener('keydown',e=>{if(overlay==='fish'&&(e.key===' '||e.key==='e')){e.preventDefault();e.stopImmediatePropagation();if(fishG)fishG.hold=true;}},true);addEventListener('keyup',e=>{if(overlay==='fish'&&(e.key===' '||e.key==='e')&&fishG)fishG.hold=false;},true);
-  $('#frBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();openFriend();});$('#frBtn').addEventListener('click',e=>{if(e.detail===0)openFriend();});$('#guideBtn').addEventListener('click',openGuide);$('#gdClose').addEventListener('click',hideOverlays);$('#menuBtn').addEventListener('click',e=>{e.stopPropagation();const o=$('.right').classList.toggle('open');$('#menuBtn').setAttribute('aria-expanded',String(o));});['#bagBtn','#unstuckBtn','#passBtn','#visitBtn','#radioBtn','#cafeBtn','#saveBtn','#guideBtn','#calBtn','#albumBtn','#questBtn','#wishBtn'].forEach(id=>$(id).addEventListener('click',()=>{$('.right').classList.remove('open');$('#menuBtn').setAttribute('aria-expanded','false');}));$('#bagBtn').addEventListener('click',openBag);$('#bgClose').addEventListener('click',hideOverlays);$('#hmCanvas').addEventListener('click',homeTap);$('#hmClose').addEventListener('click',hideOverlays);$('#hmSleep').addEventListener('click',()=>{hideOverlays();S.wakeSP=true;endDay();});$('#rideBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();toggleRide();});$('#rideBtn').addEventListener('click',e=>{if(e.detail===0)toggleRide();});$('#clkT').addEventListener('click',e=>{e.stopPropagation();const c=$('.clock');const m=c.classList.toggle('min');$('#clkT').setAttribute('aria-expanded',String(!m));try{localStorage.setItem('quokka-clock-min',m?'1':'');}catch(_){}});{let pref=null;try{pref=localStorage.getItem('quokka-clock-min');}catch(_){}if(pref==='1'||(pref===null&&window.matchMedia&&window.matchMedia('(max-width:760px)').matches))$('.clock').classList.add('min');}$('#mapPerth').addEventListener('click',togglePerthMap);$('#albumBtn').addEventListener('click',openAlbum);$('#alClose').addEventListener('click',hideOverlays);$('#camBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();snapPhoto();});$('#camBtn').addEventListener('click',e=>{if(e.detail===0)snapPhoto();});$('#shClose').addEventListener('click',hideOverlays);$('#plantClose').addEventListener('click',hideOverlays);$('#wishClose').addEventListener('click',hideOverlays);$('#sleepBtn').addEventListener('click',sleep);
+  $('#frBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();openFriend();});$('#frBtn').addEventListener('click',e=>{if(e.detail===0)openFriend();});$('#guideBtn').addEventListener('click',openGuide);$('#gdClose').addEventListener('click',hideOverlays);$('#menuBtn').addEventListener('click',e=>{e.stopPropagation();const o=$('.right').classList.toggle('open');$('#menuBtn').setAttribute('aria-expanded',String(o));});['#bagBtn','#unstuckBtn','#passBtn','#visitBtn','#radioBtn','#cafeBtn','#saveBtn','#guideBtn','#calBtn','#albumBtn','#questBtn'].forEach(id=>$(id).addEventListener('click',()=>{$('.right').classList.remove('open');$('#menuBtn').setAttribute('aria-expanded','false');}));$('#bagBtn').addEventListener('click',openBag);$('#bgClose').addEventListener('click',hideOverlays);$('#hmCanvas').addEventListener('click',homeTap);$('#hmClose').addEventListener('click',hideOverlays);$('#hmSleep').addEventListener('click',()=>{hideOverlays();S.wakeSP=true;endDay();});$('#rideBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();toggleRide();});$('#rideBtn').addEventListener('click',e=>{if(e.detail===0)toggleRide();});$('#clkT').addEventListener('click',e=>{e.stopPropagation();const c=$('.clock');const m=c.classList.toggle('min');$('#clkT').setAttribute('aria-expanded',String(!m));try{localStorage.setItem('quokka-clock-min',m?'1':'');}catch(_){}});{let pref=null;try{pref=localStorage.getItem('quokka-clock-min');}catch(_){}if(pref==='1'||(pref===null&&window.matchMedia&&window.matchMedia('(max-width:760px)').matches))$('.clock').classList.add('min');}$('#mapPerth').addEventListener('click',togglePerthMap);$('#albumBtn').addEventListener('click',openAlbum);$('#alClose').addEventListener('click',hideOverlays);$('#camBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();snapPhoto();});$('#camBtn').addEventListener('click',e=>{if(e.detail===0)snapPhoto();});$('#shClose').addEventListener('click',hideOverlays);$('#plantClose').addEventListener('click',hideOverlays);$('#wishClose').addEventListener('click',hideOverlays);$('#sleepBtn').addEventListener('click',sleep);
 $('#againBtn').addEventListener('click',()=>{hideOverlays();fadeTarget=0;running=true;save();toast('Mum and Dad are helping at the café!',3);});
 renderTitle();
 S.wx=0;
