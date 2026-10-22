@@ -2608,6 +2608,7 @@ const RSTATIONS={
  seaside:{name:'Seaside Piano',desc:'Gentle piano and soft waves, like a slow morning on the jetty.',bpm:72},
  lofi:{name:'Island Lo-fi',desc:'Warm electric piano, lazy drums and vinyl crackle.',bpm:78},
  breeze:{name:'Asian Breeze',desc:'Pentatonic plucks like a koto or guzheng over a calm pad.',bpm:66},
+ crystal:{name:'Crystal Harbour',desc:'10 original orchestral tracks in the style of classic 90s RPGs: harp, flute, strings and music box.',bpm:80},
  off:{name:'Radio off',desc:'Just the island.'}};
 try{const v=JSON.parse(localStorage.getItem('quokka-radio')||'null');if(v){RADIO.st=v.st||'seaside';RADIO.vol=v.vol!=null?v.vol:.5;}else RADIO.st='seaside';}catch(e){RADIO.st='seaside';}try{if(!localStorage.getItem('quokka-radio-v2')){localStorage.setItem('quokka-radio-v2','1');if(RADIO.st==='off')RADIO.st='seaside';}}catch(e){}
 function radioSave(){try{localStorage.setItem('quokka-radio',JSON.stringify({st:RADIO.st,vol:RADIO.vol}));}catch(e){}}
@@ -2639,11 +2640,63 @@ function loopNoise(kind){const c=RADIO.ctx;const s=c.createBufferSource();s.buff
   if(kind==='wave'){const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=520;g.gain.value=.05;const l=c.createOscillator();l.frequency.value=.11;const lg=c.createGain();lg.gain.value=.04;l.connect(lg);lg.connect(g.gain);l.start();s.connect(lp);lp.connect(g);RADIO.nodes.push(l);}
   else{const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=2500;g.gain.value=.012;s.connect(hp);hp.connect(g);}
   g.connect(RADIO.master);s.start();RADIO.nodes.push(s);}
+
+// ---------- Crystal Harbour: 10 original RPG-style tracks (composed for Quokka Cafe) ----------
+const CR_SCALES={maj:[0,2,4,5,7,9,11],min:[0,2,3,5,7,8,10]};
+const CR_ROOT={I:1,i:1,ii:2,II:2,iii:3,III:3,IV:4,iv:4,V:5,v:5,vi:6,VI:6,vii:7,VII:7};
+const CRYSTAL=[
+ {t:'Wadjemup Overture',key:62,mode:'maj',bpm:80,m:4,style:'harp',lead:'flute',A:['I','V','vi','iii','IV','I','ii','V'],B:['IV','V','iii','vi','ii','V','I','I'],mA:[[3,1],[5,1],[8,2],[7,1],[9,1],[5,2]],mB:[[6,1.5],[5,.5],[4,1],[3,1],[2,2],[1,2]]},
+ {t:'Lanterns on the Jetty',key:67,mode:'maj',bpm:100,m:3,style:'waltz',lead:'bell',A:['I','IV','I','V','vi','IV','V','I'],B:['IV','I','ii','V','vi','IV','V','I'],mA:[[5,2],[6,1],[5,1],[3,1],[1,1]],mB:[[4,2],[3,1],[2,1.5],[3,.5],[5,1]]},
+ {t:'Kip’s Promise',key:65,mode:'maj',bpm:64,m:4,style:'ballad',lead:'flute',A:['I','iii','IV','I','ii','V','I','V'],B:['vi','iii','IV','I','ii','V','I','I'],mA:[[5,1.5],[6,.5],[5,1],[3,1],[2,3],[1,1]],mB:[[8,2],[7,1],[6,1],[5,3],[3,1]]},
+ {t:'Salt Lake Reverie',key:69,mode:'min',bpm:72,m:4,style:'harp',lead:'oboe',A:['i','VI','III','VII','i','iv','V','i'],B:['iv','i','VI','III','iv','V','i','i'],mA:[[5,1],[4,.5],[3,.5],[1,2],[2,1],[3,1],[5,2]],mB:[[6,2],[5,1],[4,1],[3,1.5],[2,.5],[0,2]]},
+ {t:'Ferry to the City',key:72,mode:'maj',bpm:116,m:4,style:'march',lead:'flute',A:['I','V','IV','V','I','vi','ii','V'],B:['IV','I','IV','V','iii','vi','ii','V'],mA:[[1,.5],[3,.5],[5,1],[5,.5],[6,.5],[5,1],[8,2],[7,2]],mB:[[6,1],[5,1],[4,1],[3,1],[2,1],[3,1],[5,2]]},
+ {t:'Starlit Settlement',key:63,mode:'maj',bpm:84,m:3,style:'musicbox',lead:'bell',A:['I','vi','IV','V','I','iii','IV','V'],B:['vi','IV','I','V','ii','V','I','I'],mA:[[3,1],[5,1],[8,1],[7,2],[5,1]],mB:[[6,1.5],[5,.5],[4,1],[3,2],[2,1]]},
+ {t:'Old Lighthouse Waltz',key:62,mode:'min',bpm:108,m:3,style:'waltz',lead:'oboe',A:['i','iv','VII','III','VI','iv','V','i'],B:['VI','III','iv','i','VI','iv','V','V'],mA:[[1,1],[3,1],[5,1],[4,2],[3,1]],mB:[[6,2],[5,1],[4,1],[2,1],[0,1]]},
+ {t:'Fremantle Market Day',key:70,mode:'maj',bpm:104,m:4,style:'march',lead:'bell',A:['I','IV','V','I','vi','ii','V','I'],B:['IV','V','iii','vi','ii','V','I','V'],mA:[[5,.5],[5,.5],[6,1],[5,1],[8,1],[7,2],[5,2]],mB:[[4,1],[6,1],[8,1],[6,1],[5,2],[3,2]]},
+ {t:'Quokka Village Campfire',key:67,mode:'maj',bpm:76,m:4,style:'harp',lead:'flute',A:['I','IV','I','V','I','IV','V','I'],B:['vi','IV','I','V','vi','IV','V','I'],mA:[[1,1],[2,1],[3,1],[5,1],[6,2],[5,2]],mB:[[8,1],[6,1],[5,1],[3,1],[2,2],[1,2]]},
+ {t:'Letter to Mum & Dad',key:72,mode:'maj',bpm:60,m:4,style:'ballad',lead:'flute',A:['I','V','vi','iii','IV','I','IV','V'],B:['vi','iii','IV','I','ii','V','I','I'],mA:[[3,1],[2,.5],[1,.5],[2,2],[5,1],[3,1],[1,2]],mB:[[6,2],[5,1],[4,1],[3,2],[2,1],[1,1]]}];
+function crSemi(tr,deg){const sc=CR_SCALES[tr.mode],i=deg-1,o=Math.floor(i/7),k=((i%7)+7)%7;return sc[k]+12*o;}
+function crChord(tr,ch){const r=CR_ROOT[ch];const degs=[r,r+2,r+4];return degs.map((d,j)=>{let s=crSemi(tr,d);if(tr.mode==='min'&&(ch==='V')&&j===1)s+=1;return s;});}
+function crChordDegSet(ch){const r=CR_ROOT[ch];return[r,r+2,r+4].map(d=>((d-1)%7+7)%7);}
+function crCompile(tr){const ev=[],m=tr.m;let bar=0;const melody=(sec,mot,oct,vol,dbl)=>{for(let g=0;g<4;g++){const c0=sec[g*2],c1=sec[g*2+1];let sh=CR_ROOT[c0]-CR_ROOT[sec[0]];if(sh>3)sh-=7;if(sh<-3)sh+=7;let b=0;const notes=mot.map(([d,du])=>[d+sh,du]);
+      const fin=g===3;notes.forEach(([d,du],ni)=>{const bb=b;b+=du;if(fin&&bb>=m)return;const chNow=bb<m?c0:c1;let dd=d;if(Math.abs(bb-Math.round(bb))<1e-6&&du>=1){const set=crChordDegSet(chNow);let best=dd,bd=9;for(let x=-2;x<=2;x++){if(set.includes((((dd+x)-1)%7+7)%7)&&Math.abs(x)<bd){bd=Math.abs(x);best=dd+x;}}dd=best;}
+        ev.push({b:(bar+g*2)*m+bb,k:'lead',n:tr.key+crSemi(tr,dd)+12*oct,d:du,v:vol});if(dbl)ev.push({b:(bar+g*2)*m+bb,k:'bell',n:tr.key+crSemi(tr,dd)+12*(oct+1),d:du,v:vol*.5});});
+      if(fin){const set=crChordDegSet(c1);let d=sec[7]==='I'||sec[7]==='i'?8:5;ev.push({b:(bar+g*2+1)*m,k:'lead',n:tr.key+crSemi(tr,d)+12*oct,d:m,v:vol});}}};
+  const accomp=(sec,nb)=>{for(let i=0;i<nb;i++){const ch=sec[i%sec.length],tones=crChord(tr,ch),root=tr.key-24+tones[0],B=(bar+i)*m;
+      if(tr.style==='harp'){for(let k=0;k<m*2;k++){const o=k%6,idx=[0,1,2,0,1,2][o]+ (o>=3?3:0);const n=tr.key-12+tones[idx%3]+12*Math.floor(idx/3);ev.push({b:B+k*.5,k:'harp',n,v:k%2?.45:.6});}ev.push({b:B,k:'bass',n:root,d:m,v:.14});ev.push({b:B,k:'strings',ns:tones.map(t=>tr.key-12+t),d:m,v:.008});}
+      else if(tr.style==='waltz'){ev.push({b:B,k:'bass',n:root,d:1,v:.16});for(const q of [1,2])tones.forEach(t=>ev.push({b:B+q,k:'piano',n:tr.key-12+t,d:.8,v:.32}));}
+      else if(tr.style==='march'){ev.push({b:B,k:'bass',n:root,d:1.5,v:.17});ev.push({b:B+2,k:'bass',n:root+7,d:1.5,v:.13});for(const q of [1,3])tones.forEach(t=>ev.push({b:B+q,k:'piano',n:tr.key-12+t,d:.5,v:.3}));for(let q=0;q<m;q++)ev.push({b:B+q,k:'hat',v:q%2?.5:.8});ev.push({b:B+3.5,k:'hat',v:.4});}
+      else if(tr.style==='ballad'){ev.push({b:B,k:'bass',n:root,d:m,v:.13});ev.push({b:B,k:'strings',ns:tones.map(t=>tr.key-12+t),d:m,v:.011});for(let q=0;q<m;q++)ev.push({b:B+q,k:'piano',n:tr.key-12+tones[[0,1,2,1][q]]+(q===2?12:0),d:1.4,v:.35});}
+      else if(tr.style==='musicbox'){ev.push({b:B,k:'bass',n:root,d:m,v:.12});for(let k=0;k<m*2;k++)ev.push({b:B+k*.5,k:'bell',n:tr.key+tones[k%3]+(k%6>=3?12:0),d:.5,v:.25});}}};
+  accomp(tr.A,2);bar+=2;
+  const sects=[[tr.A,tr.mA,0,.55,false],[tr.A,tr.mA,1,.5,true],[tr.B,tr.mB,0,.55,false],[tr.A,tr.mA,0,.55,true]];
+  sects.forEach(([sec,mot,oct,vol,dbl])=>{accomp(sec,8);melody(sec,mot,oct,vol,dbl);bar+=8;});
+  ev.sort((a,b)=>a.b-b.b);return{ev,beats:bar*m};}
+function flute(t,mi,dur,vel){const c=RADIO.ctx,f=mtof(mi);const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.13*vel,t+.07);g.gain.setValueAtTime(.11*vel,t+Math.max(.08,dur-.08));g.gain.linearRampToValueAtTime(0,t+dur+.15);
+  const o=c.createOscillator();o.type='sine';o.frequency.value=f;const o2=c.createOscillator();o2.type='triangle';o2.frequency.value=f*2;const g2=c.createGain();g2.gain.value=.12;o2.connect(g2);g2.connect(g);o.connect(g);
+  const vib=c.createOscillator();vib.frequency.value=5.2;const vg=c.createGain();vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(f*.006,t+Math.min(.5,dur));vib.connect(vg);vg.connect(o.frequency);
+  [o,o2,vib].forEach(x=>{x.start(t);x.stop(t+dur+.2);});out(g,.75,.5);}
+function oboe(t,mi,dur,vel){const c=RADIO.ctx,f=mtof(mi);const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.07*vel,t+.05);g.gain.setValueAtTime(.06*vel,t+Math.max(.06,dur-.06));g.gain.linearRampToValueAtTime(0,t+dur+.12);
+  const o=c.createOscillator();o.type='sawtooth';o.frequency.value=f;const bp=c.createBiquadFilter();bp.type='lowpass';bp.frequency.value=Math.min(4200,f*4);bp.Q.value=2;
+  const vib=c.createOscillator();vib.frequency.value=5.6;const vg=c.createGain();vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(f*.005,t+Math.min(.4,dur));vib.connect(vg);vg.connect(o.frequency);
+  o.connect(bp);bp.connect(g);[o,vib].forEach(x=>{x.start(t);x.stop(t+dur+.2);});out(g,.7,.5);}
+function bell(t,mi,dur,vel){const c=RADIO.ctx,f=mtof(mi);const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12*vel,t+.004);g.gain.exponentialRampToValueAtTime(.0008,t+1.6);
+  [[1,1],[2.76,.35],[5.4,.12]].forEach(([h,a])=>{const o=c.createOscillator();o.type='sine';o.frequency.value=f*h;const og=c.createGain();og.gain.value=a;o.connect(og);og.connect(g);o.start(t);o.stop(t+1.7);});out(g,.65,.6);}
+function harp(t,mi,vel){const c=RADIO.ctx,f=mtof(mi);const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.14*vel,t+.003);g.gain.exponentialRampToValueAtTime(.0008,t+2.2);
+  const o=c.createOscillator();o.type='triangle';o.frequency.value=f;const o2=c.createOscillator();o2.type='sine';o2.frequency.value=f*2;const g2=c.createGain();g2.gain.value=.3;o2.connect(g2);g2.connect(g);o.connect(g);[o,o2].forEach(x=>{x.start(t);x.stop(t+2.3);});out(g,.6,.6);}
+function strings(t,ns,dur,vol){const c=RADIO.ctx;const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(1.2,dur*.4));g.gain.setValueAtTime(vol,t+dur*.8);g.gain.linearRampToValueAtTime(0,t+dur+.4);const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;
+  ns.forEach(m=>[-9,0,9].forEach(d=>{const o=c.createOscillator();o.type='sawtooth';o.frequency.value=mtof(m);o.detune.value=d;o.connect(lp);o.start(t);o.stop(t+dur+.5);}));lp.connect(g);out(g,.45,.7);}
+function crStart(i){const tr=CRYSTAL[((i%CRYSTAL.length)+CRYSTAL.length)%CRYSTAL.length];RADIO.trk=CRYSTAL.indexOf(tr);RADIO.cr=crCompile(tr);RADIO.crI=0;RADIO.crT0=RADIO.ctx.currentTime+.15;RADIO.crSpb=60/tr.bpm;RADIO.crLoops=0;
+  try{const n=$('#rdNow');if(n&&overlay==='radio')renderRadio();}catch(e){}if(running&&RADIO.st==='crystal')toast('♫ Now playing: '+tr.t,2.6);}
+function crTick(){const c=RADIO.ctx;if(!RADIO.cr)crStart(RADIO.trk||0);const C=RADIO.cr,spb=RADIO.crSpb;const win=c.currentTime+.6;
+  while(RADIO.crI<C.ev.length){const e=C.ev[RADIO.crI];const t=RADIO.crT0+e.b*spb;if(t>win)break;RADIO.crI++;if(t<c.currentTime-.05)continue;
+    const tr=CRYSTAL[RADIO.trk];if(e.k==='lead'){(tr.lead==='flute'?flute:tr.lead==='oboe'?oboe:bell)(t,e.n,e.d*spb*.95,e.v*1.6);}else if(e.k==='bell')bell(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='harp')harp(t,e.n,e.v);else if(e.k==='piano')piano(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='bass')bass(t,e.n,e.d*spb,e.v*.65);else if(e.k==='strings')strings(t,e.ns,e.d*spb,e.v*.8);else if(e.k==='hat')hat(t,e.v*.6);}
+  if(RADIO.crI>=C.ev.length&&c.currentTime>RADIO.crT0+C.beats*spb+1.2){crStart((RADIO.trk||0)+1);}}
 const PROG={seaside:[[48,[60,64,67,71]],[45,[57,60,64,67]],[41,[57,60,65,69]],[43,[59,62,67,71]],[40,[59,64,67,71]],[45,[57,60,64,69]],[38,[57,62,65,69]],[43,[55,59,62,65]]],
  lofi:[[38,[60,62,65,69]],[43,[59,62,65,69]],[36,[59,62,64,67]],[45,[55,60,64,67]]],
  breeze:[[38,[50,57,62]],[34,[46,53,58]],[36,[48,55,60]],[33,[45,52,57]]]};
 const SCALE={seaside:[72,74,76,79,81,84,86],lofi:[69,72,74,76,79,81],breeze:[62,64,65,69,70,74,76,77,81]};
-function radioSchedule(){const c=RADIO.ctx;if(!c||RADIO.st==='off')return;const S2=RSTATIONS[RADIO.st],spb=60/S2.bpm,e=spb/2;
+function radioSchedule(){const c=RADIO.ctx;if(!c||RADIO.st==='off')return;if(RADIO.st==='crystal'){crTick();return;}const S2=RSTATIONS[RADIO.st],spb=60/S2.bpm,e=spb/2;
   while(RADIO.next<c.currentTime+.6){const t=RADIO.next,st=RADIO.step%16,P=PROG[RADIO.st],ch=P[RADIO.bar%P.length];
     if(RADIO.st==='seaside'){if(st===0){bass(t,ch[0],spb*3.6,.16);pad(t,ch[1].map(m=>m-12),spb*8,.012);}if(st===8)bass(t,ch[0]+7,spb*3.2,.1);
       const arp=[0,1,2,3,2,1,2,3][st%8];if(st%2===0||Math.random()<.3)piano(t+(Math.random()*.012),ch[1][arp]+(st>=8&&arp===3?12:0),e*1.6,st%4===0?.9:.6);
@@ -2657,13 +2710,13 @@ function radioSchedule(){const c=RADIO.ctx;if(!c||RADIO.st==='off')return;const 
     RADIO.next+=e;RADIO.step++;if(RADIO.step%16===0)RADIO.bar++;}}
 function radioPlay(st){if(st)RADIO.st=st;radioSave();RADIO.nodes.forEach(n=>{try{n.stop();}catch(e){}});RADIO.nodes=[];if(RADIO.st==='off'){if(RADIO.master)RADIO.master.gain.setTargetAtTime(0,RADIO.ctx.currentTime,.3);clearInterval(RADIO.timer);RADIO.timer=null;radioLabel();return;}
   if(!radioInit())return;const c=RADIO.ctx;if(c.state==='suspended')c.resume();RADIO.master.gain.setTargetAtTime(RADIO.vol*.9,c.currentTime,.6);RADIO.next=c.currentTime+.1;RADIO.step=0;RADIO.bar=Math.floor(Math.random()*4);
-  if(RADIO.st==='seaside')loopNoise('wave');if(RADIO.st==='lofi')loopNoise('crackle');if(!RADIO.timer)RADIO.timer=setInterval(radioSchedule,120);radioSchedule();radioLabel();}
+  if(RADIO.st==='crystal'){RADIO.cr=null;if(RADIO.trk==null)RADIO.trk=0;}if(RADIO.st==='seaside')loopNoise('wave');if(RADIO.st==='lofi')loopNoise('crackle');if(!RADIO.timer)RADIO.timer=setInterval(radioSchedule,120);radioSchedule();radioLabel();}
 function radioVol(v){RADIO.vol=v;radioSave();if(RADIO.master&&RADIO.st!=='off')RADIO.master.gain.setTargetAtTime(v*.9,RADIO.ctx.currentTime,.1);}
 function radioLabel(){const ic=$('#radioIco');if(ic){const on=RADIO.st!=='off';ic.classList.toggle('on',on);ic.classList.toggle('off',!on);ic.title=on?'Radio: '+RSTATIONS[RADIO.st].name+' (tap to change)':'Radio off (tap to turn on)';}const b=$('#radioBtn');if(b)b.textContent=RADIO.st==='off'?'Radio':'♫ '+RSTATIONS[RADIO.st].name.split(' ')[0];}
 document.addEventListener('visibilitychange',()=>{if(!RADIO.ctx)return;if(document.hidden)RADIO.ctx.suspend();else if(RADIO.st!=='off')RADIO.ctx.resume();});
 function openRadio(){if(!running||overlay)return;renderRadio();showOverlay('radio');}
-function renderRadio(){{const t=$('#rdToggle');if(t)t.textContent=RADIO.st==='off'?'\u25b6 Turn radio on':'\u23f9 Turn radio off';}const G=$('#rdList');G.innerHTML='';Object.keys(RSTATIONS).forEach(k=>{const S2=RSTATIONS[k];const b=document.createElement('button');b.type='button';b.className='rdS'+(RADIO.st===k?' on':'');b.id='rd-'+k;const n=document.createElement('b');n.textContent=(RADIO.st===k&&k!=='off'?'♫ ':'')+S2.name;const p=document.createElement('span');p.textContent=S2.desc;b.append(n,p);b.onclick=()=>{radioPlay(k);renderRadio();};G.appendChild(b);});
-  $('#rdVol').value=Math.round(RADIO.vol*100);$('#rdNow').textContent=RADIO.st==='off'?'Radio is off':'Now playing: '+RSTATIONS[RADIO.st].name+' · Wadjemup FM 96.9';}
+function renderRadio(){{const n=$('#rdNow');if(n){n.innerHTML='';if(RADIO.st==='crystal'){const tr=CRYSTAL[RADIO.trk||0];const sp=document.createElement('span');sp.textContent='\u266b Track '+((RADIO.trk||0)+1)+'/10 \u00b7 '+tr.t+'  ';n.appendChild(sp);[['\u23ee','Previous track',-1],['\u23ed','Next track',1]].forEach(([g,l,d])=>{const b=document.createElement('button');b.type='button';b.className='btn ghost';b.style.padding='2px 10px';b.style.marginLeft='6px';b.textContent=g;b.setAttribute('aria-label',l);b.onclick=()=>{if(RADIO.ctx){crStart((RADIO.trk||0)+d);renderRadio();}};n.appendChild(b);});}else n.textContent=RADIO.st==='off'?'The radio is off.':'Now on: '+RSTATIONS[RADIO.st].name;}}{const t=$('#rdToggle');if(t)t.textContent=RADIO.st==='off'?'\u25b6 Turn radio on':'\u23f9 Turn radio off';}const G=$('#rdList');G.innerHTML='';Object.keys(RSTATIONS).forEach(k=>{const S2=RSTATIONS[k];const b=document.createElement('button');b.type='button';b.className='rdS'+(RADIO.st===k?' on':'');b.id='rd-'+k;const n=document.createElement('b');n.textContent=(RADIO.st===k&&k!=='off'?'♫ ':'')+S2.name;const p=document.createElement('span');p.textContent=S2.desc;b.append(n,p);b.onclick=()=>{radioPlay(k);renderRadio();};G.appendChild(b);});
+  $('#rdVol').value=Math.round(RADIO.vol*100);if(RADIO.st!=='crystal')$('#rdNow').textContent=RADIO.st==='off'?'Radio is off':'Now playing: '+RSTATIONS[RADIO.st].name+' · Wadjemup FM 96.9';}
 
 function openCoach(from){openTravel('Where to?','Quokka Coach \u00b7 island bus',COACH.map(b=>({id:b.id,name:b.name,here:b.id===from,note:b.id===from?'':'Ride about '+Math.max(2,Math.round(Math.abs(COACH_IDX[b.id]-COACH_IDX[from])*1.5))+' min',ride:()=>coachRide(from,b.id),tp:()=>coachTo(b)})));}
 function coachTo(b){if(transit)return;if(VISIT){toast('Go home first to travel',2);return;}transit=true;fadeTarget=.95;toast('Quokka Coach to '+b.name+'…',2);setTimeout(()=>{S.time+=10;player.bike=false;player.x=b.x;player.z=b.z+.8;updateCamera(0,true);fadeTarget=0;transit=false;S.qg=S.qg||{};S.qg['coach_'+b.id]=1;save();},800);}
