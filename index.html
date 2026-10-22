@@ -2705,7 +2705,7 @@ function crChord(tr,ch){const r=CR_ROOT[ch];const degs=[r,r+2,r+4];return degs.m
 function crChordDegSet(ch){const r=CR_ROOT[ch];return[r,r+2,r+4].map(d=>((d-1)%7+7)%7);}
 function crCompile(tr){const ev=[],m=tr.m;let bar=0;const melody=(sec,mot,oct,vol,dbl)=>{for(let g=0;g<4;g++){const c0=sec[g*2],c1=sec[g*2+1];let sh=CR_ROOT[c0]-CR_ROOT[sec[0]];if(sh>3)sh-=7;if(sh<-3)sh+=7;let b=0;const notes=mot.map(([d,du])=>[d+sh,du]);
       const fin=g===3;notes.forEach(([d,du],ni)=>{const bb=b;b+=du;if(fin&&bb>=m)return;const chNow=bb<m?c0:c1;let dd=d;if(Math.abs(bb-Math.round(bb))<1e-6&&du>=1){const set=crChordDegSet(chNow);let best=dd,bd=9;for(let x=-2;x<=2;x++){if(set.includes((((dd+x)-1)%7+7)%7)&&Math.abs(x)<bd){bd=Math.abs(x);best=dd+x;}}dd=best;}
-        ev.push({b:(bar+g*2)*m+bb,k:'lead',n:tr.key+crSemi(tr,dd)+12*oct,d:du,v:vol});if(dbl)ev.push({b:(bar+g*2)*m+bb,k:'bell',n:tr.key+crSemi(tr,dd)+12*(oct+1),d:du,v:vol*.5});});
+        ev.push({b:(bar+g*2)*m+bb,k:'lead',n:tr.key+crSemi(tr,dd)+12*oct,d:du,v:vol});if(dbl){let bn=tr.key+crSemi(tr,dd)+12*(oct+1);while(bn>100)bn-=12;ev.push({b:(bar+g*2)*m+bb,k:'bell',n:bn,d:du,v:vol*.5});}});
       if(fin){const set=crChordDegSet(c1);let d=sec[7]==='I'||sec[7]==='i'?8:5;ev.push({b:(bar+g*2+1)*m,k:'lead',n:tr.key+crSemi(tr,d)+12*oct,d:m,v:vol});}}};
   const accomp=(sec,nb)=>{for(let i=0;i<nb;i++){const ch=sec[i%sec.length],tones=crChord(tr,ch),root=tr.key-24+tones[0],B=(bar+i)*m;
       if(tr.style==='harp'){for(let k=0;k<m*2;k++){const o=k%6,idx=[0,1,2,0,1,2][o]+ (o>=3?3:0);const n=tr.key-12+tones[idx%3]+12*Math.floor(idx/3);ev.push({b:B+k*.5,k:'harp',n,v:k%2?.45:.6});}ev.push({b:B,k:'bass',n:root,d:m,v:.14});ev.push({b:B,k:'strings',ns:tones.map(t=>tr.key-12+t),d:m,v:.008});}
