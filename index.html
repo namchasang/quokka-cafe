@@ -1979,9 +1979,10 @@ let STUDIO=false;
 function studioTip(t){let el=document.getElementById('studioTip');if(!el){el=document.createElement('div');el.id='studioTip';document.body.appendChild(el);}el.textContent=t;el.classList.add('on');clearTimeout(studioTip.h);studioTip.h=setTimeout(()=>el.classList.remove('on'),2600);}
 function studioClock(){const h=Math.floor(S.time/60)%24,m=Math.floor(S.time%60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}
 addEventListener('keydown',e=>{if(e.target&&/input|textarea/i.test(e.target.tagName))return;const k=e.key.toLowerCase();
-  if(k==='k'&&!e.ctrlKey&&!e.metaKey){STUDIO=!STUDIO;document.body.classList.toggle('studio',STUDIO);studioTip(STUDIO?'Studio mode · 1–4 weather · [ ] time ±30 min · K to exit':'Studio mode off');e.stopImmediatePropagation();return;}
+  if(k==='k'&&!e.ctrlKey&&!e.metaKey){STUDIO=!STUDIO;document.body.classList.toggle('studio',STUDIO);studioTip(STUDIO?'Studio mode · 1–4 weather · [ ] time ±30 min · L playlist · K to exit':'Studio mode off');e.stopImmediatePropagation();return;}
   if(!STUDIO)return;
   if(['1','2','3','4'].includes(k)){S.wx=+k-1;studioTip('Weather: '+WEATHERS[S.wx].label);e.stopImmediatePropagation();return;}
+  if(k==='l'&&!e.ctrlKey&&!e.metaKey){studioPlaylist();e.stopImmediatePropagation();return;}
   if(k==='['||k===']'){S.time=Math.min(1435,Math.max(300,S.time+(k===']'?30:-30)));studioTip('Time '+studioClock());e.stopImmediatePropagation();return;}
 },true);
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
@@ -2737,12 +2738,30 @@ function harp(t,mi,vel){const c=RADIO.ctx,f=mtof(mi);const g=c.createGain();g.ga
   const o=c.createOscillator();o.type='triangle';o.frequency.value=f;const o2=c.createOscillator();o2.type='sine';o2.frequency.value=f*2;const g2=c.createGain();g2.gain.value=.3;o2.connect(g2);g2.connect(g);o.connect(g);[o,o2].forEach(x=>{x.start(t);x.stop(t+2.3);});out(g,.6,.6);}
 function strings(t,ns,dur,vol){const c=RADIO.ctx;const g=c.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(1.2,dur*.4));g.gain.setValueAtTime(vol,t+dur*.8);g.gain.linearRampToValueAtTime(0,t+dur+.4);const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1400;
   ns.forEach(m=>[-9,0,9].forEach(d=>{const o=c.createOscillator();o.type='sawtooth';o.frequency.value=mtof(m);o.detune.value=d;o.connect(lp);o.start(t);o.stop(t+dur+.5);}));lp.connect(g);out(g,.45,.7);}
-function crStart(i){const tr=CRYSTAL[((i%CRYSTAL.length)+CRYSTAL.length)%CRYSTAL.length];RADIO.trk=CRYSTAL.indexOf(tr);RADIO.cr=crCompile(tr);RADIO.crI=0;RADIO.crT0=RADIO.ctx.currentTime+.15;RADIO.crSpb=60/tr.bpm;RADIO.crLoops=0;
-  try{const n=$('#rdNow');if(n&&overlay==='radio')renderRadio();}catch(e){}if(running&&RADIO.st==='crystal')toast('♫ Now playing: '+tr.t,2.6);}
-function crTick(){const c=RADIO.ctx;if(!RADIO.cr)crStart(RADIO.trk||0);const C=RADIO.cr,spb=RADIO.crSpb;const win=c.currentTime+.6;
+function crStart(i,t0){const tr=CRYSTAL[((i%CRYSTAL.length)+CRYSTAL.length)%CRYSTAL.length];RADIO.trk=CRYSTAL.indexOf(tr);RADIO.cr=crCompile(tr);RADIO.crI=0;RADIO.crT0=t0!=null?t0:RADIO.ctx.currentTime+.15;RADIO.crSpb=60/tr.bpm;RADIO.crLoops=0;
+  try{const n=$('#rdNow');if(n&&overlay==='radio')renderRadio();}catch(e){}if(running&&RADIO.st==='crystal'&&!RADIO.pl)toast('♫ Now playing: '+tr.t,2.6);}
+function crTick(){const c=RADIO.ctx;if(RADIO.pl&&(RADIO.pl.done||!RADIO.cr))return;if(!RADIO.cr)crStart(RADIO.trk||0);const C=RADIO.cr,spb=RADIO.crSpb;const win=c.currentTime+.6;
   while(RADIO.crI<C.ev.length){const e=C.ev[RADIO.crI];const t=RADIO.crT0+e.b*spb;if(t>win)break;RADIO.crI++;if(t<c.currentTime-.05)continue;
     const tr=CRYSTAL[RADIO.trk];if(e.k==='lead'){(tr.lead==='flute'?flute:tr.lead==='oboe'?oboe:bell)(t,e.n,e.d*spb*.95,e.v*1.6);}else if(e.k==='bell')bell(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='harp')harp(t,e.n,e.v);else if(e.k==='piano')piano(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='bass')bass(t,e.n,e.d*spb,e.v*.65);else if(e.k==='strings')strings(t,e.ns,e.d*spb,e.v*.8);else if(e.k==='hat')hat(t,e.v*.6);}
+  if(RADIO.pl){const end=RADIO.crT0+C.beats*spb+PL_GAP;if(RADIO.crI>=C.ev.length&&c.currentTime>end-.5)plNext(end);return;}
   if(RADIO.crI>=C.ev.length&&c.currentTime>RADIO.crT0+C.beats*spb+1.2){crStart((RADIO.trk||0)+1);}}
+// ---------- Studio playlists: fixed track order with exact timing, for long YouTube videos ----------
+// Each track starts exactly (beats x seconds-per-beat + PL_GAP) after the one before, so timestamps can be computed ahead of time.
+const PL_GAP=2,PL_LEAD=4;
+const STUDIO_PL=[
+ {id:'morning',name:'Morning at the Café',hint:'try Sunny, 07:00–09:00',titles:['Café Opening Bell','Morning Ferry Bell','Sunrise Over Thomson Bay','Morning Tide','Wadjemup Overture','Sea Breeze Promenade','Warm Bread, Warm Hearts','Picnic at Pinky Beach','Bicycle Bell Polka','Fremantle Market Day','Lanterns on the Jetty','Ferry to the City','Rottnest Express','Best Friends Forever','Quokka Parade','Market Lanterns','The Day Mum and Dad Arrived','Pink Lake Lullaby','Kip’s Promise','Home Is Where You Are']},
+ {id:'rain',name:'Rain on the Island',hint:'try Showers',titles:['Rain on the Tin Roof','Salt Lake Reverie','Tidepools at Parakeet Bay','Old Lighthouse Waltz','Letter to Mum & Dad','Lantern Moths','Lighthouse Keeper’s Thank-You','Pink Lake Lullaby','Kip’s Promise','Starlit Settlement','The Day Mum and Dad Arrived','Homeward Ferry','Quokka Village Campfire','Lanterns on the Jetty','Hand in Hand on the Jetty','Goodnight, Wadjemup','Wadjemup Overture','Home Is Where You Are']},
+ {id:'golden',name:'Golden Hour',hint:'try Sunny, 17:30–18:30',titles:['Picnic at Pinky Beach','Sea Breeze Promenade','Warm Bread, Warm Hearts','Homeward Ferry','Lanterns on the Jetty','Quokka Village Campfire','Hand in Hand on the Jetty','Fireworks Over the Swan','Market Lanterns','Lighthouse Keeper’s Thank-You','The Day Mum and Dad Arrived','Kip’s Promise','Lantern Moths','Starlit Settlement','Best Friends Forever','Pink Lake Lullaby','Letter to Mum & Dad','Goodnight, Wadjemup','Home Is Where You Are']}];
+let PL_SEL=-1;
+function plTracks(P){return P.titles.map(t=>CRYSTAL.findIndex(x=>x.t===t)).filter(i=>i>=0);}
+function plLen(list){return list.reduce((a,i)=>{const tr=CRYSTAL[i];return a+crCompile(tr).beats*60/tr.bpm+PL_GAP;},0);}
+function plClock(s){s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s/60)%60,x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');}
+function plNext(end){const P=RADIO.pl;P.i++;if(P.i>=P.list.length){P.done=true;setTimeout(()=>{if(RADIO.pl===P&&STUDIO)studioTip('Playlist finished · stop recording');},Math.max(0,(end-RADIO.ctx.currentTime)*1000));return;}crStart(P.list[P.i],end);}
+function studioPlaylist(){PL_SEL=PL_SEL>=STUDIO_PL.length-1?-1:PL_SEL+1;
+  if(PL_SEL<0){RADIO.pl=null;radioPlay('off');studioTip('Playlist off');return;}
+  const P=STUDIO_PL[PL_SEL],list=plTracks(P);RADIO.pl={id:P.id,list,i:0,done:false};RADIO.cr=null;radioPlay('crystal',true);if(!RADIO.ctx){RADIO.pl=null;return;}
+  crStart(list[0],RADIO.ctx.currentTime+PL_LEAD);studioTip(P.name+' · '+list.length+' tracks · '+plClock(plLen(list))+' · music in '+PL_LEAD+' s ('+P.hint+')');}
+
 const PROG={seaside:[[48,[60,64,67,71]],[45,[57,60,64,67]],[41,[57,60,65,69]],[43,[59,62,67,71]],[40,[59,64,67,71]],[45,[57,60,64,69]],[38,[57,62,65,69]],[43,[55,59,62,65]]],
  lofi:[[38,[60,62,65,69]],[43,[59,62,65,69]],[36,[59,62,64,67]],[45,[55,60,64,67]]],
  breeze:[[38,[50,57,62]],[34,[46,53,58]],[36,[48,55,60]],[33,[45,52,57]]]};
@@ -2759,7 +2778,7 @@ function radioSchedule(){const c=RADIO.ctx;if(!c||RADIO.st==='off')return;if(RAD
       if(st%2===0&&Math.random()<.7){const i=Math.floor(Math.random()*sc.length);pluck(t,sc[i],st%8===0?.9:.6);if(Math.random()<.25)pluck(t+e*.5,sc[Math.min(sc.length-1,i+1)],.45);}
       if(st===14&&Math.random()<.35){for(let k=0;k<5;k++)pluck(t+k*.06,sc[Math.min(sc.length-1,k+2)],.35);}}
     RADIO.next+=e;RADIO.step++;if(RADIO.step%16===0)RADIO.bar++;}}
-function radioPlay(st){if(st)RADIO.st=st;radioSave();RADIO.nodes.forEach(n=>{try{n.stop();}catch(e){}});RADIO.nodes=[];if(RADIO.st==='off'){if(RADIO.master)RADIO.master.gain.setTargetAtTime(0,RADIO.ctx.currentTime,.3);clearInterval(RADIO.timer);RADIO.timer=null;radioLabel();return;}
+function radioPlay(st,keepPl){if(!keepPl)RADIO.pl=null;if(st)RADIO.st=st;radioSave();RADIO.nodes.forEach(n=>{try{n.stop();}catch(e){}});RADIO.nodes=[];if(RADIO.st==='off'){if(RADIO.master)RADIO.master.gain.setTargetAtTime(0,RADIO.ctx.currentTime,.3);clearInterval(RADIO.timer);RADIO.timer=null;radioLabel();return;}
   if(!radioInit())return;const c=RADIO.ctx;if(c.state==='suspended')c.resume();RADIO.master.gain.setTargetAtTime(RADIO.vol*.9,c.currentTime,.6);RADIO.next=c.currentTime+.1;RADIO.step=0;RADIO.bar=Math.floor(Math.random()*4);
   if(RADIO.st==='crystal'){RADIO.cr=null;if(RADIO.trk==null)RADIO.trk=0;}if(RADIO.st==='seaside')loopNoise('wave');if(RADIO.st==='lofi')loopNoise('crackle');if(!RADIO.timer)RADIO.timer=setInterval(radioSchedule,120);radioSchedule();radioLabel();}
 function radioVol(v){RADIO.vol=v;radioSave();if(RADIO.master&&RADIO.st!=='off')RADIO.master.gain.setTargetAtTime(v*.9,RADIO.ctx.currentTime,.1);}
