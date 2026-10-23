@@ -1256,16 +1256,30 @@ function applyBiz(){BIZ.forEach(b=>{const own=!!(S.biz&&S.biz[b.id]&&S.biz[b.id]
 const riders=[];const riderCv=['#e45a5a','#3f86d6','#f1c64a','#5bb48a'].map((sh,i)=>{const c=mk(24,27),x=c.getContext('2d');x.drawImage(bikeCanvas(['#2f7fd0','#e2584f','#f1c64a','#5bb48a'][i]),0,13);
   const top=pix(HU_HEAD.concat(HU_REST.slice(0,9)),{o:'#2a1d1a',h:['#2a1d16','#d9b25a','#6b4226','#1b1b2b'][i],s:['#f1c7a0','#c68a5e','#e2b48a','#8d5a3b'][i],e:'#1a1010',t:sh});x.drawImage(top,6,1);return c;});
 // ---- bike lane in front of the café: cyclists ride here, never across the deck ----
-const BIKE_LANE=[[-12.5,4.6],[9.6,4.6],[13,1.2],[18,.9]];
+const BIKE_LANE=[[-12.5,4.6],[9.6,4.6],[13,1.2],[18,.9]];const BLANES=[];let laneStrip=()=>{};
 (()=>{const c=mk(64,32),x=c.getContext('2d');x.fillStyle='#b5523b';x.fillRect(0,0,64,32);const r=mulberry32(55);for(let i=0;i<120;i++){x.fillStyle=r()<.5?'#a8472f':'#c25f46';x.fillRect(r()*64|0,r()*32|0,2,2);}
   x.fillStyle='#f6efe0';x.fillRect(0,1,64,2);x.fillRect(0,29,64,2);for(let i=0;i<64;i+=16)x.fillRect(i,15,9,2);
   const tex=new THREE.CanvasTexture(c);tex.magFilter=THREE.NearestFilter;tex.wrapS=THREE.RepeatWrapping;
   const ic=mk(32,32),ix=ic.getContext('2d');ix.fillStyle='#f6efe0';const ring=(cx,cy)=>{ix.fillRect(cx-4,cy-1,8,2);ix.fillRect(cx-1,cy-4,2,8);ix.fillRect(cx-3,cy-3,2,2);ix.fillRect(cx+1,cy-3,2,2);ix.fillRect(cx-3,cy+1,2,2);ix.fillRect(cx+1,cy+1,2,2);};
   ring(8,20);ring(24,20);ix.fillRect(8,12,10,2);ix.fillRect(16,12,2,8);ix.fillRect(12,10,8,2);ix.fillRect(20,10,2,10);ix.fillRect(22,9,4,2);
-  const itex=new THREE.CanvasTexture(ic);itex.magFilter=THREE.NearestFilter;const imat=new THREE.MeshLambertMaterial({map:itex,transparent:true,depthWrite:false});
-  for(let i=0;i<BIKE_LANE.length-1;i++){const a=BIKE_LANE[i],b=BIKE_LANE[i+1];const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const t=tex.clone();t.needsUpdate=true;t.repeat.set(len/2,1);
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,1.15),new THREE.MeshLambertMaterial({map:t}));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,.021,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);
-    if(len>8)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.position.set(a[0]+(b[0]-a[0])*k,.026,a[1]+(b[1]-a[1])*k);scene.add(q);}}})();
+  const itex=new THREE.CanvasTexture(ic);itex.magFilter=THREE.NearestFilter;const imat=new THREE.MeshLambertMaterial({map:itex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
+  laneStrip=(a,b,w,icons,y)=>{w=w||1.15;y=y||.021;const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const t=tex.clone();t.needsUpdate=true;t.repeat.set(len/2,1);
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t}));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);if(w<.9)for(let d=2;d<len-1;d+=6){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.scale.setScalar(Math.min(1,w/.5));q.position.set(a[0]+(b[0]-a[0])*k,y+.004,a[1]+(b[1]-a[1])*k);scene.add(q);}BLANES.push([a,b,w]);
+    if(icons!==false&&w>.9&&len>8)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.position.set(a[0]+(b[0]-a[0])*k,y+.005,a[1]+(b[1]-a[1])*k);scene.add(q);}};
+  const run=(pts,w,icons,y)=>{for(let i=0;i<pts.length-1;i++)laneStrip(pts[i],pts[i+1],w,icons,y);};
+  run(BIKE_LANE);
+  // Rottnest: on along the main road and out to Geordie Bay
+  run([[18,.9],[31,.3],[36,1.2],[40.5,-1.2],[45.4,-2.6],[50,-1.2],[58,-.2],[68,.4],[80,1],[91,1.6]]);
+  // South Perth: foreshore shared path, and painted lanes on both sides of Mill Point Road
+  [[[103,-.9],[117.5,-.9]],[[124.5,-.9],[141.8,-.9]],[[156,-.9],[198,-.9]]].forEach(p=>run(p));
+  run([[113,21.25],[200,21.25]],.46,false,.03);run([[113,23.15],[200,23.15]],.46,false,.03);
+  // Heirisson Island: lane beside the main path
+  run([[405,4],[432,4]]);
+  // Fremantle: painted lanes along the streets
+  run([[278.5,-2.75],[320.5,-2.75]],.36,false,.03);run([[278.5,-1.25],[320.5,-1.25]],.36,false,.03);run([[280,5.15],[304,5.15]],.34,false,.03);run([[304,21.05],[334,21.05]],.34,false,.03);
+  run([[302.95,-3],[302.95,21]],.36,false,.03);run([[305.05,-3],[305.05,21]],.36,false,.03);
+  // Victoria Park: painted lanes on both sides of Albany Highway
+  run([[489,-.92],[561,-.92]],.46,false,.03);run([[489,.92],[561,.92]],.46,false,.03);})();
 function spawnRider(){if(riders.length>=6)return;const m=spriteMesh([riderCv[riders.length%4]],1.6,1.8);scene.add(m);riders.push({m,x:-12.5,z:4.6,path:[[9.6,4.6],[13,1.2],[18,.9],[31,.3],[35,3.5]],walkT:0,face:1});}
 
 // ---------- beach hammock with orange juice ----------
@@ -1975,8 +1989,8 @@ const wren={x:30.8,z:-2.6};wren.mesh=spriteMesh([pix(WREN,{o:'#1d2238',u:'#3f7fe
 const exclFor=t=>{const m=spriteMesh([pix(ICONS.excl,{o:'#2a1d1a',y:'#ffd34d'})],.32,.38,{basic:true,shadow:false});scene.add(m);return m;};
 gus.excl=exclFor();wren.excl=exclFor();
 
-const wilds=[[12,4.5],[16,-3.5],[25,3.5],[37,2],[-2,7.6]].map(([x,z],i)=>{const q={x,z,hx:x,hz:z,tx:x,tz:z,wait:R()*3,face:1,walkT:0,hop:R()*6};q.mesh=spriteMesh(quokkaFrames(false),1,1);scene.add(q.mesh);q.blob=blob(.75);return q;});
-[[58,.8],[66,5],[75,1.4],[86,3],[92,-1.5],[78,-3.6]].forEach(([x,z])=>{const q={x,z,hx:x,hz:z,tx:x,tz:z,wait:Math.random()*3,face:1,walkT:0,hop:Math.random()*6};q.mesh=spriteMesh(quokkaFrames(false),1,1);scene.add(q.mesh);q.blob=blob(.75);wilds.push(q);});
+const wilds=[[12.5,4.5],[16,-3.5],[25,3.5],[37,2],[-2,7.6],[19.5,-7.5],[28.5,7.6],[33,-2.6],[44,6],[48,-1],[8,-6.4],[-6.5,-3.6],[22,9.4],[39,-5.4]].map(([x,z],i)=>{const q={x,z,hx:x,hz:z,tx:x,tz:z,wait:R()*3,face:1,walkT:0,hop:R()*6};q.mesh=spriteMesh(quokkaFrames(false),.8,.8);scene.add(q.mesh);q.blob=blob(.6);return q;});
+[[58,.8],[66,5],[75,1.4],[86,3],[92,-1.5],[78.5,-3.6],[54,4.2],[62,-4.4],[70,6.4],[82,-2.4],[88,5.6],[95,1.4]].forEach(([x,z])=>{const q={x,z,hx:x,hz:z,tx:x,tz:z,wait:Math.random()*3,face:1,walkT:0,hop:Math.random()*6};q.mesh=spriteMesh(quokkaFrames(false),.8,.8);scene.add(q.mesh);q.blob=blob(.6);wilds.push(q);});
 [['#c8344a',VILLAGE.x-1.4,VILLAGE.z+1.4],['#2f78a8',VILLAGE.x+1.8,VILLAGE.z-.6],['#e8a33a',VILLAGE.x+.6,VILLAGE.z+2],['#9478d4',VILLAGE.x-1.8,VILLAGE.z-1],['#3e7d5c',VILLAGE.x+2.2,VILLAGE.z+1.6]].forEach(([c,x,z])=>{const q={x,z,hx:x,hz:z,tx:x,tz:z,wait:Math.random()*3,face:1,walkT:0,hop:Math.random()*6,villager:c};q.mesh=spriteMesh(quokkaFrames(c),1,1);scene.add(q.mesh);q.blob=blob(.75);wilds.push(q);});
 const SHELLS=[{x:37,z:9.6},{x:42.6,z:7},{x:43.4,z:10.3}];
 SHELLS.forEach(s=>{s.mesh=spriteMesh([iconCanvas('shell')],.55,.55,{basic:true,shadow:false});s.mesh.visible=false;scene.add(s.mesh);});
@@ -3433,7 +3447,7 @@ const LAMPS=[];
   const glowC=(()=>{const c=mk(64,64),x=c.getContext('2d');const g=x.createRadialGradient(32,32,2,32,32,31);g.addColorStop(0,'rgba(255,214,140,.9)');g.addColorStop(.45,'rgba(255,190,110,.35)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return c;})();
   const glowT=new THREE.CanvasTexture(glowC);
   const hit=(x,z,p)=>colliders.some(c=>x>c.x1-p&&x<c.x2+p&&z>c.z1-p&&z<c.z2+p);
-  function lamp(x,z,force){if(!force&&x>-7&&x<10.5&&z>1.6&&z<6.5)return;if(LAMPS.some(L=>Math.hypot(L.x-x,L.z-z)<4))return;if(!force&&hit(x,z,.6))return;
+  function lamp(x,z,force){if(!force&&x>-7&&x<10.5&&z>1.6&&z<6.5)return;if(!force&&BLANES.some(([a,b,w])=>segD(x,z,a[0],a[1],b[0],b[1])<w/2+.35))return;if(LAMPS.some(L=>Math.hypot(L.x-x,L.z-z)<4))return;if(!force&&hit(x,z,.6))return;
     const g=new THREE.Group();const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.08,2.3,6),post);p.position.y=1.15;p.castShadow=true;g.add(p);
     const base=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.25,6),cap);base.position.y=.12;g.add(base);
     const arm=new THREE.Mesh(new THREE.BoxGeometry(.04,.04,.34),post);arm.position.set(0,2.2,.14);g.add(arm);
