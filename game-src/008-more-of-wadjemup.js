@@ -31,6 +31,7 @@ const snorks=[[19,-12.4,'#6b4226','#f1c7a0'],[21.6,-12.9,'#d9b25a','#c68a5e']].m
 // wildflowers (everlastings and pigface)
 const flowerMats=[['#f4d23a','#fff3a8'],['#fbf7ee','#f4d23a'],['#e98bb8','#f9c6dd']].map(([a,b],v)=>{const r=mulberry32(500+v);const c=mk(10,7),x=c.getContext('2d');for(let i=0;i<6;i++){const fx=1+r()*8|0,fy=1+r()*3|0;x.fillStyle='#4f7a3a';x.fillRect(fx,fy+1,1,6-fy);x.fillStyle=a;x.fillRect(fx-1,fy,3,1);x.fillRect(fx,fy-1,1,3);x.fillStyle=b;x.fillRect(fx,fy,1,1);}
   const t=ctex(c);return new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.15,.15,.12),emissiveMap:t});});
+flowerMats.forEach(m=>DECOR_MATS.add(m));
 for(let i=0,n=0;i<1500&&n<60;i++){const x=-15+R()*63,z=-11+R()*20;if(landD(x,z)<2||pathD(x,z)<1.2||inGarden(x,z))continue;if(x>-6&&x<6&&z>-6&&z<4.4)continue;if(x>38.5&&z<-5.6)continue;
   const g=new THREE.PlaneGeometry(.75,.52);g.translate(0,.26,0);const m=new THREE.Mesh(g,flowerMats[n%3]);m.position.set(x,0,z);scene.add(m);BB.push(m);n++;}
 // trees + bushes

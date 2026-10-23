@@ -1,5 +1,5 @@
 // ---------- sprites ----------
-const BB=[];
+const BB=[];const DECOR_MATS=new Set();
 // 4-direction sprites: characters carry 9 frames [side x3, front x3, back x3]; materials are built the first time a frame shows
 const DIR4=[];
 function mkFrame(f){if(f.m)return f;const t=ctex(f.c);f.t=t;f.m=f.o.basic?new THREE.MeshBasicMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,fog:false}):new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.2,.19,.18),emissiveMap:t});

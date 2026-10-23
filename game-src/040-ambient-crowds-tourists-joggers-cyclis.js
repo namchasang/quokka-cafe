@@ -35,7 +35,7 @@ function renderZoneBase(id,W,H,s,all){const Z=ZONE_DEF[id],c=mk(W,H),x=c.getCont
   x.font='800 '+Math.round(9*s)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',6*s,10*s);x.fillStyle='#ffd34d';x.fillText('N↑',6*s,10*s);return c;}
 const zoneCache={};
 // Top-down snapshot of the real 3D world (same look as the island map's painted terrain)
-function zoneSnap(B,W,H){let c=null;const hid=[],flat=[];const fog=scene.fog,fn=fog&&fog.near,ff=fog&&fog.far,t0=S.time,sx=scene.scale.x;let rt2=null;
+function zoneSnap(B,W,H){let c=null;engSuspend();const hid=[],flat=[];const fog=scene.fog,fn=fog&&fog.near,ff=fog&&fog.far,t0=S.time,sx=scene.scale.x;let rt2=null;
   try{rt2=new THREE.WebGLRenderTarget(W,H);const cw=B.x2-B.x1,ch=B.z2-B.z1,cx=(B.x1+B.x2)/2,cz=(B.z1+B.z2)/2;const cam=new THREE.OrthographicCamera(-cw/2,cw/2,ch/2,-ch/2,1,400);cam.position.set(cx,160,cz);cam.up.set(0,0,-1);cam.lookAt(cx,0,cz);
     [player.mesh,player.blob,questPin].forEach(m=>{if(m&&m.visible){m.visible=false;hid.push(m);}});
     BB.forEach(m=>{flat.push([m,m.rotation.x,m.rotation.y]);m.rotation.set(-Math.PI/2,0,0);});
@@ -43,7 +43,7 @@ function zoneSnap(B,W,H){let c=null;const hid=[],flat=[];const fog=scene.fog,fn=
     renderer.setRenderTarget(rt2);renderer.render(scene,cam);const px=new Uint8Array(W*H*4);renderer.readRenderTargetPixels(rt2,0,0,W,H,px);
     c=mk(W,H);const x=c.getContext('2d'),id=x.createImageData(W,H);for(let y=0;y<H;y++)id.data.set(px.subarray((H-1-y)*W*4,(H-y)*W*4),y*W*4);x.putImageData(id,0,0);
     let sum=0;for(let i=0;i<px.length;i+=4000)sum+=px[i]+px[i+1]+px[i+2];if(sum===0)c=null;
-  }catch(e){c=null;}finally{renderer.setRenderTarget(null);if(rt2)rt2.dispose();flat.forEach(([m,a,b])=>{m.rotation.x=a;m.rotation.y=b;});hid.forEach(m=>m.visible=true);if(fog){fog.near=fn;fog.far=ff;}S.time=t0;applyTime();scene.scale.x=sx;}
+  }catch(e){c=null;}finally{renderer.setRenderTarget(null);if(rt2)rt2.dispose();flat.forEach(([m,a,b])=>{m.rotation.x=a;m.rotation.y=b;});hid.forEach(m=>m.visible=true);if(fog){fog.near=fn;fog.far=ff;}S.time=t0;applyTime();scene.scale.x=sx;engResume();}
   return c;}
 function labelsOnly(fn){const P=CanvasRenderingContext2D.prototype,keep={};['fill','fillRect','stroke','strokeRect','drawImage','clearRect','putImageData'].forEach(k=>{keep[k]=P[k];P[k]=function(){};});try{return fn();}finally{Object.assign(P,keep);}}
 function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCache[k];const W=big?1400:mmW,H=big?557:mmH,s=big?2.6:1.15;let c;

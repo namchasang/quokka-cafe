@@ -914,7 +914,7 @@ function box(w,h,d,mat,x,y,z,opts){const m=new THREE.Mesh(new THREE.BoxGeometry(
 function flat(w,d,mat,x,y,z){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),mat);m.rotation.x=-Math.PI/2;m.position.set(x,y,z);m.receiveShadow=true;scene.add(m);return m;}
 
 // ---------- sprites ----------
-const BB=[];
+const BB=[];const DECOR_MATS=new Set();
 // 4-direction sprites: characters carry 9 frames [side x3, front x3, back x3]; materials are built the first time a frame shows
 const DIR4=[];
 function mkFrame(f){if(f.m)return f;const t=ctex(f.c);f.t=t;f.m=f.o.basic?new THREE.MeshBasicMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,fog:false}):new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.2,.19,.18),emissiveMap:t});
@@ -1201,6 +1201,7 @@ const snorks=[[19,-12.4,'#6b4226','#f1c7a0'],[21.6,-12.9,'#d9b25a','#c68a5e']].m
 // wildflowers (everlastings and pigface)
 const flowerMats=[['#f4d23a','#fff3a8'],['#fbf7ee','#f4d23a'],['#e98bb8','#f9c6dd']].map(([a,b],v)=>{const r=mulberry32(500+v);const c=mk(10,7),x=c.getContext('2d');for(let i=0;i<6;i++){const fx=1+r()*8|0,fy=1+r()*3|0;x.fillStyle='#4f7a3a';x.fillRect(fx,fy+1,1,6-fy);x.fillStyle=a;x.fillRect(fx-1,fy,3,1);x.fillRect(fx,fy-1,1,3);x.fillStyle=b;x.fillRect(fx,fy,1,1);}
   const t=ctex(c);return new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.15,.15,.12),emissiveMap:t});});
+flowerMats.forEach(m=>DECOR_MATS.add(m));
 for(let i=0,n=0;i<1500&&n<60;i++){const x=-15+R()*63,z=-11+R()*20;if(landD(x,z)<2||pathD(x,z)<1.2||inGarden(x,z))continue;if(x>-6&&x<6&&z>-6&&z<4.4)continue;if(x>38.5&&z<-5.6)continue;
   const g=new THREE.PlaneGeometry(.75,.52);g.translate(0,.26,0);const m=new THREE.Mesh(g,flowerMats[n%3]);m.position.set(x,0,z);scene.add(m);BB.push(m);n++;}
 // trees + bushes
@@ -1937,6 +1938,7 @@ function pineVariant(){const r=mulberry32(404);const W=24,H=52,c=mk(W,H),x=c.get
   return{t,w:2.5,h:5.4,m:new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.12,.12,.1),emissiveMap:t}),f:new THREE.MeshLambertMaterial({map:t,alphaTest:.02,transparent:true,opacity:.3,side:THREE.DoubleSide,depthWrite:false}),d:new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.5})};}
 function tussockCanvas(seed,cols){const r=mulberry32(seed);const c=mk(14,10),x=c.getContext('2d');for(let i=0;i<18;i++){const bx=2+r()*10|0,h=3+r()*6|0,lean=(r()-.5)*1.8;x.fillStyle=cols[i%cols.length];for(let k=0;k<h;k++)x.fillRect(Math.round(bx+lean*k/h*2),9-k,1,1);}x.fillStyle=cols[0];x.fillRect(3,9,8,1);return c;}
 const tussockMats=[tussockCanvas(301,['#5f8a3e','#7fa651','#a7c46d']),tussockCanvas(302,['#6d8f68','#93b48a','#c2d6a8']),tussockCanvas(303,['#8c9a52','#b4b867','#d6d08a'])].map(cv=>{const t=ctex(cv);return new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.12,.12,.1),emissiveMap:t});});
+tussockMats.forEach(m=>DECOR_MATS.add(m));
 for(let i=0,n=0;i<2200&&n<160;i++){const x=-15+R()*63,z=-11.5+R()*25;const dd=landD(x,z);if(dd<.25||pathD(x,z)<.9||inGarden(x,z))continue;
   if(x>-5.6&&x<5.6&&z>-5.4&&z<4)continue;if(x>4&&x<36&&Math.abs(z)<.95)continue;if(x>38.5&&z<-5.8)continue;if(Math.hypot(x-33.5,z+6.3)<1.8)continue;if(x<-12.4&&z>4&&z<6)continue;
   const sandy=dd<1.3||z>9||(x>32&&z>4);const mi=sandy?1:(R()<.5?0:2);const s=.7+R()*.6;const g=new THREE.PlaneGeometry(1.1*s,.8*s);g.translate(0,.4*s,0);const m=new THREE.Mesh(g,tussockMats[mi]);m.position.set(x,0,z);scene.add(m);BB.push(m);n++;}
@@ -3484,7 +3486,7 @@ function renderZoneBase(id,W,H,s,all){const Z=ZONE_DEF[id],c=mk(W,H),x=c.getCont
   x.font='800 '+Math.round(9*s)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',6*s,10*s);x.fillStyle='#ffd34d';x.fillText('N↑',6*s,10*s);return c;}
 const zoneCache={};
 // Top-down snapshot of the real 3D world (same look as the island map's painted terrain)
-function zoneSnap(B,W,H){let c=null;const hid=[],flat=[];const fog=scene.fog,fn=fog&&fog.near,ff=fog&&fog.far,t0=S.time,sx=scene.scale.x;let rt2=null;
+function zoneSnap(B,W,H){let c=null;engSuspend();const hid=[],flat=[];const fog=scene.fog,fn=fog&&fog.near,ff=fog&&fog.far,t0=S.time,sx=scene.scale.x;let rt2=null;
   try{rt2=new THREE.WebGLRenderTarget(W,H);const cw=B.x2-B.x1,ch=B.z2-B.z1,cx=(B.x1+B.x2)/2,cz=(B.z1+B.z2)/2;const cam=new THREE.OrthographicCamera(-cw/2,cw/2,ch/2,-ch/2,1,400);cam.position.set(cx,160,cz);cam.up.set(0,0,-1);cam.lookAt(cx,0,cz);
     [player.mesh,player.blob,questPin].forEach(m=>{if(m&&m.visible){m.visible=false;hid.push(m);}});
     BB.forEach(m=>{flat.push([m,m.rotation.x,m.rotation.y]);m.rotation.set(-Math.PI/2,0,0);});
@@ -3492,7 +3494,7 @@ function zoneSnap(B,W,H){let c=null;const hid=[],flat=[];const fog=scene.fog,fn=
     renderer.setRenderTarget(rt2);renderer.render(scene,cam);const px=new Uint8Array(W*H*4);renderer.readRenderTargetPixels(rt2,0,0,W,H,px);
     c=mk(W,H);const x=c.getContext('2d'),id=x.createImageData(W,H);for(let y=0;y<H;y++)id.data.set(px.subarray((H-1-y)*W*4,(H-y)*W*4),y*W*4);x.putImageData(id,0,0);
     let sum=0;for(let i=0;i<px.length;i+=4000)sum+=px[i]+px[i+1]+px[i+2];if(sum===0)c=null;
-  }catch(e){c=null;}finally{renderer.setRenderTarget(null);if(rt2)rt2.dispose();flat.forEach(([m,a,b])=>{m.rotation.x=a;m.rotation.y=b;});hid.forEach(m=>m.visible=true);if(fog){fog.near=fn;fog.far=ff;}S.time=t0;applyTime();scene.scale.x=sx;}
+  }catch(e){c=null;}finally{renderer.setRenderTarget(null);if(rt2)rt2.dispose();flat.forEach(([m,a,b])=>{m.rotation.x=a;m.rotation.y=b;});hid.forEach(m=>m.visible=true);if(fog){fog.near=fn;fog.far=ff;}S.time=t0;applyTime();scene.scale.x=sx;engResume();}
   return c;}
 function labelsOnly(fn){const P=CanvasRenderingContext2D.prototype,keep={};['fill','fillRect','stroke','strokeRect','drawImage','clearRect','putImageData'].forEach(k=>{keep[k]=P[k];P[k]=function(){};});try{return fn();}finally{Object.assign(P,keep);}}
 function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCache[k];const W=big?1400:mmW,H=big?557:mmH,s=big?2.6:1.15;let c;
@@ -4229,15 +4231,62 @@ let last=performance.now();
 let errShown=0,transitT=0;
 function reportErr(where,e){try{console.error(where,e);}catch(_){}const n=performance.now();if(n-errShown>8000){errShown=n;toast('The quokka went for a quick smoko \u2615 \u00b7 \u2630 \u2192 Unstuck if Kip can\u2019t move ('+where+': '+(e&&e.message||e)+')',6);}}
 function safeRun(where,fn){try{fn();}catch(e){reportErr(where,e);}}
+// ---------- engine for a bigger island: freeze still objects, cull far ones, batch small billboards ----------
+// Still objects stop recomputing their matrices every frame. A cheap check unfreezes anything the game moves.
+// Objects far from the camera are switched off by grid cell. Grass and flower billboards draw as instanced batches.
+const ENG={init:false,list:[],snap:new Float64Array(0),bbs:null,cells:new Map(),CELL:32,R:92,cullT:0,yaw:null,batches:[],sus:0,dyn:0,scan:0};
+function engSnap(i,o){const s=ENG.snap,k=i*10,p=o.position,q=o.quaternion,c=o.scale;s[k]=p.x;s[k+1]=p.y;s[k+2]=p.z;s[k+3]=q.x;s[k+4]=q.y;s[k+5]=q.z;s[k+6]=q.w;s[k+7]=c.x;s[k+8]=c.y;s[k+9]=c.z;}
+function engGrow(n){if(ENG.snap.length>=n*10)return;const a=new Float64Array(Math.max(n*10,ENG.snap.length*2));a.set(ENG.snap);ENG.snap=a;}
+function engKeep(o){return o===scene||o.isLight||o.isCamera||(o.parent&&o.parent.isLight)||!o.matrixAutoUpdate||o.__engSkip||DIR4.includes(o)||o===player.mesh||o===player.blob;}
+function engRegister(root){const bb=ENG.bbs;root.traverse(o=>{if(engKeep(o)||o.__engId!=null)return;const i=ENG.list.length;engGrow(i+1);ENG.list.push(o);o.__engId=i;engSnap(i,o);o.matrixAutoUpdate=false;o.updateMatrix();});}
+function engCellOf(o){if(o.__engBox===undefined){const b=new THREE.Box3().setFromObject(o);if(b.isEmpty()){o.__engBox=null;return null;}const sx=b.max.x-b.min.x,sz=b.max.z-b.min.z;o.__engBox=(sx>ENG.CELL||sz>ENG.CELL)?null:[(b.min.x+b.max.x)/2,(b.min.z+b.max.z)/2];}
+  const c=o.__engBox;if(!c)return null;return Math.floor(c[0]/ENG.CELL)+','+Math.floor(c[1]/ENG.CELL);}
+function engAddCell(o){const k=engCellOf(o);if(!k)return;let c=ENG.cells.get(k);if(!c){const [a,b]=k.split(',').map(Number);c={x:(a+.5)*ENG.CELL,z:(b+.5)*ENG.CELL,on:true,objs:[]};ENG.cells.set(k,c);}const d=[];o.traverse(n=>d.push(n));c.objs.push({o,d});}
+function engBatch(){const groups=new Map();
+  BB.forEach(m=>{if(!m.isMesh||m.parent!==scene||m.userData.frames||!DECOR_MATS.has(m.material)||!m.geometry||m.geometry.type!=='PlaneGeometry'||!m.visible)return;const k=m.material.uuid+(m.castShadow?'s':'');let g=groups.get(k);if(!g){g=[];groups.set(k,g);}g.push(m);});
+  const drop=new Set();
+  groups.forEach(ms=>{if(ms.length<8)return;const cells=new Map(),BC=ENG.CELL*1.5;ms.forEach(m=>{const k=Math.floor(m.position.x/BC)+','+Math.floor(m.position.z/BC);let a=cells.get(k);if(!a){a=[];cells.set(k,a);}a.push(m);});
+    cells.forEach(a=>{if(a.length<6)return;const g0=a[0].geometry.parameters,geo=new THREE.PlaneGeometry(g0.width,g0.height);geo.translate(0,g0.height/2,0);
+      const im=new THREE.InstancedMesh(geo,a[0].material,a.length);im.castShadow=a[0].castShadow;im.receiveShadow=a[0].receiveShadow;if(a[0].customDepthMaterial)im.customDepthMaterial=a[0].customDepthMaterial;
+      im.__engSkip=true;im.__items=a.map(m=>{const p=m.geometry.parameters;return[m.position.x,m.position.y,m.position.z,m.scale.x*p.width/g0.width,m.scale.y*p.height/g0.height,m.scale.z];});
+      scene.add(im);ENG.batches.push(im);a.forEach(m=>{drop.add(m);scene.remove(m);m.geometry.dispose();});
+      let sx=0,sz=0;a.forEach(m=>{sx+=m.position.x;sz+=m.position.z;});sx/=a.length;sz/=a.length;im.__engBox=[sx,sz];let rr=0;a.forEach(m=>{rr=Math.max(rr,Math.hypot(m.position.x-sx,m.position.z-sz));});geo.boundingSphere=new THREE.Sphere(new THREE.Vector3(sx,g0.height,sz),rr+2*Math.max(g0.width,g0.height)+1);});});
+  if(drop.size)for(let i=BB.length-1;i>=0;i--)if(drop.has(BB[i]))BB.splice(i,1);
+  engBatchYaw(yaw);}
+const _eM=new THREE.Matrix4(),_eQ=new THREE.Quaternion(),_eP=new THREE.Vector3(),_eS=new THREE.Vector3(),_eY=new THREE.Vector3(0,1,0);
+function engBatchYaw(y){_eQ.setFromAxisAngle(_eY,y);for(const im of ENG.batches){const it=im.__items;for(let i=0;i<it.length;i++){const v=it[i];_eP.set(v[0],v[1],v[2]);_eS.set(v[3],v[4],v[5]);_eM.compose(_eP,_eQ,_eS);im.setMatrixAt(i,_eM);}im.instanceMatrix.needsUpdate=true;}}
+function engInit(){ENG.init=true;
+  // the scene itself only recomputes when it is mirrored for the island (scale.x flips)
+  scene.matrixAutoUpdate=false;scene.updateMatrix();const sm=new Float64Array(10);
+  scene.updateMatrixWorld=function(force){const p=this.position,q=this.quaternion,c=this.scale;if(p.x!==sm[0]||p.y!==sm[1]||p.z!==sm[2]||q.x!==sm[3]||q.y!==sm[4]||q.z!==sm[5]||q.w!==sm[6]||c.x!==sm[7]||c.y!==sm[8]||c.z!==sm[9]){sm.set([p.x,p.y,p.z,q.x,q.y,q.z,q.w,c.x,c.y,c.z]);this.updateMatrix();}THREE.Object3D.prototype.updateMatrixWorld.call(this,force);};
+  try{engBatch();}catch(e){console.warn('batch',e);}
+  ENG.bbs=new Set(BB);engRegister(scene);scene.children.forEach(o=>{if(o.__engId!=null||o.__engSkip)engAddCell(o);});ENG.yaw=yaw;}
+function engTick(dt){if(!ENG.init)engInit();if(ENG.sus)return;
+  // billboards turn with the camera: batches update their instances, single billboards refresh their frozen matrix
+  if(ENG.yaw!==yaw){ENG.yaw=yaw;engBatchYaw(yaw);}
+  const L=ENG.list,s=ENG.snap,bbs=ENG.bbs;
+  for(let i=0;i<L.length;i++){const o=L[i];if(o===null)continue;const p=o.position,q=o.quaternion,c=o.scale,k=i*10;
+    if(p.x!==s[k]||p.y!==s[k+1]||p.z!==s[k+2]||c.x!==s[k+7]||c.y!==s[k+8]||c.z!==s[k+9]){o.matrixAutoUpdate=true;o.updateMatrix();L[i]=null;ENG.dyn++;o.__engDyn=true;engShow(o);continue;}
+    if(q.x!==s[k+3]||q.y!==s[k+4]||q.z!==s[k+5]||q.w!==s[k+6]){if(bbs.has(o)){o.updateMatrix();s[k+3]=q.x;s[k+4]=q.y;s[k+5]=q.z;s[k+6]=q.w;}else{o.matrixAutoUpdate=true;o.updateMatrix();L[i]=null;ENG.dyn++;o.__engDyn=true;engShow(o);}}}
+  // pick up objects the game adds later (branches, props, upgrades)
+  ENG.scan-=dt;if(ENG.scan<=0){ENG.scan=4;const n0=ENG.list.length;scene.children.forEach(o=>{if(o.__engId==null&&!engKeep(o)){engRegister(o);if(o.__engId!=null)engAddCell(o);}});if(ENG.list.length!==n0)ENG.bbs=new Set(BB);}
+  ENG.cullT-=dt;if(ENG.cullT<=0){ENG.cullT=.2;engCull();}}
+function engShow(o){o.traverse(n=>n.layers.enable(0));}
+function engCull(){const cx=camTarget.x,cz=camTarget.z,R=ENG.R*Math.max(1,zm||1),r2=R*R,h=ENG.CELL*.71;
+  ENG.cells.forEach(c=>{const dx=c.x-cx,dz=c.z-cz,d=Math.max(0,Math.hypot(dx,dz)-h);const on=d*d<r2;if(on===c.on)return;c.on=on;
+    for(const e of c.objs){if(e.o.__engDyn)continue;for(const n of e.d){if(on)n.layers.enable(0);else n.layers.disable(0);}}});}
+// map snapshots render the whole zone from above: switch everything on and let the frame matrices follow while they render
+function engSuspend(){if(!ENG.init)return;ENG.sus++;ENG.cells.forEach(c=>{c.on=true;for(const e of c.objs)for(const n of e.d)n.layers.enable(0);});ENG.list.forEach(o=>{if(o)o.matrixAutoUpdate=true;});}
+function engResume(){if(!ENG.init||!ENG.sus)return;ENG.sus--;if(ENG.sus)return;ENG.list.forEach((o,i)=>{if(!o)return;o.updateMatrix();o.matrixAutoUpdate=false;engSnap(i,o);});ENG.cullT=0;}
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;const t=now/1000;
   if(transit&&!RIDE&&fadeTarget<.5){transitT+=dt;if(transitT>6){transit=false;transitT=0;}}else transitT=0;
   if(running&&!overlay&&!PORTRAIT_LOCK)safeRun('update',()=>update(dt));
   safeRun('world',()=>{applyTime();updateWilds(dt,t);if(!overlay||overlay==='title')updateWalkers(dt);});
   if(!running||overlay){player.mesh.position.set(player.x,groundY(player.x,player.z),player.z);player.blob.position.set(player.x,.03+groundY(player.x,player.z),player.z);}
   safeRun('ambient',()=>ambient(dt,t));safeRun('camera',()=>updateCamera(dt));safeRun('hud',()=>{updateHud();updateQuestUI(dt,t);updateTrackBar(dt);updateActButton();});
-  try{renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}
+  safeRun('engine',()=>engTick(dt));try{renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}
 updateCamera(0,true);
-function flipIslandSigns(){const v=new THREE.Vector3();const sx0=scene.scale.x;scene.scale.x=1;scene.updateMatrixWorld(true);scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map)return;const t=o.material.map;if(FLIPPED.has(t)||!(SIGN_TEX.has(t)||t===signTex))return;o.getWorldPosition(v);if(v.x>100)return;FLIPPED.add(t);t.repeat.x=-1;t.offset.x=1;});scene.scale.x=sx0;scene.updateMatrixWorld(true);}
+function flipIslandSigns(){const v=new THREE.Vector3();scene.updateMatrixWorld();const mx=scene.scale.x<0?-1:1;scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map)return;const t=o.material.map;if(FLIPPED.has(t)||!(SIGN_TEX.has(t)||t===signTex))return;o.getWorldPosition(v);if(v.x*mx>100)return;FLIPPED.add(t);t.repeat.x=-1;t.offset.x=1;});}
 flipIslandSigns();
 requestAnimationFrame(loop);
 
