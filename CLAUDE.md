@@ -28,3 +28,10 @@ Owner: Paul (Paul Perth AI Lab). Replies to Paul in Thai unless he writes Englis
 
 ## Map of the game (see game-src/MAP.md for exact parts)
 renderer + pixel post-processing, lights, textures, 32px sprites, world (Rottnest, South Perth, Fremantle, Heirisson, Victoria Park, Quokka Village), café levels, characters, state, UI, input, interactions, guide, seasons/friends/fishing/digging/museum/mail/daily tasks, unlocks, radio + music, Island Codes, stamina, branches, transport, Perth Pass, events, crowds, zones, postcards, area stories, side quests, customers.
+
+## Lessons and work queue (Paul Game Builder app)
+- App: https://claude.ai/artifact/BMNwcV6Y2cfjgEeNg3uBzk (tabs: briefs, games, lessons, roadmap, Look Lab).
+- Before starting: ArtifactData `list` collection `lessons` (out_dir to a scratch folder), read the ones for this game and `all`.
+- Paul may queue work: collection `briefs` (status new/doing/done). Set `status` to doing, then done with a short `result`.
+- Roadmap for this game: collection `roadmaps`, doc id `quokka` (phases t/s/d, s = แผน/ถัดไป/เสร็จ). Update it when a phase finishes.
+- After the job: propose 1-3 new lessons to Paul; on his OK, add them to `lessons` ({text, game, topic, createdAt, src}).
