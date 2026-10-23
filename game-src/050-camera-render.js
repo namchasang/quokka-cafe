@@ -92,4 +92,3 @@ requestAnimationFrame(loop);
 const hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot)hot.snapshot(()=>({S,running,px:player.x,pz:player.z}));
 if(hot&&hot.data&&hot.data.S&&hot.data.running){startGame(hot.data.S);player.x=hot.data.px;player.z=hot.data.pz;S.time=hot.data.S.time||420;S.closed=hot.data.S.closed;S.served=hot.data.S.served||0;S.earned=hot.data.S.earned||0;dlgQ=[];ui.dlg.hidden=true;updateCamera(0,true);}
-})();

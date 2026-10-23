@@ -55,5 +55,6 @@ Find code: `grep -n 'name' game-src/*`.
 | 047-movement.js | 3966-4024 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
 | 048-overlays.js | 4025-4119 | 26 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
 | 049-maps-quest-guidance.js | 4120-4202 | 13 | mmC, MM, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase, drawMapDynamic |
-| 050-camera-render.js | 4203-4297 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
-| 051-part.js | 4298-4300 | 0 |  |
+| 050-camera-render.js | 4203-4296 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
+| 051-look-lab-landscape-layers.js | 4297-4453 | 16 | LAB |
+| 051-part.js | 4454-4456 | 0 |  |

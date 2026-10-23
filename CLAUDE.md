@@ -25,6 +25,7 @@ Owner: Paul (Paul Perth AI Lab). Replies to Paul in Thai unless he writes Englis
 - Freemium plan: Fremantle and Victoria Park are paid unlocks (Perth Pass); Paul has a Game Master account.
 - Planned next: Thai language (menus + main story) with a TH/EN switch. Needs a Thai-capable font.
 - Paul wants playable links, never zip files. Visual changes: show him a preview before going live.
+- Look Lab: open the game with `?lab` (part `051-look-lab-landscape-layers.js`). It sorts every scene object into landscape layers (ground, water, paths, buildings, plants, props, characters, lights, effects) by shape and colour, orbits each area, and shows real place names. New look work goes in as a lab layer first.
 
 ## Map of the game (see game-src/MAP.md for exact parts)
 renderer + pixel post-processing, lights, textures, 32px sprites, world (Rottnest, South Perth, Fremantle, Heirisson, Victoria Park, Quokka Village), café levels, characters, state, UI, input, interactions, guide, seasons/friends/fishing/digging/museum/mail/daily tasks, unlocks, radio + music, Island Codes, stamina, branches, transport, Perth Pass, events, crowds, zones, postcards, area stories, side quests, customers.
