@@ -3301,7 +3301,7 @@ addEventListener('resize',checkOrient);addEventListener('orientationchange',()=>
 function tryLandscape(){try{if(screen.orientation&&screen.orientation.lock){const go=()=>screen.orientation.lock('landscape').catch(()=>{});if(!document.fullscreenElement&&document.documentElement.requestFullscreen&&isTouch){document.documentElement.requestFullscreen({navigationUI:'hide'}).then(go).catch(go);}else go();}}catch(e){}}
 // ---------- special café events (one random event on some days) ----------
 const EVENTS={
- sick:{name:'Staff sick day',icon:'\u{1F912}',desc:'Your whole team called in sick. Kip runs the café alone today. Every order you serve pays +3 coins, and 8+ served by closing earns a 60 coin bonus.',need:()=>staff.length>0},
+ sick:{name:'Staff sick day',icon:'\u{1F912}',desc:'Your hired team called in sick. If Mum and Dad live on the island they still come in to help; otherwise Kip runs the café alone. Every order you serve pays +3 coins, and 8+ served by closing earns a 60 coin bonus.',need:()=>staff.some(s=>!s.fam)},
  crowd:{name:'Cruise crowd',icon:'\u{1F6A2}',desc:'Two cruise ships are in Fremantle. Every ferry brings almost twice the tourists today.',need:()=>true},
  heat:{name:'Heatwave',icon:'\u{1F975}',desc:'A 40\u00b0 scorcher! Most tourists want a Mango Smoothie, and each smoothie pays +2 coins.',need:()=>true},
  critic:{name:'Food critic',icon:'\u{1F9D0}',desc:'A famous food critic is visiting around mid-morning. Serve them fast for a glowing review and 80 coins.',need:()=>true}};
@@ -3312,7 +3312,7 @@ function evRoll(force){if(VISIT)return;if(!force&&S.ev&&S.ev.day===S.day)return;
 function evAnnounce(){const e=evCur();if(!e)return;say([{who:e.icon+' Special event',text:e.name+'! '+e.desc}]);}
 function evOnServe(c){if(evToday('sick')){S.coins+=3;S.earned+=3;popText('+3 solo',{x:c.x,y:2.4,z:c.z});}if(evToday('heat')&&c.order==='smo'){S.coins+=2;S.earned+=2;}
   if(c.critic){const fast=c.patience/c.max>.5;S.ev.criticDone=1;if(fast){S.coins+=80;S.earned+=80;toast('\u{1F9D0} The critic loved it! \u2605\u2605\u2605\u2605\u2605 review \u00b7 +80 coins',4);}else{S.coins+=20;toast('\u{1F9D0} \u201cA little slow, but delicious.\u201d \u2605\u2605\u2605 review \u00b7 +20 coins',4);}}}
-function evClose(){if(evToday('sick')&&!S.ev.paid){S.ev.paid=1;if((S.served||0)>=8){S.coins+=60;toast('\u{1F4AA} You ran the caf\u00e9 alone and served '+S.served+' orders! +60 coin bonus',4);}else toast('Phew, a tough day alone. Your team is back tomorrow.',3);}
+function evClose(){if(evToday('sick')&&!S.ev.paid){S.ev.paid=1;const fam=staff.some(s=>s.fam);if((S.served||0)>=8){S.coins+=60;toast('\u{1F4AA} '+(fam?'You, Mum and Dad':'You ran the caf\u00e9 alone and')+' served '+S.served+' orders! +60 coin bonus',4);}else toast(fam?'Phew! Thank goodness for Mum and Dad. The team is back tomorrow.':'Phew, a tough day alone. Your team is back tomorrow.',3);}
   if(evToday('critic')&&!S.ev.criticDone)toast('The food critic never got served\u2026 maybe next time.',3);}
 let propSel=null;
 function openProp(id){if(!running||overlay)return;if(VISIT){toast('This is your friend\u2019s property',2);return;}if(!unlocked('homes')){say([{who:'For sale sign',text:'Viewing by appointment. Swan River Realty will contact you once you own a business on Rottnest.'}]);return;}propSel=id;renderProp();showOverlay('biz');}
@@ -3863,7 +3863,7 @@ function syncStaff(){const fam=S.wish.tickets?2:0;const n=(S.staff||0)+fam;if(st
   staff.forEach((st,i)=>{st.cashier=!!fam&&i===1;if(st.cashier)st.home=[REG.x+.8,REG.z+.35];});}
 function dadAtTill(){return phase()==='cafe'&&staff.some(st=>st.cashier&&Math.hypot(st.x-st.home[0],st.z-st.home[1])<.3);}
 function staffIcon(st,k){if(st.icon){scene.remove(st.icon);const bi=BB.indexOf(st.icon);if(bi>=0)BB.splice(bi,1);st.icon=null;}if(k){st.icon=spriteMesh([iconCanvas(ITEM_ICON[k])],.45,.45,{basic:true,shadow:false});scene.add(st.icon);}}
-function updateStaff(dt,t){const sick=evToday('sick')&&phase()==='cafe';staff.forEach(st=>{let moving=false;const c=st.c;if(sick){if(!st._off){st._off=1;st.m.visible=false;st.b.visible=false;if(st.icon)st.icon.visible=false;}st.c=null;st.state='idle';st.job=null;return;}if(st._off){st._off=0;st.m.visible=true;st.b.visible=true;}
+function updateStaff(dt,t){const sick=evToday('sick')&&phase()==='cafe';staff.forEach(st=>{let moving=false;const c=st.c;if(sick&&!st.fam){if(!st._off){st._off=1;st.m.visible=false;st.b.visible=false;if(st.icon)st.icon.visible=false;}st.c=null;st.state='idle';st.job=null;return;}if(st._off){st._off=0;st.m.visible=true;st.b.visible=true;}
   if(st.cashier&&phase()==='cafe'){const mv=!stepWalker(st,st.home[0],st.home[1],2.2,dt);const gy=groundY(st.x,st.z);st.m.position.set(st.x,gy,st.z);st.b.position.set(st.x,gy+.03,st.z);setFrame(st.m,mv?1+(Math.floor(st.walkT/.16)%2):0);st.m.scale.x=mv?st.face:-1;return;}
   if(c&&c.state!=='wait'&&st.state!=='idle'){st.c=null;st.state='idle';staffIcon(st,null);}
   if(phase()==='explore'&&st.state==='idle'&&!st.job){const free=S.plots.findIndex((p,i)=>p&&!staff.some(o=>o.job&&o.job.i===i)&&(p.g>=CROPS[p.k].days||!p.w));if(free>=0)st.job={type:'plot',i:free};else{const si=staff.indexOf(st);st.job={type:'fish',x:-14.2-si*1.4,z:si%2?4.8:5.25,t:14+Math.random()*12};}}
