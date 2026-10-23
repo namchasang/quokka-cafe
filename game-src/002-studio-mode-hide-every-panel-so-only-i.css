@@ -1,0 +1,421 @@
+/* studio mode: hide every panel so only the island is on screen, for recording music videos */
+body.studio #app > *:not(#stage), body.studio > *:not(#app):not(#studioTip):not(script):not(style){visibility:hidden!important}
+body.studio{cursor:none}
+#studioTip{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99;background:rgba(15,20,38,.86);color:#f3e7c8;font:13px/1.4 system-ui,sans-serif;padding:8px 14px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .4s}
+#studioTip.on{opacity:1}
+.kj{display:grid;gap:8px;margin-top:6px}.kjHead{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;padding:10px 12px;border:1px solid var(--gold);border-radius:6px;background:rgba(226,194,124,.08)}.kjHead b{font-family:var(--display);color:var(--gold);font-size:15px}.kjHead span{font-size:12px;color:var(--muted)}.kjHead i{grid-column:1/-1;height:7px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;display:block}.kjHead em{display:block;height:100%;background:linear-gradient(90deg,#86b86e,#e2c27c)}
+.kjCh{border:1px solid rgba(226,194,124,.25);border-radius:6px;background:rgba(255,255,255,.02)}.kjCh summary{display:flex;justify-content:space-between;gap:8px;padding:9px 12px;cursor:pointer;list-style:none}.kjCh summary::-webkit-details-marker{display:none}.kjCh summary b{font-size:13.5px}.kjCh summary span{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.kjCh.cur{border-color:var(--gold)}.kjCh.done summary b{color:#86d06a}.kjCh.later{opacity:.62}.kjLore{margin:0 12px 6px;font-size:12.5px;font-style:italic;color:#d8cfb6;line-height:1.45}
+.kjCh ul{list-style:none;margin:0;padding:0 12px 10px;display:grid;gap:5px}.kjCh li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center}.kjCh li>i{width:16px;height:16px;border:1.5px solid var(--gold-dim);border-radius:3px;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;color:#0f1424}.kjCh li.ok>i{background:#86b86e;border-color:#86b86e}
+.kjCh li span{display:grid;min-width:0}.kjCh li b{font-size:13px;font-weight:700}.kjCh li.ok b{color:var(--muted);text-decoration:line-through}.kjCh li small{font-size:11px;color:var(--muted)}.kjCh li .btn{padding:4px 10px;font-size:11px}
+</style>
+
+<div id="app">
+  <div id="stage"></div>
+
+  <div id="hud" hidden>
+    <div id="visitBar" class="panel" hidden><div><b id="vbName"></b><span id="vbSub"></span></div><span class="vbAct" id="vbAct" hidden><button class="btn ghost" id="vbLike" type="button" aria-label="Like this café">♡</button><button class="btn ghost" id="vbBook" type="button" aria-label="Guestbook">✎</button><button class="btn ghost" id="vbGift" type="button" aria-label="Leave a gift">🎁</button></span><button class="btn" id="vbLeave" type="button">Go home</button></div>
+    <div id="trackBar" class="panel" hidden><div class="tbE">Tracking</div><div id="tbTitle"></div><div id="tbStep"></div></div>
+    <div class="leftcol">
+    <div class="mm panel">
+      <canvas id="mm" width="344" height="137" aria-label="Island map, tap to open the full map" title="Tap to open the full map"></canvas>
+      <div class="mmT" id="mmT"></div>
+      <div class="legend"><span><i class="lg-you"></i>You</span><span><i class="lg-quest"></i>Quest</span><span><i class="lg-npc"></i>Friend</span><span><i class="lg-lore"></i>Lore stone</span><span><i class="lg-cafe"></i>Café</span><span><i class="lg-light"></i>Lighthouse</span><span><i class="lg-shell"></i>Shell</span><span><i class="lg-lake"></i>Salt lake</span></div>
+      <div class="mmHint">Tap the map to open it · M</div>
+    </div>
+    <div class="clock panel">
+      <div class="top"><span class="day" id="dayLbl">Day 1</span><span class="time" id="timeLbl">7:00 AM</span><span class="phase" id="phaseLbl">Café open</span><button class="clkT" id="clkT" type="button" aria-label="Collapse or expand" aria-expanded="true">▾</button><button class="wx" id="wxBtn" type="button" title="Tap to change the weather">☀ Sunny 25°</button></div>
+      <div class="obj" id="objLbl">Serve tourists until noon</div>
+      <div class="carry" id="carryLbl" hidden></div>
+      <div class="carry" id="basketLbl" hidden></div>
+      <div class="stam" id="stamBox" title="Stamina: eat every few days"><span>Stamina</span><i><b id="stamBar"></b></i><em id="stamPct">100%</em></div>
+    </div>
+    </div>
+    <div class="right">
+      <div class="coinRow"><button class="panel radioIco" id="radioIco" type="button" aria-label="Radio" title="Radio"><svg viewBox="0 0 16 14" width="20" height="18" aria-hidden="true" shape-rendering="crispEdges"><rect x="3" y="0" width="1" height="4" fill="#c9cfe0"/><rect x="0" y="4" width="16" height="10" fill="#c8344a"/><rect x="1" y="5" width="14" height="8" fill="#e8584a"/><rect x="2" y="6" width="6" height="6" fill="#2a1d1a"/><rect x="3" y="7" width="1" height="1" fill="#6b5a50"/><rect x="5" y="7" width="1" height="1" fill="#6b5a50"/><rect x="4" y="9" width="1" height="1" fill="#6b5a50"/><rect x="6" y="10" width="1" height="1" fill="#6b5a50"/><rect x="3" y="11" width="1" height="1" fill="#6b5a50"/><rect x="9" y="6" width="5" height="2" fill="#fff3d6"/><rect x="11" y="6" width="1" height="2" fill="#c8344a"/><rect x="9" y="9" width="2" height="2" fill="#f0c86e"/><rect x="12" y="9" width="2" height="2" fill="#f0c86e"/></svg><span class="rn">♪</span></button><div class="coins panel"><i></i><span id="coinLbl">0</span></div></div>
+      <button class="panel hudBtn" id="pauseBtn" type="button" aria-label="Pause game" title="Pause (Esc)"><span class="pzI"></span></button>
+      <button class="panel hudBtn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false">☰</button>
+      <button class="panel hudBtn" id="bagBtn" type="button">Bag</button>
+      <button class="panel hudBtn more" id="visitBtn" type="button">Island Code</button>
+      <button class="panel hudBtn more" id="radioBtn" type="button">Radio</button>
+      <button class="panel hudBtn more" id="cafeBtn" type="button">Café HQ</button>
+      <button class="panel hudBtn more" id="saveBtn" type="button">Save</button>
+      <button class="panel hudBtn more" id="passBtn" type="button">Perth Pass</button>
+      <button class="panel hudBtn more" id="gmBtn" type="button" hidden>★ GM</button>
+      <button class="panel hudBtn more" id="unstuckBtn" type="button">Unstuck</button>
+      <button class="panel hudBtn more" id="guideBtn" type="button">Guide</button>
+      <button class="panel hudBtn more" id="calBtn" type="button">Calendar</button>
+      <button class="panel hudBtn more" id="albumBtn" type="button">Album</button>
+      <button class="panel hudBtn" id="questBtn" type="button">Quests</button>
+      <button class="panel hudBtn more" id="wishBtn" type="button">Wishlist</button>
+    </div>
+  </div>
+
+  <div id="joyHint" hidden>drag here<br>to walk</div>
+  <div id="joy" hidden><div id="knob"></div></div>
+  <div id="rot" hidden><button class="panel" id="rotL" type="button" aria-label="Rotate camera left">⟲</button><button class="panel" id="rotR" type="button" aria-label="Rotate camera right">⟳</button><button class="panel" id="zoomOut" type="button" aria-label="Zoom out">−</button><button class="panel" id="zoomIn" type="button" aria-label="Zoom in">+</button></div>
+  <button id="frBtn" type="button" hidden aria-label="Chat and give a gift"><span>♥ Friend</span><small>F</small></button>
+  <button id="rideBtn" type="button" hidden aria-label="Ride or walk"><span id="rideLbl">Ride</span><small>V</small></button>
+  <button id="camBtn" type="button" hidden aria-label="Take a postcard photo"><span>Photo</span><small id="camKey">P</small></button>
+  <div id="flash" aria-hidden="true"></div>
+  <div id="cine" hidden><i class="cbT"></i><i class="cbB"></i><div id="cineCap"><b id="cineT"></b><span id="cineS"></span></div><button class="btn ghost" id="cineSkip" type="button">Skip ride ›</button></div>
+  <button id="act" class="off" type="button" hidden><span><span id="actLbl">—</span><span class="key" id="actKey">SPACE</span></span></button>
+
+  <div id="toast" class="panel" hidden></div>
+
+  <div id="dlg" class="panel" hidden><div class="who" id="dlgWho">Kip</div><p id="dlgTxt"></p><span class="more">▼</span></div>
+
+  <div class="overlay ovTitle" id="titleOv">
+    <div class="card panel">
+      <div class="eyebrow">Wadjemup · Rottnest Island</div>
+      <div class="title">Quokka Cafe</div>
+      <div class="subtitle">and Friends</div>
+      <p>Fresh out of university, Kip the quokka has left his little home in Victoria Park to open a tiny café by the jetty on Rottnest. Serve the morning ferry crowd, explore the island after closing time, and save for everything on the wishlist so Mum and Dad can move in.</p>
+      <div class="btns" id="titleBtns"></div>
+      <div class="keys">
+        <b>Move</b><span>Drag on the left of the screen · WASD / arrows</span>
+        <b>Act</b><span>Round button · Space or E</span>
+        <b>Camera</b><span>Right-click drag · ⟲ ⟳ buttons · Q / R</span>
+        <b>Zoom</b><span>+ − buttons · pinch · mouse wheel</span>
+        <b>Weather</b><span>Changes each day · tap the weather chip to preview</span>
+        <b>Bike</b><span>Rack beside the café · twice as fast</span>
+        <b>Quests</b><span>Quests button · J</span>
+        <b>Own bike</b><span>B (after buying one in South Perth)</span>
+        <b>Bag & outfit</b><span>Bag button · G</span>
+        <b>Ride</b><span>Ride button · V</span>
+        <b>Postcards</b><span>Photo button · P · Album · O</span>
+        <b>Map</b><span>Tap the minimap · M</span>
+        <b>Wishlist</b><span>Café HQ → Wishlist tab · I</span>
+        <b>Guide</b><span>Guide button · H</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="wishOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">Kip's notebook</div>
+      <h2>Wishlist</h2>
+      <div class="wish" id="wishList"></div>
+      <div class="journal" id="journal"></div>
+      <div class="btns"><button class="btn ghost" id="wishClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="mapOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Wadjemup · Rottnest Island</div>
+      <h2>Island map</h2>
+      <canvas id="bigMap" width="1400" height="557" aria-label="Full island map"></canvas>
+      <p class="mapq" id="mapQuest"></p>
+      <div class="legend big"><span><i class="lg-you"></i>You (cone = camera view)</span><span><i class="lg-quest"></i>Quest goal</span><span><i class="lg-npc"></i>Gus · Nana Wren</span><span><i class="lg-wild"></i>Wild quokka</span><span><i class="lg-tourist"></i>Tourist</span><span><i class="lg-lore"></i>Lore stone</span><span><i class="lg-cafe"></i>Quokka Cafe</span><span><i class="lg-cottage"></i>Settlement cottage</span><span class="lg-sp" hidden><i class="lg-home"></i>Home for sale</span><span class="lg-sp" hidden><i class="lg-myhome"></i>Your home</span><span><i class="lg-light"></i>Lighthouse</span><span><i class="lg-shell"></i>Lost shell</span><span><i class="lg-lake"></i>Pink salt lake</span><span><i class="lg-trail"></i>Limestone trail</span><span><i class="lg-beach"></i>Beach</span><span><i class="lg-tree"></i>Pine / tea tree</span><span><i class="lg-reef"></i>Reef</span></div>
+      <p class="mapq" id="ftHint" hidden></p>
+      <div class="btns"><button class="btn" id="ftGo" type="button" hidden>Fast travel</button><button class="btn" id="mapPerth" type="button">Perth map</button><button class="btn ghost" id="mapClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="plantOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">Kip's garden · <span id="plantCoins">0</span> coins</div>
+      <h2>Plant seeds</h2>
+      <div class="wish" id="plantList"></div>
+      <div class="btns"><button class="btn ghost" id="plantClose" type="button">Cancel</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="questOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="qEyebrow">Quest log</div>
+      <div class="qtabs" id="qTabs"></div>
+      <h2 id="qTitle"></h2>
+      <div class="qgiver" id="qGiver"></div>
+      <p id="qDesc"></p>
+      <ol class="qsteps" id="qSteps"></ol>
+      <div class="qreward" id="qReward"></div>
+      <div class="btns"><button class="btn" id="qTrack" type="button">Track on map</button><button class="btn ghost" id="qClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="bizOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="bzEyebrow">Business</div>
+      <h2 id="bzTitle"></h2>
+      <p id="bzDesc"></p>
+      <div class="stats" id="bzStats"></div>
+      <div class="btns" id="bzBtns"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="shopOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="shEyebrow">Shop</div>
+      <h2 id="shTitle"></h2>
+      <p id="shDesc"></p>
+      <div class="wish" id="shList"></div>
+      <div class="btns"><button class="btn ghost" id="shClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay ovTitle" id="slotsOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="slEyebrow">Load game</div>
+      <h2 id="slTitle">Choose a save</h2>
+      <div class="wish" id="slList"></div>
+      <details class="slMove"><summary>Move saves to another device or app</summary>
+        <p class="bgE">Saves live in this browser only. The Claude link, the home-screen web app and each phone or computer keep their own saves. Copy a save code here, then paste it on the other one.</p>
+        <div class="btns"><button class="btn" id="slExport" type="button">Copy save code (all slots)</button></div>
+        <textarea id="slCode" rows="3" placeholder="Paste a save code here" aria-label="Save code"></textarea>
+        <div class="btns"><button class="btn ghost" id="slImport" type="button">Import save code</button></div>
+        <p class="bgE" id="slMsg" role="status"></p>
+      </details>
+      <div class="btns"><button class="btn ghost" id="slBack" type="button">Back</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="albumOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Kip's postcard album</div>
+      <h2 id="alCount">0 postcards</h2>
+      <p>Walk up to places, animals, people and shops, then press the Photo button (or P) when it glows. Every new postcard pays 5 coins, with a bonus at 25, 50, 75 and 100.</p>
+      <div class="qtabs" id="alFilters"></div>
+      <div class="pcgrid" id="alGrid"></div>
+      <div class="btns"><button class="btn ghost" id="alClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="bagOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Kip's bag</div>
+      <h2>Inventory</h2>
+      <div class="qtabs" id="bgTabs"></div>
+      <div id="bgBody" class="bgBody"></div>
+      <div class="btns"><button class="btn ghost" id="bgClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="guideOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Quokka Cafe and Friends</div>
+      <h2>Guide</h2>
+      <div class="qtabs" id="gdTabs"></div>
+      <div id="gdBody" class="gdBody"></div>
+      <div class="btns"><button class="btn ghost" id="gdClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="calOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Island calendar</div>
+      <h2 id="calTitle">Summer</h2>
+      <div class="qtabs" id="calTabs"></div>
+      <div class="calGrid" id="calGrid"></div>
+      <div class="calList" id="calList"></div>
+      <div class="btns"><button class="btn ghost" id="calClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="friendOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="frRole">Friend</div>
+      <h2 id="frName">Friend</h2>
+      <div class="frHearts" id="frHearts" aria-label="Hearts"></div>
+      <p class="frLine" id="frLine"></p>
+      <p class="bgE" id="frGiftNote"></p>
+      <div class="qtabs" id="frGifts"></div>
+      <div class="btns"><button class="btn ghost" id="frClose" type="button">Bye for now</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="fishOv" hidden>
+    <div class="card panel" style="max-width:380px">
+      <div class="eyebrow">Fishing</div>
+      <h2 id="fsName">Something is biting…</h2>
+      <canvas id="fsCanvas" width="110" height="260" style="display:block;margin:8px auto;border-radius:6px;image-rendering:pixelated" aria-label="Fishing meter"></canvas>
+      <p class="bgE" id="fsHint"></p>
+      <div class="btns"><button class="btn" id="fsReel" type="button">Hold to reel</button><button class="btn ghost" id="fsClose" type="button">Done</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="museumOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Wadjemup Museum</div>
+      <h2>Donations</h2>
+      <p class="bgE" id="msNote"></p>
+      <div class="qtabs" id="msTabs"></div>
+      <div class="bgGrid" id="msGrid" style="max-height:48vh;overflow-y:auto"></div>
+      <div class="btns"><button class="btn ghost" id="msClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="boardOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Restoration Board</div>
+      <h2 id="bdCount">Bundles</h2>
+      <p class="bgE">Help restore Wadjemup. Complete a bundle to unlock a reward for the whole island.</p>
+      <div class="gdBody" id="bdGrid"></div>
+      <div class="btns"><button class="btn ghost" id="bdClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="mailOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Mailbox</div>
+      <h2>Letters</h2>
+      <div class="gdBody" id="mlList"></div>
+      <div class="btns"><button class="btn ghost" id="mlClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="cafeOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Café HQ · <span id="cfCoins"></span></div>
+      <h2 id="cfLevel">Level 1</h2>
+      <div class="qtabs" id="cfTabs"></div>
+      <div class="btns" style="margin:4px 0"><button class="btn" id="cfCollectAll" type="button" hidden>Collect all</button><button class="btn" id="cfTp" type="button" hidden>Teleport here · free</button></div>
+      <div class="gdBody" id="cfWish" style="max-height:60vh" hidden></div>
+      <div class="gdBody" id="cfBranch" style="max-height:60vh" hidden></div>
+      <div class="gdBody" id="cfMain" style="max-height:60vh">
+        <h3 class="bgH">Upgrade level</h3>
+        <div class="cfLv" id="cfLv"></div>
+        <h3 class="bgH">Style</h3>
+        <div class="cfGrid" id="cfStyles"></div>
+        <h3 class="bgH" id="cfWishH">Kip’s Journey · Wishlist</h3>
+        <div id="cfWishBox"></div>
+      </div>
+      <div class="btns"><button class="btn ghost" id="cfClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="radioOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">Café radio</div>
+      <h2>Wadjemup FM</h2>
+      <p class="bgE" id="rdNow"></p>
+      <div id="rdQuick"><button class="btn" id="rdToggle" type="button">Turn radio off</button></div>
+      <div class="rdList" id="rdList"></div>
+      <label class="rdVol">Volume <input type="range" id="rdVol" min="0" max="100" value="50"></label>
+      <div class="btns"><button class="btn ghost" id="rdClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="passOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">Perth Pass</div>
+      <h2 id="psTitle">Unlock Fremantle &amp; Victoria Park</h2>
+      <p class="bgE" id="psSub">Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass opens the last two towns for good.</p>
+      <ul class="psList">
+        <li><b>Fremantle</b> · the Cappuccino Strip, markets, the round house and a harbour-side café branch</li>
+        <li><b>Victoria Park</b> · Albany Hwy shops, new friends, seeds and furniture you can’t get elsewhere</li>
+        <li>Their festivals, postcards, celebrity guests and café branches</li>
+      </ul>
+      <div class="psBuy" id="psBuy"></div>
+      <label class="psCode">Have a code? <input id="psInput" type="text" placeholder="QCP-XXXX-XXXX-XX" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20"></label>
+      <p class="psMsg" id="psMsg"></p>
+      <div class="btns"><button class="btn" id="psRedeem" type="button">Redeem</button><button class="btn ghost" id="psClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="coachOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="chSub">Quokka Coach · island bus</div>
+      <h2 id="chTitle">Where to?</h2>
+      <p class="bgE">Ride along and watch the island go by for 3 coins, or teleport straight there for 30.</p>
+      <div class="rdList" id="chList"></div>
+      <div class="btns"><button class="btn ghost" id="chClose" type="button">Stay here</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="visitOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">Island Code</div>
+      <h2>Visit friends</h2>
+      <div class="qtabs" id="icTabs"></div>
+      <div id="icDyn"></div>
+      <div id="icDream" hidden>
+      <h3 class="bgH">Share my island</h3>
+      <p class="bgE">Make a code of your island as it is right now, then send it to a friend on LINE or Messenger.</p>
+      <div class="vsRow"><input id="vsOwner" maxlength="24" placeholder="Your name" aria-label="Your name"><input id="vsIsland" maxlength="24" placeholder="Island name" aria-label="Island name"></div>
+      <div class="btns"><button class="btn" id="vsMake" type="button">Make & copy my Dream Code</button></div>
+      <h3 class="bgH">Visit a friend</h3>
+      <textarea id="vsCode" rows="3" placeholder="Paste your friend's Dream Code (starts with QV1:)" aria-label="Friend's Dream Code"></textarea>
+      <p class="bgE" id="vsMsg" role="status"></p>
+      <div class="btns"><button class="btn" id="vsGo" type="button">Visit island</button></div>
+      </div>
+      <p class="bgE" id="icMsg" role="status"></p>
+      <div class="btns"><button class="btn ghost" id="vsClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div id="rotateOv" hidden><div class="rotBox"><div class="rotPhone"><i></i></div><b>Turn your phone sideways</b><span>Quokka Cafe plays in landscape only. Rotate your phone to keep playing. The game is paused.</span></div></div>
+  <div class="overlay" id="gmOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">★ Game Master</div>
+      <h2>GM tools</h2>
+      <p class="bgE" id="gmInfo"></p>
+      <div class="gmBody" id="gmBody"></div>
+      <div class="btns"><button class="btn ghost" id="gmClose" type="button">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="pauseOv" hidden>
+    <div class="card panel" style="text-align:center;max-width:360px">
+      <div class="eyebrow">Game paused</div>
+      <h2>Paused</h2>
+      <p class="bgE" id="pzInfo">Time is stopped. Kip, customers and the clock wait for you.</p>
+      <div class="btns" style="justify-content:center;flex-wrap:wrap"><button class="btn" id="pzResume" type="button">▶ Resume</button><button class="btn ghost" id="pzSave" type="button">Save</button><button class="btn ghost" id="pzGuide" type="button">Guide</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="vactOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="vaEyebrow">Visiting</div>
+      <h2 id="vaTitle">Guestbook</h2>
+      <div id="vaBody"></div>
+      <p class="bgE" id="vaMsg" role="status"></p>
+      <div class="btns"><button class="btn ghost" id="vaClose" type="button">Close</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="homeOv" hidden>
+    <div class="card panel mapcard">
+      <div class="eyebrow">Decorate your home</div>
+      <h2 id="hmTitle">Home</h2>
+      <p class="mapq" id="hmBonus"></p>
+      <canvas id="hmCanvas" width="640" height="360" aria-label="Your room. Tap to place furniture." style="width:100%;max-width:640px;aspect-ratio:16/9;image-rendering:pixelated;border:1px solid rgba(226,194,124,.35);border-radius:4px;cursor:pointer;display:block;margin:0 auto"></canvas>
+      <p id="hmHint" style="font-size:12.5px;color:var(--muted);margin:6px 0 4px"></p>
+      <div class="qtabs" id="hmInv"></div>
+      <div class="btns"><button class="btn" id="hmSleep" type="button">Sleep here</button><button class="btn ghost" id="hmClose" type="button">Done</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="dayOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow" id="dayEyebrow">Sunset</div>
+      <h2 id="dayTitle">Day 1 done</h2>
+      <div class="stats" id="dayStats"></div>
+      <p id="dayNext"></p>
+      <div class="btns"><button class="btn" id="sleepBtn" type="button">Sleep until morning</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="hospOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">Rottnest Island Nursing Post</div>
+      <h2>Kip fainted from hunger</h2>
+      <canvas id="hpCanvas" width="520" height="320" aria-label="Kip resting in a hospital bed"></canvas>
+      <p id="hpNote"></p>
+      <div class="stats"><span>Hospital bill</span><span id="hpFee">200 coins</span><span>Stamina now</span><span>60%</span></div>
+      <p class="bgE">Nurse: “Eat something every day or two, little one! The General Store sells pies and sandwiches.”</p>
+      <div class="btns"><button class="btn" id="hpOk" type="button">Back to the island</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="endOv" hidden>
+    <div class="card panel">
+      <div class="eyebrow">Chapter 1 · The morning ferry</div>
+      <h2>Home is Wadjemup</h2>
+      <p>Mum and Dad step off the ferry, blinking in the island sun. Kip pours three flat whites, and for the first time the café has a family table.</p>
+      <p>Chapter 1 complete. Mum and Dad now live in the spare room and help serve tourists every day. Keep growing the café, the garden and your island life.</p>
+      <div class="btns"><button class="btn" id="againBtn" type="button">Keep playing</button></div>
+    </div>
+  </div>
+</div>
+

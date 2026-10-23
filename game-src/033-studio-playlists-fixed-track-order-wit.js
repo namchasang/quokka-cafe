@@ -1,0 +1,55 @@
+// ---------- Studio playlists: fixed track order with exact timing, for long YouTube videos ----------
+// Each track starts exactly (beats x seconds-per-beat + PL_GAP) after the one before, so timestamps can be computed ahead of time.
+const PL_GAP=2,PL_LEAD=4;
+const STUDIO_PL=[
+ {id:'morning',st:'crystal',name:'Morning at the Café',hint:'try Sunny, 07:00–09:00',titles:['Café Opening Bell','Morning Ferry Bell','Sunrise Over Thomson Bay','Morning Tide','Wadjemup Overture','Sea Breeze Promenade','Warm Bread, Warm Hearts','Picnic at Pinky Beach','Bicycle Bell Polka','Fremantle Market Day','Lanterns on the Jetty','Ferry to the City','Island Express','Best Friends Forever','Quokka Parade','Market Lanterns','The Day Mum and Dad Arrived','Pink Lake Lullaby','Kip’s Promise','Home Is Where You Are']},
+ {id:'rain',st:'crystal',name:'Rain on the Island',hint:'try Showers',titles:['Rain on the Tin Roof','Salt Lake Reverie','Tidepools at Parakeet Bay','Old Lighthouse Waltz','Letter to Mum & Dad','Lantern Moths','Lighthouse Keeper’s Thank-You','Pink Lake Lullaby','Kip’s Promise','Starlit Settlement','The Day Mum and Dad Arrived','Homeward Ferry','Quokka Village Campfire','Lanterns on the Jetty','Hand in Hand on the Jetty','Goodnight, Wadjemup','Wadjemup Overture','Home Is Where You Are']},
+ {id:'golden',st:'crystal',name:'Golden Hour',hint:'try Sunny, 17:30–18:30',titles:['Picnic at Pinky Beach','Sea Breeze Promenade','Warm Bread, Warm Hearts','Homeward Ferry','Lanterns on the Jetty','Quokka Village Campfire','Hand in Hand on the Jetty','Fireworks Over the Swan','Market Lanterns','Lighthouse Keeper’s Thank-You','The Day Mum and Dad Arrived','Kip’s Promise','Lantern Moths','Starlit Settlement','Best Friends Forever','Pink Lake Lullaby','Letter to Mum & Dad','Goodnight, Wadjemup','Home Is Where You Are']},
+ {id:'study',st:'lofi',name:'Lofi to Study & Work',hint:'try Sunny, 09:00–15:00',titles:['Flat White Focus','Notes on the Ferry','Thomson Bay Homework','Pencil Shavings','Library at the Settlement','Espresso & Index Cards','Kip’s Study Desk','Lighthouse Wi-Fi','Salt Air Deadlines','Bike Bell Break','Afternoon Lamington','Quiet Hours at the Café','Postcard Draft','Mango Smoothie Pomodoro','Last Ferry, Last Chapter']},
+ {id:'softrain',st:'lofi',name:'Soft Rain + Slow Lofi',hint:'try Showers',titles:['Rain on the Awning','Wet Sand, Warm Mug','Grey Morning at Geordie Bay','Drizzle on the Jetty','Window Seat','Umbrella for Two','Storm over the Salt Lakes','Foggy Lighthouse','Kip Naps Through the Rain','Damp Postcards','Steam from the Teapot','Slow Ferry in the Rain','Rainy Day Reading','Puddles by the Bakery','After the Storm']}];
+let PL_SEL=-1;
+function plTracks(P){const L=TSTN[P.st].list;return P.titles.map(t=>L.findIndex(x=>x.t===t)).filter(i=>i>=0);}
+function plLen(list,st){const T=TSTN[st];return list.reduce((a,i)=>{const tr=T.list[i];return a+T.compile(tr).beats*60/tr.bpm+PL_GAP;},0);}
+function plClock(s){s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s/60)%60,x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0');}
+function plNext(end){const P=RADIO.pl;P.i++;if(P.i>=P.list.length){P.done=true;setTimeout(()=>{if(RADIO.pl===P&&STUDIO)studioTip('Playlist finished · stop recording');},Math.max(0,(end-RADIO.ctx.currentTime)*1000));return;}crStart(P.list[P.i],end);}
+function studioPlaylist(){PL_SEL=PL_SEL>=STUDIO_PL.length-1?-1:PL_SEL+1;
+  if(PL_SEL<0){RADIO.pl=null;radioPlay('off');studioTip('Playlist off');return;}
+  const P=STUDIO_PL[PL_SEL],list=plTracks(P);RADIO.pl={id:P.id,list,i:0,done:false};RADIO.cr=null;radioPlay(P.st,true);if(!RADIO.ctx){RADIO.pl=null;return;}
+  crStart(list[0],RADIO.ctx.currentTime+PL_LEAD);studioTip(P.name+' · '+list.length+' tracks · '+plClock(plLen(list,P.st))+' · music in '+PL_LEAD+' s ('+P.hint+')');}
+
+const PROG={seaside:[[48,[60,64,67,71]],[45,[57,60,64,67]],[41,[57,60,65,69]],[43,[59,62,67,71]],[40,[59,64,67,71]],[45,[57,60,64,69]],[38,[57,62,65,69]],[43,[55,59,62,65]]],
+ lofi:[[38,[60,62,65,69]],[43,[59,62,65,69]],[36,[59,62,64,67]],[45,[55,60,64,67]]],
+ breeze:[[38,[50,57,62]],[34,[46,53,58]],[36,[48,55,60]],[33,[45,52,57]]]};
+const SCALE={seaside:[72,74,76,79,81,84,86],lofi:[69,72,74,76,79,81],breeze:[62,64,65,69,70,74,76,77,81]};
+function radioSchedule(){const c=RADIO.ctx;if(!c||RADIO.st==='off')return;if(TSTN[RADIO.st]){crTick();return;}const S2=RSTATIONS[RADIO.st],spb=60/S2.bpm,e=spb/2;
+  while(RADIO.next<c.currentTime+.6){const t=RADIO.next,st=RADIO.step%16,P=PROG[RADIO.st],ch=P[RADIO.bar%P.length];
+    if(RADIO.st==='seaside'){if(st===0){bass(t,ch[0],spb*3.6,.16);pad(t,ch[1].map(m=>m-12),spb*8,.012);}if(st===8)bass(t,ch[0]+7,spb*3.2,.1);
+      const arp=[0,1,2,3,2,1,2,3][st%8];if(st%2===0||Math.random()<.3)piano(t+(Math.random()*.012),ch[1][arp]+(st>=8&&arp===3?12:0),e*1.6,st%4===0?.9:.6);
+      if(Math.random()<.22){const sc=SCALE.seaside;piano(t+e*.5,sc[Math.floor(Math.random()*sc.length)],spb*1.5,.55);}}
+    else if(RADIO.st==='lofi'){const sw=(st%2)?e*.18:0;if(st===0||st===10)kick(t);if(st===4||st===12)snare(t+sw);if(st%2===0||Math.random()<.4)hat(t+sw,st%4===0?1:.6);
+      if(st===0){ch[1].forEach((m,i)=>epiano(t+i*.025,m,spb*3.5,.7));bass(t,ch[0],spb*2.8,.2);}if(st===8){ch[1].slice(1).forEach((m,i)=>epiano(t+sw+i*.02,m,spb*2,.5));bass(t,ch[0]+7,spb*1.8,.14);}
+      if(st%4===2&&Math.random()<.45){const sc=SCALE.lofi;epiano(t+sw,sc[Math.floor(Math.random()*sc.length)],spb,.55);}}
+    else if(RADIO.st==='breeze'){if(st===0){pad(t,ch[1],spb*8,.016);bass(t,ch[0],spb*6,.12);}const sc=SCALE.breeze;
+      if(st%2===0&&Math.random()<.7){const i=Math.floor(Math.random()*sc.length);pluck(t,sc[i],st%8===0?.9:.6);if(Math.random()<.25)pluck(t+e*.5,sc[Math.min(sc.length-1,i+1)],.45);}
+      if(st===14&&Math.random()<.35){for(let k=0;k<5;k++)pluck(t+k*.06,sc[Math.min(sc.length-1,k+2)],.35);}}
+    RADIO.next+=e;RADIO.step++;if(RADIO.step%16===0)RADIO.bar++;}}
+function radioPlay(st,keepPl){if(!keepPl)RADIO.pl=null;if(st)RADIO.st=st;radioSave();RADIO.nodes.forEach(n=>{try{n.stop();}catch(e){}});RADIO.nodes=[];if(RADIO.st==='off'){if(RADIO.master)RADIO.master.gain.setTargetAtTime(0,RADIO.ctx.currentTime,.3);clearInterval(RADIO.timer);RADIO.timer=null;radioLabel();return;}
+  if(!radioInit())return;const c=RADIO.ctx;if(c.state==='suspended')c.resume();RADIO.master.gain.setTargetAtTime(RADIO.vol*.9,c.currentTime,.6);RADIO.next=c.currentTime+.1;RADIO.step=0;RADIO.bar=Math.floor(Math.random()*4);
+  if(TSTN[RADIO.st]){RADIO.cr=null;if(RADIO.trkSt!==RADIO.st){RADIO.trk=0;RADIO.trkSt=RADIO.st;}}if(RADIO.st==='seaside')loopNoise('wave');if(!RADIO.timer)RADIO.timer=setInterval(radioSchedule,120);radioSchedule();radioLabel();}
+function radioVol(v){RADIO.vol=v;radioSave();if(RADIO.master&&RADIO.st!=='off')RADIO.master.gain.setTargetAtTime(v*.9,RADIO.ctx.currentTime,.1);}
+function radioLabel(){const ic=$('#radioIco');if(ic){const on=RADIO.st!=='off';ic.classList.toggle('on',on);ic.classList.toggle('off',!on);ic.title=on?'Radio: '+RSTATIONS[RADIO.st].name+' (tap to change)':'Radio off (tap to turn on)';}const b=$('#radioBtn');if(b)b.textContent=RADIO.st==='off'?'Radio':'♫ '+RSTATIONS[RADIO.st].name.split(' ')[0];}
+document.addEventListener('visibilitychange',()=>{if(!RADIO.ctx)return;if(document.hidden)RADIO.ctx.suspend();else if(RADIO.st!=='off')RADIO.ctx.resume();});
+function openRadio(){if(!running||overlay)return;renderRadio();showOverlay('radio');}
+function renderRadio(){{const n=$('#rdNow');if(n){n.innerHTML='';if(TSTN[RADIO.st]){const L=tsOf().list,tr=L[RADIO.trk||0]||L[0];const sp=document.createElement('span');sp.textContent='\u266b Track '+((RADIO.trk||0)+1)+'/'+L.length+' \u00b7 '+tr.t+'  ';n.appendChild(sp);[['\u23ee','Previous track',-1],['\u23ed','Next track',1]].forEach(([g,l,d])=>{const b=document.createElement('button');b.type='button';b.className='btn ghost';b.style.padding='2px 10px';b.style.marginLeft='6px';b.textContent=g;b.setAttribute('aria-label',l);b.onclick=()=>{if(RADIO.ctx){crStart((RADIO.trk||0)+d);renderRadio();}};n.appendChild(b);});}else n.textContent=RADIO.st==='off'?'The radio is off.':'Now on: '+RSTATIONS[RADIO.st].name;}}{const t=$('#rdToggle');if(t)t.textContent=RADIO.st==='off'?'\u25b6 Turn radio on':'\u23f9 Turn radio off';}const G=$('#rdList');G.innerHTML='';Object.keys(RSTATIONS).forEach(k=>{const S2=RSTATIONS[k];const b=document.createElement('button');b.type='button';b.className='rdS'+(RADIO.st===k?' on':'');b.id='rd-'+k;const n=document.createElement('b');n.textContent=(RADIO.st===k&&k!=='off'?'♫ ':'')+S2.name;const p=document.createElement('span');p.textContent=S2.desc;b.append(n,p);b.onclick=()=>{radioPlay(k);renderRadio();};G.appendChild(b);});
+  $('#rdVol').value=Math.round(RADIO.vol*100);if(!TSTN[RADIO.st])$('#rdNow').textContent=RADIO.st==='off'?'Radio is off':'Now playing: '+RSTATIONS[RADIO.st].name+' · Wadjemup FM 96.9';}
+
+function openCoach(from){openTravel('Where to?','Quokka Coach \u00b7 island bus',COACH.map(b=>({id:b.id,name:b.name,here:b.id===from,note:b.id===from?'':'Ride about '+Math.max(2,Math.round(Math.abs(COACH_IDX[b.id]-COACH_IDX[from])*1.5))+' min',ride:()=>coachRide(from,b.id),tp:()=>coachTo(b)})));}
+function coachTo(b){if(transit)return;if(VISIT){toast('Go home first to travel',2);return;}transit=true;fadeTarget=.95;toast('Quokka Coach to '+b.name+'…',2);setTimeout(()=>{S.time+=10;player.bike=false;player.x=b.x;player.z=b.z+.8;updateCamera(0,true);fadeTarget=0;transit=false;S.qg=S.qg||{};S.qg['coach_'+b.id]=1;save();},800);}
+function trainTo(dest){if(transit)return;if(VISIT){toast('Go home first to travel',2);return;}transit=true;fadeTarget=.95;toast('All aboard the Quokka Express!',2);setTimeout(()=>{S.time+=15;player.bike=false;if(dest==='oliver'){player.x=54.6;player.z=.2;}else{player.x=14.2;player.z=-3.2;}updateCamera(0,true);fadeTarget=0;transit=false;S.qg=S.qg||{};S.qg.train=1;save();},900);}
+function railPos(k){const R=WEST.rail;let tot=0;const segs=[];for(let i=0;i<R.length-1;i++){const l=Math.hypot(R[i+1][0]-R[i][0],R[i+1][1]-R[i][1]);segs.push(l);tot+=l;}let d=k*tot;for(let i=0;i<segs.length;i++){if(d<=segs[i]){const t=d/segs[i];return[lerp(R[i][0],R[i+1][0],t),lerp(R[i][1],R[i+1][1],t),Math.atan2(R[i+1][1]-R[i][1],R[i+1][0]-R[i][0])];}d-=segs[i];}const n=R.length-1;return[R[n][0],R[n][1],0];}
+function westTick(dt,t){if(zoneOf(player.x)!=='island')return;WEST.boats.forEach(b=>{b.g.position.y=-.12+Math.sin(t*1.3+b.ph)*.05;b.g.rotation.z=Math.sin(t*1.1+b.ph)*.05;});
+  WEST.snork.forEach(s=>{const y=-.08+Math.sin(t*2+s.ph)*.04;s.m.position.set(s.x+Math.sin(t*.3+s.ph)*.8,y,s.z);s.s.position.set(s.m.position.x+.1,y+.2,s.z);});
+  WEST.surfers.forEach((s,i)=>{const k=((t*.12+s.ph*.1)%1);s.m.position.set(80.5+i*2.4+k*1.2,-.1+Math.sin(k*Math.PI)*.25,11.5-k*2.8);s.m.visible=k<.92;});
+  WEST.seals.forEach(s=>{s.m.position.y=.25+Math.max(0,Math.sin(t*.7+s.ph*2))*.06;});
+  if(WEST.riding)return;const k=(Math.sin(t*.05)+1)/2;const [x,z,a]=railPos(k);WEST.train.position.set(x,0,z);WEST.train.rotation.y=-a+(Math.cos(t*.05)<0?Math.PI:0);}
+

@@ -1,0 +1,41 @@
+// ---------- bag, inventory and outfits ----------
+const WARD={
+ apron:{green:{name:'Green café apron',col:'#3e7d5c'},red:{name:'Red apron',col:'#c8344a',price:12,shop:'vp'},navy:{name:'Navy apron',col:'#1d3a6e',price:12,shop:'vp'},pink:{name:'Pink apron',col:'#e79ab0',price:12,shop:'vp'},gold:{name:'Gold apron',col:'#e8a33a',price:20,shop:'freo'}},
+ hat:{sun:{name:'Straw sun hat',price:18,shop:'freo'},bush:{name:'Bush hat',price:25,shop:'island'},beanie:{name:'Beanie',price:10,shop:'vp'},cap:{name:'Rotto cap',price:12,shop:'island'}},
+ acc:{shades:{name:'Sunglasses',price:15,shop:'sp'},flowers:{name:'Flower crown',price:14,shop:'freo'},scarf:{name:'Knitted scarf',price:12,shop:'vp'},snorkel:{name:'Snorkel mask',price:16,shop:'island'}}};
+const WARD_SHOP={island:'gstore',sp:'servo',freo:'f_market',vp:'vp_kmax'};
+Object.keys(WARD).forEach(slot=>Object.keys(WARD[slot]).forEach(id=>{const it=WARD[slot][id];if(!it.shop)return;const sh=SHOPS[WARD_SHOP[it.shop]];if(!sh)return;sh.items.push({id:'w_'+slot+'_'+id,name:it.name,price:it.price,desc:'Clothing for Kip. Open your Bag (G) to wear it.',own:()=>wardOwn(slot,id),buy:()=>{S.ward=S.ward||{};S.ward[slot+'_'+id]=1;}});}));
+function wardOwn(slot,id){return(slot==='apron'&&id==='green')||!!(S.ward&&S.ward[slot+'_'+id]);}
+function outfit(){S.outfit=S.outfit||{apron:'green',hat:null,acc:null};return S.outfit;}
+function drawOutfit(P,o){if(!o)return;const S3=c=>{const h=hex(c);return[shade(h,.6),shade(h,.8),h,shade(h,1.15)];};
+  if(o.acc==='scarf'){const sc=S3('#c8344a');for(let i=10;i<24;i++){P.set(i,16,sc[2]);P.set(i,17,sc[(i%2)?1:3]);}for(let j=17;j<22;j++){P.set(12,j,sc[1]);P.set(13,j,sc[2]);}}
+  if(o.hat==='sun'){P.ell(16.5,5.6,10,1.8,S3('#e8c87a'));P.ell(16.5,3.8,5.6,2.8,S3('#e8c87a'));for(let i=11;i<22;i++)P.set(i,5,hex('#c8344a'));}
+  else if(o.hat==='bush'){P.ell(16.5,5.8,10.5,1.7,S3('#8a5a36'));P.ell(16.5,3.6,5.2,2.8,S3('#8a5a36'));for(let i=12;i<21;i++)P.set(i,5,hex('#3a2416'));}
+  else if(o.hat==='beanie'){P.ell(16.5,5,7.4,3.8,S3('#2f78a8'));for(let i=10;i<24;i++)P.set(i,7,hex('#f6f6f0'));P.ell(16.5,1.6,1.6,1.4,S3('#f6f6f0'));}
+  else if(o.hat==='cap'){P.ell(16,5.4,6.6,3,S3('#c8344a'));P.ell(22.4,7,4.2,1.2,S3('#c8344a'));P.set(15,4,hex('#ffffff'));P.set(16,4,hex('#ffffff'));}
+  if(o.acc==='shades'){const d=[18,18,26];for(let i=17;i<23;i++)P.set(i,9,d);[[17,10],[18,10],[19,10],[21,10],[22,10],[18,11],[21,11]].forEach(([i,j])=>P.set(i,j,d));P.set(18,10,[110,140,180]);P.set(21,10,[110,140,180]);}
+  else if(o.acc==='flowers'&&!o.hat){[['#e8457a',11],['#ffd34d',13],['#ffffff',15],['#e8457a',17],['#9478d4',19],['#ffd34d',21]].forEach(([c,i])=>{P.set(i,5,hex(c));P.set(i+1,5,hex(c));P.set(i,6,hex('#3e7d5c'));});}
+  else if(o.acc==='snorkel'){const b=S3('#2f78a8');for(let i=17;i<23;i++){P.set(i,8,b[1]);P.set(i,11,b[1]);}P.set(17,9,b[1]);P.set(17,10,b[1]);P.set(22,9,b[1]);P.set(22,10,b[1]);for(let i=18;i<22;i++){P.set(i,9,[150,210,240]);P.set(i,10,[120,190,230]);}for(let j=2;j<11;j++)P.set(24,j,hex('#f1c64a'));P.set(24,1,hex('#c8344a'));}}
+function kipFrames(){const o=outfit();const col=(WARD.apron[o.apron]||WARD.apron.green).col;return[0,1,2].map(s=>kip32(s,col,null,o)).concat([0,1,2].map(s=>kipFB(0,s,col,null,o)),[0,1,2].map(s=>kipFB(1,s,col,null,o)));}
+function applyOutfit(){if(!player.mesh)return;const nm=spriteMesh(kipFrames(),1.15,1.15);player.mesh.userData.frames=nm.userData.frames;player.mesh.userData.cur=-1;showFrame(player.mesh);nm.geometry.dispose();const bi=BB.indexOf(nm);if(bi>=0)BB.splice(bi,1);const di=DIR4.indexOf(nm);if(di>=0)DIR4.splice(di,1);}
+let bagTab='bag';
+function openBag(){if(!running||overlay)return;renderBag();showOverlay('bag');}
+function renderBag(){const T=$('#bgTabs');T.innerHTML='';[['bag','Bag'],['outfit','Outfit']].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(bagTab===k?' on':'');b.id='bgt-'+k;b.textContent=l;b.onclick=()=>{bagTab=k;renderBag();};T.appendChild(b);});
+  const B=$('#bgBody');B.innerHTML='';const sec=(title,rows,empty)=>{const h=document.createElement('h3');h.className='bgH';h.textContent=title;B.appendChild(h);const g=document.createElement('div');g.className='bgGrid';if(!rows.length){const p=document.createElement('p');p.className='bgE';p.textContent=empty;g.appendChild(p);}rows.forEach(([n,v])=>{const d=document.createElement('div');d.className='bgI';const a=document.createElement('span');a.textContent=n;const c=document.createElement('b');c.textContent=v;d.append(a,c);g.appendChild(d);});B.appendChild(g);};
+  if(bagTab==='bag'){
+    sec('Garden basket',Object.keys(S.inv||{}).filter(k=>S.inv[k]>0&&CROPS[k]).map(k=>[CROPS[k].name,'×'+S.inv[k]]),'Empty. Harvest your garden or let staff fish after closing.');
+    {const ks=Object.keys(S.inv||{}).filter(k=>S.inv[k]>0&&CROPS[k]&&k!=='fish');if(ks.length){const h=document.createElement('h3');h.className='bgH';h.textContent='Snack from your basket (+8 stamina each)';B.appendChild(h);const row=document.createElement('div');row.className='qtabs';ks.forEach(k=>{const b=document.createElement('button');b.type='button';b.className='qtab';b.id='eat-'+k;b.textContent='Eat '+CROPS[k].name+' \u00d7'+S.inv[k];b.onclick=()=>{S.inv[k]--;eat(8);renderBag();};row.appendChild(b);});B.appendChild(row);}}
+    sec('Finds',[].concat(Object.keys(S.fos||{}).filter(k=>S.fos[k]>0).map(k=>[FOSSILS.find(f=>f.id===k).name,'\u00d7'+S.fos[k]])).concat(Object.keys(S.bugs||{}).filter(k=>S.bugs[k]>0).map(k=>[BUGS.find(f=>f.id===k).name,'\u00d7'+S.bugs[k]])).concat(Object.keys(S.fdex||{}).filter(k=>S.fdex[k]>0).map(k=>[FISH.find(f=>f.id===k).name,'\u00d7'+S.fdex[k]])),'Nothing yet. Dig, fish and catch bugs, then donate to the museum.');
+    sec('Furniture in storage',Object.keys(S.furn||{}).filter(k=>S.furn[k]>0).map(k=>[FURN[k].name,'×'+S.furn[k]]),'None yet. Furniture shops: South Perth, Freo Markets, Victoria Park.');
+    sec('Seeds you can plant',Object.keys(CROPS).filter(k=>!CROPS[k].noPlant&&(!CROPS[k].lock||(S.unlock&&S.unlock[CROPS[k].lock]))).map(k=>[CROPS[k].name,CROPS[k].seed+' c']),'');
+    sec('Keys and vehicles',[].concat(S.ownBike?[['Own bike','Press V']]:[]).concat(PROP_LIST.filter(p=>propOwned(p.id)).map(p=>[p.name,'Home key'])).concat(S.unlock&&S.unlock.sprinkler?[['Garden sprinkler','Installed']]:[]),'No keys yet.');
+    sec('Collections',[['Postcards',pcCount()+' / '+PC_TOTAL],['Special postcards',PCS.filter(p=>isSpecial(p.cat)&&S.pc&&S.pc[p.id]).length+' / '+PCS.filter(p=>isSpecial(p.cat)).length],['Fish species',Object.keys(S.fdex||{}).length+' / '+FISH.length],['Museum donations',Object.keys(S.museum||{}).length+''],['Best friend',(()=>{const b=FRIENDS.slice().sort((a,c)=>hearts(c.id)-hearts(a.id))[0];return b.name+' '+hearts(b.id)+'\u2665';})()],['Lore stones',Object.keys(S.lore||{}).length+''],['Coins',S.coins+'']],'');
+  }else{
+    const wrap=document.createElement('div');wrap.className='bgOut';const cv=document.createElement('canvas');cv.width=128;cv.height=128;cv.className='bgPrev';const src=kipFrames()[0];const x=cv.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(src,0,0,128,128);wrap.appendChild(cv);
+    const right=document.createElement('div');right.className='bgSlots';const o=outfit();
+    [['apron','Apron'],['hat','Hat'],['acc','Accessory']].forEach(([slot,label])=>{const h=document.createElement('h3');h.className='bgH';h.textContent=label;right.appendChild(h);const row=document.createElement('div');row.className='qtabs';
+      const opts=Object.keys(WARD[slot]).filter(id=>wardOwn(slot,id));if(slot!=='apron')opts.unshift(null);
+      opts.forEach(id=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(o[slot]===id?' on':'');b.id='wr-'+slot+'-'+(id||'none');b.textContent=id?WARD[slot][id].name:'None';b.onclick=()=>{o[slot]=id;save();applyOutfit();renderBag();};row.appendChild(b);});
+      const locked=Object.keys(WARD[slot]).filter(id=>!wardOwn(slot,id));if(locked.length){const p=document.createElement('p');p.className='bgE';p.textContent='More in shops: '+locked.map(id=>WARD[slot][id].name+' ('+({island:'General Store',sp:'Mends Servo',freo:'Freo Markets',vp:'Homebox'})[WARD[slot][id].shop]+')').join(', ');right.append(row,p);}else right.appendChild(row);});
+    wrap.appendChild(right);B.appendChild(wrap);}}
+

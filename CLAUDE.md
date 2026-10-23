@@ -1,0 +1,30 @@
+# Quokka Cafe and Friends: notes for Claude
+
+Cozy café sim RPG on Rottnest Island (Wadjemup) and Perth. Live (free soft opening): https://namchasang.github.io/quokka-cafe/
+Owner: Paul (Paul Perth AI Lab). Replies to Paul in Thai unless he writes English.
+
+## Save tokens: never read index.html whole
+- The game is ONE file, `index.html` (~640 KB). Its source lives in `game-src/` as ~50 numbered parts.
+- Open `game-src/MAP.md` first: it says which part holds which code and lists its top-level names.
+- Find code with `grep -n 'name' game-src/*`, then Read only that part (or a line range of it).
+- Edit the part, then run `python3 tools/gamekit.py build` (joins parts into index.html and bumps the sw.js cache).
+- `build` is safe if someone edited index.html directly: it re-splits. If both changed, it stops; nothing is lost.
+
+## Every change
+1. `git pull` first: another Claude session also commits to this repo.
+2. Edit `game-src/`, then `python3 tools/gamekit.py build`.
+3. Test: `node tools/smoke.mjs index.html 40 shot.png`. The game takes ~30 s to start on software WebGL; check the screenshot.
+   Deeper tests: copy index.html to `__t.html` (listed in .git/info/exclude), insert `window.__t={...}` before the final `})();`.
+4. Commit with a plain-English message, then push. GitHub Pages deploys in about a minute.
+
+## Standing rules (Paul's decisions)
+- No third-party trade names anywhere: game, README, comments, posts (no Stardew, Animal Crossing, Nook, HD-2D, Octopath, Eftpos...).
+- Kip's story: just graduated from university, dreamed since childhood of owning a business, leaves his little home in Victoria Park for a café by the jetty on Rottnest. Ending: Mum and Dad move to the island.
+- Music is original and generated in code (WebAudio). Crystal Harbour + Island Lo-fi stations; Studio mode (K) hides UI for recording; `node tools/studio-timestamps.js` prints YouTube timestamps.
+- Island Codes use Supabase (tables `qc_*`, RPCs `qc_register`, `qc_sync`, `qc_visit`...). The anon key in the game is public by design. Never scrape or list other players' codes.
+- Freemium plan: Fremantle and Victoria Park are paid unlocks (Perth Pass); Paul has a Game Master account.
+- Planned next: Thai language (menus + main story) with a TH/EN switch. Needs a Thai-capable font.
+- Paul wants playable links, never zip files. Visual changes: show him a preview before going live.
+
+## Map of the game (see game-src/MAP.md for exact parts)
+renderer + pixel post-processing, lights, textures, 32px sprites, world (Rottnest, South Perth, Fremantle, Heirisson, Victoria Park, Quokka Village), café levels, characters, state, UI, input, interactions, guide, seasons/friends/fishing/digging/museum/mail/daily tasks, unlocks, radio + music, Island Codes, stamina, branches, transport, Perth Pass, events, crowds, zones, postcards, area stories, side quests, customers.
