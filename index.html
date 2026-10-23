@@ -978,7 +978,7 @@ const Dg=new Float32Array(GW*GH);for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){cons
 function landD(x,z){const u=(x-TB.x1)*GR,v=(z-TB.z1)*GR;const i=Math.floor(u),j=Math.floor(v);if(i<0||j<0||i>=GW-1||j>=GH-1)return -9;const a=u-i,b=v-j,k=j*GW+i;return(Dg[k]*(1-a)+Dg[k+1]*a)*(1-b)+(Dg[k+GW]*(1-a)+Dg[k+GW+1]*a)*b;}
 function hash2(i,j){const s=Math.sin(i*127.1+j*311.7)*43758.5453;return s-Math.floor(s);}
 function vnoise(x,z){const i=Math.floor(x),j=Math.floor(z),fx=x-i,fz=z-j,ux=fx*fx*(3-2*fx),uz=fz*fz*(3-2*fz);const a=hash2(i,j),b=hash2(i+1,j),c=hash2(i,j+1),d=hash2(i+1,j+1);return a+(b-a)*ux+(c-a)*uz+(a-b-c+d)*ux*uz;}
-const PATHS=[[[45.4,-3.8],[50,-2.4],[58,-1.4],[68,-.8],[80,-.2],[91,.4]],[[59.4,-1.4],[60.2,-4.2]],[[67.2,-.8],[67.6,-4.2]],[[70.4,-.6],[70.8,5.4]],[[62.5,-1.2],[62.6,5.8]],[[82.2,-.1],[82.6,5.8]],[[56,-1.6],[54.8,.6]],[[15.8,-3.6],[24,-3.4],[36,1.6],[48,2.8],[53,1.8]],[[5,0],[31.4,0]],[[31,.2],[31,-5.2]],[[31,0],[35.4,0]],[[-5.3,3],[-9,4.2],[-12.8,5]],[[-5.4,-1],[-6.2,-6.4],[1.5,-6.6]],[[30.6,-3.6],[26,-7.6],[21,-9.2]],[[35,-.2],[40.5,-2.4],[45.4,-3.8]],[[13,0],[11.6,-4.8]]];
+const PATHS=[[[45.4,-3.8],[50,-2.4],[58,-1.4],[68,-.8],[80,-.2],[91,.4]],[[59.4,-1.4],[60.2,-4.2]],[[67.2,-.8],[67.6,-4.2]],[[70.4,-.6],[70.8,5.4]],[[62.5,-1.2],[62.6,5.8]],[[82.2,-.1],[82.6,5.8]],[[56,-1.6],[54.8,.6]],[[15.8,-3.6],[24,-3.4],[36,1.6],[48,2.8],[53,1.8]],[[5,0],[31.4,0]],[[31,.2],[31,-5.2]],[[31,0],[35.4,0]],[[-5.3,3],[-9,4.2],[-12.8,5]],[[-5.4,-1],[-6.2,-6.4],[1.5,-6.6]],[[30.6,-3.6],[26,-7.6],[21,-9.2]],[[35,-.2],[40.5,-2.4],[45.4,-3.8]],[[13,0],[11.6,-4.8]],[[-9,4.2],[-10.4,6.6]],[[7,.4],[8.6,5.2]],[[24,.2],[24,3.6]],[[1.5,-6.6],[5.4,-5.6],[7.6,-3.9]],[[7.6,-3.9],[11.6,-4.8]],[[1.4,3.2],[2.4,9.2]],[[36,1.6],[38.6,7.4]],[[-5.4,-1],[-8.2,-.6]]];
 function segD(px,pz,ax,az,bx,bz){const vx=bx-ax,vz=bz-az,wx=px-ax,wz=pz-az;const t=clamp((wx*vx+wz*vz)/(vx*vx+vz*vz),0,1);return Math.hypot(wx-vx*t,wz-vz*t);}
 function pathD(x,z){let d=1e9;for(const p of PATHS)for(let i=0;i<p.length-1;i++)d=Math.min(d,segD(x,z,p[i][0],p[i][1],p[i+1][0],p[i+1][1]));return d;}
 // hand-painted ground: grass patches, dry grass, beaches, wet sand, limestone trails, pink salt lake
@@ -991,7 +991,7 @@ const TPX=16,terrC=mk((TB.x2-TB.x1)*TPX,(TB.z2-TB.z1)*TPX);
     const le=Math.min(((wx-42.2)/3.5)**2+((z+7.5)/1.6)**2,((wx-66.2)/2.6)**2+((z-2.7)/1.1)**2);const pd=(wx>-14&&wx<98&&z>-11&&z<9)?pathD(wx,z):9;
     if(le<1)c=r>.93?[250,204,216]:(n2>.6?[244,176,194]:[236,156,178]);
     else if(le<1.38+(r-.5)*.12)c=r<.5?[242,236,224]:[226,214,196];
-    else if(pd<.7+(r-.5)*.14)c=pd>.52?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
+    else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
     else if(d<beachW||zone){if(d<.42)c=[222,214,196];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
     else{let t=n1*.62+n2*.38+(r-.5)*.2;if(d<beachW+.8)t+=.18;c=G[t<.32?0:t<.46?1:t<.6?2:t<.72?3:4];
       if(r>.9966)c=[244,220,90];else if(r>.9956)c=[255,255,255];else if(r>.986)c=[176,206,122];else if(r<.014)c=[78,116,56];}
@@ -1471,7 +1471,7 @@ const ANGELO=[[172.6,'ANGELO ST BAKEHOUSE','#c8344a','#fbe9cf'],[183.4,'SANDGATE
 ANGELO.forEach(([x,n,c,w])=>{const g=bld(x,16.4,4.4,2.8,2.8,w,{ver:c,sign:n,signBg:c,noCol:true});col(x-2.2,15,x+2.2,17.8);fadeGroup(g);});
 signPost(178,20.2,makeSign(['ANGELO ST'],40,12,'#2f5a8a','#ffffff'),1.6,.3);
 [[176.4,18.8],[198,18.8],[174,25],[184,25],[194,25]].forEach(([x,z])=>{const g=new THREE.PlaneGeometry(plane.w,plane.h);g.translate(0,plane.h/2,0);const m=new THREE.Mesh(g,plane.m);m.customDepthMaterial=plane.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v:plane,fade:false});col(x-.2,z-.1,x+.2,z+.1);});
-for(let i=0;i<14;i++){const p=new THREE.Mesh(new THREE.BoxGeometry(.07,.45,.07),fenceMat);p.position.set(170+i*2.2,.23,10.4);scene.add(p);}
+for(let i=0;i<14;i++){const fx=170+i*2.2;if(Math.abs(fx-178)<1.5)continue;const p=new THREE.Mesh(new THREE.BoxGeometry(.07,.45,.07),fenceMat);p.position.set(fx,.23,10.4);scene.add(p);}col(169,10.25,176.9,10.55);col(179.1,10.25,199,10.55);
 
 // south side of Mill Point Road: houses and gardens instead of open water
 box(88,.5,9,lmat(stoneC,[40,4]),156,-.26,28.4,{noCast:true});flat(88,8.4,lmat(grassC,[14,1.4]),156,.009,28.6);flat(88,.6,lmat(pathC,[44,.3]),156,.024,24.1);
@@ -1479,6 +1479,62 @@ box(88,.5,9,lmat(stoneC,[40,4]),156,-.26,28.4,{noCast:true});flat(88,8.4,lmat(gr
 [[121,26],[134.5,26],[169,26],[182.5,26],[189.6,26]].forEach(([x,z])=>{const g=new THREE.PlaneGeometry(plane.w,plane.h);g.translate(0,plane.h/2,0);const m=new THREE.Mesh(g,plane.m);m.customDepthMaterial=plane.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v:plane,fade:false});});
 // the Victoria Park bus waits at the stop in front of Mill Point Towers
 
+
+// ---------- South Perth detail pass: Mill Point and the Old Mill, east foreshore, Coode St Jetty, swans, new locals ----------
+box(14,.5,15.7,lmat(stoneC,[7,1]),107,-.25,4.15,{noCast:true});flat(14,13.8,lmat(grassC,[2.3,2.3]),107,.01,4.95);flat(14,1.6,lmat(pathC,[7,.8]),107,.015,-3.2);
+flat(1.6,9,lmat(pathC,[.8,4.5]),110.4,.016,3.3);
+box(30,.5,13.3,lmat(stoneC,[15,1]),184,-.25,2.95,{noCast:true});flat(30,11.6,lmat(grassC,[5,2]),184,.01,3.8);flat(30,1.6,lmat(pathC,[15,.8]),184,.015,-3.2);
+flat(1.6,12,lmat(pathC,[.8,6]),178,.016,4.4);
+// the Old Mill (Shenton's Mill, 1835): white tower, dark cap, turning lattice sails
+const MILL={x:106,z:2.6,sails:null};
+(()=>{const g=new THREE.Group();const wall=lmat(plasterC,[3,3],{color:new THREE.Color('#f6f2e8')});
+  const body=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.5,4.4,12),wall);body.position.y=2.2;body.castShadow=body.receiveShadow=true;g.add(body);
+  const band=new THREE.Mesh(new THREE.CylinderGeometry(1.12,1.12,.18,12),new THREE.MeshLambertMaterial({color:0x6a5a4a}));band.position.y=4.35;g.add(band);
+  const cap=new THREE.Mesh(new THREE.ConeGeometry(1.3,1.5,12),new THREE.MeshLambertMaterial({color:0x4a4038}));cap.position.y=5.15;cap.castShadow=true;g.add(cap);
+  const door=new THREE.Mesh(new THREE.PlaneGeometry(.7,1.3),new THREE.MeshLambertMaterial({color:0x5a3a22}));door.position.set(0,.65,1.47);door.rotation.x=-.1;g.add(door);
+  [[.9,2.1],[-.5,3.2]].forEach(([y0,yy])=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.38,.5),winMat);w.position.set(y0*.4,yy,1.3-(yy-2)*.1);w.rotation.x=-.1;g.add(w);});
+  const latC=(()=>{const c=mk(8,32),x=c.getContext('2d');x.fillStyle='#e9e2d0';x.fillRect(0,0,8,32);x.fillStyle='#6a5a4a';x.fillRect(0,0,1,32);x.fillRect(7,0,1,32);for(let j=0;j<32;j+=4)x.fillRect(0,j,8,1);x.fillRect(3,0,2,32);return c;})();
+  const sm=new THREE.MeshLambertMaterial({map:ctex(latC),side:THREE.DoubleSide});const hub=new THREE.Group();
+  for(let k=0;k<4;k++){const arm=new THREE.Group();const blade=new THREE.Mesh(new THREE.PlaneGeometry(.55,2.5),sm);blade.position.set(.2,1.45,0);blade.castShadow=true;arm.add(blade);const sp=new THREE.Mesh(new THREE.BoxGeometry(.08,2.8,.08),new THREE.MeshLambertMaterial({color:0x4a3a2a}));sp.position.y=1.4;arm.add(sp);arm.rotation.z=k*Math.PI/2;hub.add(arm);}
+  const boss=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.3,8),new THREE.MeshLambertMaterial({color:0x3a2a1a}));boss.rotation.x=Math.PI/2;hub.add(boss);
+  hub.position.set(0,4.6,1.35);g.add(hub);MILL.sails=hub;
+  g.position.set(MILL.x,0,MILL.z);scene.add(g);col(MILL.x-1.5,MILL.z-1.5,MILL.x+1.5,MILL.z+1.5);
+  for(let i=0;i<11;i++){const p=new THREE.Mesh(new THREE.BoxGeometry(.07,.42,.07),fenceMat);p.position.set(102.6+i*.68,.21,6.4);p.castShadow=true;scene.add(p);}
+  signPost(108.8,6.6,makeSign(['THE OLD MILL','1835'],56,20,'#4a4038','#f6f2e8'),1.1,.42);
+  [[103,8.8],[111.6,9.4],[102.4,-.6]].forEach(([x,z])=>{const v=treeVariants[(x|0)%3];const gg=new THREE.PlaneGeometry(v.w||3,v.h||4);gg.translate(0,(v.h||4)/2,0);const m=new THREE.Mesh(gg,v.m);if(v.d)m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);col(x-.3,z-.3,x+.3,z+.3);});})();
+// the Narrows Bridge on the western horizon
+(()=>{const m=new THREE.MeshLambertMaterial({color:0xd8dde2,fog:false});for(let i=0;i<14;i++){const x=96+i*2.2,y=1.4+Math.sin(i/13*Math.PI)*.6;const d=new THREE.Mesh(new THREE.BoxGeometry(2.3,.32,1.4),m);d.position.set(x,y,-13.6);scene.add(d);if(i%3===1){const p=new THREE.Mesh(new THREE.BoxGeometry(.4,y,.8),m);p.position.set(x,y/2,-13.6);scene.add(p);}}})();
+// Coode Street Jetty
+box(1.2,.14,5.6,lmat(deckC,[1,4]),186,.04,-6.6,{noCast:true});for(let i=0;i<4;i++)[-.55,.55].forEach(o=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,1,6),legMat);p.position.set(186+o,-.3,-4.2-i*1.6);scene.add(p);});
+signPost(184.4,-2.2,makeSign(['COODE ST JETTY'],64,12,'#2f5a8a','#f5ecd8'),1.6,.3);
+// Swan Kayaks shack
+(()=>{const P={x:175.6,z:4};box(2.6,1.9,1.8,lmat(planks(['#2f78a8','#2a6e9c','#3584b4'],'#1d4e74',true,33),[2,1]),P.x,.95,P.z);const rf=box(3,.14,2.2,new THREE.MeshLambertMaterial({color:0xf3efe6}),P.x,1.98,P.z+.1);rf.rotation.x=.12;
+  const sg=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.34),new THREE.MeshBasicMaterial({map:makeSign(['SWAN KAYAKS'],64,10,'#f3efe6','#2f78a8')}));sg.position.set(P.x,1.62,P.z+.92);scene.add(sg);
+  ['#e8344a','#f1c64a','#3ec46a'].forEach((c,i)=>{const k=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,1.9,6),new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));k.rotation.z=Math.PI/2;k.scale.set(1,1,.6);k.position.set(P.x-2.2,.3+i*.32,P.z+.2);k.castShadow=true;scene.add(k);});
+  box(.08,1.1,.08,legMat,P.x-3.2,.55,P.z+.2);box(.08,1.1,.08,legMat,P.x-1.2,.55,P.z+.2);
+  ['#ef7d5e','#5cc6d8'].forEach((c,i)=>{const k=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,2,6),new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));k.rotation.z=Math.PI/2;k.scale.set(1,1,.55);k.position.set(176+i*2.6,-.08,-4.6-i*.4);scene.add(k);});
+  col(P.x-1.4,P.z-1,P.x+1.4,P.z+1);col(P.x-3.3,P.z,P.x-1.1,P.z+.4);})();
+// picnic benches on the east foreshore, and the Perth Zoo signpost at the end of Angelo St
+[[188,5],[194,3.6]].forEach(([x,z])=>{box(1.6,.08,.45,new THREE.MeshLambertMaterial({color:0xa8744a}),x,.45,z);box(1.6,.5,.08,new THREE.MeshLambertMaterial({color:0xa8744a}),x,.7,z-.22);[-.65,.65].forEach(o=>box(.08,.45,.4,legMat,x+o,.22,z));col(x-.85,z-.3,x+.85,z+.25);});
+signPost(197.4,19.4,makeSign(['PERTH ZOO','→ LABOUCHERE RD'],64,22,'#3e7d5c','#f5ecd8'),1.3,.46);
+[[171,6],[182,8.2],[192,7.4],[198,1]].forEach(([x,z])=>{const g=new THREE.PlaneGeometry(jac.w,jac.h);g.translate(0,jac.h/2,0);const m=new THREE.Mesh(g,jac.m);m.customDepthMaterial=jac.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);col(x-.3,z-.3,x+.3,z+.3);flat(3.2,3.2,petalMat,x+.4,.02,z-.3);});
+// black swans on the river, plus one very convincing cardboard swan
+const SWAN_ROWS=["....oo......","...obbo.....","...obro.....","....ob......","....ob......","...obbbo.oo.","..obbbbbobbo",".obbwbbbbbbo",".obbbbbbbbo.","..oooooooo.."];
+const swanCv=pix(SWAN_ROWS,{o:'#0d0d12',b:'#24242c',r:'#d8342a',w:'#f3efe6'});
+const SWANS=[[128,-6.2],[141,-7.4],[163,-6],[174,-7.2],[191,-6.4]].map(([x,z],i)=>{const m=spriteMesh([swanCv],.95,.8);m.position.set(x,-.1,z);scene.add(m);return{m,x0:x,z0:z,ph:i*1.7};});
+const cardSwan=(()=>{const m=spriteMesh([swanCv],.95,.8);m.position.set(195.6,0,1.4);scene.add(m);const st=new THREE.Mesh(new THREE.BoxGeometry(.05,.3,.05),legMat);st.position.set(195.6,.15,1.38);scene.add(st);return m;})();
+// new South Perth locals
+const tom={x:108.8,z:4.6},joy={x:159.4,z:5.4},jett={x:177.8,z:5.6},priya={x:150,z:-2.6,dir:1};
+[[tom,{hair:'#e9e2d0',skin:'#f1c7a0',shirt:'#e9e2d0',pants:'#6a5a4a',hat:'#8a6a4a'}],[joy,{hair:'#cfcfd8',skin:'#e2b48a',shirt:'#c46ad6',pants:'#3a3e58',hat:null}],[jett,{hair:'#2a1d16',skin:'#c68a5e',shirt:'#f1c64a',pants:'#2f78a8',hat:null}],[priya,{hair:'#1b1b2b',skin:'#b07a52',shirt:'#ef7d5e',pants:'#24242c',hat:null}]].forEach(([n,v])=>{n.mesh=spriteMesh(humanFrames(v),.95,1.58);n.mesh.position.set(n.x,0,n.z);scene.add(n.mesh);n.blob=blob(.9);n.blob.position.set(n.x,.03,n.z);});
+function spTick(dt){const t=performance.now()/1000;if(zoneOf(player.x)!=='sp')return;if(MILL.sails)MILL.sails.rotation.z-=dt*(.5+(typeof wxC!=='undefined'?wxC.rain*.4:0));
+  SWANS.forEach(s=>{const a=t*.12+s.ph;s.m.position.set(s.x0+Math.sin(a)*3.2,-.1+Math.sin(t*1.4+s.ph)*.03,s.z0+Math.cos(a*.7)*.6);s.m.scale.x=Math.cos(a)>0?1:-1;});
+  if(!dlgOpen()){const near=Math.hypot(player.x-priya.x,player.z-priya.z)<1.6;if(!near){priya.x+=priya.dir*2.1*dt;if(priya.x>197){priya.x=197;priya.dir=-1;}if(priya.x<103){priya.x=103;priya.dir=1;}setFrame(priya.mesh,1+Math.floor(t*7)%2);}else setFrame(priya.mesh,0);
+    priya.mesh.position.set(priya.x,0,priya.z);priya.mesh.scale.x=priya.dir>0?1:-1;priya.blob.position.set(priya.x,.03,priya.z);}}
+const SP_SIGHTS=['a pod of dolphins surfacing near the Narrows Bridge','a pelican gliding low over the water','the city towers glowing gold across Perth Water','a black swan family paddling past in a neat line','a rowing crew racing past, coxswain shouting'];
+function paddleKayak(){if(S.coins<15){toast('Kayak hire is 15 coins');return;}if(S.time>1080){say([{who:'Jett',text:'Sorry, last kayak was at six. River gets dark fast. Tomorrow?'}]);return;}S.coins-=15;S.time+=40;S.qg=S.qg||{};S.qg.kayak=(S.qg.kayak||0)+1;save();
+  say([{who:'Jett',text:'Life jacket on, paddle like you mean it. Back in forty!'},'Kip paddles out past Coode St Jetty and along the foreshore.','Kip spots '+SP_SIGHTS[(S.day+S.qg.kayak)%SP_SIGHTS.length]+'.',{who:'Jett',text:'Good paddle? Every time I go out I see something new. That’s why I’m saving for a guitar AND keeping this job.'}]);}
+function millGrind(){S.millDay=S.millDay||0;if(S.millDay===S.day){say([{who:'Miller Tom',text:'That’s today’s flour done, thanks! Come back tomorrow, the sails never sleep.'}]);return;}S.millDay=S.day;S.coins+=12;eat(5);save();
+  say([{who:'Miller Tom',text:'Grab the sack, Kip! Wheat in the hopper, sails do the rest.'},'The stones rumble. Warm flour pours into a sack Tom has named “Dorothy”.',{who:'Miller Tom',text:'Here’s 12 coins for the help, and a scone for the road. (+12 coins, +5 stamina)'}]);}
 
 // ---------- Fremantle (second half of the story) ----------
 function winTex(base,win,rx,ry){const c=mk(16,16),x=c.getContext('2d');x.fillStyle=base;x.fillRect(0,0,16,16);x.fillStyle=win;x.fillRect(3,3,4,6);x.fillRect(9,3,4,6);x.fillStyle='rgba(0,0,0,.12)';x.fillRect(0,15,16,1);return lmat(c,[rx,ry]);}
@@ -1873,7 +1929,7 @@ plankton.frustumCulled=false;scene.add(plankton);
 // butterflies by day
 const BFLY=[["o.....o","wo...ow","wwo.oww",".wwoww.","wwo.oww","wo...ow"],["...o...","..wow..",".wwoww.",".wwoww.","..wow..","...o..."]];
 const butterflies=[['#f08a3c','#2a1d1a'],['#f6f2e8','#5a4a3a'],['#7fb8e8','#1d2238'],['#f4d23a','#3a2a10']].flatMap((p,i)=>[0,1].map(j=>{const m=spriteMesh(BFLY.map(r=>pix(r,{w:p[0],o:p[1]})),.32,.28,{shadow:false});scene.add(m);return{m,ph:R()*6.28,ox:(R()-.5)*16,oz:(R()-.5)*10,sp:.4+R()*.4};}));
-function nightTick(dt,t){const h=S.time/60;NIGHT=h<7?clamp((6.6-h)/1.2,0,1):clamp((h-18.6)/1.4,0,1);
+function nightTick(dt,t){const h=S.time/60;NIGHT=h<7?clamp((6.6-h)/1.2,0,1):clamp((h-18.6)/1.4,0,1);lampTick();
   fairy.forEach((f,i)=>{f.visible=NIGHT>.02||h>17.5;const tw=.75+.25*Math.sin(t*3+i*1.7);f.scale.setScalar(1+NIGHT*.6*tw);});
   nightLights.forEach(L=>L.intensity=L.userData.max*NIGHT*(1-wxC.rain*.3));
   plankton.material.uniforms.time.value=t;plankton.material.uniforms.night.value=NIGHT*(1-wxC.rain*.6);plankton.visible=NIGHT>.01;
@@ -2068,6 +2124,13 @@ function buildTargets(){const T=[];const ph=phase();
   if(star)T.push({x:star.x,z:star.z,r:1.4,label:(S.stars&&S.stars[star.s.id]>=3?'Chat with ':'Talk to ')+star.s.name+' \u2605',act:talkStar});
   shopkeepers.forEach(k=>T.push({x:k.x,z:k.z,r:1.5,label:'Shop at '+SHOPS[k.id].name,act:()=>openShop(k.id)}));
   T.push({x:mei.x,z:mei.z,r:1.4,label:basketCount()?'Sell produce to Mei':'Talk to Mei',act:sellProduce});
+  if(zoneOf(player.x)==='sp'){T.push({x:MILL.x+.2,z:MILL.z+1.9,r:1.5,label:S.millDay===S.day?'The Old Mill':'Help grind flour \u00b7 once a day',act:millGrind});
+   T.push({x:tom.x,z:tom.z,r:1.4,label:'Talk to Miller Tom',act:()=>say([{who:'Miller Tom',text:'Built in 1835, this mill. Ground flour for the whole Swan River Colony. Now it grinds flour for one very small caf\u00e9 owner.'},{who:'Miller Tom',text:pick(['Every sack has a name. That one\u2019s Gerald. Don\u2019t tell the others he\u2019s my favourite.','Wind from the west today. The sails love a westerly.','From up here you can see the Narrows Bridge. My dad helped build it, you know.'])}])});
+   T.push({x:joy.x,z:joy.z,r:1.4,label:'Talk to Grandma Joy',act:()=>say([{who:'Grandma Joy',text:pick(['Four o\u2019clock, same bench, every day. Fifty-one years now.','The swans know me. They come by for crusts.','Sit down, dear, your legs are tiny. You must be tired.'])}])});
+   T.push({x:jett.x,z:jett.z,r:1.4,label:'Rent a kayak \u00b7 15 coins \u00b7 40 min',act:paddleKayak});
+   T.push({x:priya.x,z:priya.z,r:1.6,label:'Talk to Priya',act:()=>say([{who:'Priya',text:pick(['Lap nine! Did you know black swans are only black on the outside? Their wing tips are white! Lap ten!','I count the swans every morning. It\u2019s science. Also it\u2019s fun.','Mill to Coode St and back, twice before breakfast. Want to join? No? Fair.'])}])});
+   T.push({x:197.4,z:19.9,r:1.3,label:'Read the sign',act:()=>say(['PERTH ZOO \u2192 up Labouchere Road.','Kip: The zoo is just up the hill! Lions, numbats, penguins\u2026 Kip will visit as soon as the gates open to quokkas.'])});
+   T.push({x:186,z:-8.6,r:1.3,label:'Coode St Jetty',act:()=>say(['Kip: A quiet little jetty. You can see the whole city skyline from the end, and the swans come right up close.'])});}
   T.push({x:ruth.x,z:ruth.z,r:1.4,label:'Talk to Captain Ruth',act:()=>say(['Captain Ruth: Welcome to Mends Street Jetty! Perth city is just across the Swan River.','Captain Ruth: Mei\u2019s grocer stall is along the foreshore. The ferry back to Rottnest leaves from the end of the jetty.'])});
   if(S.wish.hammock)T.push({x:HAMMOCK.x,z:HAMMOCK.z+.9,r:1.4,label:ph==='explore'?'Nap · 1 hr':'Nap after noon',disabled:ph!=='explore',act:nap});
   return T;}
@@ -2354,6 +2417,7 @@ const GUIDE_PLACES=[
  ['sp','Mends Street shops','Mends Gelato, Piccolo Trattoria, Swan Home & Living (furniture) and Mends Lane.'],
  ['sp','The Mill Point Hotel and Old Post Office','Heritage buildings at the Mends St and Mill Point Road corner.'],
  ['sp','Homes for sale','Mill Point Towers apartment 40,000, Federation bungalow 50,000, riverfront house 120,000. Rent pays every night; decorate inside.'],
+ ['sp','The Old Mill','Shenton\u2019s Mill (1835) on Mill Point. Help Miller Tom grind flour once a day for coins and a scone.'],['sp','East foreshore and Coode St Jetty','Jacarandas, picnic benches, black swans and Swan Kayaks (15 coins, 40 min on the river).'],['sp','Perth Zoo sign','At the end of Angelo St. The zoo is coming soon.'],
  ['sp','Bus stop, Mill Point Road','Buses to Heirisson Island (15 min) and Victoria Park (30 min).'],
  ['hi','Kangaroo sanctuary','Western grey kangaroos, including a mother with a joey. Great for postcards.'],
  ['hi','Yagan Memorial','Statue honouring the Noongar leader Yagan. Read the plaque.'],
@@ -2369,6 +2433,7 @@ const GUIDE_NPCS=[
  ['Gus','Ferry master at Main Jetty. Sails you to South Perth and gives harbour tips.','island'],['Nana Wren','A fairy-wren who starts the lost shells quest.','island'],['Curator Banksia','Runs the Wadjemup Museum. Donate fish, bugs and fossils.','island'],['Elder Wattle','Leader of Quokka Village. Tells you about island quokkas.','island'],
  ['Mum & Dad','Move in mid-story. Mum helps make drinks; Dad runs the till and Eftpos.','island'],['Café staff','Hire up to 3 (50 coins each). They serve, then fish and garden after closing.','island'],
  ['Star guests','Fictional celebrities from Australia, China, Korea, England and the USA. Look for the gold star.','island'],['Stranded tourists','Missed the last ferry. Offer the spare room for 10 coins.','island'],
+ ['Miller Tom','Runs the Old Mill on Mill Point.','sp'],['Grandma Joy','Sits on the same foreshore bench every afternoon.','sp'],['Priya','Jogs the foreshore all day and counts the swans.','sp'],['Jett','Rents kayaks on the east foreshore.','sp'],
  ['Mei','Buys your produce at the Swan River Grocer.','sp'],['Captain Ruth','Ferry skipper at Mends Street Jetty.','sp'],['Ollie','Runs Swan Seeds Nursery.','sp'],
  ['Albany Hwy shopkeepers','One at each restaurant and shop.','vp'],['Busker','Tip 2 coins for a song.','vp'],
  ['Nino, Chicco, Khun Noi, Rosa, Jay','Fremantle shopkeepers with recipes and gifts.','freo'],['Skipper Lou','Runs the Fremantle ferry.','freo']];
@@ -2399,7 +2464,7 @@ const GUIDE_SYS=[
  ['Homes and rent','Owned homes pay rent every night, plus 2 coins for each piece of furniture placed.'],
  ['Bag','See basket, furniture, seeds, keys and collections. Change outfits.'],
  ['Perth Pass','Rottnest Island, South Perth and Heirisson Island are free. Fremantle and Victoria Park need the Perth Pass: buy it on itch.io or Payhip, then open \u2630 \u2192 Perth Pass and type your code. The full itch.io and Google Play versions include it.'],
- ['Side quests','15 funny and heartfelt errands across Rottnest, South Perth, Heirisson Island, Fremantle and Victoria Park. They show in Quests with a laughing or heart icon. Track one to follow the red line; walk up to the marked place to talk. Some need a drink carried from the café counter, fish in your basket, or a visit after dark.'],
+ ['Side quests','19 funny and heartfelt errands across Rottnest, South Perth, Heirisson Island, Fremantle and Victoria Park. They show in Quests with a laughing or heart icon. Track one to follow the red line; walk up to the marked place to talk. Some need a drink carried from the café counter, fish in your basket, or a visit after dark.'],
  ['Area stories','Each area has its own story in chapters: Rottnest (3), South Perth (3), Heirisson Island (1), Fremantle (3) and Victoria Park (2). A chapter starts when you arrive and leads you to places, people and activities, mostly by taking their postcards. Open Quests and press Track to follow the red line. Each finished chapter pays coins and opens the next one.'],
  ['Pause','Press the pause button (two bars) at the top right, or Esc on a keyboard, to stop time. The game also pauses by itself when you switch apps or tabs.'],
  ['Special events','Some mornings bring a surprise: a staff sick day (serve everyone yourself for bonus coins), a cruise crowd (double tourists), a heatwave (smoothies sell best) or a food critic (serve them fast for 80 coins). The event shows at 7:00 and in the clock box.'],
@@ -3352,6 +3417,30 @@ const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB})[z];
     for(let i=0,n=0;i<flw*4&&n<flw;i++){const [x,z]=spot();if(!free(x,z,.4))continue;const g=new THREE.PlaneGeometry(.75,.52);g.translate(0,.26,0);const m=new THREE.Mesh(g,flowerMats[(n+i)%3]);m.position.set(x,0,z);scene.add(m);BB.push(m);near.push([x,z]);n++;nF++;}
     for(let i=0,n=0;i<bsh*6&&n<bsh;i++){const [x,z]=spot();if(!free(x,z,1.2))continue;const v=bushVariants[(n+i)%2];const g=new THREE.PlaneGeometry(1.6,1);g.translate(0,.5,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);near.push([x,z]);n++;nB++;}});
   window.__p1decor={areas:areas.length,tussocks:nT,flowers:nF,bushes:nB};})();
+// ---------- street lights along the island paths (and the South Perth foreshore) ----------
+const LAMPS=[];
+(()=>{const post=new THREE.MeshLambertMaterial({color:0x2f4a3a}),cap=new THREE.MeshLambertMaterial({color:0x22362a});
+  const glowC=(()=>{const c=mk(64,64),x=c.getContext('2d');const g=x.createRadialGradient(32,32,2,32,32,31);g.addColorStop(0,'rgba(255,214,140,.9)');g.addColorStop(.45,'rgba(255,190,110,.35)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return c;})();
+  const glowT=new THREE.CanvasTexture(glowC);
+  const hit=(x,z,p)=>colliders.some(c=>x>c.x1-p&&x<c.x2+p&&z>c.z1-p&&z<c.z2+p);
+  function lamp(x,z){if(LAMPS.some(L=>Math.hypot(L.x-x,L.z-z)<4))return;if(hit(x,z,.6))return;
+    const g=new THREE.Group();const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.08,2.3,6),post);p.position.y=1.15;p.castShadow=true;g.add(p);
+    const base=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.25,6),cap);base.position.y=.12;g.add(base);
+    const arm=new THREE.Mesh(new THREE.BoxGeometry(.04,.04,.34),post);arm.position.set(0,2.2,.14);g.add(arm);
+    const bulbM=new THREE.MeshBasicMaterial({color:0x6a6050});const bulb=new THREE.Mesh(new THREE.BoxGeometry(.2,.26,.2),bulbM);bulb.position.set(0,2.08,.3);g.add(bulb);
+    const roof=new THREE.Mesh(new THREE.ConeGeometry(.2,.16,4),cap);roof.rotation.y=Math.PI/4;roof.position.set(0,2.29,.3);g.add(roof);
+    g.position.set(x,0,z);scene.add(g);col(x-.1,z-.1,x+.1,z+.1);
+    const gm=new THREE.MeshBasicMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});const gl=new THREE.Mesh(new THREE.PlaneGeometry(3.4,3.4),gm);gl.rotation.x=-Math.PI/2;gl.position.set(x,.05,z+.3);scene.add(gl);
+    const halo=new THREE.Mesh(new THREE.PlaneGeometry(.9,.9),new THREE.MeshBasicMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));halo.position.set(x,2.08,z+.42);scene.add(halo);
+    LAMPS.push({x,z,bulbM,gm,halo});}
+  // island: every few metres along the paths, set back from the path edge
+  for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];const L=Math.hypot(bx-ax,bz-az);const nx=-(bz-az)/L,nz=(bx-ax)/L;
+    for(let d=1.5;d<L;d+=7){const t=d/L,px=ax+(bx-ax)*t,pz=az+(bz-az)*t;for(const s of [1,-1]){const x=px+nx*1.15*s,z=pz+nz*1.15*s;if(landD(x,z)>.9&&pathD(x,z)>.9){lamp(x,z);break;}}}}
+  // South Perth foreshore path
+  for(let x=104;x<198;x+=8){if(Math.abs(x-150)<3||Math.abs(x-186)<2)continue;lamp(x,-2.1);}
+})();
+function lampTick(){const on=NIGHT>.05||S.time>1110||S.time<400;const k=on?Math.max(.55,NIGHT):0;LAMPS.forEach(L=>{L.bulbM.color.setRGB(on?1:.42,on?.88:.38,on?.6:.31);L.gm.opacity=k*.8;L.halo.material.opacity=k*.9;});}
+
 // ---------- bus between South Perth, Heirisson Island and Victoria Park ----------
 function busTo(dest){if(transit||VISIT)return;if(dest==='vp'&&needPass('vp'))return;const D=BUS_STOPS[dest];transit=true;fadeTarget=.95;toast('Bus to '+D.name+'…',2);
   setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;player.x=D.land[0];player.z=D.land[1];updateCamera(0,true);fadeTarget=0;transit=false;S.fq=S.fq||{};
@@ -3398,7 +3487,7 @@ const PCS=[
  ['cyclist','Island cyclist','island','people',()=>walkers.filter(w=>w.bike&&w.m.visible).map(w=>[w.x,w.z]).concat(riders.map(r=>[r.x,r.z])),3],
  ['village','Quokka Village','island','place',at(VILLAGE.x,VILLAGE.z),4.5],['geordie','Geordie Bay','island','place',at(60,-4.6),4],['geostore','Geordie Bay Store','island','food',at(61.4,-1.8),2.6],['oliverhill','Oliver Hill Battery','island','place',at(56.6,5.6),3.4],['qexpress','Quokka Express train','island','place',()=>[[WEST.train.position.x,WEST.train.position.z]],4],['parker','Parker Point snorkel trail','island','place',at(62.5,6.8),3.4],['salmonbay','Little Salmon Bay','island','place',at(70.6,6.6),4],['surfers','Surfers at Strickland Bay','island','people',at(82.6,7),4.5],['vlamingh','Cape Vlamingh lookout','island','place',at(97,.4),3.4],['seals','New Zealand fur seals','island','animal',at(95,4),3.4],['coach','Quokka Coach stop','island','place',at(59.4,-2),2.4],['elder','Elder Wattle','island','animal',at(VILLAGE_ELDER.x,VILLAGE_ELDER.z),2.4],['snork','Snorkellers at The Basin','island','people',()=>snorks.map(s=>[s.x,s.z]),4.5],
  ['mends','Mends Street Jetty','sp','place',at(150,-6),3.5],['ruthpc','Captain Ruth','sp','people',()=>[[ruth.x,ruth.z]],2.5],['meipc','Mei at the Swan River Grocer','sp','food',()=>[[mei.x,mei.z]],2.5],['market','Swan Market','sp','food',at(163.5,2.8),3],
- ['servo','Mends Servo','sp','food',at(135.5,2.2),3.4],['seeds','Swan Seeds Nursery','sp','food',at(156,2.8),3],['skyline','Perth city skyline','sp','place',()=>player.z<-1&&player.x>138&&player.x<162?[[player.x,player.z]]:[],1],
+ ['servo','Mends Servo','sp','food',at(135.5,2.2),3.4],['oldmill','The Old Mill','sp','place',at(106,4.4),4],['tom','Miller Tom','sp','people',()=>[[tom.x,tom.z]],2.4],['narrows','Narrows Bridge','sp','place',()=>player.x<114&&player.z<1?[[player.x,player.z]]:[],1],['swans','Black swans','sp','animal',()=>SWANS.map(q=>[q.m.position.x,-3.1]),2.6],['coode','Coode St Jetty','sp','place',at(186,-4.4),3],['kayaks','Swan Kayaks','sp','food',at(175.6,5.4),3],['joy','Grandma Joy','sp','people',()=>[[joy.x,joy.z]],2.4],['priya','Priya the jogger','sp','people',()=>[[priya.x,priya.z]],2.4],['jett','Jett at Swan Kayaks','sp','people',()=>[[jett.x,jett.z]],2.4],['seeds','Swan Seeds Nursery','sp','food',at(156,2.8),3],['skyline','Perth city skyline','sp','place',()=>player.z<-1&&player.x>138&&player.x<162?[[player.x,player.z]]:[],1],
  ['jacaranda','Jacaranda in bloom','sp','place',()=>SP_TREES.map(([x,z])=>[x,z]),3],['millpoint','Mill Point Road','sp','place',at(141,21.6),5],['residences','Mill Point Towers','sp','place',at(161,18),3.4],['millhotel','The Mill Point Hotel','sp','food',at(143.6,19),3.4],['postoffice','Old Post Office','sp','place',at(136.2,18.6),3],['origami','Origami Quokka sculpture','sp','place',at(153.6,.6),3],['mendsst','Plane trees on Mends St','sp','place',at(150,13),2.4],
  ['riverhouse','Riverfront house','sp','place',at(121,2.7),3.4],
  ['bshed','B-Shed ferry terminal','freo','place',at(285,-10.6),3.5],['museum','WA Maritime Museum','freo','place',at(277.5,-6.8),4],['roundhouse','Round House','freo','place',at(278,1.6),3.4],['bathers','Bathers Beach','freo','place',at(277.3,5.2),3.4],
@@ -3514,6 +3603,28 @@ const SIDEQ=[
    {l:'Deliver a card at Mill Point Towers',at:'pc:residences',say:['Kip: An elderly lady opens the card and goes quiet. “He brought my letters from my son in the war. Every single one, with a smile.”']},
    {l:'Tell Reg the cards arrived',at:'pc:postoffice',say:[{who:'Reg',text:'They remembered me? …Well. That’s my round finished, then. Best round I ever did.'}]}],
   outro:'The street threw Reg a surprise morning tea. Kip did the scones.'},
+ {id:'flour',zone:'sp',mood:'funny',title:'Flour Power',giver:'Miller Tom',coins:40,desc:'The Old Mill’s sails have stopped. Miller Tom says it is definitely not the wind. It is his lucky sock.',
+  steps:[{l:'Talk to Miller Tom at the Old Mill',at:'pc:tom',say:[{who:'Miller Tom',text:'Sails won’t budge, Kip. Haven’t since Tuesday. Since I lost my lucky sock.'},{who:'Miller Tom',text:'Red, with a little windmill on it. I hung it on a tree to dry on Mends Street and the wind took it. The wind’s got a sense of humour.'}]},
+   {l:'Find the red sock in a plane tree near Mends St',at:[126,9.6],say:['Kip: Up in the plane tree… a red sock with a tiny windmill, flapping like a flag. Kip climbs. Kip regrets climbing. Kip has the sock.']},
+   {l:'Bring the sock back to Tom',at:'pc:tom',say:[{who:'Miller Tom',text:'MY SOCK! Watch this.'},'Tom puts the sock on. The sails creak… and begin to turn. A gust from the river, at exactly that moment.',{who:'Miller Tom',text:'Told you. Science.'}]}],
+  outro:'Tom now hangs his socks to dry inside the mill. The sails haven’t stopped since.'},
+ {id:'joybench',zone:'sp',mood:'heart',title:'Joy’s Bench',giver:'Grandma Joy',coins:55,desc:'Grandma Joy sits on the same foreshore bench every afternoon and always leaves room on the other end.',
+  steps:[{l:'Visit Grandma Joy on her bench after 16:00',at:'pc:joy',after:960,say:[{who:'Grandma Joy',text:'You can sit, dear, just not on that end. That’s Harold’s. We met on this bench in 1975.'},{who:'Grandma Joy',text:'He’s been gone three years. I still save his half. Silly, isn’t it? It’s just… lonely, watching the swans by yourself.'}]},
+   {l:'Ask Captain Ruth to come and keep Joy company',at:'pc:ruthpc',say:[{who:'Captain Ruth',text:'Joy? She waved at my ferry every single day for twenty years. I always waved back. I never knew her name.'},{who:'Captain Ruth',text:'My shift ends at five. Tell her I’m bringing biscuits.'}]},
+   {l:'Go back to Joy’s bench',at:'pc:joy',say:['Captain Ruth arrives with a tin of biscuits and sits on the middle of the bench, not on Harold’s end.',{who:'Grandma Joy',text:'You’re the ferry lady! You always waved!'},{who:'Captain Ruth',text:'Every day. Same time tomorrow?'},{who:'Grandma Joy',text:'Same time tomorrow.'}]}],
+  outro:'Now there are two people on Joy’s bench every afternoon, and Harold’s end is still saved.'},
+ {id:'swancount',zone:'sp',mood:'funny',title:'The Swan Census',giver:'Priya the jogger',coins:40,desc:'Priya counts the black swans every morning for “science”. Today the numbers don’t add up.',
+  steps:[{l:'Talk to Priya on the foreshore path',at:'pc:priya',say:[{who:'Priya',text:'Kip! Emergency! I counted six swans and yesterday there were five. Swans don’t just appear!'},{who:'Priya',text:'Count them for me? West, middle and east of the foreshore. I can’t stop, I’m on lap twelve.'}]},
+   {l:'Count swans at the west end of the foreshore',at:[128,-3],say:['Kip: Two swans here. One is eating a chip. That is not science.']},
+   {l:'Count swans near Swan Kayaks',at:[174,-3],say:['Kip: Two more, paddling in circles. Four so far.']},
+   {l:'Check the “swan” on the east bank',at:[195.6,1.4],say:['Kip: This swan is very still. This swan is… cardboard. Someone made a swan out of a pizza box.','Kip: Five real swans, one cardboard swan. Case closed.']},
+   {l:'Report back to Priya',at:'pc:priya',say:[{who:'Priya',text:'CARDBOARD?! I said hello to it every morning! I named it Gregory!'},{who:'Priya',text:'…I’m still counting Gregory. He’s part of the family now.'}]}],
+  outro:'Priya’s official count is now “five swans and Gregory”. Gregory has a little scarf.'},
+ {id:'golden',zone:'sp',mood:'heart',title:'Skyline at Golden Hour',giver:'Captain Ruth',coins:50,desc:'Captain Ruth’s mum used to sail the river and loved the city at sunset. She can’t leave the nursing home any more.',
+  steps:[{l:'Talk to Captain Ruth at Mends St Jetty',at:'pc:ruthpc',say:[{who:'Captain Ruth',text:'Mum skippered this river before me. Every evening she’d stop the boat for the sunset over the city.'},{who:'Captain Ruth',text:'She’s ninety-one now and can’t get out. Could you take a photo at golden hour from the end of the jetty? I’ll print it for her wall.'}]},
+   {l:'Stand at the end of Mends St Jetty after 17:30',at:[150,-8.6],after:1050,say:['The sun drops behind the Narrows. The towers turn gold, then pink, and the river glows.','Kip takes the photo. It might be the best photo Kip has ever taken.']},
+   {l:'Bring the photo to Captain Ruth',at:'pc:ruthpc',say:[{who:'Captain Ruth',text:'Oh… that’s exactly it. That’s Mum’s view.'},{who:'Captain Ruth',text:'She’ll have it by her bed tonight. Thank you, Kip.'}]}],
+  outro:'Ruth’s mum called the café to say thank you. She says the photo is “almost as good as the real thing”.'},
  {id:'census',zone:'hi',mood:'funny',title:'The Roo Census',giver:'Ranger Tash',coins:45,desc:'Ranger Tash needs the yearly kangaroo count. The kangaroos do not want to be counted.',
   steps:[{l:'Meet Ranger Tash at the Heirisson bus stop',at:[432,-6.6],say:[{who:'Ranger Tash',text:'Census day! I count, you tick. Easy. The only rule: they must not know they’re being counted.'},{who:'Ranger Tash',text:'They always know.'}]},
    {l:'Count the roos in the west paddock',at:[410,2],say:['Kip: One… two… three… the third one hopped behind the first one. Two? Four? One roo is lying down and pretending to be a rock.']},
@@ -3581,7 +3692,7 @@ function pcHint(p){if(PC_HINTS[p.id])return PC_HINTS[p.id];const zn={island:'Rot
   if(p.cat==='festival'){const f=FESTIVALS.find(q=>q.id===PC_FEST[p.id]);return f?p.name+' \u00b7 only during '+f.name+' ('+SEASONS[f.s].n+' '+f.d+(f.len?'\u2013'+(f.d+f.len-1):'')+') in '+zn:p.name+' \u00b7 festival day';}
   if(p.cat==='star')return p.name+' \u00b7 a star guest who visits the caf\u00e9 sometimes. Help them, then take a photo together';
   return p.name+' \u00b7 '+(PC_TIP[p.cat]||'take a photo');}
-const PC_HINTS={gull:'Seagull \u00b7 often over the jetty and beaches',quokka:'Wild quokka \u00b7 they hop around the bush and paths',wren:'Nana Wren \u00b7 beside Wadjemup Lighthouse',mum:'Mum \u00b7 at the caf\u00e9 once she moves to the island (Ferry tickets on the Wishlist)',dad:'Dad \u00b7 at the caf\u00e9 till once he moves to the island',skyline:'Perth city skyline \u00b7 South Perth foreshore, look north across the river',jacaranda:'Jacaranda in bloom \u00b7 the purple trees in South Perth',roo:'Western grey kangaroo \u00b7 Heirisson Island sanctuary',joey:'Joey in the pouch \u00b7 look closely at the kangaroos on Heirisson Island',swan:'Black swans \u00b7 on the water around Heirisson Island',qexpress:'Quokka Express train \u00b7 rides between the Settlement and Oliver Hill',train:'Train to Perth \u00b7 Victoria Park Station when a train is in',cyclist:'Island cyclist \u00b7 riders on the bike lane and paths',butterfly:'Butterfly \u00b7 flutters over the grass on sunny days',ship:'Spirit of the Indian Ocean \u00b7 upgrade Main Jetty to Lv4, it docks 9:45\u201312:15 (not on rainy days)',sunset:'Main Jetty around 6:30pm',plankton:'Walk the shore at night',fireflies:'Out and about late at night',ferry:'Any ferry at the jetty',nightmkt:'Albany Hwy after 5:30pm'};
+const PC_HINTS={oldmill:'The Old Mill \u00b7 the white windmill out on Mill Point, west of the foreshore',tom:'Miller Tom \u00b7 beside the Old Mill',narrows:'Narrows Bridge \u00b7 look west across the river from Mill Point',swans:'Black swans \u00b7 stand on the foreshore path while they paddle past',coode:'Coode St Jetty \u00b7 the east end of the foreshore',kayaks:'Swan Kayaks \u00b7 the blue shack on the east foreshore',joy:'Grandma Joy \u00b7 on a foreshore bench near Swan Seeds',priya:'Priya \u00b7 she jogs the whole foreshore path, catch her if you can',jett:'Jett \u00b7 at Swan Kayaks',gull:'Seagull \u00b7 often over the jetty and beaches',quokka:'Wild quokka \u00b7 they hop around the bush and paths',wren:'Nana Wren \u00b7 beside Wadjemup Lighthouse',mum:'Mum \u00b7 at the caf\u00e9 once she moves to the island (Ferry tickets on the Wishlist)',dad:'Dad \u00b7 at the caf\u00e9 till once he moves to the island',skyline:'Perth city skyline \u00b7 South Perth foreshore, look north across the river',jacaranda:'Jacaranda in bloom \u00b7 the purple trees in South Perth',roo:'Western grey kangaroo \u00b7 Heirisson Island sanctuary',joey:'Joey in the pouch \u00b7 look closely at the kangaroos on Heirisson Island',swan:'Black swans \u00b7 on the water around Heirisson Island',qexpress:'Quokka Express train \u00b7 rides between the Settlement and Oliver Hill',train:'Train to Perth \u00b7 Victoria Park Station when a train is in',cyclist:'Island cyclist \u00b7 riders on the bike lane and paths',butterfly:'Butterfly \u00b7 flutters over the grass on sunny days',ship:'Spirit of the Indian Ocean \u00b7 upgrade Main Jetty to Lv4, it docks 9:45\u201312:15 (not on rainy days)',sunset:'Main Jetty around 6:30pm',plankton:'Walk the shore at night',fireflies:'Out and about late at night',ferry:'Any ferry at the jetty',nightmkt:'Albany Hwy after 5:30pm'};
 // ---------- café pantry ----------
 const STOCK_INFO={beans:{name:'Coffee beans',buy:'General Store (island) · Luna Coffee (Vic Park) · Swan Market'},milk:{name:'Milk',buy:'General Store (island) · Swan Market'},mango:{name:'Mango',buy:'General Store (island) · Swan Market. Garden strawberries or nectarines work too'},mix:{name:'Lamington mix',buy:'General Store (island)'},tea:{name:'Tea',buy:'Asia Mart (Vic Park) · General Store (island)'}};
 const RECIPE={fc:{fish:1}};/* pantry stock removed: only Fish & chips needs a caught fish */
@@ -3742,7 +3853,7 @@ function updateCustomers(dt){for(const c of customers.slice()){
 
 // ---------- movement ----------
 function groundY(x,z){if(x>286.9&&x<289.1&&z>-19&&z<-14.6)return .11;if(x>149.4&&x<150.6&&z>-9.4&&z<-3.8)return .11;if(x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2)return .16;if(x>JETTY.x1&&x<JETTY.x2+.4&&z>JETTY.z1&&z<JETTY.z2)return .11;return 0;}
-function blocked(x,z){const r=.28;const inLand=x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45;const inJ=x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05;if(!inLand&&!inJ)return true;
+function blocked(x,z){const r=.28;const inLand=x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<12)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45;const inJ=x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05;if(!inLand&&!inJ)return true;
   for(const b of colliders)if(x>b.x1-r&&x<b.x2+r&&z>b.z1-r&&z<b.z2+r)return true;
   if(S.wish.room&&x>HUT.x-1.8&&x<HUT.x+1.8&&z>HUT.z-1.6&&z<HUT.z+1.6)return true;return false;}
 function updatePlayer(dt){let mx=0,mz=0;
@@ -3779,7 +3890,7 @@ function applyTime(){const h=clamp(S.time/60,0,24);let i=0;while(i<KEYS.length-2
 
 // ---------- day flow ----------
 function update(dt){if(RIDE){rideTick(dt);}
-  storyTick(dt);sqTick(dt);if(!dlgOpen()&&!VISIT){const gm=STUDIO?0:dt*2*(player.lying?5:1);S.time+=gm;stamTick(gm);branchIncomeTick(gm);if(S.time>=1440)newDay();}
+  storyTick(dt);sqTick(dt);spTick(dt);if(!dlgOpen()&&!VISIT){const gm=STUDIO?0:dt*2*(player.lying?5:1);S.time+=gm;stamTick(gm);branchIncomeTick(gm);if(S.time>=1440)newDay();}
   if(phase()==='cafe'&&S.closed&&S.openedDay!==S.day){S.closed=false;S.openedDay=S.day;spawnT=2.5;staff.forEach(st=>{st.job=null;st.state='idle';st.c=null;st.x=st.home[0];st.z=st.home[1];staffIcon(st,null);});toast('7:00 \u00b7 Quokka Cafe is open! The first ferry is on its way.',3);evRoll();setTimeout(evAnnounce,600);}
   if(phase()==='cafe'){FERRY_ARR.forEach((a,i)=>{if(S.time>=a&&!S.waves[i]){S.waves[i]=1;const fam=i===0&&S.familyNext?S.familyNext*3:0;if(fam){S.familyNext=0;toast('Your room guests are back with their whole family!',3);for(let k=0;k<fam;k++)arrivals.push(20+k*2.4);}const fe0=festToday();const n=Math.round((3+(Math.random()*3|0)-(S.wx===2?1:0))*JMULT[S.jetty||0]*(evToday('crowd')?1.8:1)*(fe0&&fe0.id==='swim'?2:fe0&&fe0.where==='island'?1.3:1)*(cafeLv()>=4?1.2:1));for(let k=0;k<n;k++)arrivals.push(k*3.2);popText('Ferry in!',{x:-18,y:2.2,z:5.4});bizWave(n);}});
     if((S.jetty||0)>=4&&S.time>=600&&!S.waves.ship){S.waves.ship=1;for(let k=0;k<12;k++)arrivals.push(4+k*2.2);bizWave(12);toast('The Spirit of the Indian Ocean has docked! A big crowd is coming.'+(S.pc&&S.pc.ship?'':' \u{1F4F7} Snap it from Main Jetty for a postcard!'),4);}
@@ -3879,7 +3990,7 @@ function renderSPBase(W,H,s,all){const c=mk(W,H),x=c.getContext('2d'),m=mapper(W
   rect(142.4,.05,145.6,1.65,'#ef7d5e');rect(161.5,-.2,165.5,2.2,'#c8344a');rect(134,-1.2,137,.8,'#e8d2a6');rect(133.2,2.1,137.8,4.7,'#dfe6ec');rect(154.6,.2,157.4,2.2,'#bfe8d6');[[137,4.5],[160,4.8]].forEach(([bx,bz])=>rect(bx-.8,bz-.25,bx+.8,bz+.25,'#a8744a'));
   x.fillStyle='rgba(111,85,176,.85)';SP_TREES.forEach(([tx,tz])=>{x.beginPath();x.arc(m.X(tx),m.Z(tz),m.U*1.1,0,6.283);x.fill();});
   x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
-  [['South Perth',150,7.6,1],['Mends St Jetty',SPX-3.2,-6.4,1],['Swan River',128,-7,1],['Perth CBD',150,-15.4,1],['Swan River Grocer',144,3,0],['Swan Market',163.5,3.4,1],['Mill Point Road',141,22.2,1],['Mill Point Towers',161,12.6,1],['Angelo St',178,9.4,1],['Bus to Vic Park',158.6,19,0],['Mends St',150,10,1],['Mill Point Hotel',143.6,14.2,0],['Old Post Office',136.2,14,0],['Origami Quokka',153.6,-2,0],['Riverfront house',121,4.4,1],['Mends Servo',135.5,5.6,1],['Swan Seeds',156,3.4,1],['Bell Tower',143,-9.1,0]].forEach(([t,lx,lz,mini])=>{if(!all&&!mini)return;x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
+  [['South Perth',150,7.6,1],['Mends St Jetty',SPX-3.2,-6.4,1],['Swan River',128,-7,1],['Perth CBD',150,-15.4,1],['Swan River Grocer',144,3,0],['Swan Market',163.5,3.4,1],['Mill Point Road',141,22.2,1],['Mill Point Towers',161,12.6,1],['Angelo St',178,9.4,1],['Bus to Vic Park',158.6,19,0],['The Old Mill',106,7.6,1],['Mill Point',107,-1.6,0],['Coode St Jetty',186,-1,1],['Swan Kayaks',175.6,6.8,0],['Narrows Bridge',108,-11.8,0],['Perth Zoo \u2192',196,18,1],['Mends St',150,10,1],['Mill Point Hotel',143.6,14.2,0],['Old Post Office',136.2,14,0],['Origami Quokka',153.6,-2,0],['Riverfront house',121,4.4,1],['Mends Servo',135.5,5.6,1],['Swan Seeds',156,3.4,1],['Bell Tower',143,-9.1,0]].forEach(([t,lx,lz,mini])=>{if(!all&&!mini)return;x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
   x.font='800 '+Math.round(9*s)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',6*s,10*s);x.fillStyle='#ffd34d';x.fillText('N↑',6*s,10*s);
   return c;}
 let spMini=null,spBig=null;
