@@ -1,7 +1,7 @@
 {
   "name": "Quokka Cafe and Friends",
   "short_name": "Quokka Cafe",
-  "description": "A cozy HD-2D café sim on Rottnest Island, Perth.",
+  "description": "A cozy pixel-art café sim on Rottnest Island, Perth.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

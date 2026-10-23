@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0f1424">
-<meta name="description" content="Quokka Cafe and Friends: a cozy HD-2D café sim on Rottnest Island, Perth.">
+<meta name="description" content="Quokka Cafe and Friends: a cozy pixel-art café sim on Rottnest Island, Perth.">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
@@ -20,7 +20,7 @@
 </head>
 <body>
 <style>
-/* Layout: full-bleed HD-2D island; navy-and-gold JRPG panels float at the screen edges */
+/* Layout: full-bleed pixel-art island; navy-and-gold JRPG panels float at the screen edges */
 :root{
   --night:#0f1424;
   --panel:rgba(15,20,38,.86);
@@ -829,7 +829,7 @@ const SPARK_PAL={y:'#ffe9a0',w:'#ffffff'};
 function pix(rows,pal){const h=rows.length,w=Math.max.apply(null,rows.map(r=>r.length));const c=mk(w,h),x=c.getContext('2d');rows.forEach((r,y)=>{for(let i=0;i<r.length;i++){const col=pal[r[i]];if(!col)continue;x.fillStyle=col;x.fillRect(i,y,1,1);}});return c;}
 function ctex(c,o){o=o||{};const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;if(o.rep){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(o.rep[0],o.rep[1]);t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;}else if(o.smooth){t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;}else{t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}return t;}
 
-// ---------- renderer + HD-2D post ----------
+// ---------- renderer + pixel-art post-processing ----------
 const stage=$('#stage');
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
 const DPR=Math.min(window.devicePixelRatio||1,1.5);
@@ -925,7 +925,7 @@ function setFrame(m,i){if(m.userData.cur===i)return;const f=m.userData.frames[i]
 const blobTex=(()=>{const c=mk(32,32),x=c.getContext('2d');const g=x.createRadialGradient(16,16,2,16,16,15);g.addColorStop(0,'rgba(20,20,30,.45)');g.addColorStop(1,'rgba(20,20,30,0)');x.fillStyle=g;x.fillRect(0,0,32,32);return ctex(c,{smooth:true});})();
 function blob(s){const m=new THREE.Mesh(new THREE.PlaneGeometry(s,s*.55),new THREE.MeshBasicMaterial({map:blobTex,transparent:true,depthWrite:false}));m.rotation.x=-Math.PI/2;m.renderOrder=1;scene.add(m);return m;}
 
-// ---------- Phase 1: 32px HD-2D sprites ----------
+// ---------- Phase 1: 32px pixel sprites ----------
 function hex(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
 function shade(rgb,f){return rgb.map(v=>clamp(Math.round(v*f),0,255));}
 function kip32(step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
@@ -1697,7 +1697,7 @@ const VILLAGE={x:24,z:5};
 const VILLAGE_ELDER={x:VILLAGE.x+1.5,z:VILLAGE.z+.6};
 
 const elder=spriteMesh(quokkaFrames('#f5ecd8',.82),1.05,1.05);elder.position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z),VILLAGE_ELDER.z);scene.add(elder);blob(.8).position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z)+.03,VILLAGE_ELDER.z);
-// ---------- café cash register with EFTPOS ----------
+// ---------- café cash register with card reader ----------
 const REG={x:3.35,z:-2.55};
 (()=>{box(.62,.9,.62,lmat(counterC,[1,1]),REG.x,.45,REG.z);box(.42,.14,.3,new THREE.MeshLambertMaterial({color:0x2a2a30}),REG.x-.05,.97,REG.z);
   const t=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(.16,.06,.26),new THREE.MeshLambertMaterial({color:0x1d1d24}));t.add(body);const scr=new THREE.Mesh(new THREE.PlaneGeometry(.12,.09),new THREE.MeshBasicMaterial({color:0x4a7aa8}));scr.rotation.x=-Math.PI/2+.5;scr.position.set(0,.04,-.05);t.add(scr);t.position.set(REG.x+.15,.95,REG.z+.18);t.rotation.x=.25;scene.add(t);window.__eftScr=scr;
@@ -2454,7 +2454,7 @@ const GUIDE_PLACES=[
  ['freo','Round House, Prison, Esplanade, ferris wheel','Landmarks for the “A day out in Freo” quest and postcards.']];
 const GUIDE_NPCS=[
  ['Gus','Ferry master at Main Jetty. Sails you to South Perth and gives harbour tips.','island'],['Nana Wren','A fairy-wren who starts the lost shells quest.','island'],['Curator Banksia','Runs the Wadjemup Museum. Donate fish, bugs and fossils.','island'],['Elder Wattle','Leader of Quokka Village. Tells you about island quokkas.','island'],
- ['Mum & Dad','Move in mid-story. Mum helps make drinks; Dad runs the till and Eftpos.','island'],['Café staff','Hire up to 3 (50 coins each). They serve, then fish and garden after closing.','island'],
+ ['Mum & Dad','Move in mid-story. Mum helps make drinks; Dad runs the till and card machine.','island'],['Café staff','Hire up to 3 (50 coins each). They serve, then fish and garden after closing.','island'],
  ['Star guests','Fictional celebrities from Australia, China, Korea, England and the USA. Look for the gold star.','island'],['Stranded tourists','Missed the last ferry. Offer the spare room for 10 coins.','island'],
  ['Miller Tom','Runs the Old Mill on Mill Point.','sp'],['Grandma Joy','Sits on the same foreshore bench every afternoon.','sp'],['Priya','Jogs the foreshore all day and counts the swans.','sp'],['Jett','Rents kayaks on the east foreshore.','sp'],
  ['Mei','Buys your produce at the Swan River Grocer.','sp'],['Captain Ruth','Ferry skipper at Mends Street Jetty.','sp'],['Ollie','Runs Swan Seeds Nursery.','sp'],
@@ -2471,9 +2471,9 @@ const GUIDE_ACTS=[
  ['Decorate homes','Buy furniture in three districts and place it in any home you own.'],
  ['Dress Kip','Buy aprons, hats and accessories, then change in the Bag.'],
  ['Relax','Lie in the beach hammock to refill stamina (full in about 3 game hours) and watch fireflies and glowing plankton until 22:00.'],
- ['Make friends (Stardew style)','Press \u2665 Friend (F) near Gus, Nana Wren, Elder Wattle, Mei, Captain Ruth, Ollie, Khun Noi, Rosa or the busker. Chat daily, give one gift a day, unlock heart events at 3, 6 and 10 hearts.'],
+ ['Make friends','Press \u2665 Friend (F) near Gus, Nana Wren, Elder Wattle, Mei, Captain Ruth, Ollie, Khun Noi, Rosa or the busker. Chat daily, give one gift a day, unlock heart events at 3, 6 and 10 hearts.'],
  ['Fish','Fishing spots: Main Jetty, Mends St Jetty and the Causeway. Hold the reel button (or Space) to keep the fish in the green bar. Different fish by season, river and night.'],
- ['Dig and beachcomb (Animal Crossing style)','Four dig spots (an X in the ground) appear on Rottnest each day: fossils, coins or seeds. A message in a bottle sometimes washes up on the beach.'],
+ ['Dig and beachcomb','Four dig spots (an X in the ground) appear on Rottnest each day: fossils, coins or seeds. A message in a bottle sometimes washes up on the beach.'],
  ['Catch bugs','Catch butterflies by day and fireflies near Quokka Village at night.'],
  ['Museum','Donate fish, bugs and fossils to the Wadjemup Museum in the Settlement. 10 coins each, 100 for a full wing.'],
  ['Restoration Board','Six community bundles next to the museum, each unlocking an island-wide reward.'],
@@ -2530,7 +2530,7 @@ function renderGuide(){const T=$('#gdTabs');T.innerHTML='';[['start','How to pla
   if(guideTab==='sys'){const g=document.createElement('div');g.className='gdKeys';UNLOCKS.forEach(u=>{const a=document.createElement('b');a.textContent=(u.ok()?'\u2713 ':'\u{1F512} ')+u.name;const b=document.createElement('span');b.textContent=u.ok()?'Unlocked':u.how;g.append(a,b);});card('Progress and unlocks','New systems open up as the story moves on. Each one arrives with a letter in your mailbox.',null,g);GUIDE_SYS.forEach(([n,t])=>card(n,t));}
   if(guideTab==='travel')GUIDE_TRAVEL.forEach(([n,t])=>card(n,t));}
 
-// =========== Animal Crossing + Stardew style systems ===========
+// =========== friendship, digging and collection systems ===========
 // ----- seasons and calendar (Australian seasons, 28 days each) -----
 const SEASONS=[{n:'Summer',s:'Sum',c:'#f1c64a'},{n:'Autumn',s:'Aut',c:'#e8735a'},{n:'Winter',s:'Win',c:'#5cc6d8'},{n:'Spring',s:'Spr',c:'#86b86e'}];
 function seasonOf(d){return Math.floor((d-1)/28)%4;}function dos(d){return(d-1)%28+1;}function yearOf(d){return Math.floor((d-1)/112)+1;}
