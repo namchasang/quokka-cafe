@@ -59,7 +59,8 @@ const REEF_BAYS={parakeet:{seed:11,sp:[['wrasse',200,190,1],['oldwife',470,262,0
   armstrong:{seed:23,sp:[['bream',420,170,1],['octopus',260,318,0],['wrasse',540,250,1]]},
   catherine:{seed:37,sp:[['seastar',500,320,0],['ray',230,220,1],['bream',110,150,1]]},
   stark:{seed:51,sp:[['oldwife',150,240,1],['octopus',470,316,0],['ray',330,140,1]]},
-  bigsalmon:{seed:63,sp:[['wrasse',380,200,1],['seastar',190,322,0],['bream',540,150,1]]}};
+  bigsalmon:{seed:63,sp:[['wrasse',380,200,1],['seastar',190,322,0],['bream',540,150,1]]},
+  bickley:{seed:79,sp:[['octopus',150,318,0],['oldwife',420,230,1],['seastar',540,330,0]]}};
 function snorkel(bay){const B=REEF_BAYS[bay],name=WB[bay].n;
   const T=B.sp.map(([id,x0,y0,mv],i)=>{const s=REEF_SP[id];return{id,name:s.name,r:s.r,fact:s.fact,pos:mv?(t=>[x0+Math.sin(t*.35+i)*40,y0+Math.sin(t*.9+i*2)*8]):(()=>[x0,y0])};});
   spotOpen({eye:'Snorkelling · '+name,title:'Spot 3 sea creatures',hint:'Tap each creature when you spot it. Some hide near rocks and seagrass.',targets:T,draw:reefDraw(B.seed,T),hintAt:18,doneTitle:'Reef spotted!',

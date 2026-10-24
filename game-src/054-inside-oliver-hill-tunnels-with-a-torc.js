@@ -75,7 +75,7 @@ function wbRocks(x,z,n,R){for(let i=0;i<n;i++){const a=R()*6.283,d=R()*1.4,px=x+
 islandLate(()=>{const R=srand(4242);
   // 1. the four north coast bays, and Salmon Bay on the south coast
   const st=id=>XPL.stops.find(s=>s.id===id);const P=st('parakeet'),A=st('armstrong'),Y=st('york'),K=st('stark'),SB=st('salmonbay');
-  const plan=[['parakeet','Parakeet Bay',P.x,P.z,4.6,2.2],['armstrong','Little Armstrong Bay',A.x,A.z,4.2,2],['catherine','Catherine Bay',(A.x+Y.x)/2+1.5,(A.z+Y.z)/2,3,1.6],['stark','Stark Bay',K.x+.5,K.z,5,2.6],['bigsalmon','Salmon Bay',SB.x+1,SB.z,8,2.6,1]];
+  const plan=[['parakeet','Parakeet Bay',P.x,P.z,4.6,2.2],['armstrong','Little Armstrong Bay',A.x,A.z,4.2,2],['catherine','Catherine Bay',(A.x+Y.x)/2+1.5,(A.z+Y.z)/2,3,1.6],['stark','Stark Bay',K.x+.5,K.z,5,2.6],['bigsalmon','Salmon Bay',SB.x+1,SB.z,8,2.6,1],['bickley','Bickley Bay',-150,-4,5,2.2,-1]];
   const bays=plan.map(([id,n,x,z,rx,out,sd])=>{sd=sd||-1;const cz=wbCoastZ(x,z,sd),room=Math.abs(z-cz);return{id,n,x,sz:z,cz,rx,out,sd,bite:clamp(room-3.1,.8,2.6)};});
   wbCarve(bays);bays.forEach(b=>wbClearWet(b.x-b.rx-4,Math.min(b.cz+b.sd*6,b.cz-b.sd*(b.bite+2)),b.x+b.rx+4,Math.max(b.cz+b.sd*6,b.cz-b.sd*(b.bite+2))));
   bays.forEach((b,i)=>{const sd=b.sd,inner=b.cz-sd*b.bite;// the sandy edge of the bay (sd: which way the sea is)

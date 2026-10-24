@@ -10,14 +10,21 @@ function islInland(x,z,want){want=want||1.6;const c=x>46?[72,1.2]:[16.5,1.7];con
   for(let i=0;i<40&&landD(x,z)<want;i++)z+=Math.sign(c[1]-z)*.25;if(landD(x,z)>=want)return[x,z];x=x0;z=z0;
   for(let i=0;i<60&&landD(x,z)<want;i++){const dx=c[0]-x,dz=c[1]-z,d=Math.hypot(dx,dz)||1;x+=dx/d*.25;z+=dz/d*.25;}return[x,z];}
 ISL.data.push(()=>{if(!ISL.done)return;
-  // landD() still reads the original island here (the ground is rebuilt right after)
-  const old=XPL_STOPS.map(([id,n,x,z])=>{const p=islInland(x,z,1.7);return{id,n,ox:p[0],oz:p[1]};});
-  const loop=old.concat([old[0]]);const road=[];
-  for(let i=0;i<loop.length-1;i++){const a=loop[i],b=loop[i+1];road.push([a.ox,a.oz,a.id]);const L=Math.hypot(b.ox-a.ox,b.oz-a.oz),n=Math.ceil(L/2.5);
-    for(let k=1;k<n;k++){const t=k/n;let x=lerp(a.ox,b.ox,t),z=lerp(a.oz,b.oz,t);if(landD(x,z)<1.4){const p=islInland(x,z,1.5);x=p[0];z=p[1];}road.push([x,z]);}}
-  road.push([loop[loop.length-1].ox,loop[loop.length-1].oz]);
-  XPL.route=road.map(([x,z,id],i)=>{const w0=isW(x,z),w={x:w0[0],z:w0[1]};if(id&&XPL.idx[id]==null)XPL.idx[id]=i;return[w.x,w.z];});
-  XPL.stops=old.map(o=>{const i=XPL.idx[o.id],p=XPL.route[i];return{id:o.id,name:o.n,x:p[0],z:p[1]};});
+  // landD() still reads the original island here (the ground is rebuilt right after); stops are found inland in the old layout
+  const stops=XPL_STOPS.map(([id,n,x,z])=>{const p=islInland(x,z,1.7),w=isW(p[0],p[1]);return{id,n,x:w[0],z:w[1]};});
+  // the real island's ground before it is built: the Settlement keeps its own coast, everywhere else the real coast
+  const PL=ISL.plat[0],PD=islPlatD(PL),PC=[PL.x+PD[0],PL.z+PD[1]];
+  const gA=(X,Z)=>{const r=Math.hypot(X-PC[0],Z-PC[1]);if(r<PL.R+PL.T){const f=islandF(X-PD[0],Z-PD[1])/.08;const ph=isPhi(PL,r);return f*ph+rislD(X,Z)*(1-ph);}return rislD(X,Z);};
+  const inland=(X,Z,want)=>{let d=gA(X,Z);for(let i=0;i<40&&d<want;i++){const h=.4,gx=gA(X+h,Z)-gA(X-h,Z),gz=gA(X,Z+h)-gA(X,Z-h),g=Math.hypot(gx,gz)||1;X+=gx/g*.4;Z+=gz/g*.4;d=gA(X,Z);}return[X,Z];};
+  // the loop goes west along the north side of the island and comes back east along the south side, like the real bus
+  const side=s=>{const [tp,bt]=rislCol(rislPXof(s.x));return s.z<(tp+bt)/2?0:1;};
+  const first=stops[0],rest=stops.slice(1);const north=rest.filter(s=>side(s)===0).sort((a,b)=>a.x-b.x),south=rest.filter(s=>side(s)===1).sort((a,b)=>b.x-a.x);
+  const order=[first].concat(north,south);const loop=order.concat([first]);const road=[];
+  for(let i=0;i<loop.length-1;i++){const a=loop[i],b=loop[i+1];road.push([a.x,a.z,a.id]);const L=Math.hypot(b.x-a.x,b.z-a.z),n=Math.ceil(L/2.2);
+    for(let k=1;k<n;k++){const t=k/n;let x=lerp(a.x,b.x,t),z=lerp(a.z,b.z,t);if(gA(x,z)<2.4){const p=inland(x,z,2.6);x=p[0];z=p[1];}road.push([x,z]);}}
+  road.push([first.x,first.z]);
+  XPL.route=road.map(([x,z,id],i)=>{if(id&&XPL.idx[id]==null)XPL.idx[id]=i;return[x,z];});
+  XPL.stops=order.map(o=>{const i=XPL.idx[o.id],p=XPL.route[i];return{id:o.id,name:o.n,x:p[0],z:p[1]};});
   // paint the loop road (skips the Settlement, which has its own lanes)
   const keep=[];XPL.route.forEach(p=>{if(Math.hypot(p[0]-IWx(0,0),p[1]-IWz(0,0))>16)keep.push(p.slice());else if(keep.length){PATHS.push(keep.splice(0));}});if(keep.length>1)PATHS.push(keep);
   COACH.length=0;XPL.stops.forEach(s=>COACH.push(s));COACH_ROUTE.length=0;XPL.route.forEach(p=>COACH_ROUTE.push(p));Object.keys(COACH_IDX).forEach(k=>delete COACH_IDX[k]);Object.assign(COACH_IDX,XPL.idx);});

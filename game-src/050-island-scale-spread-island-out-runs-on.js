@@ -36,5 +36,8 @@ function islandWarp(){if(ISL.done)return;const t0=performance.now();
 // colliders and data written in the original layout
 function islandData(){
   colliders.forEach(c=>{if(c.real){const r={x1:c.real[0],z1:c.real[1],x2:c.real[2],z2:c.real[3]};iwR(r);c.real=[r.x1,r.z1,r.x2,r.z2];if(c.x1<1e8){c.x1=r.x1;c.z1=r.z1;c.x2=r.x2;c.z2=r.z2;}return;}if(c.x1>-45&&c.x2<99.5&&c.z2<40&&c.z1>-30)iwR(c);});
+  // paths that run into a place that moves are cut where they cross its edge (the bus road joins them up again)
+  for(let i=PATHS.length-1;i>=0;i--){const P=PATHS[i];if(!P.length||P[0][0]>=99.5)continue;const parts=[];let cur=[P[0]];for(let k=1;k<P.length;k++){if(islDist(P[k][0],P[k][1])!==islDist(P[k-1][0],P[k-1][1])){if(cur.length>1)parts.push(cur);cur=[P[k]];}else cur.push(P[k]);}if(cur.length>1)parts.push(cur);
+    if(parts.length!==1||parts[0].length!==P.length){PATHS.splice(i,1,...parts);}}
   PATHS.forEach(iwPts);
   (ISL.data||[]).forEach(f=>{try{f();}catch(e){console.warn('islandData',e);}});}

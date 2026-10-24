@@ -56,7 +56,8 @@
 055-island-scale-wave-c-salmon-bay-henriet.js
 056-snorkelling-out-to-old-wreck-at-henrie.js
 057-island-scale-phase-6-six-island-lookou.js
-058-island-explorer-a-19-stop-loop-bus-lik.js
-059-live-mode-live-1-kip-runs-caf-on-his-o.js
-060-look-lab-landscape-layers-of-each-real.js
-061-part.js
+058-phase-8-east-cape-and-south-point-get.js
+059-island-explorer-a-19-stop-loop-bus-lik.js
+060-live-mode-live-1-kip-runs-caf-on-his-o.js
+061-look-lab-landscape-layers-of-each-real.js
+062-part.js

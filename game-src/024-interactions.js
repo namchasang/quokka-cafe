@@ -60,7 +60,7 @@ function buildTargets(){const T=[];const ph=phase();
    T.push({x:186,z:-8.6,r:1.3,label:'Coode St Jetty',act:()=>say(['Kip: A quiet little jetty. You can see the whole city skyline from the end, and the swans come right up close.'])});}
   T.push({x:ruth.x,z:ruth.z,r:1.4,label:'Talk to Captain Ruth',act:()=>say(['Captain Ruth: Welcome to Mends Street Jetty! Perth city is just across the Swan River.','Captain Ruth: Mei\u2019s grocer stall is along the foreshore. The ferry back to Rottnest leaves from the end of the jetty.'])});
   if(S.wish.hammock)T.push({x:HAMMOCK.x,z:HAMMOCK.z+.9,r:1.4,label:ph==='explore'?'Nap · 1 hr':'Nap after noon',disabled:ph!=='explore',act:nap});
-  waTargets(T);wbTargets(T);wcTargets(T);lkTargets(T);return T;}
+  waTargets(T);wbTargets(T);wcTargets(T);lkTargets(T);p8Targets(T);return T;}
 function findTarget(){let best=null,bs=1e9;for(const t of buildTargets()){const d=Math.hypot(t.x-player.x,t.z-player.z);if(d>t.r)continue;const s=d+(t.disabled?5:0);if(s<bs){bs=s;best=t;}}if(player.lying)return S.juice===false?{label:'Get up',act:getUp}:{label:'Sip orange juice',act:drinkJuice};
   if(!player.bike&&S.ownBike&&!best)return{label:'Ride your bike',act:()=>{player.bike=true;}};
   if(player.bike&&(!best||best.disabled))return{label:'Hop off bike',act:()=>{player.bike=false;}};return best;}

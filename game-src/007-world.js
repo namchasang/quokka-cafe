@@ -48,13 +48,17 @@ function rislT(x,z){const E=rislEdges(),px=rislPX(x),X=rislX(px),[tp,bt]=rislCol
   return[X,zr*(1-w)+zt*w];}
 function isS(x,z){return rislT(x,z);}
 // smooth warp of an original island point (the Settlement plateau moves without stretching)
-function isW(x,z){if(x>=99.5)return[x,z];const o=rislT(x,z);for(const p of ISL.plat){const dx=x-p.x,dz=z-p.z,r=Math.hypot(dx,dz);if(r>=p.R+p.T)continue;const f=isPhi(p,r),D=islPlatD(p);o[0]=o[0]*(1-f)+(x+D[0])*f;o[1]=o[1]*(1-f)+(z+D[1])*f;}return o;}
+// whole places that move as one piece to where they really are (Parker Point and Little Salmon Bay to the south point,
+// Wadjemup Lighthouse to the middle of the island). Points inside move rigidly; nothing outside changes.
+ISL.dist=[{n:'parker',x1:59.5,x2:74,z1:4.7,z2:14,D:[-156.5,42.5]},{n:'light',x:33.5,z:-6.3,r:4.6,D:[-73.3,3.5]}];
+function islDist(x,z){for(const d of ISL.dist){if(d.r?Math.hypot(x-d.x,z-d.z)<d.r:(x>=d.x1&&x<=d.x2&&z>=d.z1&&z<=d.z2))return d;}return null;}
+function isW(x,z){if(x>=99.5)return[x,z];{const d=islDist(x,z);if(d)return[x+d.D[0],z+d.D[1]];}const o=rislT(x,z);for(const p of ISL.plat){const dx=x-p.x,dz=z-p.z,r=Math.hypot(dx,dz);if(r>=p.R+p.T)continue;const f=isPhi(p,r),D=islPlatD(p);o[0]=o[0]*(1-f)+(x+D[0])*f;o[1]=o[1]*(1-f)+(z+D[1])*f;}return o;}
 function islPlatD(p){if(!p.D){p.D=[rislX(RISL.SX)-p.x,RISL.SZ-p.z];}return p.D;}
 // inverse warp: a coarse table of forward samples gives a start, Newton finishes
 let RINV=null;function rislInvTable(){if(RINV)return RINV;const T={x1:-185,z1:-80,W:290,H:160,c:new Map()};
-  for(let x=-62;x<99.5;x+=.5)for(let z=-45;z<=46;z+=.5){const w=isW(x,z),i=Math.floor((w[0]-T.x1)/2),j=Math.floor((w[1]-T.z1)/2);if(i<0||j<0||i>=T.W/2||j>=T.H/2)continue;const k=j*1000+i,c=T.c.get(k);const d=0;if(!c)T.c.set(k,[x,z,w[0],w[1]]);}
+  for(let x=-62;x<99.5;x+=.5)for(let z=-45;z<=46;z+=.5){if(islDist(x,z))continue;const w=isW(x,z),i=Math.floor((w[0]-T.x1)/2),j=Math.floor((w[1]-T.z1)/2);if(i<0||j<0||i>=T.W/2||j>=T.H/2)continue;const k=j*1000+i,c=T.c.get(k);const d=0;if(!c)T.c.set(k,[x,z,w[0],w[1]]);}
   RINV=T;return T;}
-function isWinv(X,Z,rough){if(X>=99.5)return[X,Z];for(const p of ISL.plat){const D=islPlatD(p),pr=[X-D[0],Z-D[1]];if(Math.hypot(pr[0]-p.x,pr[1]-p.z)<=p.R)return pr;}
+function isWinv(X,Z,rough){if(X>=99.5)return[X,Z];for(const d of ISL.dist){const q=[X-d.D[0],Z-d.D[1]];if(islDist(q[0],q[1])===d)return q;}for(const p of ISL.plat){const D=islPlatD(p),pr=[X-D[0],Z-D[1]];if(Math.hypot(pr[0]-p.x,pr[1]-p.z)<=p.R)return pr;}
   const T=rislInvTable(),ci=Math.floor((X-T.x1)/2),cj=Math.floor((Z-T.z1)/2);let best=null,bd=1e9;
   for(let r=0;r<6&&!best;r++)for(let dj=-r;dj<=r;dj++)for(let di=-r;di<=r;di++){if(Math.max(Math.abs(di),Math.abs(dj))!==r)continue;const c=T.c.get((cj+dj)*1000+ci+di);if(!c)continue;const d=Math.hypot(c[2]-X,c[3]-Z);if(d<bd){bd=d;best=c;}}
   let q=best?[best[0],best[1]]:[clamp(X,-60,99),clamp(Z,-40,40)];if(rough&&best)return q;let e=isW(q[0],q[1]);

@@ -99,7 +99,7 @@ function islandGround(){ISL.tg0=performance.now();
    for(let j=0;j<GH;j++){const v=j/GR/CS,j0=Math.min(CH-2,Math.floor(v)),b=v-j0;for(let i=0;i<GW;i++){const u=i/GR/CS,i0=Math.min(CW-2,Math.floor(u)),a=u-i0,c=j0*CW+i0,k=j*GW+i;
      const ox=(CX[c]*(1-a)+CX[c+1]*a)*(1-b)+(CX[c+CW]*(1-a)+CX[c+CW+1]*a)*b,oz=(CZ[c]*(1-a)+CZ[c+1]*a)*(1-b)+(CZ[c+CW]*(1-a)+CZ[c+CW+1]*a)*b;ISL_OX[k]=ox;ISL_OZ[k]=oz;
      // ground: the real coast, the Settlement's own coast inside its plateau, and the old bays cut into the real coast
-     const X=TB.x1+i/GR,Z=TB.z1+j/GR;let f=rislD(X,Z);for(const [bx,bz,br] of BAYS){if(Math.hypot(bx-PL.x,bz-PL.z)<PL.R)continue;const d=Math.hypot(ox-bx,oz-bz);if(d<br+6)f=Math.min(f,(d-br)*2.4);}
+     const X=TB.x1+i/GR,Z=TB.z1+j/GR;let f=rislD(X,Z);for(const [bx,bz,br] of BAYS){if(Math.hypot(bx-PL.x,bz-PL.z)<PL.R||islDist(bx,bz))continue;const d=Math.hypot(ox-bx,oz-bz);if(d<br+6)f=Math.min(f,(d-br)*2.4);}
      const ph=isPhi(PL,Math.hypot(X-PC[0],Z-PC[1]));if(ph>0){const g=Math.hypot(f0(ox+.2,oz)-f0(ox-.2,oz),f0(ox,oz+.2)-f0(ox,oz-.2))/.4;const fd=f0(ox,oz)/Math.max(.01,g),fo=fd>0?fd:Math.max(fd,Math.min(f,-1.5));f=f*(1-ph)+fo*ph;}Fg[k]=f;}}}
   for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const k=j*GW+i;const i0=i>0?k-1:k,i1=i<GW-1?k+1:k,j0=j>0?k-GW:k,j1=j<GH-1?k+GW:k;
     const fx=(Fg[i1]-Fg[i0])*GR/((i1-i0)||1),fz=(Fg[j1]-Fg[j0])*GR/(((j1-j0)/GW)||1);Dg[k]=Fg[k]/Math.max(.004,Math.hypot(fx,fz));}
