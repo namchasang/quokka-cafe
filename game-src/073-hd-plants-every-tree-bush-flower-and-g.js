@@ -9,7 +9,7 @@ function plantHD(src,isTree){const W=src.width,H=src.height,sx=src.getContext('2
   let fb=0;for(let i=1;i<12;i++)if(hb[i]>hb[fb])fb=i;const fh=fb*30+15;if(!hb[fb])return null;// fire, signs and other warm things are not plants
   let fl=[1,0];const fol=[];
   for(let i=0;i<W*H;i++){const o=i*4;if(sx[o+3]<128||T[i]===1)continue;const[h,s,l]=hsl(sx[o],sx[o+1],sx[o+2]);let dh=Math.abs(h-fh);dh=Math.min(dh,360-dh);
-    if(s>.1&&dh<40){T[i]=2;fol.push(i);fl[0]=Math.min(fl[0],l);fl[1]=Math.max(fl[1],l);}
+    if(s>.08&&dh<70){T[i]=2;fol.push(i);fl[0]=Math.min(fl[0],l);fl[1]=Math.max(fl[1],l);}
     else if((h>8&&h<55&&l<.62&&s<.75)||(s<.22&&l<.82))T[i]=3;else T[i]=4;}
   if(fol.length<W*H*.04)return null;// not a plant (or too little leaf to treat)
   // the 7-shade ramp: from the darkest to the lightest leaf colour, cooler in shadow and warmer in the sun
@@ -60,10 +60,11 @@ function plantSway(m){if(!m||PLANT_HD.mats.has(m))return;PLANT_HD.mats.add(m);co
   const k=m.customProgramCacheKey?m.customProgramCacheKey():'';m.customProgramCacheKey=()=>k+'|sway';m.needsUpdate=true;}
 function plantHDApply(){const tset=new Set(trees.map(t=>t.m.material&&t.m.material.map));
   BB.forEach(o=>{if(o.userData.frames)return;const m=o.material,t=m&&m.map;if(!t||!t.image||t.image.width>96||t.image.width*t.image.height<100)return;if(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))return;
-    if(!PLANT_HD.done.has(t)){PLANT_HD.done.add(t);const hd=plantHD(t.image,tset.has(t)||t.image.height>=24);if(hd){t.image=hd;t.needsUpdate=true;t.isPlant=true;PLANT_HD.n++;}}
+    if(!PLANT_HD.done.has(t)){PLANT_HD.done.add(t);const hd=plantHD(t.image,tset.has(t)||t.image.height>=24);if(hd){t.__src=t.image;t.image=hd;t.needsUpdate=true;t.isPlant=true;PLANT_HD.n++;}}
     if(t.isPlant){plantSway(m);if(o.customDepthMaterial)plantSway(o.customDepthMaterial);}});
   trees.forEach(tr=>{if(tr.v&&tr.v.f)plantSway(tr.v.f);});}
 (function L(){PLANT_HD.t.value=performance.now()/1000;requestAnimationFrame(L);})();
 plantHDApply();
+if(LOOK2.on){plant2Apply();let _l2t=performance.now();(function L2(){const n=performance.now();plant2Tick((n-_l2t)/1000);_l2t=n;requestAnimationFrame(L2);})();}
 if(LAB.start)setTimeout(()=>LAB.toggle(true),600);
 })();

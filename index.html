@@ -979,6 +979,203 @@ function spriteMesh(canvases,w,h,opts){opts=opts||{};
   return mesh;}
 function showFrame(m){const u=m.userData,F=u.frames;let i=u.step;if(F.length===9)i+=u.dir===0?3:u.dir===1?6:0;if(u.cur===i||!F[i])return;const f=mkFrame(F[i]);m.material=f.m;m.customDepthMaterial=f.d;u.cur=i;}
 function setFrame(m,i){m.userData.step=i;showFrame(m);}
+// ---------- Plants v2 and HD people (Look Lab layer: ?lab or ?hd2 until LOOK2_LIVE is true) ----------
+// Plants: crowns painted from leaf clumps, leafy edges, tapered trunks with roots, knots and branches, a golden rim
+// that follows the time of day, per-tree size/shade variety and contact shadows, species details (gum, pine, palm,
+// jacaranda, boab), seasonal leaves and blossom, and leaves or petals blowing in the wind.
+// People: every character frame at twice the pixels with smoothed diagonals, a thin outline, soft volume and eye shine.
+const LOOK2_LIVE=false;
+const LOOK2={on:LOOK2_LIVE||/[?&#](lab|hd2)\b/.test(location.search+location.hash),plants:true,people:true,tex:[],mats:[],frames:[],season:-1,shadows:null,leaves:null,petals:[]};
+function l2hash(a,b,s){let h=(a*374761393+b*668265263+(s|0)*2246822519)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;}
+function l2noise(x,y,s,seed){const gx=Math.floor(x/s),gy=Math.floor(y/s),fx=x/s-gx,fy=y/s-gy,a=l2hash(gx,gy,seed),b=l2hash(gx+1,gy,seed),c=l2hash(gx,gy+1,seed),d=l2hash(gx+1,gy+1,seed),u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+function l2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;}return[h,s,l];}
+const L2_BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+// read a plant sprite once: kinds of pixel, leaf colours, bark, trunk rows, species
+function plantParse(src){const W=src.width,H=src.height,sx=src.getContext('2d').getImageData(0,0,W,H).data;
+  const T=new Uint8Array(W*H),Lm=new Float32Array(W*H),hb=new Float32Array(12);
+  for(let i=0;i<W*H;i++){const o=i*4;if(sx[o+3]<128)continue;const[h,s,l]=l2hsl(sx[o],sx[o+1],sx[o+2]);Lm[i]=l;const x=i%W,y=(i/W)|0;
+    const edge=x===0||y===0||x===W-1||y===H-1||sx[o-1]<128||sx[o+7]<128||sx[o-W*4+3]<128||sx[o+W*4+3]<128;if(l<.2&&edge){T[i]=1;continue;}if(s>.12&&h>=60&&h<=320)hb[Math.floor(h/30)%12]+=1+s;}
+  let fb=0;for(let i=1;i<12;i++)if(hb[i]>hb[fb])fb=i;if(!hb[fb])return null;const fh=fb*30+15;const fol=[];let lo=1,hi=0;
+  for(let i=0;i<W*H;i++){const o=i*4;if(sx[o+3]<128||T[i]===1)continue;const[h,s,l]=l2hsl(sx[o],sx[o+1],sx[o+2]);let dh=Math.abs(h-fh);dh=Math.min(dh,360-dh);
+    if((h>=12&&h<=58&&s<.6&&!(l>.88))||(s<.1&&l<.9))T[i]=3;else if(s>.08&&dh<70){T[i]=2;fol.push(i);lo=Math.min(lo,l);hi=Math.max(hi,l);}else T[i]=4;}
+  if(fol.length<W*H*.04)return null;
+  const pick=f=>{let best=fol[0],bd=9;for(const i of fol){const d=Math.abs(Lm[i]-f);if(d<bd){bd=d;best=i;}}const o=best*4;return[sx[o],sx[o+1],sx[o+2]];};
+  // trunk rows: the bark pixels below the crown (or the widest bark run)
+  const rows=[];let bn=0,br=0,bg=0,bb=0,bl=0;for(let y=0;y<H;y++){let a=-1,b=-1;for(let x=0;x<W;x++){const i=y*W+x;if(T[i]===3){if(a<0)a=x;b=x;bn++;const o=i*4;br+=sx[o];bg+=sx[o+1];bb+=sx[o+2];bl+=Lm[i];}}rows.push(a<0?null:[a,b]);}
+  const barkC=bn?[br/bn,bg/bn,bb/bn]:[107,68,40],barkL=bn?bl/bn:.3;let tw=0;rows.forEach(r=>{if(r)tw=Math.max(tw,r[1]-r[0]+1);});
+  // crown width profile, for pines
+  let top=H,bot=0,mw=0,mwY=0;const cw=[];for(let y=0;y<H;y++){let n=0;for(let x=0;x<W;x++){const t=T[y*W+x];if(t===2||t===1||t===4)n++;}cw.push(n);if(n){top=Math.min(top,y);bot=Math.max(bot,y);}if(n>mw){mw=n;mwY=y;}}
+  const ch=bot-top+1;const narrowTop=cw[Math.min(H-1,top+Math.round(ch*.15))]<mw*.4&&mwY>top+ch*.5;
+  const purple=fh>=240&&fh<=320,bush=!bn&&H<=24,grass=W<=14;
+  let crownArea=0;for(let y=top;y<=bot;y++)crownArea+=cw[y];const fill=crownArea/Math.max(1,ch*mw);
+  const kind=grass?'grass':bush?'bush':purple?'jac':barkL>.45?'gum':(tw>=W*.4)?'boab':(W<=24&&H>=40&&ch<H*.45&&tw<=4)?'palm':narrowTop?'pine':'broad';
+  return{W,H,sx,T,Lm,fh,dk:pick(lo),lt:pick(hi),lo,hi,rows,barkC,barkL,tw,top,bot,kind};}
+function l2ramp(dk,lt){const mix=(a,b,t)=>a.map((v,k)=>v+(b[k]-v)*t);const R=[];for(let k=0;k<7;k++){const t=k/6;let c=mix(dk.map(v=>v*.74),lt.map(v=>Math.min(255,v*1.1)),t);c=[c[0]+(t-.5)*16,c[1]+(t-.5)*6,c[2]-(t-.5)*18].map(v=>Math.max(0,Math.min(255,Math.round(v))));R.push(c);}return R;}
+const L2_AUTUMNS=[l2ramp([92,40,22],[244,196,92]),l2ramp([104,36,18],[250,150,64]),l2ramp([86,22,22],[232,96,62])],L2_AUTUMN=L2_AUTUMNS[0],L2_GREEN=l2ramp([45,90,44],[160,200,100]),L2_WINTER=l2ramp([40,64,48],[132,160,110]);
+// paint one plant (season 0 summer, 1 autumn, 2 winter, 3 spring); returns the picture and a rim-light mask
+function plantPaint(P,season,seed){const{W,H,sx,T}=P,W2=W*2,H2=H*2,kind=P.kind;const rnd=mulberry32(seed|0);const R=()=>rnd();
+  let RAMP=l2ramp(P.dk,P.lt);const blend=(A,B,t)=>A.map((c,i)=>c.map((v,k)=>Math.round(v+(B[i][k]-v)*t)));
+  const deciduous=kind==='broad'||kind==='bush';
+  if(season===1&&deciduous)RAMP=blend(RAMP,L2_AUTUMNS[Math.abs(seed)%3],kind==='bush'?.35:.86);
+  if(season===2&&deciduous)RAMP=blend(RAMP,L2_WINTER,.35);
+  let jacMix=0;if(kind==='jac'){jacMix=season===3?0:season===0?.5:1;}// jacaranda: purple in spring, half in summer, green after
+  const OUTC=P.dk.map(v=>Math.round(v*.48)),OUTL=OUTC.map(v=>Math.round(v*1.4));
+  const img=new Uint8ClampedArray(W2*H2*4),IDX=new Int8Array(W2*H2).fill(-1),KIND=new Uint8Array(W2*H2),RIM=new Uint8Array(W2*H2);
+  const put=(x,y,c,k)=>{if(x<0||y<0||x>=W2||y>=H2)return;const i=y*W2+x,o=i*4;img[o]=c[0];img[o+1]=c[1];img[o+2]=c[2];img[o+3]=255;KIND[i]=k;};
+  // crown mask at 2x (smooth silhouette)
+  const crownAt=(x,y)=>{if(x<0||y<0||x>=W||y>=H)return 0;const t=T[y*W+x];if(t===2||t===4)return 1;if(t!==1)return 0;for(let b=-1;b<=1;b++)for(let a=-1;a<=1;a++){const X=x+a,Y=y+b;if(X>=0&&Y>=0&&X<W&&Y<H){const q=T[Y*W+X];if(q===2||q===4)return 1;}}return 0;};
+  const M=new Uint8Array(W2*H2);let cx0=0,cy0=0,cn=0,minY=H2,maxY=0;
+  for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const fx=(x+.5)/2-.5,fy=(y+.5)/2-.5,x0=Math.floor(fx),y0=Math.floor(fy),tx=fx-x0,ty=fy-y0;
+    const a=crownAt(x0,y0)*(1-tx)*(1-ty)+crownAt(x0+1,y0)*tx*(1-ty)+crownAt(x0,y0+1)*(1-tx)*ty+crownAt(x0+1,y0+1)*tx*ty;if(a>=.5){M[y*W2+x]=1;cx0+=x;cy0+=y;cn++;minY=Math.min(minY,y);maxY=Math.max(maxY,y);}}
+  if(!cn)return null;cx0/=cn;cy0/=cn;
+  const BK=(()=>{const c=P.barkC;const gum=kind==='gum';return(gum?[.62,.8,.94,1.06]:[.46,.7,.95,1.2]).map(k=>c.map(v=>Math.max(0,Math.min(255,Math.round(v*k)))));})();
+  const PEEL=[[150,136,116],[176,160,136]];
+  // trunk: taper, root flare, bark streaks, knots (palm: rings, gum: peeling patches, boab: a fat bottle)
+  let tTop=-1,tCx=W2/2;{const rows=P.rows;let first=-1,last=-1;rows.forEach((r,y)=>{if(r){if(first<0)first=y;last=y;}});
+    if(first>=0){tTop=first*2;const knots=[];for(let k=0;k<2;k++)knots.push([R(),R()]);
+      for(let y2=first*2;y2<H2;y2++){const r=rows[Math.min(last,Math.floor(y2/2))]||rows[last];if(!r)continue;let a=r[0]*2,b=r[1]*2+1;const t=(y2-first*2)/Math.max(1,H2-first*2);
+        if(kind!=='boab'&&kind!=='palm'){const w=b-a,shrink=Math.round((1-t)*w*.18);a+=shrink;b-=shrink;}
+        const fl=H2-y2;if(fl<=5&&kind!=='palm'){const e=6-fl;a-=e;b+=e;}
+        const w=b-a+1;tCx=(a+b)/2;
+        for(let x=a;x<=b;x++){if(fl<=5&&kind!=='palm'){// roots: bumps at the base
+            const rx=(x-a)/w;if(fl>1&&Math.abs(rx-.5)>.3&&l2hash(x>>1,0,seed)<.45)continue;}
+          const e=(x-a)/Math.max(1,w-1);let s=e<.16?0:e<.42?1:e<.78?2:3;
+          if(kind==='palm'){if(y2%5===0)s=Math.max(0,s-1);if(y2%5===1&&s<3)s++;}
+          else{if(l2hash(x,y2>>2,seed)<.22)s=Math.max(0,s-1);if(l2hash(x,y2>>3,seed+5)>.9)s=Math.min(3,s+1);}
+          let c=BK[s];
+          if(kind==='gum'&&l2noise(x,y2,3.2,seed)>.6)c=PEEL[s>1?1:0];
+          for(const[kx,ky]of knots){const kxp=a+w*(.3+kx*.4),kyp=first*2+(H2-first*2)*(.25+ky*.45);const dx=(x-kxp)/1.6,dy=(y2-kyp)/2.4;const dd=dx*dx+dy*dy;if(dd<1)c=dd<.4?BK[0]:BK[1];else if(dd<1.6&&dy<0)c=BK[3];}
+          if(x===a||x===b)c=OUTC;put(x,y2,c,3);}}}}
+  // branches up into the crown (seen through gaps)
+  if(tTop>=0&&kind!=='palm'&&kind!=='bush'&&kind!=='grass'){const n=kind==='pine'?2:4;for(let k=0;k<n;k++){const dir=k%2?1:-1,len=(tTop-minY)*(.55+R()*.4),spread=(.35+R()*.5)*dir;
+      let x=tCx,y=tTop+4;for(let t=0;t<1;t+=.02){x+=spread*.9+Math.sin(t*6+k)*.2;y-=len/50;const w=t<.4?2:1;for(let q=0;q<w;q++)if(M[(y|0)*W2+(x|0)+q])put((x|0)+q,y|0,BK[t<.5?1:2],3);
+        if(t>.5&&l2hash(k,t*100|0,seed)>.93){let tx=x,ty=y;for(let s=0;s<5;s++){tx+=dir;ty-=1;if(M[(ty|0)*W2+(tx|0)])put(tx|0,ty|0,BK[2],3);}}}}}
+  // leaf clumps
+  const base=Math.max(1.4,W2/22)*(kind==='grass'?.7:kind==='palm'?.55:1);const cl=[];
+  const step=base*(kind==='gum'?1.25:1.05);
+  for(let y=minY-1;y<=maxY;y+=step)for(let x=0;x<W2;x+=step){const px=x+(R()-.5)*step*.9,py=y+(R()-.5)*step*.9;const xi=px|0,yi=py|0;if(xi<0||yi<0||xi>=W2||yi>=H2||!M[yi*W2+xi])continue;
+    if(kind==='gum'&&R()<.22)continue;if(season===2&&deciduous&&kind==='broad'&&R()<.3)continue;
+    let rx=base*(.85+R()*.6),ry=rx;if(kind==='gum'){ry*=1.35;rx*=.85;}if(kind==='pine'){rx*=1.6;ry*=.62;}if(kind==='grass'){ry*=1.5;rx*=.6;}
+    const dc=Math.hypot((px-cx0)/(W2*.5),(py-cy0)/(H2*.5));cl.push({x:px,y:py,rx,ry,d:R()*.55+(1-Math.min(1,dc))*.45,purple:kind==='jac'?(R()>=jacMix):false});}
+  cl.sort((a,b)=>a.d-b.d);
+  const tierH=Math.max(5,base*2.4);
+  for(const c of cl){const x0=Math.floor(c.x-c.rx-2),x1=Math.ceil(c.x+c.rx+2),y0=Math.floor(c.y-c.ry-2),y1=Math.ceil(c.y+c.ry+2);
+    const ramp=kind==='jac'&&!c.purple?L2_GREEN:RAMP;
+    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(x<0||y<0||x>=W2||y>=H2)continue;const dx=(x+.5-c.x)/c.rx,dy=(y+.5-c.y)/c.ry;let dd=dx*dx+dy*dy;
+      const jag=(l2hash(x,y,seed+11)-.5)*.5;if(dd>1+jag)continue;
+      // only spill 1-2px past the crown outline (leaf tips), never far
+      if(!M[y*W2+x]){let near=false;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1],[2,0],[-2,0],[0,-2]]){const X=x+a,Y=y+b;if(X>=0&&Y>=0&&X<W2&&Y<H2&&M[Y*W2+X]){near=true;break;}}if(!near||dd>.75)continue;}
+      const local=-dx*.55-dy*.8;const gl=(1-x/W2)*.32+(1-(y-minY)/Math.max(1,maxY-minY))*.5;
+      let v=.12+gl*.5+c.d*.24+local*.2+(l2hash(x>>1,y,seed+3)-.5)*.14;
+      if(kind==='pine'){const tp=((y-minY)%tierH)/tierH;v+=tp<.3?.12:tp>.75?-.18:0;}
+      v=Math.max(0,Math.min(.999,v));let s=Math.floor(v*7+(L2_BAYER[(y&3)*4+(x&3)]/16-.5)*.5);s=Math.max(0,Math.min(6,s));
+      if(dd>.62&&local<-.2)s=Math.max(0,s-1);// clump underside: separates the clumps
+      put(x,y,ramp[s],2);IDX[y*W2+x]=s;}}
+  // palm fronds get leaflets hanging off them
+  if(kind==='palm'){const cp=img.slice();for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x;if(KIND[i]!==2||(x+y)%2)continue;if(y<H2-2&&!KIND[i+W2]){const s=Math.max(0,IDX[i]-1);put(x,y+1,RAMP[s],2);if(l2hash(x,y,seed)>.5)put(x+((x>cx0)?1:-1),y+2,RAMP[Math.max(0,s-1)],2);}}}
+  // blossoms in spring, berries on bushes
+  if((season===3&&deciduous)||(kind==='bush'&&season===0)){const cols=season===3?[[248,236,240],[244,170,200]]:[[214,52,58],[240,200,70]];for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x;if(KIND[i]!==2)continue;if(l2hash(x,y,seed+29)<(season===3?.035:.012)){put(x,y,cols[l2hash(x,y,seed)>.5?1:0],4);if(y>0&&KIND[i-W2]===2)put(x,y-1,[255,250,250],4);}}}
+  // flowers and berries already in the sprite (flower bushes) come back on top
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(T[i]!==4)continue;const o=i*4,c=[sx[o],sx[o+1],sx[o+2]];put(x*2,y*2,c.map(v=>Math.min(255,v+36)),4);put(x*2+1,y*2,c,4);put(x*2,y*2+1,c,4);put(x*2+1,y*2+1,c.map(v=>v*.8|0),4);}
+  // sunlit rim, shade beside gaps, then a 1px outline (never around holes inside the crown)
+  const solid=i=>img[i*4+3]>0;
+  for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x;if(KIND[i]!==2)continue;const up=y>0&&solid(i-W2),lf=x>0&&solid(i-1);
+    if((!up||!lf)&&x<cx0+W2*.18&&y<minY+(maxY-minY)*.7){const s=Math.min(6,IDX[i]+2);const ramp=kind==='jac'?RAMP:RAMP;const o=i*4;const c=ramp[s];img[o]=c[0];img[o+1]=c[1];img[o+2]=c[2];RIM[i]=1;}}
+  const out=img.slice();for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x,o=i*4;if(img[o+3])continue;
+    const n=(x<W2-1&&img[o+7])||(y<H2-1&&img[o+W2*4+3]),m=(x>0&&img[o-1])||(y>0&&img[o-W2*4+3]);if(!n&&!m)continue;
+    if(M[i]){const s=y>0&&img[o-W2*4+3];if(s)continue;}// a gap inside the crown stays open
+    const c=n?OUTC:OUTL;out[o]=c[0];out[o+1]=c[1];out[o+2]=c[2];out[o+3]=255;}
+  const cv=mk(W2,H2),cx=cv.getContext('2d'),id=cx.createImageData(W2,H2);id.data.set(out);cx.putImageData(id,0,0);
+  // rim mask for the time-of-day glow: gold on the rim, a dim copy elsewhere
+  const rv=mk(W2,H2),rx=rv.getContext('2d'),rd=rx.createImageData(W2,H2);for(let i=0;i<W2*H2;i++){const o=i*4;if(!out[o+3])continue;if(RIM[i]){rd.data[o]=210;rd.data[o+1]=172;rd.data[o+2]=110;}else{rd.data[o]=out[o]*.5;rd.data[o+1]=out[o+1]*.5;rd.data[o+2]=out[o+2]*.5;}rd.data[o+3]=255;}rx.putImageData(rd,0,0);
+  return{img:cv,rim:rv};}
+// ---- people: twice the pixels with smooth diagonals, thin outline, soft volume, eye shine ----
+function charHD(src){const W=src.width,H=src.height,s=src.getContext('2d').getImageData(0,0,W,H).data,W2=W*2,H2=H*2;
+  const key=(x,y)=>{if(x<0||y<0||x>=W||y>=H)return -1;const o=(y*W+x)*4;return s[o+3]<128?-1:(s[o]<<16)|(s[o+1]<<8)|s[o+2];};
+  const lum=k=>k<0?1:(((k>>16)&255)*.3+((k>>8)&255)*.59+(k&255)*.11)/255;
+  const out=new Int32Array(W2*H2).fill(-1),src2=new Int32Array(W2*H2);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const P=key(x,y),A=key(x,y-1),B=key(x+1,y),C=key(x-1,y),D=key(x,y+1);
+    let e0=P,e1=P,e2=P,e3=P;if(C===A&&C!==D&&A!==B)e0=A;if(A===B&&A!==C&&B!==D)e1=B;if(D===C&&D!==B&&C!==A)e2=C;if(B===D&&B!==A&&D!==C)e3=D;
+    // never grow transparency into the body or outline into skin: only smooth between solid colours and along the silhouette
+    const o=y*2*W2+x*2;out[o]=e0;out[o+1]=e1;out[o+W2]=e2;out[o+W2+1]=e3;src2[o]=src2[o+1]=src2[o+W2]=src2[o+W2+1]=P;}
+  const at=(x,y)=>x<0||y<0||x>=W2||y>=H2?-1:out[y*W2+x];
+  const isOut=k=>k>=0&&lum(k)<.2;
+  const sh=(k,f)=>k<0?k:(Math.min(255,Math.round(((k>>16)&255)*f))<<16)|(Math.min(255,Math.round(((k>>8)&255)*f))<<8)|Math.min(255,Math.round((k&255)*f));
+  const res=Int32Array.from(out);
+  for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x,k=out[i];if(k<0)continue;
+    const n4=[at(x,y-1),at(x-1,y),at(x+1,y),at(x,y+1)];
+    // thin outline: the inner half of a 2px outline takes the colour inside it, a little darker
+    if(isOut(k)&&!n4.some(q=>q<0)){const inner=n4.find(q=>q>=0&&!isOut(q));if(inner!==undefined){res[i]=sh(inner,.78);continue;}}
+    if(isOut(k))continue;
+    // soft volume: light from the top left along the silhouette, shade on the bottom right
+    const up=n4[0],lf=n4[1],rt=n4[2],dn=n4[3];
+    if((up<0||isOut(up))||(lf<0||isOut(lf)))res[i]=sh(k,1.1);else if((dn<0||isOut(dn))||(rt<0||isOut(rt)))res[i]=sh(k,.88);}
+  // rounded shading: each colour patch gets a little lighter at its top and darker at its bottom, dithered at the finer size
+  for(let x=0;x<W;x++){let y=0;while(y<H){const k=key(x,y);let e=y;while(e+1<H&&key(x,e+1)===k)e++;const n=e-y+1;
+    if(k>=0&&!isOut(k)&&n>=3)for(let yy=y*2;yy<=e*2+1;yy++){const t=(yy-y*2+.5)/(n*2);const f=1.06-.14*t;
+      for(const xx of[x*2,x*2+1]){const th=L2_BAYER[((yy&3)*4)+(xx&3)]/16;const i=yy*W2+xx;if(res[i]!==out[i]||res[i]<0||isOut(res[i]))continue;const g=f>1?(th<(f-1)*7?1.06:1):(th<(1-f)*6?.93:1);if(g!==1)res[i]=sh(res[i],g);}}
+    y=e+1;}}
+  // eye shine: a small dark spot in a light face area gets a white sparkle
+  for(let y=1;y<Math.floor(H*.55);y++)for(let x=1;x<W-1;x++){const k=key(x,y);if(k<0||lum(k)>.25)continue;const nb=[key(x,y-1),key(x-1,y),key(x+1,y),key(x,y+1)];if(nb.some(q=>q<0||lum(q)<.42))continue;res[(y*2)*W2+x*2]=0xffffff;}
+  const cv=mk(W2,H2),cx=cv.getContext('2d'),id=cx.createImageData(W2,H2),d=id.data;for(let i=0;i<W2*H2;i++){const k=res[i];if(k<0)continue;d[i*4]=(k>>16)&255;d[i*4+1]=(k>>8)&255;d[i*4+2]=k&255;d[i*4+3]=255;}cx.putImageData(id,0,0);return cv;}
+if(LOOK2.on){const _mk=mkFrame;mkFrame=function(f){const had=!!f.m;const r=_mk(f);if(!had&&f.t&&f.c&&f.c.width<=96&&f.c.width>=16&&f.c.height>=20){f.lo=f.c;f.hi=charHD(f.c);f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};}
+// ---- apply to every plant: replaces the v1 HD pass when the layer is on ----
+function plant2Apply(){if(!LOOK2.on)return;const tset=new Set(trees.map(t=>t.m.material&&t.m.material.map));const seen=new Map();const season=typeof S!=='undefined'&&S.day?seasonOf(S.day):0;
+  BB.forEach(o=>{if(o.userData.frames)return;const m=o.material,t=m&&m.map;if(!t||!t.image)return;if(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))return;
+    if(!t.__l2){const src=t.__src||t.image;if(!src.getContext||src.width>96||src.width*src.height<100)return;const P=plantParse(src);if(!P){t.__l2={none:true};return;}
+      t.__l2={P,seed:(src.width*131+src.height*17+LOOK2.tex.length*7)|0,cache:{},v1:t.image};LOOK2.tex.push(t);}
+    if(t.__l2.none)return;if(!seen.has(t))seen.set(t,[]);seen.get(t).push(o);});
+  // per texture: two seeds (A/B) x two shades, shared by the trees that use them
+  for(const [t,meshes] of seen){const L=t.__l2;const base=meshes[0].material;const variants=[];
+    const tB=t.clone();tB.image=t.image;tB.needsUpdate=true;L.tB=tB;
+    [[t,1],[t,.9],[tB,1],[tB,1.07]].forEach(([tex,shade],vi)=>{const m=base.clone();m.map=tex;m.emissiveMap=null;m.color=new THREE.Color(shade,shade*(shade<1?1.04:.99),shade*(shade<1?.96:.92));
+      plantSway(m);const d=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:tex,alphaTest:.5});plantSway(d);
+      const f=new THREE.MeshLambertMaterial({map:tex,alphaTest:.02,transparent:true,opacity:.3,side:THREE.DoubleSide,depthWrite:false});plantSway(f);
+      const rimT=new THREE.CanvasTexture(mk(2,2));rimT.magFilter=THREE.NearestFilter;rimT.minFilter=THREE.NearestFilter;rimT.generateMipmaps=false;m.emissiveMap=rimT;m.emissive=new THREE.Color(.2,.2,.18);f.emissiveMap=rimT;f.emissive=new THREE.Color(.2,.2,.18);
+      variants.push({m,d,f,rimT,tex,orig:{m:base,d:meshes[0].customDepthMaterial}});LOOK2.mats.push(m,f);});
+    L.variants=variants;
+    meshes.forEach(o=>{const h=l2hash(Math.round(o.position.x*3),Math.round(o.position.z*3),9);const v=variants[Math.floor(h*4)%4];o.__l2={v,orig:{m:o.material,d:o.customDepthMaterial,s:o.scale.x}};
+      o.material=v.m;o.customDepthMaterial=v.d;const sc=.88+l2hash(Math.round(o.position.x*5),Math.round(o.position.z*5),3)*.27;o.scale.setScalar(sc*o.__l2.orig.s);
+      const tr=trees.find(q=>q.m===o);if(tr){o.__l2.tv=tr.v;tr.v={...tr.v,m:v.m,f:v.f,d:v.d};}});}
+  plant2Season(season,true);
+  // contact shadows under the trees
+  if(!LOOK2.shadows){const list=[];BB.forEach(o=>{if(o.__l2&&o.geometry&&o.geometry.parameters&&o.geometry.parameters.height>1.8)list.push(o);});
+    const g=new THREE.PlaneGeometry(1,.6);g.rotateX(-Math.PI/2);const mat=new THREE.MeshBasicMaterial({map:blobTex,transparent:true,depthWrite:false,opacity:.75});
+    const im=new THREE.InstancedMesh(g,mat,list.length);const M4=new THREE.Matrix4(),Q=new THREE.Quaternion(),V=new THREE.Vector3();
+    list.forEach((o,i)=>{const w=o.geometry.parameters.width*o.scale.x*.62;M4.compose(V.set(o.position.x,.035,o.position.z+.05),Q,new THREE.Vector3(w,1,w));im.setMatrixAt(i,M4);});im.renderOrder=1;scene.add(im);LOOK2.shadows=im;}
+  // jacaranda petals on the ground
+  if(!LOOK2.petals.length){const c=mk(32,20),x=c.getContext('2d');const r=mulberry32(77);for(let i=0;i<70;i++){const a=r()*6.283,q=Math.sqrt(r());x.fillStyle=['#9a7ad8','#b89aea','#7a5ab8'][i%3];x.fillRect(16+Math.cos(a)*q*15|0,10+Math.sin(a)*q*9|0,1,1);}
+    const mat=new THREE.MeshLambertMaterial({map:ctex(c),transparent:true,depthWrite:false});trees.forEach(tr=>{const t=tr.m.material.map;const own=LOOK2.tex.find(q=>q===t||(q.__l2&&q.__l2.tB===t));if(!own||own.__l2.P.kind!=='jac')return;
+      const p=new THREE.Mesh(new THREE.PlaneGeometry(3.4,2.2),mat);p.rotation.x=-Math.PI/2;p.position.set(tr.x,.03,tr.z+.2);scene.add(p);LOOK2.petals.push(p);});LOOK2.petalMat=mat;}}
+function plant2Season(season,force){if(!force&&season===LOOK2.season)return;LOOK2.season=season;
+  for(const t of LOOK2.tex){const L=t.__l2;if(!L||L.none)continue;const key=season+'';if(!L.cache[key]){const a=plantPaint(L.P,season,L.seed),b=plantPaint(L.P,season,L.seed+101);L.cache[key]=[a,b];}
+    const [a,b]=L.cache[key];if(!a)continue;const on=LOOK2.plants;
+    t.image=on?a.img:L.v1;t.needsUpdate=true;if(L.tB){L.tB.image=on?(b||a).img:L.v1;L.tB.needsUpdate=true;}
+    (L.variants||[]).forEach(v=>{const r=(v.tex===t?a:(b||a)).rim;v.rimT.image=on?r:(v.tex.image);v.rimT.needsUpdate=true;});}
+  if(LOOK2.petalMat)LOOK2.petals.forEach(p=>p.visible=LOOK2.plants&&(season===3||season===0));}
+// falling leaves and petals, more when it is windy or in autumn
+function plant2Leaves(){if(LOOK2.leaves)return;const N=90,g=new THREE.BufferGeometry(),pos=new Float32Array(N*3),col=new Float32Array(N*3);g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('color',new THREE.BufferAttribute(col,3));
+  const c=mk(4,4),x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(1,0,2,4);x.fillRect(0,1,4,2);
+  const m=new THREE.PointsMaterial({size:.16,map:ctex(c),vertexColors:true,transparent:true,alphaTest:.5,depthWrite:false});const p=new THREE.Points(g,m);p.frustumCulled=false;scene.add(p);
+  const st=[];for(let i=0;i<N;i++)st.push({x:0,y:-1,z:0,vx:0,vy:0,ph:Math.random()*6});LOOK2.leaves={p,st,pos,col};}
+const L2_LEAFCOL=[[[.36,.55,.26],[.52,.66,.3]],[[.82,.42,.16],[.92,.7,.24],[.66,.24,.12]],[[.42,.48,.3],[.56,.5,.3]],[[.98,.86,.92],[.72,.56,.9]]];
+function plant2Tick(dt){if(!LOOK2.on)return;dt=Math.min(dt||0,.1);
+  // golden rim at sunrise and sunset, dim at night
+  const h=(typeof S!=='undefined'?S.time:720)/60,g=Math.max(Math.exp(-Math.pow((h-7)/1.3,2)),Math.exp(-Math.pow((h-18)/1.2,2))),n=typeof NIGHT==='number'?NIGHT:0;
+  const k=LOOK2.plants?(.16+.38*g)*(1-n*.85):.12;for(const m of LOOK2.mats)m.emissive.setRGB(k,k*(.9-g*.08),k*(.78-g*.2));
+  if(typeof S!=='undefined'&&S.day){const s=seasonOf(S.day);if(s!==LOOK2.season)plant2Season(s);}
+  plant2Leaves();const L=LOOK2.leaves;L.p.visible=LOOK2.plants&&running;if(!L.p.visible)return;
+  const wind=typeof wxC!=='undefined'?wxC.wind:.3,season=Math.max(0,LOOK2.season),want=Math.round((season===1?55:season===3?30:12)+wind*40),C=L2_LEAFCOL[season];
+  const px=player.x,pz=player.z,t=performance.now()/1000;
+  for(let i=0;i<L.st.length;i++){const q=L.st[i];const active=i<want;
+    if(q.y<0){if(!active){L.pos[i*3+1]=-50;continue;}q.x=px+(Math.random()-.5)*22;q.z=pz+(Math.random()-.5)*16;q.y=2.5+Math.random()*3;q.vx=0;const c=C[i%C.length];L.col[i*3]=c[0];L.col[i*3+1]=c[1];L.col[i*3+2]=c[2];}
+    q.vy=-.35-((i*7)%5)*.05;q.vx+=((wind*1.8)-q.vx)*dt;q.x+=(q.vx+Math.sin(t*2+q.ph)*.35)*dt;q.z+=Math.cos(t*1.6+q.ph)*.25*dt;q.y+=q.vy*dt;
+    if(Math.abs(q.x-px)>14||Math.abs(q.z-pz)>11)q.y=-1;L.pos[i*3]=q.x;L.pos[i*3+1]=q.y;L.pos[i*3+2]=q.z;}
+  L.p.geometry.attributes.position.needsUpdate=true;L.p.geometry.attributes.color.needsUpdate=true;}
+LOOK2.setPlants=function(on){this.plants=on;BB.forEach(o=>{if(!o.__l2)return;const tr=trees.find(q=>q.m===o);if(on){o.material=o.__l2.v.m;o.customDepthMaterial=o.__l2.v.d;if(tr)tr.v={...o.__l2.tv,m:o.__l2.v.m,f:o.__l2.v.f,d:o.__l2.v.d};}else{o.material=o.__l2.orig.m;o.customDepthMaterial=o.__l2.orig.d;if(tr)tr.v=o.__l2.tv;}});
+  if(this.shadows)this.shadows.visible=on;plant2Season(this.season,true);};
+LOOK2.setPeople=function(on){this.people=on;this.frames.forEach(f=>{f.t.image=on?f.hi:f.lo;f.t.needsUpdate=true;});};
+
 // pick front / back / side from each character's last walk direction relative to the camera (the camera can turn)
 function dir4Tick(){const cy=Math.cos(yaw),sy=Math.sin(yaw),mir=scene.scale.x<0?-1:1;
   for(let k=0;k<DIR4.length;k++){const m=DIR4[k],u=m.userData;if(!m.visible){u.px=null;continue;}const p=m.position;
@@ -6107,6 +6304,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
         <div class="row" style="margin-top:6px"><button id="labAll">เปิดทุกชั้น</button><button id="labLand">เฉพาะภูมิประเทศ</button><button id="labTint" aria-pressed="false">แยกสีตามชั้น</button></div></div>
       <div><b>ภาพ</b><div class="row"><button id="labTags2" aria-pressed="true">ป้ายสถานที่จริง</button><button id="labFrame" aria-pressed="true">กรอบพื้นที่</button><button id="labBloom" aria-pressed="true">Bloom</button><button id="labTilt" aria-pressed="false">Tilt-shift</button><button id="labFog" aria-pressed="false">หมอก</button></div></div>
       ${typeof CDET!=='undefined'&&CDET.on?'<div><b>งานใหม่ · เมือง Perth CBD</b><div class="row"><button id="labCity" aria-pressed="true">เมืองละเอียด (กดดูก่อน/หลัง)</button></div><div class="note">รถวิ่ง ไฟจราจร เลนจักรยาน รถจอด ป้ายรถเมล์ kiosk กาแฟ ร้านค้า Tudor Lane สวน Kings Park · ลองเลื่อนเวลาเป็นกลางคืน</div></div>':''}
+      ${typeof LOOK2!=='undefined'&&LOOK2.on?'<div><b>งานใหม่ · ต้นไม้ v2 + คน HD</b><div class="row"><button id="labPl2" aria-pressed="true">ต้นไม้ v2 (ก่อน/หลัง)</button><button id="labPp2" aria-pressed="true">คน HD (ก่อน/หลัง)</button></div><div class="note">ช่อใบ ปลายใบ ลำต้นมีราก กิ่ง ตาไม้ · แสงทองเช้า-เย็น · ขนาด/เฉดต่างกัน เงาโคนต้น · ยูคาลิปตัส สน ปาล์ม จาคารันดา · ฤดูกาล (เลื่อนวันในเกม) · ใบไม้ปลิว</div></div>':''}
       ${typeof TREES_HD!=='undefined'&&TREES_HD.set?'<div><b>งานใหม่ · ต้นไม้ HD</b><div class="row"><button id="labTrees" aria-pressed="true">ต้นไม้ HD (กดดูก่อน/หลัง)</button></div><div class="note">พิกเซลมากขึ้น 2 เท่า 7 เฉด แสงขอบใบ ช่องฟ้า เปลือกไม้ กิ่งไหวตามลม</div></div>':''}
       <div><b>เวลา</b> <span id="labTimeL"></span><input type="range" id="labTime" min="300" max="1435" step="15"></div>
       <div><b>อากาศ</b><div class="row" id="labWx">${(typeof WEATHERS!=='undefined'?WEATHERS:[]).map((w,i)=>`<button data-w="${i}">${w.label}</button>`).join('')}</div></div>
@@ -6122,6 +6320,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
     tg('#labAuto','auto');tg('#labTags2','tags');tg('#labFrame','frame',v=>{if(frameLine)frameLine.visible=v;});tg('#labBloom','bloom');tg('#labTilt','tilt');tg('#labFog','fog');
     const tb=panel.querySelector('#labTint');tb.onclick=()=>{setTint(!st.tint);tb.setAttribute('aria-pressed',String(st.tint));};
     panel.querySelector('#labAll').onclick=()=>setShow(()=>true);
+    {const a=panel.querySelector('#labPl2'),b=panel.querySelector('#labPp2');if(a)a.onclick=()=>{LOOK2.setPlants(!LOOK2.plants);a.setAttribute('aria-pressed',String(LOOK2.plants));};if(b)b.onclick=()=>{LOOK2.setPeople(!LOOK2.people);b.setAttribute('aria-pressed',String(LOOK2.people));};}
     {const tb=panel.querySelector('#labTrees');if(tb)tb.onclick=()=>{const v=!TREES_HD.live;TREES_HD.set(v);tb.setAttribute('aria-pressed',String(v));};}
     {const cb=panel.querySelector('#labCity');if(cb)cb.onclick=()=>{const v=!CDET.g.visible;CDET.show(v);cb.setAttribute('aria-pressed',String(v));};}
     panel.querySelector('#labLand').onclick=()=>setShow(i=>['ground','water','path','veg'].includes(CATS[i][0]));
@@ -6209,7 +6408,7 @@ function plantHD(src,isTree){const W=src.width,H=src.height,sx=src.getContext('2
   let fb=0;for(let i=1;i<12;i++)if(hb[i]>hb[fb])fb=i;const fh=fb*30+15;if(!hb[fb])return null;// fire, signs and other warm things are not plants
   let fl=[1,0];const fol=[];
   for(let i=0;i<W*H;i++){const o=i*4;if(sx[o+3]<128||T[i]===1)continue;const[h,s,l]=hsl(sx[o],sx[o+1],sx[o+2]);let dh=Math.abs(h-fh);dh=Math.min(dh,360-dh);
-    if(s>.1&&dh<40){T[i]=2;fol.push(i);fl[0]=Math.min(fl[0],l);fl[1]=Math.max(fl[1],l);}
+    if(s>.08&&dh<70){T[i]=2;fol.push(i);fl[0]=Math.min(fl[0],l);fl[1]=Math.max(fl[1],l);}
     else if((h>8&&h<55&&l<.62&&s<.75)||(s<.22&&l<.82))T[i]=3;else T[i]=4;}
   if(fol.length<W*H*.04)return null;// not a plant (or too little leaf to treat)
   // the 7-shade ramp: from the darkest to the lightest leaf colour, cooler in shadow and warmer in the sun
@@ -6260,11 +6459,12 @@ function plantSway(m){if(!m||PLANT_HD.mats.has(m))return;PLANT_HD.mats.add(m);co
   const k=m.customProgramCacheKey?m.customProgramCacheKey():'';m.customProgramCacheKey=()=>k+'|sway';m.needsUpdate=true;}
 function plantHDApply(){const tset=new Set(trees.map(t=>t.m.material&&t.m.material.map));
   BB.forEach(o=>{if(o.userData.frames)return;const m=o.material,t=m&&m.map;if(!t||!t.image||t.image.width>96||t.image.width*t.image.height<100)return;if(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))return;
-    if(!PLANT_HD.done.has(t)){PLANT_HD.done.add(t);const hd=plantHD(t.image,tset.has(t)||t.image.height>=24);if(hd){t.image=hd;t.needsUpdate=true;t.isPlant=true;PLANT_HD.n++;}}
+    if(!PLANT_HD.done.has(t)){PLANT_HD.done.add(t);const hd=plantHD(t.image,tset.has(t)||t.image.height>=24);if(hd){t.__src=t.image;t.image=hd;t.needsUpdate=true;t.isPlant=true;PLANT_HD.n++;}}
     if(t.isPlant){plantSway(m);if(o.customDepthMaterial)plantSway(o.customDepthMaterial);}});
   trees.forEach(tr=>{if(tr.v&&tr.v.f)plantSway(tr.v.f);});}
 (function L(){PLANT_HD.t.value=performance.now()/1000;requestAnimationFrame(L);})();
 plantHDApply();
+if(LOOK2.on){plant2Apply();let _l2t=performance.now();(function L2(){const n=performance.now();plant2Tick((n-_l2t)/1000);_l2t=n;requestAnimationFrame(L2);})();}
 if(LAB.start)setTimeout(()=>LAB.toggle(true),600);
 })();
 </script>
