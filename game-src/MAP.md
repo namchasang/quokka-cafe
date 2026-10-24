@@ -67,9 +67,9 @@ Find code: `grep -n 'name' game-src/*`.
 | 059-island-scale-phase-6-six-island-lookou.js | 5060-5141 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
 | 060-phase-8-east-cape-and-south-point-get.js | 5142-5201 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
 | 061-perth-cbd-city-across-river-from-south.js | 5202-5331 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
-| 062-city-detail-for-perth-cbd-a-look-lab-l.js | 5332-5649 | 38 | CITY_DETAIL_LIVE, CDET |
-| 063-part.js | 5650-5710 | 6 |  |
-| 064-island-loop-bus-a-19-stop-loop-bus-lik.js | 5711-5764 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
-| 065-live-mode-live-1-kip-runs-caf-on-his-o.js | 5765-5839 | 8 | LIVEM |
-| 066-look-lab-landscape-layers-of-each-real.js | 5840-6019 | 21 | LAB |
-| 067-part.js | 6020-6022 | 0 |  |
+| 062-city-detail-for-perth-cbd-a-look-lab-l.js | 5332-5726 | 48 | CITY_DETAIL_LIVE, CDET |
+| 063-part.js | 5727-5788 | 6 |  |
+| 064-island-loop-bus-a-19-stop-loop-bus-lik.js | 5789-5842 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
+| 065-live-mode-live-1-kip-runs-caf-on-his-o.js | 5843-5917 | 8 | LIVEM |
+| 066-look-lab-landscape-layers-of-each-real.js | 5918-6097 | 21 | LAB |
+| 067-part.js | 6098-6100 | 0 |  |

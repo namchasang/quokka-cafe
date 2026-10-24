@@ -4,7 +4,7 @@
 // a timber-framed Tudor Lane, and more of Kings Park (lemon-scented gums, a boab, flower beds, a lily pond).
 const CITY_DETAIL_LIVE=false;
 const CDET={on:CITY_DETAIL_LIVE||/[?&#](lab|city)\b/.test(location.search+location.hash),g:null,veh:[],glow:[],em:[],halos:[],extra:[],sig:{t:0,m:null},last:0,kiosks:[],
-  show(v){if(this.g)this.g.visible=v;this.extra.forEach(o=>o.visible=v);this.veh.forEach(c=>c.g.visible=v);}};
+  show(v){if(this.g)this.g.visible=v;(this.hid||[]).forEach(o=>o.visible=!v);this.extra.forEach(o=>o.visible=v);this.veh.forEach(c=>c.g.visible=v);}};
 if(CDET.on)(()=>{
   const G=new THREE.Group();G.name='cityDetail';scene.add(G);CDET.g=G;
   const MC={},GC={};
@@ -55,7 +55,7 @@ if(CDET.on)(()=>{
   [628,648,684].forEach(x=>paint(.9,.3,arrowTex,x,-21.7,.034));// Wellington St is one way, eastbound
   const SIG={EW:[0,1,2].map(()=>new THREE.MeshBasicMaterial({color:0x2a2a2a})),NS:[0,1,2].map(()=>new THREE.MeshBasicMaterial({color:0x2a2a2a}))};CDET.sig.m=SIG;
   const disc=new THREE.CircleGeometry(.055,10);
-  function sigPole(x,z,ry,axis,names){put(cy(.045,.05,1.95,6),M(DARK),x,.97,z);const h=new THREE.Group();h.position.set(x,0,z);h.rotation.y=ry;G.add(h);
+  function sigPole(x,z,ry,axis,names){put(cy(.045,.05,1.95,6),M('#e8c020'),x,.97,z);const h=new THREE.Group();h.position.set(x,0,z);h.rotation.y=ry;G.add(h);
     put(bx(.17,.5,.12),M('#24262a'),0,1.72,0,null,h);put(bx(.2,.04,.1),M('#24262a'),0,1.99,.03,null,h);
     [1.88,1.72,1.56].forEach((y,i)=>{const d=new THREE.Mesh(disc,SIG[axis][i]);d.position.set(0,y,.062);h.add(d);});
     put(bx(.08,.13,.06),M('#e8c840'),0,1.0,.06,null,h);col(x-.08,z-.08,x+.08,z+.08);
@@ -122,8 +122,8 @@ if(CDET.on)(()=>{
   [630.8,664.3,690].forEach(x=>{put(bx(.26,.9,.2),M('#2a5a9a'),x,.45,7.12);put(bx(.18,.14,.01),glowMat('#6a8aa0','#bfe8ff'),x,.72,7.225,{nc:1});signPlane('P','#2a5a9a','#ffffff',.22,.22,x,1.05,7.12);col(x-.15,7,x+.15,7.24);});
 
   // ===== street furniture =====
-  function lamp(x,z,face){put(cy(.04,.06,2.6,6),M(DARK),x,1.3,z);const ax=face||0;put(bx(.05,.05,.42),M(DARK),x,2.58,z+ax*.2);
-    put(bx(.22,.08,.32),M('#2a2c30'),x,2.55,z+ax*.4);put(bx(.16,.02,.24),glowMat('#d8d4c0','#ffe6a8'),x,2.5,z+ax*.4,{nc:1});halo(x,2.35,z+ax*.4,1.9);col(x-.08,z-.08,x+.08,z+.08);}
+  function lamp(x,z,face){put(cy(.04,.06,2.8,6),M('#b8bcc0'),x,1.4,z);const ax=face||0;put(bx(.05,.05,.42),M('#b8bcc0'),x,2.78,z+ax*.2);
+    put(bx(.22,.08,.32),M('#8a8e92'),x,2.75,z+ax*.4);put(bx(.16,.02,.24),glowMat('#d8d4c0','#ffe6a8'),x,2.7,z+ax*.4,{nc:1});halo(x,2.55,z+ax*.4,1.9);col(x-.08,z-.08,x+.08,z+.08);}
   function oldLamp(x,z){put(cy(.05,.08,2.2,8),M('#2a3a32'),x,1.1,z);put(cy(.14,.09,.32,6),glowMat('#d8d4c0','#ffe6a8'),x,2.36,z,{nc:1});put(cy(.02,.18,.14,6),M('#2a3a32'),x,2.59,z);halo(x,2.36,z,1.7);col(x-.09,z-.09,x+.09,z+.09);}
   function bin(x,z,lid){put(cy(.17,.15,.5,10),M('#2f4a3a'),x,.25,z);put(cy(.18,.18,.05,10),M(lid||'#c8344a'),x,.525,z);col(x-.18,z-.18,x+.18,z+.18);}
   function binPair(x,z){bin(x-.21,z,'#c8344a');bin(x+.21,z,'#e8c840');}
@@ -170,7 +170,6 @@ if(CDET.on)(()=>{
   for(let x=641;x<=659;x+=1.5){if(x>646&&x<654)continue;put(cy(.07,.08,.5,8),M('#c8ccd0'),x,.25,3.72);}
   // Riverside walk: benches facing the water, lamps, bins, shade trees
   [628.5,636.5,664.5,684,691,697.5].forEach(x=>bench(x,8.9,0));[625,633,662,672.3,686,694].forEach(x=>lamp(x,8.95,-1));[[630.8,8.95],[666.4,8.95],[689.5,8.95]].forEach(([x,z])=>binPair(x,z));
-  [624.5,634.5,687.5,695.5].forEach(x=>{const v=treeVariants[2];const g=new THREE.PlaneGeometry(v.w*.85,v.h*.85);g.translate(0,v.h*.425,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,9.05);G.add(m);BB.push(m);trees.push({x,z:9.05,m,v,fade:false});col(x-.25,8.9,x+.25,9.2);});
   // railing where the road runs along the quay
   for(let x=640.4;x<660;x+=1.2)put(cy(.03,.03,.5,5),M('#c8ccd0'),x,.25,6.18,{nc:1});put(bx(19.4,.04,.04),M('#c8ccd0'),650.1,.5,6.18,{nc:1});
   // Wellington St: City Loop shelter, bins, one-way sign
@@ -249,44 +248,122 @@ if(CDET.on)(()=>{
     put(bx(1.6,.06,.06),M('#e8c840'),2.6,.75,d/2+.2,null,g);put(bx(.18,.8,.18),M('#2a2c30'),1.7,.4,d/2+.2,null,g);
     col(x-w/2,z-d/2,x+w/2,z+d/2);CBD.cut.push({g,x1:x-w/2,x2:x+w/2,z1:z-d/2,h:4.6});}
 
-  // ===== Tudor Lane: half-timbered fronts, gables, bay windows, a tiled floor, lanterns and hanging signs =====
-  {const lx=655.6,TB=[[lx-1.9,1],[lx+1.9,-1]];
-    function tudorTex(W,H,bays,side){const c=mk(W,H),x=c.getContext('2d');x.fillStyle='#f2ead8';x.fillRect(0,0,W,H);const bm='#4a3424';x.fillStyle=bm;
-      const gf=Math.round(H*.45);x.fillRect(0,gf-1,W,2);x.fillRect(0,0,W,1);x.fillRect(0,H-1,W,1);
-      const bw=W/bays;for(let b=0;b<bays;b++){const x0=Math.round(b*bw);x.fillStyle=bm;x.fillRect(x0,0,1,H);
-        // upper storey: braces and a leaded window
-        x.beginPath();x.strokeStyle=bm;x.lineWidth=1;x.moveTo(x0+1,gf-2);x.lineTo(x0+bw*.3,1);x.moveTo(x0+bw-1,gf-2);x.lineTo(x0+bw*.7,1);x.stroke();
-        const wx=x0+bw*.3,ww=bw*.4,wy=Math.round(gf*.25),wh=Math.round(gf*.45);x.fillStyle='#2c3a46';x.fillRect(wx,wy,ww,wh);x.fillStyle='rgba(232,200,120,.55)';
-        for(let i=0;i<ww;i+=2)for(let j=0;j<wh;j+=2)if((i+j)%4===0)x.fillRect(wx+i,wy+j,1,1);x.fillStyle=bm;x.fillRect(wx+ww/2-.5,wy,1,wh);
-        // shop below: a bow window and a door
-        x.fillStyle='#2c3a46';x.fillRect(x0+2,gf+3,bw*.55,H-gf-6);x.fillStyle='#e8c878';for(let i=0;i<3;i++)x.fillRect(x0+3+i*2.5,H-5,1.5,1.5);
-        x.fillStyle=['#2f5a3a','#8a3a2a','#1d3a6e','#5a3a22'][b%4];x.fillRect(x0+bw*.7,gf+2,bw*.24,H-gf-2);x.fillStyle='#e8c040';x.fillRect(x0+bw*.88,gf+(H-gf)/2,1,1);}
-      return c;}
-    TB.forEach(([bxp,s],i)=>{const g=host(bxp,-8.5);if(!g)return;
-      // front (faces the terrace)
-      const fc=tudorTex(16,38,1);const ft=ctex(fc);const em=mk(16,38),eg=em.getContext('2d');eg.fillStyle='#000';eg.fillRect(0,0,16,38);eg.drawImage(fc,0,18,16,20,0,18,16,20);
-      const fm=new THREE.MeshLambertMaterial({map:ft,emissive:new THREE.Color(0),emissiveMap:ctex(em)});CDET.em.push(fm);
-      const f=new THREE.Mesh(new THREE.PlaneGeometry(1.6,3.8),fm);f.position.set(0,1.9,2.515);attach(f,g);
-      // the lane-side wall, three little shops long
-      const sc=tudorTex(48,38,3);const sm=new THREE.MeshLambertMaterial({map:ctex(sc)});const sw=new THREE.Mesh(new THREE.PlaneGeometry(5,3.8),sm);sw.rotation.y=s*Math.PI/2;sw.position.set(s*.815,1.9,0);attach(sw,g);
-      // steep gable roof, jettied first floor and a bay window
-      const sh=new THREE.Shape();sh.moveTo(-.9,0);sh.lineTo(.9,0);sh.lineTo(0,1.55);sh.lineTo(-.9,0);
-      const rg=new THREE.ExtrudeGeometry(sh,{depth:5.1,bevelEnabled:false});rg.translate(0,0,-2.55);const roof=new THREE.Mesh(rg,M('#6e5a50'));roof.position.y=3.8;roof.castShadow=true;attach(roof,g);
-      const gt=new THREE.Mesh(new THREE.ShapeGeometry((()=>{const t=new THREE.Shape();t.moveTo(-.78,0);t.lineTo(.78,0);t.lineTo(0,1.34);t.lineTo(-.78,0);return t;})()),M('#f2ead8'));gt.position.set(0,3.82,2.57);attach(gt,g);
-      [[0,4.3,.05,.95,0],[-.2,4.05,.05,.6,.7],[.2,4.05,.05,.6,-.7],[0,4.0,1.25,.05,0]].forEach(([px,py,w,h,rz])=>{const b=new THREE.Mesh(bx(w,h,.03),M('#4a3424'));b.position.set(px,py,2.59);b.rotation.z=rz;attach(b,g);});
-      const jb=new THREE.Mesh(bx(1.72,.14,.16),M('#4a3424'));jb.position.set(0,1.74,2.58);attach(jb,g);
-      const bw=new THREE.Mesh(bx(.9,.66,.24),new THREE.MeshLambertMaterial({map:(()=>{const c=mk(8,6),q=c.getContext('2d');q.fillStyle='#4a3424';q.fillRect(0,0,8,6);q.fillStyle='#2c3a46';q.fillRect(1,1,6,4);q.fillStyle='rgba(232,200,120,.6)';for(let a=0;a<6;a++)for(let b2=0;b2<4;b2++)if((a+b2)%2)q.fillRect(1+a,1+b2,1,1);return ctex(c);})()}));
-      bw.position.set(0,2.7,2.64);bw.castShadow=true;attach(bw,g);const bc=new THREE.Mesh(bx(1,.08,.3),M('#4a3e3a'));bc.position.set(0,3.06,2.66);attach(bc,g);});
-    // the tiled lane floor
-    {const c=mk(8,16),q=c.getContext('2d');for(let i=0;i<8;i++)for(let j=0;j<16;j++){q.fillStyle=(i+j)%2?'#b8443a':'#efe3c4';q.fillRect(i,j,1,1);}paint(2.2,5,new THREE.MeshLambertMaterial({map:ctex(c)}),lx,-8.5,.034);}
-    // cross beams, hanging lanterns and shop signs
-    [-10,-8.5,-7].forEach(z=>{put(bx(2.25,.1,.1),M('#4a3424'),lx,3.72,z);put(bx(.015,.5,.015),M('#2a2c30'),lx,3.42,z,{nc:1});put(bx(.18,.06,.18),M('#2a2c30'),lx,3.15,z);
-      put(bx(.15,.22,.15),glowMat('#c8a060','#ffd890'),lx,3.01,z,{nc:1});put(bx(.18,.04,.18),M('#2a2c30'),lx,2.88,z);halo(lx,3.0,z,1.5);});
-    [[lx-.75,-9.7,'TEA ROOM','#2f5a3a',1],[lx+.75,-8.2,'CLOCKS','#8a3a2a',-1],[lx-.75,-7.3,'FUDGE','#5a3a22',1],[lx+.75,-10.4,'TOYS','#1d3a6e',-1]].forEach(([x,z,t,c,s])=>{
-      put(bx(.36,.03,.03),M('#2a2c30'),x-s*.15,2.52,z,{nc:1});const m=signPlane(t,c,'#f5ecd8',.62,.22,x+s*.02,2.34,z,0);});
-    // a pediment and the name over the arch
-    {const sh=new THREE.Shape();sh.moveTo(-1.3,0);sh.lineTo(1.3,0);sh.lineTo(0,.75);sh.lineTo(-1.3,0);const pg=new THREE.Group();pg.position.set(lx,0,-5.9);G.add(pg);const p=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.4,bevelEnabled:false}),M('#4a3424'));p.position.set(0,4.2,-.2);p.castShadow=true;pg.add(p);
-      signPlane('TUDOR LANE','#4a3424','#f5ecd8',1.5,.22,0,3.92,.22,0,pg);put(bx(.12,.75,.12),M('#c8a040'),0,4.75,0,null,pg);CBD.cut.push({g:pg,x1:lx-1.3,x2:lx+1.3,z1:-6.1,h:4.95});}}
+  // ===== Tudor Lane, modelled on an old English-style arcade: a four-storey timbered front with a clock oriel over a pointed arch,
+  // brick shopfronts under striped awnings, a lane of little shops with hanging signs and lanterns, and a castle gate at the far end =====
+  CDET.hid=CDET.hid||[];
+  {const lx=655.6,lz=-8.5,H=5.4;
+    // hide the plain lane from the first build (walls, posts, the old clock and arch); the colliders stay the same
+    [-1.9,1.9].forEach(dx=>{const g=host(lx+dx,lz);if(g)g.children.forEach(c=>{c.visible=false;CDET.hid.push(c);});});
+    scene.children.forEach(o=>{if(o.isMesh&&Math.abs(o.position.x-lx)<1.3&&o.position.z>-11&&o.position.z<-5.6&&o.position.y>1){o.visible=false;CDET.hid.push(o);}});
+    const fg=new THREE.Group();fg.position.set(lx,0,lz);G.add(fg);CBD.cut.push({g:fg,x1:lx-2.7,x2:lx+2.7,z1:lz-2.5,h:H+1.6});
+    const fr=new THREE.Group();fr.position.set(lx,0,lz);G.add(fr);CBD.cut.push({g:fr,x1:lx-1.1,x2:lx+1.1,z1:lz+2.5,h:H+1.4});
+    const P=(geo,mat,x,y,z,o)=>put(geo,mat,x,y,z,o,fg);
+    const CREAM='#efe0b8',TIM='#3a2a22',BRICK='#a0583a';
+    const tex=(W,H2,draw,o)=>{const c=mk(W,H2),x=c.getContext('2d');draw(x,W,H2);const t=ctex(c);return new THREE.MeshLambertMaterial(Object.assign({map:t},o||{}));};
+    const lead=(x,a,b,w,h)=>{x.fillStyle=TIM;x.fillRect(a-1,b-1,w+2,h+2);x.fillStyle='#4a5a66';x.fillRect(a,b,w,h);x.fillStyle='rgba(220,230,235,.55)';for(let i=0;i<w;i++)for(let j=0;j<h;j++)if((i+j)%3===0||(i-j+30)%3===0)x.fillRect(a+i,b+j,1,1);x.fillStyle=TIM;if(w>4)x.fillRect(a+(w>>1),b,1,h);};
+    const brick=(x,a,b,w,h)=>{x.fillStyle=BRICK;x.fillRect(a,b,w,h);for(let j=0;j<h;j+=2)for(let i=(j%4?1:0);i<w;i+=3){x.fillStyle=(i*7+j*3)%5?'#8a4a30':'#b86a44';x.fillRect(a+i,b+j,2,1);}};
+    const quat=(x,a,b)=>{x.fillStyle=CREAM;x.fillRect(a+1,b,2,4);x.fillRect(a,b+1,4,2);};
+    // the two blocks either side of the lane: plain stucco outside, shops on the lane side
+    const laneWall=tex(50,54,(x,W,Hh)=>{x.fillStyle=CREAM;x.fillRect(0,0,W,Hh);
+      for(let k=0;k<3;k++){const a=k*17;brick(x,a,38,17,16);x.fillStyle='#2c3a46';x.fillRect(a+2,40,10,12);x.fillStyle='rgba(255,255,255,.18)';x.fillRect(a+3,41,2,10);x.fillStyle=['#2f5a3a','#5a2a2a','#1d3a6e'][k];x.fillRect(a+12,40,4,14);
+        lead(x,a+3,24,11,8);x.fillStyle=TIM;x.fillRect(a,21,17,2);for(let q=0;q<3;q++)quat(x,a+2+q*5,16);x.fillRect(a,15,17,1);x.fillRect(a,20,17,1);lead(x,a+3,4,11,8);x.fillStyle=TIM;x.fillRect(a,0,1,38);
+        x.beginPath();x.strokeStyle=TIM;x.moveTo(a+1,14);x.lineTo(a+4,1);x.moveTo(a+16,14);x.lineTo(a+13,1);x.stroke();}});
+    const plain=M(CREAM);
+    [[-1.9,0],[1.9,1]].forEach(([dx,i])=>{const mats=[plain,plain,M('#b0603a'),plain,plain,plain];mats[i?1:0]=laneWall;const b=new THREE.Mesh(new THREE.BoxGeometry(1.6,H,5),mats);b.position.set(dx,H/2,0);b.castShadow=b.receiveShadow=true;fg.add(b);});
+    // the room over the lane entrance
+    put(bx(2.2,H-2.25,.8),plain,0,2.25+(H-2.25)/2,2.1,null,fr);
+    // the front: brick shopfronts, a pointed arch, leaded windows, a band of quatrefoils, half-timbering at the top
+    const front=tex(54,54,(x,W,Hh)=>{x.fillStyle=CREAM;x.fillRect(0,0,W,Hh);
+      [0,36].forEach(a=>{brick(x,a,36,18,18);x.fillStyle='#2c3a46';x.fillRect(a+2,40,10,13);x.fillStyle='rgba(255,255,255,.2)';x.fillRect(a+3,41,2,11);x.fillStyle='#3a2a22';x.fillRect(a+13,39,4,15);x.fillStyle='#e8c040';x.fillRect(a+16,47,1,1);
+        lead(x,a+3,25,12,8);x.fillStyle=TIM;x.fillRect(a,19,18,4);for(let q=0;q<3;q++)quat(x,a+2+q*5,19);lead(x,a+3,9,12,7);x.fillStyle=TIM;x.fillRect(a,0,18,1);x.fillRect(a,7,18,1);
+        x.beginPath();x.strokeStyle=TIM;x.lineWidth=1;x.moveTo(a+1,7);x.lineTo(a+5,1);x.moveTo(a+17,7);x.lineTo(a+13,1);x.stroke();});
+      x.fillStyle=TIM;x.fillRect(17,0,1,36);x.fillRect(36,0,1,36);
+      // the pointed arch with a carved surround
+      x.fillStyle='#e8d6a4';x.beginPath();x.moveTo(17,54);x.lineTo(17,40);x.quadraticCurveTo(18,32,27,28);x.quadraticCurveTo(36,32,37,40);x.lineTo(37,54);x.fill();
+      x.fillStyle='#d8c08a';for(let i=0;i<8;i++)x.fillRect(19+i*2,31+(i%2),1,1);
+      x.globalCompositeOperation='destination-out';x.beginPath();x.moveTo(19,54);x.lineTo(19,41);x.quadraticCurveTo(20,34,27,31);x.quadraticCurveTo(34,34,35,41);x.lineTo(35,54);x.fill();x.globalCompositeOperation='source-over';
+      lead(x,22,4,10,6);});
+    front.transparent=true;front.alphaTest=.5;front.side=THREE.DoubleSide;
+    // the part over the lane entrance lives in its own group, so it lowers out of the way while Kip walks down the lane
+    [[-2.7,-1.1,fg],[-1.1,1.1,fr],[1.1,2.7,fg]].forEach(([a,b,to])=>{const gg=new THREE.PlaneGeometry(b-a,H);const uv=gg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)?(b+2.7)/5.4:(a+2.7)/5.4);
+      const f=new THREE.Mesh(gg,front);f.position.set((a+b)/2,H/2,2.52);f.receiveShadow=true;to.add(f);});
+    // the clock oriel, on a carved corbel, with a little arched window above the clock
+    {const P=(geo,mat,x,y,z,o)=>put(geo,mat,x,y,z,o,fr);const OR=M('#f2e2b4');P(bx(1.15,1.5,.5),OR,0,3.15,2.8);P(new THREE.ConeGeometry(.62,.55,4),OR,0,2.13,2.8,{rx:Math.PI,ry:Math.PI/4});P(bx(1.3,.12,.62),M('#e0cc98'),0,3.95,2.8);P(bx(1.3,.12,.62),M('#e0cc98'),0,2.42,2.8);
+      const face=new THREE.Mesh(new THREE.CircleGeometry(.36,20),M('#f8f6f0'));face.position.set(0,2.95,3.06);fr.add(face);P(tor(.37,.035),M('#c8a040'),0,2.95,3.06,{nc:1});
+      for(let i=0;i<12;i++){const a=i/12*6.283;P(bx(.03,.06,.01),M(TIM),Math.sin(a)*.3,2.95+Math.cos(a)*.3,3.07,{rz:-a,nc:1});}
+      CDET.clock=[P(bx(.03,.2,.012),M(TIM),0,3.03,3.075,{nc:1}),P(bx(.025,.28,.012),M(TIM),0,3.07,3.08,{nc:1})];CDET.clock.forEach(h=>h.geometry=h.geometry.clone().translate(0,.1,0));CDET.clock[0].position.y=2.95;CDET.clock[1].position.y=2.95;
+      P(bx(.55,.34,.02),M('#1a2230'),0,3.55,3.06,{nc:1});P(bx(.3,.16,.02),M('#e8c040'),0,3.48,3.075,{nc:1});}
+    // gables with dark bargeboards and terracotta roofs
+    const roofM=M('#b0603a');
+    function gable(dx,w,depth,zc,hh,to){const P=(geo,mat,x,y,z,o)=>put(geo,mat,x,y,z,o,to||fg);const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(0,hh);sh.lineTo(-w/2,0);const rg=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:false});rg.translate(0,0,-depth/2);P(rg,roofM,dx,H,zc);
+      const t=new THREE.Mesh(new THREE.ShapeGeometry((()=>{const s=new THREE.Shape();s.moveTo(-w/2+.08,0);s.lineTo(w/2-.08,0);s.lineTo(0,hh-.1);s.lineTo(-w/2+.08,0);return s;})()),M(CREAM));t.position.set(dx,H+.01,zc+depth/2+.01);(to||fg).add(t);
+      const L=Math.hypot(w/2,hh);[-1,1].forEach(s=>P(bx(L+.1,.1,.06),M(TIM),dx+s*w/4,H+hh/2,zc+depth/2+.04,{rz:-s*Math.atan2(hh,w/2)}));
+      P(bx(.06,hh*.8,.04),M(TIM),dx,H+hh*.4,zc+depth/2+.03);[-1,1].forEach(s=>P(bx(.05,hh*.6,.04),M(TIM),dx+s*w*.18,H+hh*.25,zc+depth/2+.03,{rz:s*.6}));
+      P(bx(.06,.4,.06),M(TIM),dx,H+hh+.15,zc+depth/2);}
+    gable(-1.9,1.75,5,0,1.5);gable(1.9,1.75,5,0,1.5);gable(0,2.3,.8,2.1,1.25,fr);
+    P(cy(.08,.08,.5,6),M('#9a8a7a'),2.3,H+1.3,-1.2);P(cy(.08,.08,.5,6),M('#9a8a7a'),2.45,H+1.3,-1.2);// chimney pots
+    // striped navy and white awnings: on the front, and all along both sides of the lane
+    const stripe=tex(16,4,(x)=>{for(let i=0;i<16;i++){x.fillStyle=i%2?'#f2f0ea':'#22305a';x.fillRect(i,0,1,4);}},{side:THREE.DoubleSide});
+    function awning(cx,cy2,cz,len,ry,dp,tl){dp=dp||.62;tl=tl||1.05;const g=new THREE.Group();g.position.set(cx,cy2,cz);g.rotation.y=ry;fg.add(g);const a=new THREE.Mesh(new THREE.PlaneGeometry(len,dp),stripe);a.rotation.x=-tl;a.position.z=dp/2*Math.sin(tl);a.castShadow=true;g.add(a);
+      const v=new THREE.Mesh(new THREE.PlaneGeometry(len,.1),stripe);v.position.set(0,-dp/2*Math.cos(tl)-.05,dp*Math.sin(tl));g.add(v);}
+    awning(-1.9,1.75,2.5,1.5,0);awning(1.9,1.75,2.5,1.5,0);awning(-1.1,1.55,-.2,4.4,Math.PI/2,.38,1.25);awning(1.1,1.55,-.2,4.4,-Math.PI/2,.38,1.25);
+    // shields on the piers, a planter at the arch
+    [[-1.02,'#c8202a','#f6f2e8'],[1.02,'#e8c040','#2a2a30']].forEach(([dx,a,b])=>{const s=new THREE.Mesh(new THREE.PlaneGeometry(.24,.3),tex(6,8,(x)=>{x.fillStyle=b;x.fillRect(0,0,6,8);x.fillStyle=a;x.fillRect(0,3,6,2);x.fillRect(2,0,2,8);x.clearRect(0,7,1,1);x.clearRect(5,7,1,1);},{transparent:true,alphaTest:.3}));s.position.set(dx,2.25,2.54);fg.add(s);});
+    // inside the lane: pale paving, hanging black signs with gold letters, lanterns on brackets
+    paint(2.2,5,'#cfcac0',lx,lz,.034);paint(.18,5,'#8a8680',lx,lz,.036);
+    [[-1,-1.2,'MINI ESPRESSO'],[1,-.2,'FINE JEWELS'],[-1,.9,'GIFTS'],[1,1.6,'CLOCKS']].forEach(([s,dz,t])=>{P(bx(.6,.03,.03),M('#1a1a1a'),s*.82,2.45,dz,{nc:1});
+      const m=new THREE.Mesh(new THREE.PlaneGeometry(.66,.26),new THREE.MeshBasicMaterial({map:makeSign([t],Math.max(48,t.length*6+8),12,'#16181c','#e8c060'),side:THREE.DoubleSide}));m.position.set(s*.72,2.24,dz);fg.add(m);});
+    [-2,-.5,1].forEach((dz,i)=>{const s=i%2?1:-1;P(bx(.3,.03,.03),M('#1a1a1a'),s*.92,2.95,dz,{nc:1});P(bx(.14,.2,.14),glowMat('#c8a060','#ffd890'),s*.8,2.78,dz,{nc:1});P(bx(.17,.04,.17),M('#1a1a1a'),s*.8,2.9,dz);halo(lx+s*.8,2.78,lz+dz,1.4);});
+    // the castle gate at the far end: crenellations, two round turrets, a statue in a blue niche, and the arch through to the mall
+    {const gz=-2.25,GT=M('#efdcae');
+      const gate=tex(22,62,(x,W,Hh)=>{x.fillStyle='#efdcae';x.fillRect(0,0,W,Hh);x.fillStyle='#e0cb98';x.fillRect(0,40,W,2);x.fillRect(0,20,W,1);
+        lead(x,6,8,10,6);x.fillStyle='#bfe0f0';x.fillRect(8,22,6,13);x.fillStyle='#f6f6f0';x.fillRect(10,24,2,2);x.fillRect(9,26,4,6);x.fillRect(9,32,1,3);x.fillRect(12,32,1,3);
+        lead(x,2,24,3,8);lead(x,17,24,3,8);
+        [[4,'#c8202a'],[11,'#c8202a'],[17,'#e8c040']].forEach(([a,c])=>{x.fillStyle='#f6f2e8';x.fillRect(a-1,43,3,4);x.fillStyle=c;x.fillRect(a,43,1,4);x.fillRect(a-1,44,3,1);});
+        x.globalCompositeOperation='destination-out';x.beginPath();x.moveTo(5,62);x.lineTo(5,53);x.quadraticCurveTo(6,48,11,46);x.quadraticCurveTo(16,48,17,53);x.lineTo(17,62);x.fill();x.globalCompositeOperation='source-over';},{transparent:true,alphaTest:.5,side:THREE.DoubleSide});
+      const gp=new THREE.Mesh(new THREE.PlaneGeometry(2.2,6.2),gate);gp.position.set(0,3.1,gz);fg.add(gp);
+      for(let i=0;i<5;i++)P(bx(.26,.3,.3),GT,-.88+i*.44,6.35,gz);
+      [-1,1].forEach(s=>{P(cy(.42,.46,6.6,12),GT,s*1.2,3.3,gz+.05);P(cy(.5,.5,.2,12),M('#e0cb98'),s*1.2,6.65,gz+.05);for(let k=0;k<6;k++){const a=k/6*6.283;P(bx(.16,.26,.16),GT,s*1.2+Math.cos(a)*.42,6.88,gz+.05+Math.sin(a)*.42);}
+        P(bx(.08,.5,.02),M('#2c3a46'),s*1.2,4.6,gz+.5,{nc:1});});
+      P(cy(.015,.015,.9,4),M('#c8ccd0'),.3,7.2,gz);{const fl=new THREE.Mesh(new THREE.PlaneGeometry(.42,.26),tex(8,5,(x)=>{x.fillStyle='#1d3a8e';x.fillRect(0,0,8,5);x.fillStyle='#f6f6f0';x.fillRect(5,1,1,1);x.fillRect(6,3,1,1);x.fillRect(1,3,1,1);x.fillStyle='#c8202a';x.fillRect(1,1,2,1);},{side:THREE.DoubleSide}));fl.position.set(.52,7.5,gz);fg.add(fl);CDET.flag=fl;}}
+  }
+
+  // ===== Elizabeth Quay, the bridge and the bell tower, closer to the real ones =====
+  {// the arch sculpture: seven white ellipses, big by the city and getting smaller toward the water, on a swirling stone plaza
+    scene.children.forEach(o=>{if(o.isGroup&&Math.abs(o.position.x-650)<.01&&Math.abs(o.position.z-1.2)<.01){o.visible=false;CDET.hid.push(o);}});
+    {const i=colliders.findIndex(c=>c.x1===649&&c.z1===.4&&c.x2===651);if(i>=0)colliders.splice(i,1);}
+    const sw=(()=>{const c=mk(96,32),x=c.getContext('2d');x.fillStyle='#d8ccb0';x.fillRect(0,0,96,32);x.strokeStyle='#4a4a4e';x.lineWidth=2.2;
+      for(let k=0;k<5;k++){x.beginPath();for(let i=0;i<=96;i++){const y=4+k*6.5+Math.sin(i/9+k*1.3)*3+Math.sin(i/23+k)*2;i?x.lineTo(i,y):x.moveTo(i,y);}x.stroke();}
+      [[20,14,5],[58,20,6],[80,9,4]].forEach(([a,b,r])=>{x.beginPath();x.ellipse(a,b,r*1.6,r,0,0,7);x.stroke();});return new THREE.MeshLambertMaterial({map:ctex(c)});})();
+    paint(17.6,5.6,sw,650,1.0,.026);
+    const wm=M('#f6f6f2');for(let i=0;i<7;i++){const h=6.6-i*.82,b=h/1.75,a=b*.52,c=b*.75,z=-1.5+i*.72;const pts=[];
+      for(let k=0;k<=28;k++){const t=-.848+k/28*(Math.PI+1.696);pts.push(new THREE.Vector3(650+Math.cos(t)*a,c+Math.sin(t)*b,z));}
+      const m=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,Math.max(.035,.085-i*.008),6,false),wm);m.castShadow=true;G.add(m);}
+    // white shade umbrellas along the quay
+    [641.5,646,654,658.5].forEach(x=>{put(cy(.03,.03,1.7,5),M('#d8dcd8'),x,.85,3.3);put(new THREE.ConeGeometry(.75,.35,4),M('#f6f6f2'),x,1.8,3.3,{ry:Math.PI/4});});}
+  {// the footbridge: two arches that meet in a V in the water, with hangers down to the deck
+    scene.children.forEach(o=>{if(o.isGroup&&Math.abs(o.position.x-650)<.01&&Math.abs(o.position.z-10.3)<.01)o.children.forEach(c=>{if(c.geometry&&c.geometry.type==='TorusGeometry'){c.visible=false;CDET.hid.push(c);}});});
+    const am=M('#d8dce0');[-1,1].forEach(s=>{const P=[[0,-.7],[1.1,1.9],[2.6,3.8],[4.6,4.6],[6.6,4.1],[8.6,2.4],[10.2,.4]].map(([d,y])=>new THREE.Vector3(650+s*d,y,10.3));
+      const m=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(P),40,.13,6,false),am);m.castShadow=true;G.add(m);
+      const cp=new THREE.CatmullRomCurve3(P).getPoints(120);for(let d=1.8;d<9.6;d+=1.1){const t=(d+11)/22,dy=.15+Math.sin(t*Math.PI)*1.2+.1;let best=cp[0];for(const q of cp)if(Math.abs(q.x-(650+s*d))<Math.abs(best.x-(650+s*d)))best=q;const ay=best.y;
+        if(ay-dy>.2)put(bx(.02,ay-dy,.02),M('#c8ccd0'),650+s*d,dy+(ay-dy)/2,10.3,{nc:1});}});
+    put(bx(.5,.9,.5),M('#c8ccd0'),650,-.3,10.3,{rz:Math.PI/4});}
+  {// the bell tower: a glass spire in floors with white ledges, two dark copper sails, in a fountain
+    scene.children.forEach(o=>{if(o.isGroup&&Math.abs(o.position.x-678)<.01&&Math.abs(o.position.z-8.2)<.01){o.visible=false;CDET.hid.push(o);}});
+    const bt=new THREE.Group();bt.position.set(678,0,8.2);G.add(bt);CBD.cut.push({g:bt,x1:675.9,x2:680.1,z1:6.1,h:15});
+    put(cy(2.15,2.2,.22,28),M('#4a5258'),0,.11,0,null,bt);{const w=new THREE.Mesh(new THREE.CircleGeometry(1.95,28),M('#7ac8d8'));w.rotation.x=-Math.PI/2;w.position.y=.23;bt.add(w);}
+    for(let k=0;k<10;k++){const a=k/10*6.283;put(cy(.03,.05,.35,5),M('#d8f0f8'),Math.cos(a)*1.55,.4,Math.sin(a)*1.55,{nc:1},bt);}
+    const gl=M('#4fa898'),led=M('#e8ecea');for(let i=0;i<7;i++){const r0=1-i*.07;put(cy(r0-.05,r0,.68,14),gl,0,.6+i*.72,0,null,bt);put(cy(r0+.28,r0+.3,.06,18),led,0,.96+i*.72,0,null,bt);}
+    put(new THREE.ConeGeometry(.55,7.2,12),M('#5fbfae'),0,5.6+3.6,0,null,bt);put(cy(.025,.06,1.8,5),M('#c8ccd0'),0,14.1,0,null,bt);
+    const cu=new THREE.MeshLambertMaterial({color:new THREE.Color('#3e3530'),side:THREE.DoubleSide});
+    [0,Math.PI].forEach(r0=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(.75,1.75,7.6,16,1,true,r0+.25,1.35),cu);m.position.y=3.8;m.rotation.z=r0?.05:-.05;m.castShadow=true;bt.add(m);});
+    put(bx(.12,.5,.12),M('#e8c020'),2.4,.8,-2.2,null,bt);}
+  // Perth's traffic-light poles are yellow and the street lights are tall and grey
+  // ===== palms on Riverside Drive =====
+  function palm(x,z,h){const tr=M('#8a7a62');put(cy(.15,.22,h,7),tr,x,h/2,z);for(let y=.4;y<h;y+=.45)put(cy(.2,.2,.05,7),M('#6e604c'),x,y,z,{nc:1});put(sp(.32,8),M('#6a5a40'),x,h,z,{s:[1,1.2,1]});
+    const fm=M('#4f7f3a'),fm2=M('#5f9444');for(let i=0;i<12;i++){const g=new THREE.Group();g.position.set(x,h+.15,z);g.rotation.y=i/12*6.283+(i%2)*.2;G.add(g);const f=new THREE.Mesh(bx(1.5,.04,.34),i%2?fm:fm2);f.position.x=.7;f.rotation.z=-.35-(i%3)*.22;f.castShadow=true;g.add(f);}
+    col(x-.22,z-.22,x+.22,z+.22);}
+  [624.5,634.5,666.8,673.5,687.5,695.5].forEach(x=>palm(x,9.05,3.4+((x*7)%5)*.15));
 
   // ===== Kings Park: a hedge along the city edge, paths, gums, a boab, flower beds, a lily pond, picnics and a kiosk =====
   [[-25.5,-22.9],[-20.5,-11.9],[-10.1,-4.5],[-1.6,3.6],[7.2,11.4]].forEach(([a,b])=>hedge(621.4,a,621.4,b));

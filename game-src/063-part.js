@@ -3,6 +3,7 @@
 CDET.tick=function(dt){if(!CDET.on||!CDET.g||!CDET.g.visible)return;const now=performance.now();if(now-CDET.last<4)return;CDET.last=now;dt=Math.min(dt||0,.1);
   const sg=CDET.sig;sg.t=(sg.t+dt)%18;const t=sg.t,EWg=t<8,EWa=t>=8&&t<9.5,NSg=t>=10.5&&t<16,NSa=t>=16&&t<17;
   if(sg.m){const set=(A,g,a)=>{A[0].color.setHex(!g&&!a?0xff3b30:0x3a1414);A[1].color.setHex(a?0xffb020:0x3a2a10);A[2].color.setHex(g?0x30e060:0x103a1a);};set(sg.m.EW,EWg,EWa);set(sg.m.NS,NSg,NSa);}
+  if(CDET.clock&&typeof S!=='undefined'){const m=S.time%60,h=(S.time/60)%12;CDET.clock[0].rotation.z=-h/12*6.283;CDET.clock[1].rotation.z=-m/60*6.283;}
   const n=typeof NIGHT==='number'?NIGHT:0;CDET.glow.forEach(([m,d,k])=>m.color.copy(d).lerp(k,n));CDET.halos.forEach(h=>h.material.opacity=n*.85);CDET.em.forEach(m=>m.emissive.setScalar(n*1.1));
   const V=CDET.veh,people=[player];if(typeof walkers!=='undefined')for(const w of walkers)if(w.m.visible)people.push(w);
   // who is in front of whom (crossing cars use their length as width); two cars that block each other: the older one goes
