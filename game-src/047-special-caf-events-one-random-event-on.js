@@ -73,5 +73,6 @@ function applyMenu(){S.menu=S.menu||{};
   if(!menuProps.capp){const a=box(.45,.5,.4,new THREE.MeshLambertMaterial({color:0xc8344a}),-2.45,1.39,-2.6);const b=box(.2,.08,.15,new THREE.MeshLambertMaterial({color:0x2b2b30}),-2.45,1.2,-2.35);menuProps.capp=[a,b];
     const c=new THREE.Mesh(new THREE.CylinderGeometry(.13,.11,.36,10),new THREE.MeshLambertMaterial({color:0xf08a2a,transparent:true,opacity:.85}));c.position.set(.85,1.32,-2.6);scene.add(c);const d=box(.3,.1,.3,new THREE.MeshLambertMaterial({color:0x7a1f2a}),.85,1.19,-2.6);menuProps.thai=[c,d];
     const e=box(.5,.32,.4,new THREE.MeshLambertMaterial({color:0x9aa0a8}),2.45,1.3,-2.6);const f=box(.4,.06,.3,new THREE.MeshLambertMaterial({color:0xf4c84a}),2.45,1.48,-2.6);menuProps.fc=[e,f];}
+    if(!menuProps.__w){menuProps.__w=1;['capp','thai','fc'].forEach(k=>menuProps[k].forEach(m=>{if(typeof IW==='function'){const w=IW(m.position.x,m.position.z);m.position.x=w.x;m.position.z=w.z;}}));}
   ['capp','thai','fc'].forEach(k=>menuProps[k].forEach(m=>m.visible=!!S.menu[k]));}
 
