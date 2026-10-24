@@ -87,6 +87,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
         <div class="row" style="margin-top:6px"><button id="labAll">เปิดทุกชั้น</button><button id="labLand">เฉพาะภูมิประเทศ</button><button id="labTint" aria-pressed="false">แยกสีตามชั้น</button></div></div>
       <div><b>ภาพ</b><div class="row"><button id="labTags2" aria-pressed="true">ป้ายสถานที่จริง</button><button id="labFrame" aria-pressed="true">กรอบพื้นที่</button><button id="labBloom" aria-pressed="true">Bloom</button><button id="labTilt" aria-pressed="false">Tilt-shift</button><button id="labFog" aria-pressed="false">หมอก</button></div></div>
       ${typeof CDET!=='undefined'&&CDET.on?'<div><b>งานใหม่ · เมือง Perth CBD</b><div class="row"><button id="labCity" aria-pressed="true">เมืองละเอียด (กดดูก่อน/หลัง)</button></div><div class="note">รถวิ่ง ไฟจราจร เลนจักรยาน รถจอด ป้ายรถเมล์ kiosk กาแฟ ร้านค้า Tudor Lane สวน Kings Park · ลองเลื่อนเวลาเป็นกลางคืน</div></div>':''}
+      ${typeof TREES_HD!=='undefined'&&TREES_HD.set?'<div><b>งานใหม่ · ต้นไม้ HD</b><div class="row"><button id="labTrees" aria-pressed="true">ต้นไม้ HD (กดดูก่อน/หลัง)</button></div><div class="note">พิกเซลมากขึ้น 2 เท่า 7 เฉด แสงขอบใบ ช่องฟ้า เปลือกไม้ กิ่งไหวตามลม</div></div>':''}
       <div><b>เวลา</b> <span id="labTimeL"></span><input type="range" id="labTime" min="300" max="1435" step="15"></div>
       <div><b>อากาศ</b><div class="row" id="labWx">${(typeof WEATHERS!=='undefined'?WEATHERS:[]).map((w,i)=>`<button data-w="${i}">${w.label}</button>`).join('')}</div></div>
       <div class="note">ลากเพื่อหมุน · คลิกขวา/Shift หรือสองนิ้ว เพื่อเลื่อน · ล้อเมาส์/บีบ เพื่อซูม</div>
@@ -101,6 +102,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
     tg('#labAuto','auto');tg('#labTags2','tags');tg('#labFrame','frame',v=>{if(frameLine)frameLine.visible=v;});tg('#labBloom','bloom');tg('#labTilt','tilt');tg('#labFog','fog');
     const tb=panel.querySelector('#labTint');tb.onclick=()=>{setTint(!st.tint);tb.setAttribute('aria-pressed',String(st.tint));};
     panel.querySelector('#labAll').onclick=()=>setShow(()=>true);
+    {const tb=panel.querySelector('#labTrees');if(tb)tb.onclick=()=>{const v=!TREES_HD.live;TREES_HD.set(v);tb.setAttribute('aria-pressed',String(v));};}
     {const cb=panel.querySelector('#labCity');if(cb)cb.onclick=()=>{const v=!CDET.g.visible;CDET.show(v);cb.setAttribute('aria-pressed',String(v));};}
     panel.querySelector('#labLand').onclick=()=>setShow(i=>['ground','water','path','veg'].includes(CATS[i][0]));
     panel.querySelector('#labX').onclick=()=>toggle(false);
