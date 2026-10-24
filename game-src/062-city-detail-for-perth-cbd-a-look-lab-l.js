@@ -4,7 +4,7 @@
 // a timber-framed Tudor Lane, and more of Kings Park (lemon-scented gums, a boab, flower beds, a lily pond).
 const CITY_DETAIL_LIVE=true;
 const CDET={on:CITY_DETAIL_LIVE||/[?&#](lab|city)\b/.test(location.search+location.hash),g:null,veh:[],glow:[],em:[],halos:[],extra:[],sig:{t:0,m:null},last:0,kiosks:[],
-  show(v){if(this.g)this.g.visible=v;(this.hid||[]).forEach(o=>o.visible=!v);this.extra.forEach(o=>o.visible=v);this.veh.forEach(c=>c.g.visible=v);}};
+  show(v){this.userShow=v;if(this.g)this.g.visible=v;(this.hid||[]).forEach(o=>o.visible=!v);this.extra.forEach(o=>o.visible=v);this.veh.forEach(c=>c.g.visible=v);}};
 if(CDET.on)(()=>{
   const G=new THREE.Group();G.name='cityDetail';scene.add(G);CDET.g=G;
   const MC={},GC={};

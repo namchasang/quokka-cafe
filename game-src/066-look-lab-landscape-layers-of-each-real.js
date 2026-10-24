@@ -159,7 +159,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
 })();
 {const _uc=updateCamera;updateCamera=function(dt,snap){if(LAB.on){LAB.cam(dt||0);return;}_uc(dt,snap);};}
 // city detail: tick the traffic in the city and in the Look Lab, and let Kip buy coffee at the kiosks
-{const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);if(CDET.on&&zoneOf(player.x)==='cbd')CDET.tick(dt);};
+{const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);if(CDET.on&&CDET.g){const want=CDET.userShow!==false&&(zoneOf(player.x)==='cbd'||LAB.on);if(CDET.g.visible!==want)CDET.g.visible=want;}if(CDET.on&&zoneOf(player.x)==='cbd')CDET.tick(dt);};
   const _lc=LAB.cam;LAB.cam=function(dt){_lc(dt);if(CDET.on)CDET.tick(dt);};
   const KC={'Flat white':['A flat white on Hay Street. Perth does coffee properly.','Smooth. I should ask what beans they use for the café.'],'Long black':['A long black by the quay. Strong enough to row back to the island.','Black, hot, and the river right there. Lovely.'],'Iced latte':['An iced latte in the park. Kings Park on a warm day is the best.','Cold coffee, warm gums, good view.']};
   const _ct=cbdTargets;cbdTargets=function(T){_ct(T);if(!CDET.on||zoneOf(player.x)!=='cbd')return;
