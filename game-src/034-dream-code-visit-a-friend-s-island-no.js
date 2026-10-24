@@ -14,7 +14,7 @@ function qcFetch(fn,args,opt){return fetch(QC_URL+'/rest/v1/rpc/'+fn,Object.assi
 let QC_DEEP=null;try{QC_DEEP=normCode(new URLSearchParams(location.search).get('visit'));}catch(e){}
 const qcHome=()=>VISIT?VISIT.back:S;const qcMe=()=>{const h=qcHome();return h&&h.online&&h.online.code?h.online:null;};
 let qcStat={at:0,ok:null,likes:0,visits:0,gifts:0,err:''},qcBusy=false,qcTimer=0,icTab='mine';
-function qcNames(){let o='',i='';try{o=localStorage.getItem('quokka-owner')||'';i=localStorage.getItem('quokka-island')||'';}catch(e){}const m=qcMe();return{owner:(m&&m.owner)||o||'Kip',island:(m&&m.island)||i||'Wadjemup'};}
+function qcNames(){let o='',i='';try{o=localStorage.getItem('quokka-owner')||'';i=localStorage.getItem('quokka-island')||'';}catch(e){}const m=qcMe();return{owner:(m&&m.owner)||o||'Kip',island:(m&&m.island)||i||'Rottnest'};}
 function qcSnapOf(st,nm){const snap={v:1,owner:nm.owner.slice(0,24),island:nm.island.slice(0,24),made:Date.now(),s:{}};DREAM_KEYS.forEach(k=>{if(st[k]!==undefined)snap.s[k]=st[k];});return snap;}
 async function qcEnsure(){const h=qcHome();if(qcMe())return qcMe();const nm=qcNames();const j=await qcRpc('qc_register',{p_owner:nm.owner,p_island:nm.island});h.online={code:j.code,secret:j.secret,owner:nm.owner,island:nm.island,friends:[]};if(!VISIT)save();await qcSync(true);return h.online;}
 async function qcSync(force){const m=qcMe();if(!m||VISIT||qcBusy)return;const now=Date.now();if(!force&&now-qcStat.at<90000)return;qcBusy=true;

@@ -67,7 +67,7 @@ body.studio{cursor:none}
 
   <div class="overlay ovTitle" id="titleOv">
     <div class="card panel">
-      <div class="eyebrow">Wadjemup · Rottnest Island</div>
+      <div class="eyebrow">Rottnest Island · Western Australia</div>
       <div class="title">Quokka Cafe</div>
       <div class="subtitle">and Friends</div>
       <p>Fresh out of university, Kip the quokka has left his little home in Victoria Park to open a tiny café by the jetty on Rottnest. Serve the morning ferry crowd, explore the island after closing time, and save for everything on the wishlist so Mum and Dad can move in.</p>
@@ -103,7 +103,7 @@ body.studio{cursor:none}
 
   <div class="overlay" id="mapOv" hidden>
     <div class="card panel mapcard">
-      <div class="eyebrow">Wadjemup · Rottnest Island</div>
+      <div class="eyebrow">Rottnest Island · Western Australia</div>
       <h2>Island map</h2>
       <canvas id="bigMap" width="1400" height="557" aria-label="Full island map"></canvas>
       <p class="mapq" id="mapQuest"></p>
@@ -246,7 +246,7 @@ body.studio{cursor:none}
 
   <div class="overlay" id="museumOv" hidden>
     <div class="card panel mapcard">
-      <div class="eyebrow">Wadjemup Museum</div>
+      <div class="eyebrow">Island Museum</div>
       <h2>Donations</h2>
       <p class="bgE" id="msNote"></p>
       <div class="qtabs" id="msTabs"></div>
@@ -259,7 +259,7 @@ body.studio{cursor:none}
     <div class="card panel mapcard">
       <div class="eyebrow">Restoration Board</div>
       <h2 id="bdCount">Bundles</h2>
-      <p class="bgE">Help restore Wadjemup. Complete a bundle to unlock a reward for the whole island.</p>
+      <p class="bgE">Help restore Rottnest. Complete a bundle to unlock a reward for the whole island.</p>
       <div class="gdBody" id="bdGrid"></div>
       <div class="btns"><button class="btn ghost" id="bdClose" type="button">Close</button></div>
     </div>
@@ -297,7 +297,7 @@ body.studio{cursor:none}
   <div class="overlay" id="radioOv" hidden>
     <div class="card panel">
       <div class="eyebrow">Café radio</div>
-      <h2>Wadjemup FM</h2>
+      <h2>Rottnest FM</h2>
       <p class="bgE" id="rdNow"></p>
       <div id="rdQuick"><button class="btn" id="rdToggle" type="button">Turn radio off</button></div>
       <div class="rdList" id="rdList"></div>
@@ -325,7 +325,7 @@ body.studio{cursor:none}
 
   <div class="overlay" id="coachOv" hidden>
     <div class="card panel">
-      <div class="eyebrow" id="chSub">Island Explorer · island bus</div>
+      <div class="eyebrow" id="chSub">Island Loop bus · island bus</div>
       <h2 id="chTitle">Where to?</h2>
       <p class="bgE">Ride along and watch the island go by for 3 coins, or teleport straight there for 30.</p>
       <div class="rdList" id="chList"></div>
@@ -420,7 +420,7 @@ body.studio{cursor:none}
   <div class="overlay" id="endOv" hidden>
     <div class="card panel">
       <div class="eyebrow">Chapter 1 · The morning ferry</div>
-      <h2>Home is Wadjemup</h2>
+      <h2>Home is Rottnest</h2>
       <p>Mum and Dad step off the ferry, blinking in the island sun. Kip pours three flat whites, and for the first time the café has a family table.</p>
       <p>Chapter 1 complete. Mum and Dad now live in the spare room and help serve tourists every day. Keep growing the café, the garden and your island life.</p>
       <div class="btns"><button class="btn" id="againBtn" type="button">Keep playing</button></div>

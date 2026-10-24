@@ -4,7 +4,7 @@ const DECK={x1:-5.2,x2:5.2,z1:-5,z2:3.6};
 const JETTY={x1:-21.4,x2:-12.6,z1:4.5,z2:5.5};
 const colliders=[];
 function col(x1,z1,x2,z2){colliders.push({x1,z1,x2,z2});}
-// ---------- Island Scale: Wadjemup is 2.5x bigger ----------
+// ---------- Island Scale: Rottnest is 2.5x bigger ----------
 // The island is still built in its original layout, then islandWarp() spreads it out before the first frame.
 // Places in a plateau keep their exact layout (the Settlement and café); everything else moves to where it sits
 // on the 2.5x island. Small groups of objects (a sign and its post, a kiosk and its stools) move together.
@@ -22,7 +22,7 @@ function isWinv1(X,Z){if(X>=99.5)return[X,Z];const p0=[ISL.PX+(X-ISL.PX)/ISL.KX,
   for(let it=0;it<30;it++){const ex=e[0]-X,ez=e[1]-Z,r0=ex*ex+ez*ez;if(r0<1e-8)break;const h=1e-3,a=isW1(q[0]+h,q[1]),b=isW1(q[0],q[1]+h);const j11=(a[0]-e[0])/h,j21=(a[1]-e[1])/h,j12=(b[0]-e[0])/h,j22=(b[1]-e[1])/h,det=j11*j22-j12*j21;if(Math.abs(det)<1e-9)break;
     const sx=(j22*ex-j12*ez)/det,sz=(-j21*ex+j11*ez)/det;let st=1,nq,ne;for(let k=0;k<24;k++){nq=[q[0]-sx*st,q[1]-sz*st];ne=isW1(nq[0],nq[1]);const fx=ne[0]-X,fz=ne[1]-Z;if(fx*fx+fz*fz<r0)break;st*=.5;}q=nq;e=ne;}
   return q;}
-// ---------- Real Island (v2): the island takes the real Wadjemup outline ----------
+// ---------- Real Island (v2): the island takes the real Rottnest outline ----------
 // The coast is traced from the real map, one column every 2 map pixels (top = north coast, bot = south coast, in world units).
 // Old layout -> real shape: each old column of the island goes to a real column, its north coast to the real north coast and
 // its south coast to the real south coast. The Settlement stays its exact size (the plateau) and sits where the real one is.
@@ -49,7 +49,7 @@ function rislT(x,z){const E=rislEdges(),px=rislPX(x),X=rislX(px),[tp,bt]=rislCol
 function isS(x,z){return rislT(x,z);}
 // smooth warp of an original island point (the Settlement plateau moves without stretching)
 // whole places that move as one piece to where they really are (Parker Point and Little Salmon Bay to the south point,
-// Wadjemup Lighthouse to the middle of the island). Points inside move rigidly; nothing outside changes.
+// Rottnest Lighthouse to the middle of the island). Points inside move rigidly; nothing outside changes.
 ISL.dist=[{n:'parker',x1:59.5,x2:74,z1:4.7,z2:14,D:[-156.5,42.5]},{n:'light',x:33.5,z:-6.3,r:4.6,D:[-73.3,3.5]}];
 function islDist(x,z){for(const d of ISL.dist){if(d.r?Math.hypot(x-d.x,z-d.z)<d.r:(x>=d.x1&&x<=d.x2&&z>=d.z1&&z<=d.z2))return d;}return null;}
 function isW(x,z){if(x>=99.5)return[x,z];{const d=islDist(x,z);if(d)return[x+d.D[0],z+d.D[1]];}const o=rislT(x,z);for(const p of ISL.plat){const dx=x-p.x,dz=z-p.z,r=Math.hypot(dx,dz);if(r>=p.R+p.T)continue;const f=isPhi(p,r),D=islPlatD(p);o[0]=o[0]*(1-f)+(x+D[0])*f;o[1]=o[1]*(1-f)+(z+D[1])*f;}return o;}
@@ -234,7 +234,7 @@ hut.position.set(HUT.x,0,HUT.z);hut.visible=false;scene.add(hut);
 
 // lore stones
 const LORE=[
- {x:11,z:-5.6,title:'Wadjemup',lines:['The stone is carved with old marks.','Long before ships came, the Whadjuk Noongar people knew this island as Wadjemup.','Kip: Wadjemup… I like that name. It feels like home already.']},
+ {x:11,z:-5.6,title:'Island stone',lines:['The stone is worn smooth by thousands of years of sea wind.','This island is older than any lighthouse, any jetty, any café.','Kip: Thousands of years… and I just got here. I like that. It feels like home already.']},
  {x:21,z:6.4,title:'Rotte nest',lines:['A weathered stone with a Dutch ship scratched into it.','In 1696, Captain Willem de Vlamingh saw the island’s furry locals and took them for giant rats. He named the place “Rotte nest”: rat’s nest.','Kip: Rats?! We’re quokkas. Rude.']},
  {x:41.4,z:-5.2,title:'Pink lakes',lines:['This stone faces the salt lake.','The island’s salt lakes can turn pink, coloured by tiny algae that thrive in very salty water.','Kip: A pink lake… Mum would love this view.']}];
 const stoneMat=lmat(stoneC,[1,2]);const runeMat=new THREE.MeshBasicMaterial({color:0x8fe8ff});

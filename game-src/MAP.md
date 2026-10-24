@@ -13,7 +13,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 005-lights.js | 882-924 | 5 | hemi, sun, sc, noiseTile, dither, grassC, sandC, pathC, stoneC, plasterC |
 | 006-sprites.js | 925-1040 | 14 | BB, DIR4, mkFrame, spriteMesh, showFrame, setFrame, dir4Tick, blobTex, blob, hex |
 | 007-world.js | 1041-1285 | 36 | LAND, DECK, JETTY, colliders, col, ISL, isS1, isPhi, isW1, isWinv1 |
-| 008-more-of-wadjemup.js | 1286-1346 | 10 | SIGN_TEX, makeSign, signPost, COTTAGES, winMat, SNORK, snorks, flowerMats, canopy, TREE_COLS |
+| 008-more-of-rottnest.js | 1286-1346 | 10 | SIGN_TEX, makeSign, signPost, COTTAGES, winMat, SNORK, snorks, flowerMats, canopy, TREE_COLS |
 | 009-garden-perth-hills-produce.js | 1347-1403 | 8 | CROPS, PLOTS, soilCv, soilDry, bedMat, plantCanvas, plantCache, dropIcon, refreshPlots, fenceMat |
 | 010-businesses-for-sale.js | 1404-1469 | 9 | BIZ, BIZ_BY, bizMesh, forSale, applyBiz, riders, BIKE_LANE, spawnRider |
 | 011-beach-hammock-with-orange-juice.js | 1470-1534 | 9 | BEACH, JMULT, DOCKS, ferries, jettyParts, ship, applyJetty, HB, SPX, ferry2 |
@@ -24,7 +24,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 016-painter-for-32px-creature-sprites.js | 1799-1860 | 11 | painter, roo32, roos, swans, pelican, VP_SHOPS, vpTrain, NM, vpLights, BUS_STOPS |
 | 017-quokka-village-inland-bush-where-quokk.js | 1861-1917 | 10 | VILLAGE, VILLAGE_ELDER, elder, REG, eftFlash, NM_AW, MUSEUM, digMeshes, bottle, whale |
 | 018-caf-levels-and-styles.js | 1918-1990 | 12 | CAFE_STYLES, CAFE_LV, texWall, texAwn, texDeck, texCounter, STYLE_DECOR, UP, upRoofMat, upper |
-| 019-rest-of-wadjemup-north-coast-oliver-hi.js | 1991-2030 | 6 | WEST, COACH |
+| 019-rest-of-rottnest-north-coast-oliver-hi.js | 1991-2030 | 6 | WEST, COACH |
 | 020-animated-waves-rolling-onto-beaches.js | 2031-2119 | 12 | makeWaveTex, waveTex, waveMat, waves, outlineCanvas, pineVariant, tussockCanvas, tussockMats, limeMat, outcrop |
 | 021-night-life-fairy-lights-glowing-plankt.js | 2120-2193 | 9 | NIGHT, fairy, nightLights, PLK, plkGeo, plankton, BFLY, butterflies, nightTick, MOTES |
 | 022-state.js | 2194-2242 | 5 | LEGACY_KEY, readSlot, fresh, S, save, loadSave, FERRY_ARR, transit, CLOSE, OPEN |
@@ -64,7 +64,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 056-snorkelling-out-to-old-wreck-at-henrie.js | 4858-4929 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
 | 057-island-scale-phase-6-six-island-lookou.js | 4930-5011 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
 | 058-phase-8-east-cape-and-south-point-get.js | 5012-5105 | 13 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
-| 059-island-explorer-a-19-stop-loop-bus-lik.js | 5106-5159 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
+| 059-island-loop-bus-a-19-stop-loop-bus-lik.js | 5106-5159 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
 | 060-live-mode-live-1-kip-runs-caf-on-his-o.js | 5160-5234 | 8 | LIVEM |
 | 061-look-lab-landscape-layers-of-each-real.js | 5235-5391 | 16 | LAB |
 | 062-part.js | 5392-5394 | 0 |  |

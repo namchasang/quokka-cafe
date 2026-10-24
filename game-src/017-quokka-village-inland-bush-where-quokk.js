@@ -31,9 +31,9 @@ let eftFlash=0;
 // ---------- night market awnings fade when Kip walks behind them ----------
 const NM_AW=[];scene.traverse(o=>{if(o.isMesh&&o.position.y>2.1&&o.position.y<2.3&&o.position.z>6.5&&o.position.z<6.7&&o.position.x>500&&o.position.x<545){o.material=o.material.clone();o.material.transparent=true;NM_AW.push(o);}});
 
-// ---------- Wadjemup Museum, Restoration Board, mailbox ----------
+// ---------- Island Museum, Restoration Board, mailbox ----------
 const MUSEUM={x:10.4,z:-8.8},BOARD={x:13.6,z:-7.4},MAILBOX={x:5.2,z:2.2};
-(()=>{const g=bld(MUSEUM.x,MUSEUM.z,3.6,2.6,2.6,'#efe3c4',{win:false,roof:'#8a3a2a',roofH:.9,sign:'WADJEMUP MUSEUM',signBg:'#5a2a1a',noCol:true});g.position.y=groundY(MUSEUM.x,MUSEUM.z);col(MUSEUM.x-1.8,MUSEUM.z-1.3,MUSEUM.x+1.8,MUSEUM.z+1.3);
+(()=>{const g=bld(MUSEUM.x,MUSEUM.z,3.6,2.6,2.6,'#efe3c4',{win:false,roof:'#8a3a2a',roofH:.9,sign:'ISLAND MUSEUM',signBg:'#5a2a1a',noCol:true});g.position.y=groundY(MUSEUM.x,MUSEUM.z);col(MUSEUM.x-1.8,MUSEUM.z-1.3,MUSEUM.x+1.8,MUSEUM.z+1.3);
   const d=new THREE.Mesh(new THREE.PlaneGeometry(.7,1.2),new THREE.MeshLambertMaterial({color:0x5a3a22}));d.position.set(MUSEUM.x,g.position.y+.6,MUSEUM.z+1.31);scene.add(d);
   [-1.1,1.1].forEach(o=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.6,.7),new THREE.MeshLambertMaterial({color:0x4a6a86}));w.position.set(MUSEUM.x+o,g.position.y+1.2,MUSEUM.z+1.31);scene.add(w);});
   const gy=groundY(BOARD.x,BOARD.z);[-.7,.7].forEach(o=>box(.1,1.6,.1,legMat,BOARD.x+o,gy+.8,BOARD.z));const bc=mk(48,28),bx=bc.getContext('2d');bx.fillStyle='#8a5a36';bx.fillRect(0,0,48,28);bx.fillStyle='#f5ecd8';[[3,4,12,9],[18,3,12,10],[33,5,12,8],[5,15,14,10],[24,15,18,10]].forEach(q=>bx.fillRect(...q));bx.fillStyle='#c8344a';[[8,4],[23,3],[38,5],[11,15],[32,15]].forEach(([a,b])=>bx.fillRect(a,b,2,2));

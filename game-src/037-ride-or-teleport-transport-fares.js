@@ -25,11 +25,11 @@ function openTravel(title,sub,opts){if(!running||overlay)return;$('#chTitle').te
     if(!o.here){const r=document.createElement('button');r.type='button';r.className='btn';r.id='ride-'+o.id;r.textContent='Ride · '+FARE_RIDE+'c';r.onclick=()=>{if(o.id==='vp'&&needPass('vp'))return;if(!pay(FARE_RIDE))return;hideOverlays();o.ride();};const t=document.createElement('button');t.type='button';t.className='btn ghost';t.id='tp-'+o.id;t.textContent='Teleport · '+FARE_TP+'c';t.onclick=()=>{if(o.id==='vp'&&needPass('vp'))return;if(!pay(FARE_TP))return;hideOverlays();o.tp();};bx.append(r,t);}
     const tx=document.createElement('div');tx.append(n,sp);d.append(tx,bx);L.appendChild(d);});showOverlay('coach');}
 
-// ---------- sightseeing cut-scenes on the Island Explorer bus and Express ----------
+// ---------- sightseeing cut-scenes on the Island Loop bus and Express ----------
 const SIGHTS=[
  {x:20,z:-11,name:'The Basin',sub:'A sheltered reef pool with crystal-clear water. The island\u2019s favourite swimming spot.'},
- {x:13,z:-6,name:'The Settlement',sub:'Rottnest\u2019s village of 1840s limestone cottages, shops and the Wadjemup Museum.'},
- {x:33.5,z:-6.3,name:'Wadjemup Lighthouse',sub:'Built in 1849 on the island\u2019s highest hill. The view stretches all the way to Perth.'},
+ {x:13,z:-6,name:'The Settlement',sub:'Rottnest\u2019s village of 1840s limestone cottages, shops and the Island Museum.'},
+ {x:33.5,z:-6.3,name:'Rottnest Lighthouse',sub:'Built in 1849 on the island\u2019s highest hill. The view stretches all the way to Perth.'},
  {x:42.2,z:-7.5,name:'Pink salt lakes',sub:'Tiny algae turn these salt lakes pink. Look for banded stilts wading in the shallows.'},
  {x:46.5,z:-4.5,name:'Bathurst Lighthouse',sub:'The little white lighthouse guarding the northern shipping channel since 1900.'},
  {x:24,z:5,name:'Quokka Village',sub:'Teepees and cottages in the bush where most of the island\u2019s quokkas gather.'},

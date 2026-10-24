@@ -28,7 +28,7 @@ function lookoutWatch(){const W=wcS(),winter=seasonOf(S.day)===2;
     :[{id:'pod',name:'Dolphin pod',x:250,y:250,r:34,pos:t=>[250+Math.sin(t*.25)*40,250],fact:'Bottlenose dolphins · a family pod hunting along the reef.'},
       {id:'osprey',name:'Osprey',x:470,y:90,r:28,pos:t=>[470+Math.sin(t*.3)*60,90+Math.sin(t*.7)*10],fact:'Osprey · a fish hawk. It hovers, then dives feet-first into the sea.'},
       {id:'boat',name:'Cray boat',x:140,y:178,r:28,fact:'Cray boat · checking lobster pots off the west end, like island fishers have for a century.'}];
-  spotOpen({eye:'Cape Vlamingh lookout · binoculars',title:winter?'Whale season! Find 4 whale sightings':'Scan the sea: find 3 sightings',hint:winter?'Humpbacks pass Wadjemup every winter on their long migration.':'In winter, humpback whales pass right by here. Today, look for other sea life.',targets:T,
+  spotOpen({eye:'Cape Vlamingh lookout · binoculars',title:winter?'Whale season! Find 4 whale sightings':'Scan the sea: find 3 sightings',hint:winter?'Humpbacks pass Rottnest every winter on their long migration.':'In winter, humpback whales pass right by here. Today, look for other sea life.',targets:T,
     draw:binoWrap(seaView(winter?91:92,(x,t)=>T.forEach(q=>{const p=spotPos(q,t);WHALE_ART[q.id](x,p[0],p[1],t);}))),hintAt:16,doneTitle:winter?'What a show!':'Sharp eyes!',
     done:()=>{lkDone('cape');if(winter&&!W.whale){W.whale=1;S.coins+=40;toast('Whale watcher · +40 coins',2.6);}else if(!winter&&!W.dolph){W.dolph=1;S.coins+=20;toast('Sea spotter · +20 coins',2.4);}}});}
 // ----- the seals at Cathedral Rocks, through the viewer on the deck -----

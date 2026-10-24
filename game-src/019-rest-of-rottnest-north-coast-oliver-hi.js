@@ -1,9 +1,9 @@
-// ========== the rest of Wadjemup: North Coast, Oliver Hill, South Coast, West End ==========
+// ========== the rest of Rottnest: North Coast, Oliver Hill, South Coast, West End ==========
 const WEST={};
 (()=>{const M=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c)});
   // Geordie Bay holiday cottages, store and moored boats
   [[54.5,'#efe3c4','#3f7a5a'],[57,'#f2e6c8','#c9473f'],[63.4,'#e8d2a6','#2f78a8'],[66,'#efe3c4','#c9473f']].forEach(([x,w,rf])=>{const g=bld(x,-3.5,2.2,1.8,1.4,w,{roof:rf,roofH:.8,noCol:true});col(x-1.1,-4.4,x+1.1,-2.6);});
-  bld(61.4,-2.9,2,1.4,1.6,'#fff3d6',{ver:'#2f78a8',sign:'GEORDIE BAY STORE',signBg:'#2f78a8'});
+  bld(61.4,-2.9,2,1.4,1.6,'#fff3d6',{ver:'#2f78a8',sign:'BAYSIDE STORE',signBg:'#2f78a8'});
   WEST.boats=[[60,-7.4],[61.8,-8],[59,-8.3]].map(([x,z],i)=>{const g=new THREE.Group();const h=new THREE.Mesh(new THREE.BoxGeometry(1.6,.35,.7),M(['#f6f6f0','#2f78a8','#f1c64a'][i]));h.position.y=.05;g.add(h);const c=new THREE.Mesh(new THREE.BoxGeometry(.6,.35,.5),M('#f6f2e8'));c.position.set(-.2,.38,0);g.add(c);const m=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,1.4,5),legMat);m.position.set(.3,.8,0);g.add(m);g.position.set(x,-.12,z);g.rotation.y=i*.5;scene.add(g);return{g,x,z,ph:i*1.3};});
   box(.9,.12,2.6,lmat(deckC,[1,2]),60.4,.02,-5.4,{noCast:true});
   // Oliver Hill battery and the train terminus
@@ -35,6 +35,6 @@ const WEST={};
   WEST.seals=[[93.6,5.6],[95.2,6],[96.6,5.2]].map(([x,z],i)=>{const m=spriteMesh([pix(["............","......ooo...",".....oblbo..","....obblweo.","...obbbbbbo.","..obbbllbbo.",".obbbbbbbo..","obbbbbbbo...",".oooooooo...."],sealPal)],.9,.6);m.position.set(x,.25,z);if(i%2)m.scale.x=-1;scene.add(m);return{m,ph:i};});
   signPost(47.2,-2.6,makeSign(['ISLAND LOOP','22 KM →'],48,20,'#c8344a','#ffffff'),1,.5);signPost(89.6,1.8,makeSign(['WEST END','CAPE VLAMINGH'],56,20,'#3a2a20','#f5ecd8'),1,.5);})();
 // Quokka Coach bus stops around the island
-const COACH=[{id:'settle',name:'Settlement',x:10.4,z:-1.8},{id:'basin',name:'The Basin',x:22,z:-6.6},{id:'light',name:'Wadjemup Lighthouse',x:32.2,z:-4.6},{id:'geordie',name:'Geordie Bay',x:59.4,z:-2.6},{id:'salmon',name:'Little Salmon Bay',x:71.2,z:.8},{id:'west',name:'West End',x:89.6,z:-.6}];
+const COACH=[{id:'settle',name:'Settlement',x:10.4,z:-1.8},{id:'basin',name:'The Basin',x:22,z:-6.6},{id:'light',name:'Rottnest Lighthouse',x:32.2,z:-4.6},{id:'geordie',name:'Geordie Bay',x:59.4,z:-2.6},{id:'salmon',name:'Little Salmon Bay',x:71.2,z:.8},{id:'west',name:'West End',x:89.6,z:-.6}];
 window.__coachMeshes=[];COACH.forEach(b=>{const p=box(.1,2.2,.1,new THREE.MeshLambertMaterial({color:0x1f5fae}),b.x,1.1,b.z);const s=new THREE.Mesh(new THREE.PlaneGeometry(.75,.75),new THREE.MeshBasicMaterial({map:makeSign(['BUS'],24,24,'#1f5fae','#ffffff'),side:THREE.DoubleSide}));s.position.set(b.x,2,b.z+.06);scene.add(s);window.__coachMeshes.push(p,s);});
 

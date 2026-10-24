@@ -1,10 +1,10 @@
 // ---------- in-game guide ----------
 const GUIDE_PLACES=[
- ['island','Settlement heritage','West of the café: the octagonal Quod (a place of remembrance), the 1868 Salt Store, the little limestone Chapel, a row of heritage cottages and giant Moreton Bay figs.'],
+ ['island','Settlement heritage','West of the café: the eight-sided Octagon Hall, the 1868 Salt Store, the little limestone Chapel, a row of heritage cottages and giant Moreton Bay figs.'],
  ['island','Kingstown Barracks and Army Jetty','The 1936 army barracks on the south side, now a ranger base. Walk out along Army Jetty for the sunset.'],
- ['island','Rotto Golf Course and airstrip','Nine holes, bunkers the quokkas love, and a tiny airport with a red plane and an orange windsock.'],
+ ['island','Island Links Golf Course and airstrip','Nine holes, bunkers the quokkas love, and a tiny airport with a red plane and an orange windsock.'],
  ['island','Salt lakes','Government House Lake, Serpentine Lake, Lake Baghdad and Garden Lake join Pink Lake and Lake Herschel. Tiny algae turn them pink.'],
- ['island','Island Explorer bus','19 stops around the whole island. Ride for 3 coins, or tap a stop on the island map to teleport for 30.'],
+ ['island','Island Loop bus','19 stops around the whole island. Ride for 3 coins, or tap a stop on the island map to teleport for 30.'],
  ['island','Quokka Cafe','Kip’s café by Main Jetty. Open 7:00 to 16:00; customers arrive with each Fremantle ferry. Rain closes it for the day.'],
  ['island','Kip’s garden','Six beds beside the café. Plant, water every day, harvest when it sparkles.'],
  ['island','Main Jetty and harbour board','Ferries to South Perth and, later, Fremantle. Upgrade the jetty to level 4 for the big cruise ferry.'],
@@ -13,7 +13,7 @@ const GUIDE_PLACES=[
  ['island','Quokka Village','Teepees and Fremantle-style cottages in the bush between the Settlement and the salt lakes. Talk to Elder Wattle.'],
  ['island','Lighthouses, salt lakes, The Basin, East Beach','Explore after closing. Lore stones and lost shells are hidden around the island.'],
  ['island','Beach hammock','Lie down with an orange juice and watch the day go by.'],
- ['island','Geordie Bay and Longreach Bay','North coast bays with holiday cottages, moored boats, the Geordie Bay Store and a fishing jetty.'],
+ ['island','Geordie Bay and Longreach Bay','North coast bays with holiday cottages, moored boats, the Bayside Store and a fishing jetty.'],
  ['island','Oliver Hill','Old WWII gun battery on a hill. The Quokka Express train runs here from Settlement Station.'],
  ['island','Parker Point and Little Salmon Bay','South coast snorkel trails over the reef, with umbrellas on the sand.'],
  ['island','Strickland Bay','The island\u2019s surf break. Bigger waves and surfers.'],
@@ -30,7 +30,7 @@ const GUIDE_PLACES=[
  ['sp','The Old Mill','Shenton\u2019s Mill (1835) on Mill Point. Help Miller Tom grind flour once a day for coins and a scone.'],['sp','East foreshore and Coode St Jetty','Jacarandas, picnic benches, black swans and Swan Kayaks (15 coins, 40 min on the river).'],['sp','Swan River Zoo sign','At the end of Angelo St. The zoo is coming soon.'],
  ['sp','Bus stop, Mill Point Road','Buses to Heirisson Island (15 min) and Victoria Park (30 min).'],
  ['hi','Kangaroo sanctuary','Western grey kangaroos, including a mother with a joey. Great for postcards.'],
- ['hi','Yagan Memorial','Statue honouring the Noongar leader Yagan. Read the plaque.'],
+ ['hi','Kangaroo sculpture','A bronze kangaroo by the river, with a plaque about the island.'],
  ['hi','The Causeway','Bridge over the Swan River. Black swans and a pelican nearby.'],
  ['vp','Albany Highway restaurants','Pho, Korean BBQ, ramen, bubble tea, dumplings, Thai, Malaysian, Indian, pub food and coffee.'],
  ['vp','Lotus Pantry Mart','Chilli, lemongrass, bok choy and dragon fruit seeds.'],
@@ -40,7 +40,7 @@ const GUIDE_PLACES=[
  ['freo','Cappuccino Strip, Freo Markets, Fishing Boat Harbour','Cafés, fish & chips, Tasty Thai, the market (seeds, vintage furniture, hats).'],
  ['freo','Round House, Prison, Esplanade, ferris wheel','Landmarks for the “A day out in Freo” quest and postcards.']];
 const GUIDE_NPCS=[
- ['Gus','Ferry master at Main Jetty. Sails you to South Perth and gives harbour tips.','island'],['Nana Wren','A fairy-wren who starts the lost shells quest.','island'],['Curator Banksia','Runs the Wadjemup Museum. Donate fish, bugs and fossils.','island'],['Elder Wattle','Leader of Quokka Village. Tells you about island quokkas.','island'],
+ ['Gus','Ferry master at Main Jetty. Sails you to South Perth and gives harbour tips.','island'],['Nana Wren','A fairy-wren who starts the lost shells quest.','island'],['Curator Banksia','Runs the Island Museum. Donate fish, bugs and fossils.','island'],['Elder Wattle','Leader of Quokka Village. Tells you about island quokkas.','island'],
  ['Mum & Dad','Move in mid-story. Mum helps make drinks; Dad runs the till and card machine.','island'],['Café staff','Hire up to 3 (50 coins each). They serve, then fish and garden after closing.','island'],
  ['Star guests','Fictional celebrities from Australia, China, Korea, England and the USA. Look for the gold star.','island'],['Stranded tourists','Missed the last ferry. Offer the spare room for 10 coins.','island'],
  ['Miller Tom','Runs the Old Mill on Mill Point.','sp'],['Grandma Joy','Sits on the same foreshore bench every afternoon.','sp'],['Priya','Jogs the foreshore all day and counts the swans.','sp'],['Jett','Rents kayaks on the east foreshore.','sp'],
@@ -62,14 +62,14 @@ const GUIDE_ACTS=[
  ['Fish','Fishing spots: Main Jetty, Mends St Jetty and the Causeway. Hold the reel button (or Space) to keep the fish in the green bar. Different fish by season, river and night.'],
  ['Dig and beachcomb','Four dig spots (an X in the ground) appear on Rottnest each day: fossils, coins or seeds. A message in a bottle sometimes washes up on the beach.'],
  ['Catch bugs','Catch butterflies by day and fireflies near Quokka Village at night.'],
- ['Museum','Donate fish, bugs and fossils to the Wadjemup Museum in the Settlement. 10 coins each, 100 for a full wing.'],
+ ['Museum','Donate fish, bugs and fossils to the Island Museum in the Settlement. 10 coins each, 100 for a full wing.'],
  ['Restoration Board','Six community bundles next to the museum, each unlocking an island-wide reward.'],
  ['Festivals','Seven festivals a year, from the Channel Swim to Whale Week and the Swan River Fireworks. Each has a special postcard.']];
 const GUIDE_SYS=[
  ['Day and time','Time never stops. The caf\u00e9 opens at 7:00 and closes at 16:00, and a new day begins at midnight while you keep playing. Sleep in the caf\u00e9 back room (after 18:00) or a home you own to skip to 7:00. Last ferry leaves at 18:00.'],
  ['Stamina','Kip\u2019s stamina lasts about 3 days. Eat to refill it: pies and sandwiches at the General Store, gelato on Mends St, dishes on Albany Hwy, Freo takeaway, or snacks from your basket in the Bag. At 0 Kip faints and wakes up at the nursing post with a 200 coin bill.'],
  ['Weather','Sunny, partly cloudy, Fremantle Doctor wind, showers. Showers close the café and water your garden.'],
- ['Coins and wishlist','Save for the wishlist to bring Mum & Dad to Wadjemup, then keep growing your businesses forever.'],
+ ['Coins and wishlist','Save for the wishlist to bring Mum & Dad to Rottnest, then keep growing your businesses forever.'],
  ['Businesses and harbour','Buy island businesses, collect tills, upgrade the jetty for more ferries and customers.'],
  ['Homes and rent','Owned homes pay rent every night, plus 2 coins for each piece of furniture placed.'],
  ['Bag','See basket, furniture, seeds, keys and collections. Change outfits.'],
@@ -90,8 +90,8 @@ const GUIDE_SYS=[
  ['Hearts','Friendship goes from 0 to 10 hearts. Birthdays double gift hearts.']];
 const GUIDE_TRAVEL=[
  ['Walk, bike, ride','Drag or WASD to walk. Use the bike rack, or buy your own bike at Mends Servo and press V or the Ride button.'],
- ['Ride or teleport','At every bus stop and station choose Ride (3 coins) to travel on board, or Teleport (30 coins) to arrive straight away. Riding the Island Explorer bus or the Quokka Express plays a sightseeing cut-scene past The Basin, the lighthouses, salt lakes, Geordie Bay, Oliver Hill, the south coast bays and Cape Vlamingh, with a short fact for each. Tap Skip ride to jump to the stop.'],
- ['Island Explorer bus','19 blue BUS stops loop the whole island, from the Main Bus Stop in the Settlement round the south coast to West End and back along the north coast bays. Ride, or teleport between stops. Starts on day 3.'],
+ ['Ride or teleport','At every bus stop and station choose Ride (3 coins) to travel on board, or Teleport (30 coins) to arrive straight away. Riding the Island Loop bus or the Quokka Express plays a sightseeing cut-scene past The Basin, the lighthouses, salt lakes, Geordie Bay, Oliver Hill, the south coast bays and Cape Vlamingh, with a short fact for each. Tap Skip ride to jump to the stop.'],
+ ['Island Loop bus','19 blue BUS stops loop the whole island, from the Main Bus Stop in the Settlement round the south coast to West End and back along the north coast bays. Ride, or teleport between stops. Starts on day 3.'],
  ['Quokka Express','Little train from Settlement Station to Oliver Hill, 15 minutes.'],
  ['Ferry: Rottnest ↔ South Perth','From the end of Main Jetty, about 1 hour. Runs until 18:00.'],
  ['Bus: South Perth ↔ Heirisson Island ↔ Victoria Park','From the Mill Point Road stop. 15 minutes a leg.'],
@@ -105,7 +105,7 @@ function openGuide(){if(!running||overlay)return;renderGuide();showOverlay('guid
 function renderGuide(){const T=$('#gdTabs');T.innerHTML='';[['start','How to play'],['places','Places'],['quests','Quests'],['people','People'],['acts','Activities'],['sys','Systems'],['travel','Travel & maps']].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(guideTab===k?' on':'');b.id='gdt-'+k;b.textContent=l;b.onclick=()=>{guideTab=k;renderGuide();$('#gdBody').scrollTop=0;};T.appendChild(b);});
   const B=$('#gdBody');B.innerHTML='';const card=(title,text,tag,extra)=>{const d=document.createElement('div');d.className='gdC';const h=document.createElement('div');h.className='gdT';h.textContent=title;if(tag){const s=document.createElement('span');s.className='gdTag';s.textContent=tag;h.appendChild(s);}const p=document.createElement('p');p.textContent=text;d.append(h,p);if(extra)d.appendChild(extra);B.appendChild(d);return d;};
   const zoneFilter=()=>{const row=document.createElement('div');row.className='qtabs';[['all','All']].concat(Object.keys(ZN).map(k=>[k,ZN[k]])).forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(guideZone===k?' on':'');b.textContent=l;b.onclick=()=>{guideZone=k;renderGuide();};row.appendChild(b);});B.appendChild(row);};
-  if(guideTab==='start'){card('Your story','Kip the quokka opens a tiny café on Wadjemup (Rottnest Island). Serve the ferry crowds, grow Perth Hills produce, save for the wishlist and bring Mum & Dad over. After that the game keeps going: buy businesses, homes and explore Perth.');
+  if(guideTab==='start'){card('Your story','Kip the quokka opens a tiny café on Rottnest Island. Serve the ferry crowds, grow Perth Hills produce, save for the wishlist and bring Mum & Dad over. After that the game keeps going: buy businesses, homes and explore Perth.');
     card('A typical day','7:00 open the café → serve each ferry wave → 16:00 close → garden, explore, take the ferry or bus → 22:00 sleep. Check the tracked quest at the top of the screen, or under the minimap on phones.');
     const g=document.createElement('div');g.className='gdKeys';GUIDE_KEYS.forEach(([a,b])=>{const x=document.createElement('b');x.textContent=a;const y=document.createElement('span');y.textContent=b;g.append(x,y);});card('Controls','Keyboard keys in brackets work on desktop; on phones use the on-screen buttons and the ☰ menu.',null,g);}
   if(guideTab==='places'){zoneFilter();GUIDE_PLACES.filter(p=>guideZone==='all'||p[0]===guideZone).forEach(([z,n,t])=>card(n,t,ZN[z]));}

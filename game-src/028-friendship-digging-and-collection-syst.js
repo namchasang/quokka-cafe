@@ -8,7 +8,7 @@ const FESTIVALS=[
  {id:'lny',s:0,d:24,name:'Lunar New Year Night Market',where:'vp',spot:[525,4],desc:'Red lanterns over Albany Highway. Every dish on the strip pays you back with a lucky red envelope.'},
  {id:'streetarts',s:1,d:10,name:'Fremantle Street Arts',where:'freo',spot:[300,6],desc:'Buskers and street performers across Freo. Tips flow and the Cappuccino Strip is packed.'},
  {id:'quokkaday',s:1,d:20,name:'Quokka Day',where:'island',spot:[VILLAGE.x,VILLAGE.z+1],desc:'The whole village gathers around the campfire. Visit Elder Wattle for a gift.'},
- {id:'whales',s:2,d:8,len:7,name:'Whale Week',where:'island',spot:[46,6],desc:'Humpback whales pass Wadjemup on their winter migration. Look out from East Beach and Bathurst Lighthouse.'},
+ {id:'whales',s:2,d:8,len:7,name:'Whale Week',where:'island',spot:[46,6],desc:'Humpback whales pass Rottnest on their winter migration. Look out from East Beach and Bathurst Lighthouse.'},
  {id:'wildflower',s:3,d:18,name:'Wildflower Fair',where:'sp',spot:[150,4.6],desc:'Flower stalls on the South Perth foreshore. Seeds are half price at Swan Seeds today.'},
  {id:'fireworks',s:3,d:26,name:'Swan River Fireworks',where:'sp',spot:[150,-2],desc:'Fireworks over the Swan River after 19:00. Watch from the Mends Street plaza.'}];
 function festToday(d){d=d||S.day;const s=seasonOf(d),x=dos(d);return FESTIVALS.find(f=>f.s===s&&x>=f.d&&x<f.d+(f.len||1));}
@@ -29,7 +29,7 @@ const FRIENDS=[
   lines:['*chirp* The tide was kind this morning.','The blue of my feathers? Only in spring, dear.','Mind the snakes in the long grass, little one.'],
   ev:[['Nana Wren: I knew your grandmother, Kip. She loved the lighthouse too.',25],['Nana Wren: A shiny shell for your café counter. Tourists will love it.',50],['Nana Wren: You’ve made this island warmer. Thank you, dear.',120]]},
  {id:'elder',name:'Elder Wattle',role:'Village elder',zone:'island',pos:()=>[VILLAGE_ELDER.x,VILLAGE_ELDER.z],loves:['basil','fig','lgrass'],likes:['straw','nect','bokchoy'],bday:[1,20],
-  lines:['Wadjemup means “place across the water”.','We quokkas don’t need much water. Plants give us most of it.','Never feed us bread, young one. It makes us sick.'],
+  lines:['Rottnest means “place across the water”.','We quokkas don’t need much water. Plants give us most of it.','Never feed us bread, young one. It makes us sick.'],
   ev:[['Elder Wattle: The village voted. You may build a small hut here someday.',30],['Elder Wattle: Our oldest song, about the first ferry. Take these coins the young ones collected.',60],['Elder Wattle: You are one of us now, Kip of the café.',150]]},
  {id:'mei',name:'Mei',role:'Swan River Grocer',zone:'sp',pos:()=>[mei.x,mei.z],loves:['avo','dragon','apple'],likes:['tom','lemon','bokchoy','straw'],bday:[0,22],
   lines:['Fresh produce sells out by noon on weekends.','My mum still makes the best dumplings in Perth.','The jacarandas turn the whole street purple in spring.'],

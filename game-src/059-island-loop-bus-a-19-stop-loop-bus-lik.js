@@ -1,6 +1,6 @@
-// ---------- Island Explorer: a 19-stop loop bus, like the real one ----------
+// ---------- Island Loop bus: a 19-stop loop bus, like the real one ----------
 // stops are placed in the original layout (old coordinates), pulled onto dry land, then moved with the island
-const XPL_STOPS=[['settle','Main Bus Stop',10.4,-1.8],['kingstown','Kingstown Barracks',16,8.6],['henrietta','Henrietta Rocks',27,10],['porpoise','Porpoise Bay',38,8.4],['light','Wadjemup Lighthouse',32.2,-3.4],
+const XPL_STOPS=[['settle','Main Bus Stop',10.4,-1.8],['kingstown','Kingstown Barracks',16,8.6],['henrietta','Henrietta Rocks',27,10],['porpoise','Porpoise Bay',38,8.4],['light','Rottnest Lighthouse',32.2,-3.4],
   ['parker','Parker Point',62.5,6.4],['salmon','Little Salmon Bay',70.4,5.8],['salmonbay','Salmon Bay',76,5.6],['green','Green Island',79.5,5.4],['strick','Strickland Bay',83.4,5.6],['west','West End',89.6,1],
   ['roland','Roland Smith Memorial',90.4,-2.4],['rocky','Rocky Bay',86,-3.2],['stark','Stark Bay',81,-3.4],['ricey','Ricey Beach',77,-3.6],['york','City of York Bay',73,-3.6],['armstrong','Little Armstrong Bay',68.4,-3.6],['parakeet','Little Parakeet Bay',64,-3.6],['geordie','Geordie Bay',59.4,-2.6]];
 const XPL={stops:[],route:[],idx:{},meshes:[]};
@@ -40,7 +40,7 @@ function coachRide(from,to){const a=COACH_IDX[from],b=COACH_IDX[to];if(a==null||
   const fw=[],bw=[];for(let i=a;;i=(i+1)%n){fw.push(R[i]);if(i===b)break;}for(let i=a;;i=(i-1+n)%n){bw.push(R[i]);if(i===b)break;}
   const len=P=>{let s=0;for(let i=0;i<P.length-1;i++)s+=Math.hypot(P[i+1][0]-P[i][0],P[i+1][1]-P[i][1]);return s;};const pts=len(fw)<=len(bw)?fw:bw;
   if(!coachMesh){coachMesh=window.__busProto.clone();coachMesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.color&&o.material.color.getHex()===0x2f9a5a){o.material=o.material.clone();o.material.color.set('#1f5fae');}});scene.add(coachMesh);}
-  coachMesh.visible=true;toast('All aboard the Island Explorer! · '+FARE_RIDE+' coins',2.2);startCine();rideAlong(pts,coachMesh,11,()=>{coachMesh.visible=false;const B=COACH.find(q=>q.id===to);player.x=B.x;player.z=B.z+.8;S.qg=S.qg||{};S.qg['coach_'+to]=1;save();toast('Arrived: '+B.name,2);},.12);}
+  coachMesh.visible=true;toast('All aboard the Island Loop bus! · '+FARE_RIDE+' coins',2.2);startCine();rideAlong(pts,coachMesh,11,()=>{coachMesh.visible=false;const B=COACH.find(q=>q.id===to);player.x=B.x;player.z=B.z+.8;S.qg=S.qg||{};S.qg['coach_'+to]=1;save();toast('Arrived: '+B.name,2);},.12);}
 function coachMinutes(from,to){const a=COACH_IDX[from],b=COACH_IDX[to],R=COACH_ROUTE,n=R.length-1;if(a==null||b==null)return 0;let f=0,i=a;while(i!==b){const j=(i+1)%n;f+=Math.hypot(R[j][0]-R[i][0],R[j][1]-R[i][1]);i=j;}let L=0;for(let k=0;k<n;k++)L+=Math.hypot(R[k+1][0]-R[k][0],R[k+1][1]-R[k][1]);return Math.max(2,Math.round(Math.min(f,L-f)*.12));}
 try{islandWarp();}catch(e){console.error('islandWarp',e);}
 updateCamera(0,true);

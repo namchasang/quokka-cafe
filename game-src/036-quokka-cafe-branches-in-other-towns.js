@@ -1,6 +1,6 @@
 // ---------- Quokka Cafe branches in other towns ----------
 const BRANCHES=[
- {id:'geordie',name:'Geordie Bay',zone:'island',x:71.6,z:-3.4,ry:0,price:900,base:5,lock:()=>unlocked('coach'),lockTxt:'Ride the Island Explorer bus (from day 3)',blurb:'A seaside kiosk for cyclists and holiday-house families on the north coast.'},
+ {id:'geordie',name:'Geordie Bay',zone:'island',x:71.6,z:-3.4,ry:0,price:900,base:5,lock:()=>unlocked('coach'),lockTxt:'Ride the Island Loop bus (from day 3)',blurb:'A seaside kiosk for cyclists and holiday-house families on the north coast.'},
  {id:'sp',name:'South Perth',zone:'sp',x:127,z:4.6,ry:0,price:1500,base:8,lock:()=>true,lockTxt:'',blurb:'A riverside café on the foreshore with views of the city skyline.'},
  {id:'vp',name:'Victoria Park',zone:'vp',x:556,z:5.4,ry:Math.PI,price:1800,base:9,lock:()=>unlocked('bus'),lockTxt:'Sell produce to Mei to unlock the bus',blurb:'A busy corner café at the end of the Albany Highway food strip.'},
  {id:'freo',name:'Fremantle',zone:'freo',x:320.5,z:-7.2,ry:0,price:2500,base:12,lock:()=>freoUnlocked(),lockTxt:'Unlock Fremantle (harbour Lv3 + Kip’s Ferry Co.)',blurb:'A heritage café near the old town, packed with weekend market crowds.'}];

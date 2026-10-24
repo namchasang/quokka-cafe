@@ -1,4 +1,4 @@
-// ---------- more of Wadjemup ----------
+// ---------- more of Rottnest ----------
 const SIGN_TEX=new Set(),FLIPPED=new Set();
 function makeSign(lines,W,H,bg,fg){const c=mk(W,H);const draw=()=>{const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,W,H);x.fillStyle='rgba(0,0,0,.35)';x.fillRect(0,0,W,1);x.fillRect(0,H-1,W,1);x.fillStyle=fg;x.font='bold 9px "Pixelify Sans", monospace';x.textAlign='center';x.textBaseline='middle';lines.forEach((l,i)=>x.fillText(l,W/2,(i+.5)*H/lines.length+.5));};
   draw();const t=ctex(c);SIGN_TEX.add(t);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{draw();t.needsUpdate=true;});return t;}
