@@ -93,13 +93,13 @@ function islandGround(){ISL.tg0=performance.now();
   // the real island's bounds with a strip of sea round it
   TB.x1=-180;TB.x2=100;TB.z1=-66;TB.z2=64;GW=(TB.x2-TB.x1)*GR+1;GH=(TB.z2-TB.z1)*GR+1;
   const F0=Fg,W0=(99+24)*GR+1,H0=(20+16)*GR+1,f0=(x,z)=>{const u=(x+24)*GR,v=(z+16)*GR;if(u<0||v<0||u>=W0-1||v>=H0-1)return islandF(x,z);const i=u|0,j=v|0,a=u-i,b=v-j,k=j*W0+i;return(F0[k]*(1-a)+F0[k+1]*a)*(1-b)+(F0[k+W0]*(1-a)+F0[k+W0+1]*a)*b;};
-  const PL=ISL.plat[0],PD=islPlatD(PL),PC=[PL.x+PD[0],PL.z+PD[1]];
+  const PL=ISL.plat[0],PD=islPlatD(PL),PC=[PL.x+PD[0],PL.z+PD[1]],BY=BAYS.filter(([bx,bz])=>!(Math.hypot(bx-PL.x,bz-PL.z)<PL.R||islDist(bx,bz)));
   Fg=new Float32Array(GW*GH);Dg=new Float32Array(GW*GH);ISL_OX=new Float32Array(GW*GH);ISL_OZ=new Float32Array(GW*GH);ISL_PD=new Float32Array(GW*GH).fill(9);
   {const CS=2,CW=Math.ceil((TB.x2-TB.x1)/CS)+2,CH=Math.ceil((TB.z2-TB.z1)/CS)+2,CX=new Float32Array(CW*CH),CZ=new Float32Array(CW*CH);for(let j=0;j<CH;j++)for(let i=0;i<CW;i++){const X=TB.x1+i*CS,Z=TB.z1+j*CS,o=isWinv(X,Z,rislD(X,Z)<-8);CX[j*CW+i]=o[0];CZ[j*CW+i]=o[1];}
    for(let j=0;j<GH;j++){const v=j/GR/CS,j0=Math.min(CH-2,Math.floor(v)),b=v-j0;for(let i=0;i<GW;i++){const u=i/GR/CS,i0=Math.min(CW-2,Math.floor(u)),a=u-i0,c=j0*CW+i0,k=j*GW+i;
      const ox=(CX[c]*(1-a)+CX[c+1]*a)*(1-b)+(CX[c+CW]*(1-a)+CX[c+CW+1]*a)*b,oz=(CZ[c]*(1-a)+CZ[c+1]*a)*(1-b)+(CZ[c+CW]*(1-a)+CZ[c+CW+1]*a)*b;ISL_OX[k]=ox;ISL_OZ[k]=oz;
      // ground: the real coast, the Settlement's own coast inside its plateau, and the old bays cut into the real coast
-     const X=TB.x1+i/GR,Z=TB.z1+j/GR;let f=rislD(X,Z);for(const [bx,bz,br] of BAYS){if(Math.hypot(bx-PL.x,bz-PL.z)<PL.R||islDist(bx,bz))continue;const d=Math.hypot(ox-bx,oz-bz);if(d<br+6)f=Math.min(f,(d-br)*2.4);}
+     const X=TB.x1+i/GR,Z=TB.z1+j/GR;let f=rislD(X,Z);for(const [bx,bz,br] of BY){const ax=ox-bx,az=oz-bz;if(ax>br+6||ax<-br-6||az>br+6||az<-br-6)continue;const d=Math.hypot(ax,az);if(d<br+6)f=Math.min(f,(d-br)*2.4);}
      const ph=isPhi(PL,Math.hypot(X-PC[0],Z-PC[1]));if(ph>0){const g=Math.hypot(f0(ox+.2,oz)-f0(ox-.2,oz),f0(ox,oz+.2)-f0(ox,oz-.2))/.4;const fd=f0(ox,oz)/Math.max(.01,g),fo=fd>0?fd:Math.max(fd,Math.min(f,-1.5));f=f*(1-ph)+fo*ph;}Fg[k]=f;}}}
   for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const k=j*GW+i;const i0=i>0?k-1:k,i1=i<GW-1?k+1:k,j0=j>0?k-GW:k,j1=j<GH-1?k+GW:k;
     const fx=(Fg[i1]-Fg[i0])*GR/((i1-i0)||1),fz=(Fg[j1]-Fg[j0])*GR/(((j1-j0)/GW)||1);Dg[k]=Fg[k]/Math.max(.004,Math.hypot(fx,fz));}
@@ -108,7 +108,8 @@ function islandGround(){ISL.tg0=performance.now();
     for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const k=j*GW+i,d=segD(TB.x1+i/GR,TB.z1+j/GR,ax,az,bx,bz);if(d<ISL_PD[k])ISL_PD[k]=d;}}
   TCX=(TB.x1+TB.x2)/2;TCZ=(TB.z1+TB.z2)/2;TWD=TB.x2-TB.x1;THT=TB.z2-TB.z1;
   terrC.width=TWD*TPX;terrC.height=THT*TPX;waterC2.width=foamC2.width=TWD*WPX;waterC2.height=foamC2.height=THT*WPX;
-  ISL.tg=performance.now();paintTerrain();ISL.tp=performance.now();paintWater();ISL.tw=performance.now();gtInit();GT.fast=true;
+  ISL.tg=performance.now();ISL.tp=performance.now();// the ground is painted once, at the end (islRepaint)
+  paintWater();ISL.tw=performance.now();gtInit();GT.fast=true;
   [[shore,-.12],[foam,-.11],[terrain,0],[waves,-.1]].forEach(([m,y])=>{m.geometry.dispose();m.geometry=new THREE.PlaneGeometry(TWD,THT);m.position.set(TCX,y,TCZ);if(m.material.map)m.material.map.needsUpdate=true;});
   waveMat.uniforms.tD.value.dispose();waveMat.uniforms.tD.value=makeWaveTex();waveMat.uniforms.uB.value.set(TB.x1,TB.z1,TWD,THT);{const s=IW(82,11);waveMat.uniforms.uSurf.value.set(s.x,s.z);}
   clouds.geometry.dispose();clouds.geometry=new THREE.PlaneGeometry(TWD,THT);clouds.position.set(TCX,.19,TCZ);cloudTex.repeat.set(2*TWD/90,1.1*THT/48);}

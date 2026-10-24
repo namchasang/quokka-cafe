@@ -7,10 +7,14 @@ function islGround(x,z){for(const g of ISL_GROUND){const dx=x-g.x,dz=z-g.z;if(Ma
 function islGroundBlock(x,z){const h=ISL_GROUND.length?islGround(x,z):null;return!!(h&&h.g.t==='lake'&&h.e<.9);}
 function islAddGround(g){g.bx=Math.max(g.rx,g.rz)*1.3+.5;g.bz=g.bx;ISL_GROUND.push(g);return g;}
 // is a rectangle (centre, half sizes) clear: dry land, off paths, away from buildings, stops and lamps
+// colliders indexed in 4-unit cells (rebuilt when colliders are added or removed), and tree trunks by position
+const ISC={n:-1,g:null,tk:null,tn:-1};
+function iscGrid(){if(ISC.n!==colliders.length){ISC.n=colliders.length;ISC.g=new Map();for(const c of colliders){if(c.x1>1e8)continue;for(let i=Math.floor(c.x1/4);i<=Math.floor(c.x2/4);i++)for(let j=Math.floor(c.z1/4);j<=Math.floor(c.z2/4);j++){const k=i*10000+j;let a=ISC.g.get(k);if(!a)ISC.g.set(k,a=[]);a.push(c);}}}
+  if(ISC.tn!==trees.length){ISC.tn=trees.length;ISC.tk=new Set(trees.map(t=>Math.round(t.x*20)+','+Math.round(t.z*20)));}return ISC.g;}
 function islOldLake(x,z){const [ox,oz]=islOld(x,z);return Math.min(((ox-42.2)/3.5)**2+((oz+7.5)/1.6)**2,((ox-66.2)/2.6)**2+((oz-2.7)/1.1)**2)<1.6;}
 function islSiteOK(x,z,hw,hd,o){o=o||{};const land=o.land==null?1.2:o.land,pm=o.path==null?.9:o.path;
-  for(let a=-hw;a<=hw+1e-6;a+=Math.max(.5,hw/4))for(let b=-hd;b<=hd+1e-6;b+=Math.max(.5,hd/4)){const px=x+a,pz=z+b;if(landD(px,pz)<land)return false;if(o.noLake&&islOldLake(px,pz))return false;if(!o.road&&pathD(px,pz)<pm)return false;if(islGroundBlock(px,pz))return false;}
-  const pad=o.pad==null?.6:o.pad;for(const c of colliders){if(c.x1>1e8||c.x2<x-hw-pad||c.x1>x+hw+pad||c.z2<z-hd-pad||c.z1>z+hd+pad)continue;const tiny=(c.x2-c.x1)<.6&&(c.z2-c.z1)<.4;if(tiny&&trees.some(t=>Math.abs(t.x-(c.x1+c.x2)/2)<.05&&Math.abs(t.z-(c.z1+c.z2)/2)<.05))continue;return false;}
+  for(let a=-hw;a<=hw+1e-6;a+=Math.max(.5,hw/4))for(let b=-hd;b<=hd+1e-6;b+=Math.max(.5,hd/4)){const px=x+a,pz=z+b;if(landD(px,pz)<land)return false;if(o.noLake&&islOldLake(px,pz))return false;if(!o.road&&(ISL_PD?islPD(px,pz):pathD(px,pz))<pm)return false;if(islGroundBlock(px,pz))return false;}
+  const pad=o.pad==null?.6:o.pad;{const G=iscGrid();for(let i=Math.floor((x-hw-pad)/4);i<=Math.floor((x+hw+pad)/4);i++)for(let j=Math.floor((z-hd-pad)/4);j<=Math.floor((z+hd+pad)/4);j++){const A=G.get(i*10000+j);if(!A)continue;for(const c of A){if(c.x2<x-hw-pad||c.x1>x+hw+pad||c.z2<z-hd-pad||c.z1>z+hd+pad)continue;const tiny=(c.x2-c.x1)<.6&&(c.z2-c.z1)<.4;if(tiny&&ISC.tk.has(Math.round((c.x1+c.x2)*10)+','+Math.round((c.z1+c.z2)*10)))continue;return false;}}}
   if(COACH.some(b=>Math.abs(b.x+.9-x)<hw+1.6&&Math.abs(b.z-.9-z)<hd+1.6))return false;if(LAMPS.some(L=>Math.abs(L.x-x)<hw+.8&&Math.abs(L.z-z)<hd+.8))return false;return true;}
 function islFindSite(x,z,hw,hd,o,R){R=R||14;if(islSiteOK(x,z,hw,hd,o))return[x,z];for(let r=.8;r<=R;r+=.8){const n=Math.max(8,Math.round(r*5));for(let i=0;i<n;i++){const t=i/n*6.283,px=x+Math.cos(t)*r,pz=z+Math.sin(t)*r;if(islSiteOK(px,pz,hw,hd,o))return[px,pz];}}return null;}
 // clear trees, bushes, grass, flowers and rocks from a rectangle before building on it

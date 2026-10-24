@@ -54,17 +54,17 @@ Find code: `grep -n 'name' game-src/*`.
 | 046-customers.js | 4046-4090 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
 | 047-movement.js | 4091-4149 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
 | 048-overlays.js | 4150-4244 | 27 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
-| 049-maps-quest-guidance.js | 4245-4358 | 19 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
-| 050-island-scale-spread-island-out-runs-on.js | 4359-4401 | 4 | islandWarp, islandData |
-| 051-camera-render.js | 4402-4486 | 12 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
-| 052-island-scale-wave-a-settlement-heritag.js | 4487-4613 | 24 | WAV1, islGround, islGroundBlock, islAddGround, islOldLake, islSiteOK, islFindSite, islClear, islStampPath, islLinkPath |
-| 053-island-scale-wave-b-north-coast-bays-s.js | 4614-4682 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
-| 054-inside-oliver-hill-tunnels-with-a-torc.js | 4683-4811 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
-| 055-island-scale-wave-c-salmon-bay-henriet.js | 4812-4857 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
-| 056-snorkelling-out-to-old-wreck-at-henrie.js | 4858-4929 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
-| 057-island-scale-phase-6-six-island-lookou.js | 4930-5011 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
-| 058-phase-8-east-cape-and-south-point-get.js | 5012-5105 | 13 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
-| 059-island-loop-bus-a-19-stop-loop-bus-lik.js | 5106-5159 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
-| 060-live-mode-live-1-kip-runs-caf-on-his-o.js | 5160-5234 | 8 | LIVEM |
-| 061-look-lab-landscape-layers-of-each-real.js | 5235-5391 | 16 | LAB |
-| 062-part.js | 5392-5394 | 0 |  |
+| 049-maps-quest-guidance.js | 4245-4359 | 19 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
+| 050-island-scale-spread-island-out-runs-on.js | 4360-4402 | 4 | islandWarp, islandData |
+| 051-camera-render.js | 4403-4487 | 12 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
+| 052-island-scale-wave-a-settlement-heritag.js | 4488-4618 | 25 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
+| 053-island-scale-wave-b-north-coast-bays-s.js | 4619-4687 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
+| 054-inside-oliver-hill-tunnels-with-a-torc.js | 4688-4816 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
+| 055-island-scale-wave-c-salmon-bay-henriet.js | 4817-4862 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
+| 056-snorkelling-out-to-old-wreck-at-henrie.js | 4863-4934 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
+| 057-island-scale-phase-6-six-island-lookou.js | 4935-5016 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
+| 058-phase-8-east-cape-and-south-point-get.js | 5017-5110 | 13 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
+| 059-island-loop-bus-a-19-stop-loop-bus-lik.js | 5111-5164 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
+| 060-live-mode-live-1-kip-runs-caf-on-his-o.js | 5165-5239 | 8 | LIVEM |
+| 061-look-lab-landscape-layers-of-each-real.js | 5240-5396 | 16 | LAB |
+| 062-part.js | 5397-5399 | 0 |  |

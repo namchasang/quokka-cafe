@@ -30,7 +30,7 @@ function islandWarp(){if(ISL.done)return;const t0=performance.now();
   ISL.done=true;ISL.t1=performance.now()-t0;
   islandData();
   islandGround();
-  ISL.late.forEach(f=>{try{f();}catch(e){console.warn('islandLate',e);}});
+  ISL.lt=[];ISL.late.forEach(f=>{const t=performance.now();try{f();}catch(e){console.warn('islandLate',e);}ISL.lt.push(Math.round(performance.now()-t));});
   try{mmBase=renderMapBase(mmFW(),mmFH(),1.15,false);bigBase=null;}catch(e){}
   ISL.ms=Math.round(performance.now()-t0);}
 // colliders and data written in the original layout
