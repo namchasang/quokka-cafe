@@ -5,9 +5,10 @@ const BUILD='web';
 const PASS_LINKS={payhip:'https://payhip.com/b/moA03',itch:''};const PASS_PRICE='A$4.99';
 function passBuyUrl(){return PASS_LINKS.payhip||PASS_LINKS.itch||'';}
 function goBuyPass(){const u=passBuyUrl();if(!u){$('#psMsg').textContent='The Perth Pass shop opens soon. Check back in a few days!';$('#psMsg').className='psMsg bad';return false;}let w=null;try{w=window.open(u,'_blank');if(w)w.opener=null;}catch(e){}if(!w){const m=$('#psMsg');m.innerHTML='';m.className='psMsg';const l=document.createElement('a');l.href=u;l.target='_blank';l.rel='noopener';l.textContent='Tap here to open the Perth Pass shop ('+PASS_PRICE+')';l.style.color='#f0c86e';m.appendChild(l);return false;}return true;}
-const PC_AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-function pcSum(body){let h=2166136261;const t='wadjemup|'+body;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return PC_AB[h%32]+PC_AB[(h>>>5)%32];}
-function passCodeOk(raw){const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!/^QCP[A-Z0-9]{10}$/.test(c))return false;const body=c.slice(3,11);if([...body].some(ch=>!PC_AB.includes(ch)))return false;return pcSum(body)===c.slice(11);}
+// Perth Pass codes are checked on the server (Supabase qc_redeem_pass): only hashes of sold codes live there, each code works on up to 3 devices
+function passCodeShape(raw){const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');return /^QCP[A-Z0-9]{10}$/.test(c)?c:null;}
+function passDevice(){try{let d=localStorage.getItem('qc-device');if(!d||!/^[A-Za-z0-9-]{8,64}$/.test(d)){d=(crypto.randomUUID?crypto.randomUUID():'d'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12));localStorage.setItem('qc-device',d);}return d;}catch(e){return 'dev-'+Date.now().toString(36);}}
+function passRedeemServer(c){return qcRpc('qc_redeem_pass',{p_code:c,p_device:passDevice()});}
 function hasPass(){if(BUILD==='full'||isGM())return true;if(S&&S.pass)return true;try{return localStorage.getItem('qc-perth-pass')==='1';}catch(e){return false;}}
 // ---- Game Master account (full game for Paul) ----
 const GM_HASH='0a5d4613e90f1f8961136e39e7480c8b9e10fec5675830ca066f19431752a428';
@@ -32,7 +33,9 @@ function openPass(where){if(VISIT)return;passFor=where||null;hideOverlays();cons
   const B=$('#psBuy');B.innerHTML='';if(!own){const a=document.createElement('button');a.type='button';a.className='btn';a.id='psBuyBtn';a.textContent='Buy Perth Pass \u00b7 '+PASS_PRICE;a.onclick=goBuyPass;B.appendChild(a);}
   
   $('#psInput').value='';$('#psMsg').textContent='';$('#psMsg').className='psMsg';$('#psInput').closest('label').hidden=own;$('#psRedeem').hidden=own;showOverlay('pass');}
-async function redeemPass(){const v=$('#psInput').value;const m=$('#psMsg');if(/^\s*GM/i.test(v)&&await gmCheck(v)){gmEnable();m.textContent='\u2605 Game Master account active: full game unlocked on this device.';m.className='psMsg ok';setTimeout(()=>{hideOverlays();toast('\u2605 Game Master mode \u00b7 open \u2630 \u2192 GM for tools',3.5);},900);return;}if(!passCodeOk(v)){const opened=goBuyPass();if(opened){m.textContent=(v.trim()?'That code isn\u2019t valid. ':'')+'Opening the Perth Pass shop ('+PASS_PRICE+'). Your code arrives by email after you pay.';m.className='psMsg bad';}return;}
+async function redeemPass(){const v=$('#psInput').value;const m=$('#psMsg');if(/^\s*GM/i.test(v)&&await gmCheck(v)){gmEnable();m.textContent='\u2605 Game Master account active: full game unlocked on this device.';m.className='psMsg ok';setTimeout(()=>{hideOverlays();toast('\u2605 Game Master mode \u00b7 open \u2630 \u2192 GM for tools',3.5);},900);return;}const c=passCodeShape(v);if(!c){const opened=goBuyPass();if(opened){m.textContent=(v.trim()?'That code isn\u2019t valid. ':'')+'Opening the Perth Pass shop ('+PASS_PRICE+'). Your code arrives by email after you pay.';m.className='psMsg bad';}return;}
+  const btn=$('#psRedeem');m.textContent='Checking your code…';m.className='psMsg';btn.disabled=true;let r=null;try{r=await passRedeemServer(c);}catch(e){btn.disabled=false;m.textContent='Can’t reach the Perth Pass server right now. Check your internet and try again.';m.className='psMsg bad';return;}btn.disabled=false;
+  if(!r||!r.ok){m.textContent=r&&r.reason==='limit'?'This code is already used on 3 devices. Email us if you need help.':'That code isn’t valid. Check it matches your email (QCP-XXXX-XXXX-XX).';m.className='psMsg bad';return;}
   S.pass=true;try{localStorage.setItem('qc-perth-pass','1');}catch(e){}save();m.textContent='Perth Pass unlocked! Fremantle and Victoria Park are open.';m.className='psMsg ok';$('#passBtn').textContent='Perth Pass \u2713';
   setTimeout(()=>{hideOverlays();toast('\u{1F39F} Perth Pass unlocked \u00b7 Fremantle & Victoria Park are open',3.5);},900);}
 function needPass(where){if(hasPass())return false;openPass(where);return true;}

@@ -43,19 +43,19 @@ Find code: `grep -n 'name' game-src/*`.
 | 035-while-visiting-an-online-island.js | 3180-3226 | 9 | vaShow, vbBook, vbGift, applyAllVisuals, enterVisit, leaveVisit, STAM_MAX, eat, stamTick, blackT |
 | 036-quokka-cafe-branches-in-other-towns.js | 3227-3273 | 9 | BRANCHES, BR_UP, BR_COL, brMeshes, brState, buildBranch, applyBranches, branchIncomeTick, branchMidnight, brGuestsTick |
 | 037-ride-or-teleport-transport-fares.js | 3274-3330 | 8 | FARE_RIDE, RIDE, pay, rideAlong, rideTick, COACH_ROUTE, COACH_IDX, coachMesh, coachRide, trainRide |
-| 038-perth-pass-freemium.js | 3331-3376 | 7 | BUILD, PASS_LINKS, passBuyUrl, goBuyPass, PC_AB, pcSum, passCodeOk, hasPass, GM_HASH, isGM |
-| 039-special-caf-events-one-random-event-on.js | 3377-3453 | 13 | EVENTS, evToday, evCur, evRoll, evAnnounce, evOnServe, evClose, propSel, openProp, renderProp |
-| 040-ambient-crowds-tourists-joggers-cyclis.js | 3454-3507 | 7 | WALK_ROUTES, WALK_N, walkers, walkerZone, updateWalkers, zoneOf, hiWalk, vpWalk, HIB, ZONE_DEF |
-| 041-phase-1-look-on-mainland-same-tussocks.js | 3508-3555 | 7 | LAMPS, CAFE_NL, cafeNightTick, lampTick |
-| 042-bus-between-south-perth-heirisson-isla.js | 3556-3622 | 16 | busTo, VP_BUSKER, rollKey, zoneTick, STARS, PCAT, at, PCS, isSpecial, pcThumbKey |
-| 043-area-stories-chapters-per-area-that-le.js | 3623-3674 | 9 | _story, STORY_DEF, STORY_ORDER, storyChap, chapSteps, stepDone, stepTarget, storyOpen, storyT, storyTick |
-| 044-side-quests-funny-and-heartfelt-errand.js | 3675-3807 | 28 | SIDEQ, sqPos, sqOpen, sqStep, sqReady, sqT, sqTick, sqQuests, sqTarget, snapPending |
-| 045-caf-pantry.js | 3808-3922 | 20 | STOCK_INFO, RECIPE, addStock, canMake, useStock, missingFor, lowStock, GSTORE, strandRolled, spawnStranded |
-| 046-customers.js | 3923-3967 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
-| 047-movement.js | 3968-4026 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
-| 048-overlays.js | 4027-4121 | 26 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
-| 049-maps-quest-guidance.js | 4122-4204 | 13 | mmC, MM, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase, drawMapDynamic |
-| 050-camera-render.js | 4205-4298 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
-| 051-live-mode.js | 4299-4373 | 8 | LIVEM |
-| 051-look-lab-landscape-layers.js | 4374-4530 | 16 | LAB |
-| 051-part.js | 4531-4533 | 0 |  |
+| 038-perth-pass-freemium.js | 3331-3379 | 8 | BUILD, PASS_LINKS, passBuyUrl, goBuyPass, passCodeShape, passDevice, passRedeemServer, hasPass, GM_HASH, isGM |
+| 039-special-caf-events-one-random-event-on.js | 3380-3456 | 13 | EVENTS, evToday, evCur, evRoll, evAnnounce, evOnServe, evClose, propSel, openProp, renderProp |
+| 040-ambient-crowds-tourists-joggers-cyclis.js | 3457-3510 | 7 | WALK_ROUTES, WALK_N, walkers, walkerZone, updateWalkers, zoneOf, hiWalk, vpWalk, HIB, ZONE_DEF |
+| 041-phase-1-look-on-mainland-same-tussocks.js | 3511-3558 | 7 | LAMPS, CAFE_NL, cafeNightTick, lampTick |
+| 042-bus-between-south-perth-heirisson-isla.js | 3559-3625 | 16 | busTo, VP_BUSKER, rollKey, zoneTick, STARS, PCAT, at, PCS, isSpecial, pcThumbKey |
+| 043-area-stories-chapters-per-area-that-le.js | 3626-3677 | 9 | _story, STORY_DEF, STORY_ORDER, storyChap, chapSteps, stepDone, stepTarget, storyOpen, storyT, storyTick |
+| 044-side-quests-funny-and-heartfelt-errand.js | 3678-3810 | 28 | SIDEQ, sqPos, sqOpen, sqStep, sqReady, sqT, sqTick, sqQuests, sqTarget, snapPending |
+| 045-caf-pantry.js | 3811-3925 | 20 | STOCK_INFO, RECIPE, addStock, canMake, useStock, missingFor, lowStock, GSTORE, strandRolled, spawnStranded |
+| 046-customers.js | 3926-3970 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
+| 047-movement.js | 3971-4029 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
+| 048-overlays.js | 4030-4124 | 26 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
+| 049-maps-quest-guidance.js | 4125-4207 | 13 | mmC, MM, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase, drawMapDynamic |
+| 050-camera-render.js | 4208-4301 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
+| 051-live-mode.js | 4302-4376 | 8 | LIVEM |
+| 051-look-lab-landscape-layers.js | 4377-4533 | 16 | LAB |
+| 051-part.js | 4534-4536 | 0 |  |
