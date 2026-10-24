@@ -18,7 +18,7 @@ function setFrame(m,i){m.userData.step=i;showFrame(m);}
 // that follows the time of day, per-tree size/shade variety and contact shadows, species details (gum, pine, palm,
 // jacaranda, boab), seasonal leaves and blossom, and leaves or petals blowing in the wind.
 // People: every character frame at twice the pixels with smoothed diagonals, a thin outline, soft volume and eye shine.
-const LOOK2_LIVE=false;
+const LOOK2_LIVE=true;
 const LOOK2={on:LOOK2_LIVE||/[?&#](lab|hd2)\b/.test(location.search+location.hash),plants:true,people:true,tex:[],mats:[],frames:[],season:-1,shadows:null,leaves:null,petals:[]};
 function l2hash(a,b,s){let h=(a*374761393+b*668265263+(s|0)*2246822519)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;}
 function l2noise(x,y,s,seed){const gx=Math.floor(x/s),gy=Math.floor(y/s),fx=x/s-gx,fy=y/s-gy,a=l2hash(gx,gy,seed),b=l2hash(gx+1,gy,seed),c=l2hash(gx,gy+1,seed),d=l2hash(gx+1,gy+1,seed),u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
