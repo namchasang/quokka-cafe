@@ -78,6 +78,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 070-island-loop-bus-a-19-stop-loop-bus-lik.js | 6146-6191 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
 | 071-tidy-island-after-it-grows-nothing-on.js | 6192-6301 | 13 | flipIslandSigns, hot |
 | 072-live-mode-live-1-kip-runs-caf-on-his-o.js | 6302-6376 | 8 | LIVEM |
-| 073-look-lab-landscape-layers-of-each-real.js | 6377-6558 | 22 | LAB |
-| 074-hd-plants-every-tree-bush-flower-and-g.js | 6559-6628 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 075-part.js | 6629-6631 | 0 |  |
+| 073-look-lab-landscape-layers-of-each-real.js | 6377-6560 | 23 | LAB |
+| 074-hd-plants-every-tree-bush-flower-and-g.js | 6561-6628 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 075-layered-pixel-trees-2-5d-look-lab-laye.js | 6629-6669 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 076-part.js | 6670-6672 | 0 |  |

@@ -66,5 +66,3 @@ function plantHDApply(){const tset=new Set(trees.map(t=>t.m.material&&t.m.materi
 (function L(){PLANT_HD.t.value=performance.now()/1000;requestAnimationFrame(L);})();
 plantHDApply();
 if(LOOK2.on){plant2Apply();let _l2t=performance.now();(function L2(){const n=performance.now();plant2Tick((n-_l2t)/1000);_l2t=n;requestAnimationFrame(L2);})();}
-if(LAB.start)setTimeout(()=>LAB.toggle(true),600);
-})();
