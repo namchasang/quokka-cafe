@@ -6,7 +6,7 @@
 var WORLD_LIVE=true;
 const WORLD={on:WORLD_LIVE||/[?&#](lab|world)\b/.test(location.search+location.hash),walls:{},g:null};
 // freeway signs instead of gate towers (Look Lab ?lab or ?signs until SIGNS_LIVE): the way out is where the main road leaves town
-var SIGNS_LIVE=false;const SIGNS_ON=SIGNS_LIVE||/[?&#](lab|signs)\b/.test(location.search+location.hash);
+var SIGNS_LIVE=true;const SIGNS_ON=SIGNS_LIVE||/[?&#](lab|signs)\b/.test(location.search+location.hash);
 const ROAD_Z={sp:{w:22.2,e:22.2},freo:{w:-2,e:20.4},hi:{w:5.2,e:5.2},vp:{w:0,e:0},cbd:{w:5,e:-3.1},air:{w:.9,e:.9}};
 const SIGN_DEF={spw:{route:'5',road:'MILL POINT RD',to:[['Fremantle',18],['Rottnest Ferry',19],['Perth Airport',16]]},spe:{route:'5',road:'MILL POINT RD',to:[['Heirisson Is',3],['Victoria Park',5],['Perth Airport',14]]},
   freow:{route:'7',road:'HIGH ST',to:[['B-Shed Ferry',1],['Rottnest Island',19],['Bathers Beach',1]]},freoe:{route:'7',road:'CANNING HWY',to:[['South Perth',17],['Perth CBD',19],['Perth Airport',30]]},

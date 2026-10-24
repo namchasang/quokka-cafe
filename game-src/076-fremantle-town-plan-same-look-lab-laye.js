@@ -32,8 +32,8 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   const PCOL=['#c8344a','#2f6fb0','#f6f6f0','#2a2a30','#9aa4ac','#3e7d5c','#d8d2c4','#f6f6f0'];
   const parked=(x,z,ry)=>{const m=r()<.35&&CDET.retroCar?CDET.retroCar():CDET.makeCar?CDET.makeCar(pick(['sedan','hatch','hatch','ute']),pick(PCOL)):null;if(!m)return;m.g.position.set(x,0,z);m.g.rotation.y=ry;G.add(m.g);
     const hz=Math.abs(Math.sin(ry))<.5;const hl=(hz?m.len:m.wid)/2,hw=(hz?m.wid:m.len)/2;col(x-hl,z-hw,x+hl,z+hw);};
-  const kerbX=(x1,x2,z,ry,fill)=>{paint(x2-x1,.8,asph,(x1+x2)/2,z,.022);const n=Math.floor((x2-x1)/1.75);for(let k=0;k<=n;k++)paint(.05,.8,WHITE,x1+k*(x2-x1)/n,z,.028);for(let k=0;k<n;k++)if(r()<(fill||.75))parked(x1+(k+.5)*(x2-x1)/n,z,ry);};
-  const kerbZ=(z1,z2,x,ry,fill)=>{paint(.8,z2-z1,asph,x,(z1+z2)/2,.022);const n=Math.floor((z2-z1)/1.75);for(let k=0;k<=n;k++)paint(.8,.05,WHITE,x,z1+k*(z2-z1)/n,.028);for(let k=0;k<n;k++)if(r()<(fill||.75))parked(x,z1+(k+.5)*(z2-z1)/n,ry);};
+  const kerbX=(x1,x2,z,ry,fill)=>{paint(x2-x1,.8,asph,(x1+x2)/2,z,.022);const n=Math.floor((x2-x1)/1.75);for(let k=0;k<=n;k++)paint(.05,.8,WHITE,x1+k*(x2-x1)/n,z,.028);for(let k=0;k<n;k++)if(k%3!==1&&r()<(fill||.75))parked(x1+(k+.5)*(x2-x1)/n,z,ry);};
+  const kerbZ=(z1,z2,x,ry,fill)=>{paint(.8,z2-z1,asph,x,(z1+z2)/2,.022);const n=Math.floor((z2-z1)/1.75);for(let k=0;k<=n;k++)paint(.8,.05,WHITE,x,z1+k*(z2-z1)/n,.028);for(let k=0;k<n;k++)if(k%3!==1&&r()<(fill||.75))parked(x,z1+(k+.5)*(z2-z1)/n,ry);};
   const lamp=(x,z,h)=>{h=h||2.7;put(C(.04,.06,h,6),M('#2e3236'),x,h/2,z);put(new THREE.SphereGeometry(.13,8,6),glow('#f6efd8','#ffe2a0'),x,h+.08,z,{nc:1});halo(x,h+.08,z,1.6);col(x-.08,z-.08,x+.08,z+.08);};
   const lawn=(x1,z1,x2,z2)=>{paint(x2-x1,z2-z1,lmat(grassC,[(x2-x1)/3,(z2-z1)/3]),(x1+x2)/2,(z1+z2)/2,.018);};
 
