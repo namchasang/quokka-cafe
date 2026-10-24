@@ -36,35 +36,35 @@ Find code: `grep -n 'name' game-src/*`.
 | 028-friendship-digging-and-collection-syst.js | 2728-2797 | 11 | SEASONS, seasonOf, dayLabel, FESTIVALS, festToday, calSeason, openCalendar, renderCalendar, FRIENDS, HEARTS |
 | 029-fishing-minigame.js | 2798-2839 | 8 | FISH, FISH_SPOTS, fishG, startFishing, fishTick, drawFish, endFishing, FOSSILS, BUGS, dayRng |
 | 030-restoration-board-community-bundles.js | 2840-2914 | 14 | BUNDLES, openBoard, renderBoard, makeMail, openMail, renderMail, DTASK, dtInc, dtVal, checkDaily |
-| 031-radio-generative-background-music-weba.js | 2915-3027 | 21 | RADIO, RSTATIONS, radioSave, radioInit, out, mtof, piano, epiano, pluck, pad |
-| 032-island-lo-fi-30-original-lo-fi-tracks.js | 3028-3174 | 15 | LF_V, LF_P, LOFI, LF_R, lfRng, lfVoice, lfCompile, rim, lkick, lsnare |
-| 033-studio-playlists-fixed-track-order-wit.js | 3175-3229 | 10 | PL_GAP, STUDIO_PL, PL_SEL, plTracks, plLen, plClock, plNext, studioPlaylist, PROG, SCALE |
-| 034-dream-code-visit-a-friend-s-island-no.js | 3230-3302 | 15 | VISIT, DREAM_KEYS, QC_URL, QC_BLOCKED, qcFetch, QC_DEEP, qcHome, qcStat, qcNames, qcSnapOf |
-| 035-while-visiting-an-online-island.js | 3303-3349 | 9 | vaShow, vbBook, vbGift, applyAllVisuals, enterVisit, leaveVisit, STAM_MAX, eat, stamTick, blackT |
-| 036-quokka-cafe-branches-in-other-towns.js | 3350-3396 | 9 | BRANCHES, BR_UP, BR_COL, brMeshes, brState, buildBranch, applyBranches, branchIncomeTick, branchMidnight, brGuestsTick |
-| 037-ride-or-teleport-transport-fares.js | 3397-3450 | 8 | FARE_RIDE, RIDE, pay, rideAlong, rideTick, COACH_ROUTE, COACH_IDX, coachMesh, trainRide, busRide |
-| 038-perth-pass-freemium.js | 3451-3499 | 8 | BUILD, PASS_LINKS, passBuyUrl, goBuyPass, passCodeShape, passDevice, passRedeemServer, hasPass, GM_HASH, isGM |
-| 039-special-caf-events-one-random-event-on.js | 3500-3576 | 13 | EVENTS, evToday, evCur, evRoll, evAnnounce, evOnServe, evClose, propSel, openProp, renderProp |
-| 040-ambient-crowds-tourists-joggers-cyclis.js | 3577-3630 | 7 | WALK_ROUTES, WALK_N, walkers, walkerZone, updateWalkers, zoneOf, hiWalk, vpWalk, HIB, ZONE_DEF |
-| 041-phase-1-look-on-mainland-same-tussocks.js | 3631-3678 | 7 | LAMPS, CAFE_NL, cafeNightTick, lampTick |
-| 042-bus-between-south-perth-heirisson-isla.js | 3679-3745 | 16 | busTo, VP_BUSKER, rollKey, zoneTick, STARS, PCAT, at, PCS, isSpecial, pcThumbKey |
-| 043-area-stories-chapters-per-area-that-le.js | 3746-3797 | 9 | _story, STORY_DEF, STORY_ORDER, storyChap, chapSteps, stepDone, stepTarget, storyOpen, storyT, storyTick |
-| 044-side-quests-funny-and-heartfelt-errand.js | 3798-3930 | 28 | SIDEQ, sqPos, sqOpen, sqStep, sqReady, sqT, sqTick, sqQuests, sqTarget, snapPending |
-| 045-caf-pantry.js | 3931-4045 | 20 | STOCK_INFO, RECIPE, addStock, canMake, useStock, missingFor, lowStock, GSTORE, strandRolled, spawnStranded |
-| 046-customers.js | 4046-4090 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
-| 047-movement.js | 4091-4149 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
-| 048-overlays.js | 4150-4244 | 27 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
-| 049-maps-quest-guidance.js | 4245-4359 | 19 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
-| 050-island-scale-spread-island-out-runs-on.js | 4360-4402 | 4 | islandWarp, islandData |
-| 051-camera-render.js | 4403-4488 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
-| 052-island-scale-wave-a-settlement-heritag.js | 4489-4619 | 25 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
-| 053-island-scale-wave-b-north-coast-bays-s.js | 4620-4688 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
-| 054-inside-oliver-hill-tunnels-with-a-torc.js | 4689-4817 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
-| 055-island-scale-wave-c-salmon-bay-henriet.js | 4818-4863 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
-| 056-snorkelling-out-to-old-wreck-at-henrie.js | 4864-4935 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
-| 057-island-scale-phase-6-six-island-lookou.js | 4936-5017 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
-| 058-phase-8-east-cape-and-south-point-get.js | 5018-5111 | 13 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
-| 059-island-loop-bus-a-19-stop-loop-bus-lik.js | 5112-5165 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
-| 060-live-mode-live-1-kip-runs-caf-on-his-o.js | 5166-5242 | 8 | LIVEM |
-| 061-look-lab-landscape-layers-of-each-real.js | 5243-5399 | 16 | LAB |
-| 062-part.js | 5400-5402 | 0 |  |
+| 031-radio-generative-background-music-weba.js | 2915-3028 | 22 | RADIO, RSTATIONS, radioSave, radioInit, out, mtof, piano, epiano, pluck, pad |
+| 032-island-lo-fi-30-original-lo-fi-tracks.js | 3029-3268 | 23 | LF_V, LF_P, LOFI, LF_R, lfRng, lfVoice, lfCompile, rim, lkick, lsnare |
+| 033-studio-playlists-fixed-track-order-wit.js | 3269-3325 | 11 | PL_GAP, STUDIO_PL, PL_SEL, plTracks, plLen, plClock, plNext, studioPlaylist, PROG, SCALE |
+| 034-dream-code-visit-a-friend-s-island-no.js | 3326-3398 | 15 | VISIT, DREAM_KEYS, QC_URL, QC_BLOCKED, qcFetch, QC_DEEP, qcHome, qcStat, qcNames, qcSnapOf |
+| 035-while-visiting-an-online-island.js | 3399-3445 | 9 | vaShow, vbBook, vbGift, applyAllVisuals, enterVisit, leaveVisit, STAM_MAX, eat, stamTick, blackT |
+| 036-quokka-cafe-branches-in-other-towns.js | 3446-3492 | 9 | BRANCHES, BR_UP, BR_COL, brMeshes, brState, buildBranch, applyBranches, branchIncomeTick, branchMidnight, brGuestsTick |
+| 037-ride-or-teleport-transport-fares.js | 3493-3546 | 8 | FARE_RIDE, RIDE, pay, rideAlong, rideTick, COACH_ROUTE, COACH_IDX, coachMesh, trainRide, busRide |
+| 038-perth-pass-freemium.js | 3547-3595 | 8 | BUILD, PASS_LINKS, passBuyUrl, goBuyPass, passCodeShape, passDevice, passRedeemServer, hasPass, GM_HASH, isGM |
+| 039-special-caf-events-one-random-event-on.js | 3596-3672 | 13 | EVENTS, evToday, evCur, evRoll, evAnnounce, evOnServe, evClose, propSel, openProp, renderProp |
+| 040-ambient-crowds-tourists-joggers-cyclis.js | 3673-3726 | 7 | WALK_ROUTES, WALK_N, walkers, walkerZone, updateWalkers, zoneOf, hiWalk, vpWalk, HIB, ZONE_DEF |
+| 041-phase-1-look-on-mainland-same-tussocks.js | 3727-3774 | 7 | LAMPS, CAFE_NL, cafeNightTick, lampTick |
+| 042-bus-between-south-perth-heirisson-isla.js | 3775-3841 | 16 | busTo, VP_BUSKER, rollKey, zoneTick, STARS, PCAT, at, PCS, isSpecial, pcThumbKey |
+| 043-area-stories-chapters-per-area-that-le.js | 3842-3893 | 9 | _story, STORY_DEF, STORY_ORDER, storyChap, chapSteps, stepDone, stepTarget, storyOpen, storyT, storyTick |
+| 044-side-quests-funny-and-heartfelt-errand.js | 3894-4026 | 28 | SIDEQ, sqPos, sqOpen, sqStep, sqReady, sqT, sqTick, sqQuests, sqTarget, snapPending |
+| 045-caf-pantry.js | 4027-4141 | 20 | STOCK_INFO, RECIPE, addStock, canMake, useStock, missingFor, lowStock, GSTORE, strandRolled, spawnStranded |
+| 046-customers.js | 4142-4186 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
+| 047-movement.js | 4187-4245 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
+| 048-overlays.js | 4246-4340 | 27 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
+| 049-maps-quest-guidance.js | 4341-4455 | 19 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
+| 050-island-scale-spread-island-out-runs-on.js | 4456-4498 | 4 | islandWarp, islandData |
+| 051-camera-render.js | 4499-4584 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
+| 052-island-scale-wave-a-settlement-heritag.js | 4585-4715 | 25 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
+| 053-island-scale-wave-b-north-coast-bays-s.js | 4716-4784 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
+| 054-inside-oliver-hill-tunnels-with-a-torc.js | 4785-4913 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
+| 055-island-scale-wave-c-salmon-bay-henriet.js | 4914-4959 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
+| 056-snorkelling-out-to-old-wreck-at-henrie.js | 4960-5031 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
+| 057-island-scale-phase-6-six-island-lookou.js | 5032-5113 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
+| 058-phase-8-east-cape-and-south-point-get.js | 5114-5207 | 13 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
+| 059-island-loop-bus-a-19-stop-loop-bus-lik.js | 5208-5261 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
+| 060-live-mode-live-1-kip-runs-caf-on-his-o.js | 5262-5338 | 9 | LIVEM |
+| 061-look-lab-landscape-layers-of-each-real.js | 5339-5495 | 16 | LAB |
+| 062-part.js | 5496-5498 | 0 |  |

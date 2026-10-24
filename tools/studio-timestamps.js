@@ -6,11 +6,12 @@ const src = fs.readFileSync(__dirname + '/../index.html', 'utf8');
 const a = src.indexOf('const CR_SCALES='), b = src.indexOf('const LF_V=');
 const c = src.indexOf('const PL_GAP='), d = src.indexOf('let PL_SEL=');
 const e = src.indexOf('const LF_V='), f = src.indexOf('function rim(');
-const code = src.slice(a, b) + src.slice(e, f) + src.slice(c, d);
-const { CRYSTAL, crCompile, LOFI, lfCompile, STUDIO_PL, PL_GAP } = new Function(
+const h1 = src.indexOf('const HP_P='), h2 = src.indexOf('function lohat(');
+const code = src.slice(a, b) + src.slice(e, f) + src.slice(h1, h2) + src.slice(c, d);
+const { CRYSTAL, crCompile, LOFI, lfCompile, HOP, hpCompile, STUDIO_PL, PL_GAP } = new Function(
   'const RADIO={};function mtof(m){return 440*Math.pow(2,(m-69)/12);}' + code +
-  ';return {CRYSTAL,crCompile,LOFI,lfCompile,STUDIO_PL,PL_GAP};')();
-const TS = { crystal: [CRYSTAL, crCompile], lofi: [LOFI, lfCompile] };
+  ';return {CRYSTAL,crCompile,LOFI,lfCompile,HOP,hpCompile,STUDIO_PL,PL_GAP};')();
+const TS = { crystal: [CRYSTAL, crCompile], lofi: [LOFI, lfCompile], beats: [HOP, hpCompile] };
 const clock = s => { s = Math.floor(s); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60;
   return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
 for (const P of STUDIO_PL) {
