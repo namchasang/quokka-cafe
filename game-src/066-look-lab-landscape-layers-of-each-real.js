@@ -160,7 +160,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
 {const _uc=updateCamera;updateCamera=function(dt,snap){if(LAB.on){LAB.cam(dt||0);return;}_uc(dt,snap);};}
 // city detail: tick the traffic in the city and in the Look Lab, and let Kip buy coffee at the kiosks
 {const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);if(CDET.on&&CDET.g){const want=CDET.userShow!==false&&(zoneOf(player.x)==='cbd'||LAB.on);if(CDET.g.visible!==want)CDET.g.visible=want;}if(CDET.on&&zoneOf(player.x)==='cbd')CDET.tick(dt);};
-  const _lc=LAB.cam;LAB.cam=function(dt){_lc(dt);if(CDET.on)CDET.tick(dt);};
+  const _lc=LAB.cam;LAB.cam=function(dt){_lc(dt);if(CDET.on&&CDET.g){CDET.g.visible=CDET.userShow!==false;CDET.tick(dt);}};
   const KC={'Flat white':['A flat white on Hay Street. Perth does coffee properly.','Smooth. I should ask what beans they use for the café.'],'Long black':['A long black by the quay. Strong enough to row back to the island.','Black, hot, and the river right there. Lovely.'],'Iced latte':['An iced latte in the park. Kings Park on a warm day is the best.','Cold coffee, warm gums, good view.']};
   const _ct=cbdTargets;cbdTargets=function(T){_ct(T);if(!CDET.on||zoneOf(player.x)!=='cbd')return;
     CDET.kiosks.forEach(k=>T.push({x:k.x,z:k.z+.95,r:1.2,label:k.name+' · '+k.drink.toLowerCase()+' ('+k.price+' coins)',act:()=>{if(S.coins<k.price){toast('A '+k.drink.toLowerCase()+' is '+k.price+' coins');return;}S.coins-=k.price;eat(12);say(['Kip: '+pick(KC[k.drink])+' (+12 stamina)']);}}));};}
@@ -175,6 +175,6 @@ CDET.merge=function(){if(!CDET.on||CDET.merged||!CDET.g)return;CDET.merged=true;
     const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(P,3));geo.setAttribute('normal',new THREE.BufferAttribute(N,3));geo.setAttribute('uv',new THREE.BufferAttribute(U,2));geo.computeBoundingSphere();
     const m=new THREE.Mesh(geo,b.mat);m.castShadow=b.cast;m.receiveShadow=true;m.userData.labHint=b.cat;G.add(m);b.list.forEach(o=>o.parent.remove(o));joined+=b.list.length;}
   CDET.joined=joined;};
-if(CDET.on)CDET.merge();
+if(CDET.on){CDET.merge();CDET.g.visible=false;}
 if(LAB.start)setTimeout(()=>LAB.toggle(true),600);
 })();
