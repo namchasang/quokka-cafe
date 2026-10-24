@@ -98,7 +98,7 @@ const SIDEQ=[
    {l:'Ask the busker on Albany Hwy',at:'pc:busker',say:[{who:'Busker',text:'Who grew up on this street and chased a big dream? Mate, it’s the little quokka with the café on Rottnest. Obviously.'}]},
    {l:'Report back to Mia',at:'pc:mural',say:[{who:'Mia',text:'Everyone said the same thing. Hold still…'},'Mia paints for an hour. When she steps back, there’s a small quokka in an apron, smiling, holding a coffee.',{who:'Mia',text:'Welcome home, Kip.'}]}],
   outro:'Tourists now take selfies next to the mural quokka. Kip pretends not to notice. Kip absolutely notices.'}];
-function sqPos(st){if(Array.isArray(st.at))return{x:st.at[0],z:st.at[1]};const id=String(st.at||'').replace('pc:','');const p=PCS.find(q=>q.id===id);if(!p)return null;let l=[];try{l=p.pos();}catch(e){}if(!l.length)return null;let b=l[0],bd=1e9;l.forEach(q=>{const d=Math.hypot(q[0]-player.x,q[1]-player.z);if(d<bd){bd=d;b=q;}});return{x:b[0],z:b[1]};}
+function sqPos(st){if(Array.isArray(st.at))return IW(st.at[0],st.at[1]);const id=String(st.at||'').replace('pc:','');const p=PCS.find(q=>q.id===id);if(!p)return null;let l=[];try{l=p.pos();}catch(e){}if(!l.length)return null;let b=l[0],bd=1e9;l.forEach(q=>{const d=Math.hypot(q[0]-player.x,q[1]-player.z);if(d<bd){bd=d;b=q;}});return{x:b[0],z:b[1]};}
 function sqOpen(q){return q.zone==='island'||!!(S.seenZ&&S.seenZ[q.zone]);}
 function sqStep(q){return(S.sq&&S.sq[q.id])||0;}
 function sqReady(st){if(st.carry&&player.carry!==st.carry)return false;if(st.have&&!((S.inv[st.have.k]||0)>=st.have.n))return false;if(st.after&&S.time<st.after)return false;if(st.chk&&!st.chk())return false;return true;}

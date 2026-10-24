@@ -22,14 +22,14 @@ const ship=new THREE.Group();
   add(ship,new THREE.CylinderGeometry(.5,.6,1.4,12),'#f6f2e8',-3.4,3.9,0);add(ship,new THREE.CylinderGeometry(.52,.52,.4,12),'#c8344a',-3.4,4.4,0);
   const nm=new THREE.Mesh(new THREE.PlaneGeometry(5.4,.42),new THREE.MeshBasicMaterial({map:makeSign(['SPIRIT OF THE INDIAN OCEAN'],120,10,'#1d3a6e','#f5ecd8')}));nm.position.set(-1,.35,1.72);ship.add(nm);
   ship.visible=false;scene.add(ship);})();
-function applyJetty(){const L=S.jetty||0;JETTY.x1=JX1[L];
-  if(L>=1&&!jettyParts[1]){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.BoxGeometry(1.2,.14,4.8),lmat(deckC,[1,4]));t.position.set(-22,.04,5);t.receiveShadow=true;g.add(t);scene.add(g);jettyParts[1]=g;}
+function applyJetty(){const L=S.jetty||0;JETTY.x1=JX1[L];const JO=IW(0,0),jpos=g=>{g.position.set(JO.x,0,JO.z);return g;};
+  if(L>=1&&!jettyParts[1]){const g=new THREE.Group();const t=new THREE.Mesh(new THREE.BoxGeometry(1.2,.14,4.8),lmat(deckC,[1,4]));t.position.set(-22,.04,5);t.receiveShadow=true;g.add(t);scene.add(jpos(g));jettyParts[1]=g;}
   if(L>=2&&!jettyParts[2]){const g=new THREE.Group();const e=new THREE.Mesh(new THREE.BoxGeometry(4.8,.14,1),lmat(deckC,[4,1]));e.position.set(-25,.04,5);g.add(e);const t=new THREE.Mesh(new THREE.BoxGeometry(1.2,.14,4.8),lmat(deckC,[1,4]));t.position.set(-27,.04,5);g.add(t);
-    const roof=new THREE.Mesh(new THREE.BoxGeometry(1.6,.12,3),new THREE.MeshLambertMaterial({color:0x2f6fb0}));roof.position.set(-22,2.2,5);roof.castShadow=true;g.add(roof);[[-22.6,3.8],[-21.4,3.8],[-22.6,6.2],[-21.4,6.2]].forEach(([x,z])=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,2.1,6),fenceMat);p.position.set(x,1.1,z);g.add(p);});scene.add(g);jettyParts[2]=g;}
+    const roof=new THREE.Mesh(new THREE.BoxGeometry(1.6,.12,3),new THREE.MeshLambertMaterial({color:0x2f6fb0}));roof.position.set(-22,2.2,5);roof.castShadow=true;g.add(roof);[[-22.6,3.8],[-21.4,3.8],[-22.6,6.2],[-21.4,6.2]].forEach(([x,z])=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,2.1,6),fenceMat);p.position.set(x,1.1,z);g.add(p);});scene.add(jpos(g));jettyParts[2]=g;}
   if(L>=4&&!jettyParts[4]){const g=new THREE.Group();const e=new THREE.Mesh(new THREE.BoxGeometry(8,.18,1.4),lmat(deckC,[6,1]));e.position.set(-31.4,.05,5);g.add(e);for(let i=0;i<6;i++)[4.3,5.7].forEach(z=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,1.2,6),legMat);p.position.set(-28-i*1.4,-.35,z);g.add(p);});
-    [-34.5,-29].forEach(x=>{const b=new THREE.Mesh(new THREE.CylinderGeometry(.12,.15,.4,8),new THREE.MeshLambertMaterial({color:0x2b2b30}));b.position.set(x,.3,5.6);g.add(b);});scene.add(g);jettyParts[4]=g;}
+    [-34.5,-29].forEach(x=>{const b=new THREE.Mesh(new THREE.CylinderGeometry(.12,.15,.4,8),new THREE.MeshLambertMaterial({color:0x2b2b30}));b.position.set(x,.3,5.6);g.add(b);});scene.add(jpos(g));jettyParts[4]=g;}
   while(ferries.length<Math.min(4,1+L)){const f=ferry.clone();scene.add(f);ferries.push(f);}
-  if(typeof mmBase!=='undefined'){mmBase=renderMapBase(mmW,mmH,1.15,false);bigBase=null;}}
+  if(typeof mmBase!=='undefined'){mmBase=renderMapBase(mmFW(),mmFH(),1.15,false);bigBase=null;}}
 
 // harbour board
 const HB={x:-13.6,z:6.7};(()=>{box(.12,1.6,.12,legMat,HB.x-.6,.8,HB.z);box(.12,1.6,.12,legMat,HB.x+.6,.8,HB.z);const t=makeSign(['HARBOUR','UPGRADES'],40,22,'#1d3a6e','#f5ecd8');const m=new THREE.Mesh(new THREE.PlaneGeometry(1.4,.75),new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide,emissive:0x222222,emissiveMap:t}));m.position.set(HB.x,1.25,HB.z+.08);m.castShadow=true;scene.add(m);col(HB.x-.75,HB.z-.15,HB.x+.75,HB.z+.15);})();

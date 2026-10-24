@@ -44,9 +44,10 @@ const BIKE_LANE=[[-12.5,4.6],[9.6,4.6],[13,1.2],[18,.9]];const BLANES=[];let lan
   const ic=mk(32,32),ix=ic.getContext('2d');ix.fillStyle='#f6efe0';const ring=(cx,cy)=>{ix.fillRect(cx-4,cy-1,8,2);ix.fillRect(cx-1,cy-4,2,8);ix.fillRect(cx-3,cy-3,2,2);ix.fillRect(cx+1,cy-3,2,2);ix.fillRect(cx-3,cy+1,2,2);ix.fillRect(cx+1,cy+1,2,2);};
   ring(8,20);ring(24,20);ix.fillRect(8,12,10,2);ix.fillRect(16,12,2,8);ix.fillRect(12,10,8,2);ix.fillRect(20,10,2,10);ix.fillRect(22,9,4,2);
   const itex=new THREE.CanvasTexture(ic);itex.magFilter=THREE.NearestFilter;const imat=new THREE.MeshLambertMaterial({map:itex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
-  laneStrip=(a,b,w,icons,y)=>{w=w||1.15;y=y||.021;const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const t=tex.clone();t.needsUpdate=true;t.repeat.set(len/2,1);
+  laneStrip=(a,b,w,icons,y)=>{const n0=scene.children.length,w0=w,y0=y;w=w||1.15;y=y||.021;const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const t=tex.clone();t.needsUpdate=true;t.repeat.set(len/2,1);
     const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t}));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);if(w<.9)for(let d=2;d<len-1;d+=6){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.scale.setScalar(Math.min(1,w/.5));q.position.set(a[0]+(b[0]-a[0])*k,y+.004,a[1]+(b[1]-a[1])*k);scene.add(q);}BLANES.push([a,b,w]);
-    if(icons!==false&&w>.9&&len>8)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.position.set(a[0]+(b[0]-a[0])*k,y+.005,a[1]+(b[1]-a[1])*k);scene.add(q);}};
+    if(icons!==false&&w>.9&&len>8)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.position.set(a[0]+(b[0]-a[0])*k,y+.005,a[1]+(b[1]-a[1])*k);scene.add(q);}
+    if(!ISL.done&&a[0]<99.5){const ms=scene.children.slice(n0);ms.forEach(m=>m.__noWarp=true);(ISL.strips=ISL.strips||[]).push({a:a.slice(),b:b.slice(),w:w0,icons,y:y0,meshes:ms});BLANES[BLANES.length-1].__isl=1;}};
   const run=(pts,w,icons,y)=>{for(let i=0;i<pts.length-1;i++)laneStrip(pts[i],pts[i+1],w,icons,y);};
   run(BIKE_LANE);
   // Rottnest: on along the main road and out to Geordie Bay
@@ -61,5 +62,5 @@ const BIKE_LANE=[[-12.5,4.6],[9.6,4.6],[13,1.2],[18,.9]];const BLANES=[];let lan
   run([[302.95,-3],[302.95,21]],.36,false,.03);run([[305.05,-3],[305.05,21]],.36,false,.03);
   // Victoria Park: painted lanes on both sides of Albany Highway
   run([[489,-.92],[561,-.92]],.46,false,.03);run([[489,.92],[561,.92]],.46,false,.03);})();
-function spawnRider(){if(riders.length>=6)return;const m=spriteMesh([riderCv[riders.length%4]],1.6,1.8);scene.add(m);riders.push({m,x:-12.5,z:4.6,path:[[9.6,4.6],[13,1.2],[18,.9],[31,.3],[35,3.5]],walkT:0,face:1});}
+function spawnRider(){if(riders.length>=6)return;const m=spriteMesh([riderCv[riders.length%4]],1.6,1.8);scene.add(m);riders.push({m,...IW(-12.5,4.6),path:[[9.6,4.6],[13,1.2],[18,.9],[31,.3],[35,3.5]].map(([a,b])=>[IWx(a,b),IWz(a,b)]),walkT:0,face:1});}
 

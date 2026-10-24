@@ -1,5 +1,10 @@
 // ---------- in-game guide ----------
 const GUIDE_PLACES=[
+ ['island','Settlement heritage','West of the café: the octagonal Quod (a place of remembrance), the 1868 Salt Store, the little limestone Chapel, a row of heritage cottages and giant Moreton Bay figs.'],
+ ['island','Kingstown Barracks and Army Jetty','The 1936 army barracks on the south side, now a ranger base. Walk out along Army Jetty for the sunset.'],
+ ['island','Rotto Golf Course and airstrip','Nine holes, bunkers the quokkas love, and a tiny airport with a red plane and an orange windsock.'],
+ ['island','Salt lakes','Government House Lake, Serpentine Lake, Lake Baghdad and Garden Lake join Pink Lake and Lake Herschel. Tiny algae turn them pink.'],
+ ['island','Island Explorer bus','19 stops around the whole island. Ride for 3 coins, or tap a stop on the island map to teleport for 30.'],
  ['island','Quokka Cafe','Kip’s café by Main Jetty. Open 7:00 to 16:00; customers arrive with each Fremantle ferry. Rain closes it for the day.'],
  ['island','Kip’s garden','Six beds beside the café. Plant, water every day, harvest when it sparkles.'],
  ['island','Main Jetty and harbour board','Ferries to South Perth and, later, Fremantle. Upgrade the jetty to level 4 for the big cruise ferry.'],
@@ -85,8 +90,8 @@ const GUIDE_SYS=[
  ['Hearts','Friendship goes from 0 to 10 hearts. Birthdays double gift hearts.']];
 const GUIDE_TRAVEL=[
  ['Walk, bike, ride','Drag or WASD to walk. Use the bike rack, or buy your own bike at Mends Servo and press V or the Ride button.'],
- ['Ride or teleport','At every bus stop and station choose Ride (3 coins) to travel on board, or Teleport (30 coins) to arrive straight away. Riding the Quokka Coach or Express plays a sightseeing cut-scene past The Basin, the lighthouses, salt lakes, Geordie Bay, Oliver Hill, the south coast bays and Cape Vlamingh, with a short fact for each. Tap Skip ride to jump to the stop.'],
- ['Quokka Coach','Blue BUS signs loop the island: Settlement, The Basin, Wadjemup Lighthouse, Geordie Bay, Little Salmon Bay and West End. Starts on day 3.'],
+ ['Ride or teleport','At every bus stop and station choose Ride (3 coins) to travel on board, or Teleport (30 coins) to arrive straight away. Riding the Island Explorer bus or the Quokka Express plays a sightseeing cut-scene past The Basin, the lighthouses, salt lakes, Geordie Bay, Oliver Hill, the south coast bays and Cape Vlamingh, with a short fact for each. Tap Skip ride to jump to the stop.'],
+ ['Island Explorer bus','19 blue BUS stops loop the whole island, from the Main Bus Stop in the Settlement round the south coast to West End and back along the north coast bays. Ride, or teleport between stops. Starts on day 3.'],
  ['Quokka Express','Little train from Settlement Station to Oliver Hill, 15 minutes.'],
  ['Ferry: Rottnest ↔ South Perth','From the end of Main Jetty, about 1 hour. Runs until 18:00.'],
  ['Bus: South Perth ↔ Heirisson Island ↔ Victoria Park','From the Mill Point Road stop. 15 minutes a leg.'],

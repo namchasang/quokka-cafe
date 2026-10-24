@@ -10,11 +10,8 @@ function rideTick(dt){const R=RIDE;cineTick(dt);let move=R.speed*dt*(R.slow||1);
 const COACH_ROUTE=[[10.4,-1.2],[13,0],[26,0],[29.6,-2.4],[26,-7],[22,-7.2],[26,-7],[30.6,-3.6],[32.2,-4],[31,0],[35,-.2],[40.5,-2.4],[45.4,-3.8],[50,-2.4],[58,-1.4],[59.4,-2],[68,-.8],[71.2,.2],[80,-.2],[89.6,-.2]];
 const COACH_IDX={settle:0,basin:5,light:8,geordie:15,salmon:17,west:19};
 let coachMesh=null;
-function coachRide(from,to){const a=COACH_IDX[from],b=COACH_IDX[to];if(a==null||b==null)return;const pts=a<b?COACH_ROUTE.slice(a,b+1):COACH_ROUTE.slice(b,a+1).reverse();
-  if(!coachMesh){coachMesh=window.__busProto.clone();coachMesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.color&&o.material.color.getHex()===0x2f9a5a){o.material=o.material.clone();o.material.color.set('#1f5fae');}});scene.add(coachMesh);}
-  coachMesh.visible=true;toast('All aboard the Quokka Coach! · '+FARE_RIDE+' coins',2.2);startCine();rideAlong(pts,coachMesh,6,()=>{coachMesh.visible=false;const B=COACH.find(q=>q.id===to);player.x=B.x;player.z=B.z+.8;S.qg=S.qg||{};S.qg['coach_'+to]=1;save();toast('Arrived: '+B.name,2);},.35);}
-function trainRide(dest){const R=WEST.rail;const pts=dest==='oliver'?[[14.2,-3.6]].concat(R):R.slice().reverse().concat([[14.2,-3.6]]);WEST.riding=true;toast('All aboard the Quokka Express! · '+FARE_RIDE+' coins',2.2);startCine();
-  rideAlong(pts,WEST.train,4.5,()=>{WEST.riding=false;if(dest==='oliver'){player.x=54.6;player.z=.2;}else{player.x=14.2;player.z=-3.2;}S.qg=S.qg||{};S.qg.train=1;save();},.4);}
+function trainRide(dest){const R=WEST.rail;const S0=[IWx(14.2,-3.6),IWz(14.2,-3.6)];const pts=dest==='oliver'?[S0].concat(R):R.slice().reverse().concat([S0]);WEST.riding=true;toast('All aboard the Quokka Express! · '+FARE_RIDE+' coins',2.2);startCine();
+  rideAlong(pts,WEST.train,4.5,()=>{WEST.riding=false;if(dest==='oliver'){player.x=IWx(54.6,.2);player.z=IWz(54.6,.2);}else{player.x=IWx(14.2,-3.2);player.z=IWz(14.2,-3.2);}S.qg=S.qg||{};S.qg.train=1;save();},.4);}
 function busRide(dest){if(transit||VISIT)return;if(dest==='vp'&&needPass('vp'))return;const zq=zoneOf(player.x);const F=BUS_STOPS[zq],D=BUS_STOPS[dest];if(!F)return;const bm=window.__busProto.clone();scene.add(bm);
   const fx=F.x+.6,fz=F.z+1.4;toast('Riding the bus to '+D.name+' · '+FARE_RIDE+' coins',2.4);
   rideAlong([[fx,fz],[fx+14,fz]],bm,5,()=>{fadeTarget=.95;transit=true;setTimeout(()=>{scene.remove(bm);const bm2=window.__busProto.clone();scene.add(bm2);const tx=D.x+.6,tz=D.z+1.4;player.x=tx-14;player.z=tz;updateCamera(0,true);fadeTarget=0;
@@ -28,7 +25,7 @@ function openTravel(title,sub,opts){if(!running||overlay)return;$('#chTitle').te
     if(!o.here){const r=document.createElement('button');r.type='button';r.className='btn';r.id='ride-'+o.id;r.textContent='Ride · '+FARE_RIDE+'c';r.onclick=()=>{if(o.id==='vp'&&needPass('vp'))return;if(!pay(FARE_RIDE))return;hideOverlays();o.ride();};const t=document.createElement('button');t.type='button';t.className='btn ghost';t.id='tp-'+o.id;t.textContent='Teleport · '+FARE_TP+'c';t.onclick=()=>{if(o.id==='vp'&&needPass('vp'))return;if(!pay(FARE_TP))return;hideOverlays();o.tp();};bx.append(r,t);}
     const tx=document.createElement('div');tx.append(n,sp);d.append(tx,bx);L.appendChild(d);});showOverlay('coach');}
 
-// ---------- sightseeing cut-scenes on the Quokka Coach and Express ----------
+// ---------- sightseeing cut-scenes on the Island Explorer bus and Express ----------
 const SIGHTS=[
  {x:20,z:-11,name:'The Basin',sub:'A sheltered reef pool with crystal-clear water. The island\u2019s favourite swimming spot.'},
  {x:13,z:-6,name:'The Settlement',sub:'Rottnest\u2019s village of 1840s limestone cottages, shops and the Wadjemup Museum.'},

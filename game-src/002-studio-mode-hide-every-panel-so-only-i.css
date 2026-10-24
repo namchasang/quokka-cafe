@@ -225,6 +225,15 @@ body.studio{cursor:none}
     </div>
   </div>
 
+  <div class="overlay" id="spotOv" hidden>
+    <div class="card panel" style="max-width:680px;width:96vw">
+      <div class="eyebrow" id="spEye">Snorkelling</div>
+      <h2 id="spName">Spot 3 sea creatures</h2>
+      <canvas id="spCanvas" width="640" height="400" style="display:block;width:100%;margin:8px auto;border-radius:10px;touch-action:none;cursor:crosshair" aria-label="Find the hidden things"></canvas>
+      <p class="bgE"><b id="spCount">0 / 3</b> · <span id="spHint"></span></p>
+      <div class="btns"><button class="btn ghost" id="spClose" type="button">Done</button></div>
+    </div>
+  </div>
   <div class="overlay" id="fishOv" hidden>
     <div class="card panel" style="max-width:380px">
       <div class="eyebrow">Fishing</div>
@@ -316,7 +325,7 @@ body.studio{cursor:none}
 
   <div class="overlay" id="coachOv" hidden>
     <div class="card panel">
-      <div class="eyebrow" id="chSub">Quokka Coach · island bus</div>
+      <div class="eyebrow" id="chSub">Island Explorer · island bus</div>
       <h2 id="chTitle">Where to?</h2>
       <p class="bgE">Ride along and watch the island go by for 3 coins, or teleport straight there for 30.</p>
       <div class="rdList" id="chList"></div>

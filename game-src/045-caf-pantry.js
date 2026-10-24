@@ -84,7 +84,7 @@ function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Hei
   if(!isGM()&&id!=='island'&&!(S.seenZ&&S.seenZ[id]))return{ok:false,why:'Visit '+nm+' once by ferry or bus before you can fast travel there.',nm};
   return{ok:true,nm};}
 function ftSelect(id){ftSel=id;const c=ftCheck(id);const h=$('#ftHint'),g=$('#ftGo');h.hidden=false;g.hidden=!c.ok;if(c.ok){h.textContent='\u2708 Fast travel to '+c.nm+' for '+FT_COST+' coins? (you have '+S.coins+')';g.textContent='Fast travel \u00b7 '+FT_COST+' coins';g.disabled=S.coins<FT_COST;}else h.textContent=c.why;renderPerthMap($('#bigMap'));}
-function ftGo(){const id=ftSel;if(!id)return;const c=ftCheck(id);if(!c.ok)return;if((id==='freo'||id==='vp')&&!hasPass()){hideOverlays();needPass(id);return;}if(transit||VISIT)return;if(S.coins<FT_COST){toast('Fast travel costs '+FT_COST+' coins',2);return;}
+function ftGo(){const id=ftSel;if(!id)return;if(id.startsWith('bus:')){const b=COACH.find(q=>'bus:'+q.id===id);if(!b||transit||VISIT)return;if(!pay(FARE_TP))return;hideOverlays();coachTo(b);return;}const c=ftCheck(id);if(!c.ok)return;if((id==='freo'||id==='vp')&&!hasPass()){hideOverlays();needPass(id);return;}if(transit||VISIT)return;if(S.coins<FT_COST){toast('Fast travel costs '+FT_COST+' coins',2);return;}
   S.coins-=FT_COST;hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2708 Fast travel to '+c.nm+'\u2026 \u2212'+FT_COST+' coins',2.2);
   setTimeout(()=>{const sp=freeNear(...(SAFE_SPOTS[id]||SAFE_SPOTS.island)[0]);player.bike=false;player.carry=null;player.lying=false;player.x=sp[0];player.z=sp[1];S.time+=20;updateCamera(0,true);fadeTarget=0;transit=false;save();},900);}
 function togglePerthMap(){ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;const c=$('#bigMap');mapMode=mapMode==='zone'?'perth':'zone';if(mapMode==='perth'){renderPerthMap(c);$('#mapOv .legend').hidden=true;$('#mapQuest').hidden=true;$('#mapOv h2').textContent='Perth';$('#mapOv .eyebrow').textContent='Boorloo · Kip’s Perth';$('#mapPerth').textContent='Back to local map';}else{overlay=null;mapMode='zone';openMap();}}
@@ -109,7 +109,7 @@ function sellProduce(){dtInc('sell');const ks=Object.keys(S.inv).filter(k=>S.inv
   S.coins+=total+bonus;S.earned+=total+bonus;S.inv={};qflag('sold');S.metMei=true;save();popText('+'+(total+bonus),{x:mei.x,y:2,z:mei.z});
   say(['Mei: Ooh, '+desc+'! Straight from Rottnest?','Mei: That comes to '+total+' coins'+(bonus?', plus a '+bonus+'-coin bulk bonus':'')+'. Pleasure doing business!'],()=>toast('Sold produce · +'+(total+bonus)+' coins'));}
 function sail(toSP){if(transit)return;if(VISIT){toast('Go home first to travel',2);return;}transit=true;fadeTarget=.95;toast(toSP?'Sailing up the Swan River to South Perth\u2026':'Sailing back to Rottnest\u2026',2.2);
-  setTimeout(()=>{S.time+=60;player.bike=false;if(toSP){qflag('sailed');player.x=SPX;player.z=-3.2;}else{player.x=-13.2;player.z=5;}player.carry=null;updateCamera(0,true);fadeTarget=0;transit=false;
+  setTimeout(()=>{S.time+=60;player.bike=false;if(toSP){qflag('sailed');player.x=SPX;player.z=-3.2;}else{player.x=IWx(-13.2,5);player.z=IWz(-13.2,5);}player.carry=null;updateCamera(0,true);fadeTarget=0;transit=false;
     if(toSP&&!S.metMei)say(['Kip: South Perth! Look at the city across the river.','Kip: Mei\u2019s grocer stall should be along the foreshore.']);},900);}
 function nap(){say(['Kip settles into the hammock. The sea breeze does the rest…'],()=>{S.time+=60;if(S.time>=1440)newDay();toast('Napped for an hour');});}
 

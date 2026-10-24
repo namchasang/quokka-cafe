@@ -1,7 +1,7 @@
 // ---------- interactions ----------
 let current=null;
 function buildTargets(){const T=[];const ph=phase();
-  if(ph==='cafe'){STATIONS.forEach(st=>{if(st.lock&&!(S.menu&&S.menu[st.key]))return;const it=ITEMS[st.key];const same=player.carry===st.key;T.push({x:st.x,z:-1.65,r:1.05,label:same?it.name+' in paw':!canMake(st.key)?'Out of '+missingFor(st.key):(player.carry?'Swap: ':'Make ')+it.name,disabled:same||!canMake(st.key),act:()=>startBrew(st.key)});});
+  if(ph==='cafe'){STATIONS.forEach(st=>{if(st.lock&&!(S.menu&&S.menu[st.key]))return;const it=ITEMS[st.key];const same=player.carry===st.key;T.push({x:st.x,z:st.z,r:1.05,label:same?it.name+' in paw':!canMake(st.key)?'Out of '+missingFor(st.key):(player.carry?'Swap: ':'Make ')+it.name,disabled:same||!canMake(st.key),act:()=>startBrew(st.key)});});
     customers.forEach(c=>{if(c.state!=='wait')return;const it=ITEMS[c.order];const ok=player.carry===c.order;T.push({x:c.x,z:c.z,r:1.3,label:ok?'Serve '+it.name:'Wants '+it.name,disabled:!ok,act:()=>serve(c)});});}
   T.push({x:gus.x,z:gus.z,r:1.4,label:'Talk to Gus',act:talkGus});
   T.push({x:wren.x,z:wren.z,r:1.4,label:'Talk to Nana Wren',act:talkWren});
@@ -10,16 +10,16 @@ function buildTargets(){const T=[];const ph=phase();
   wilds.forEach(q=>T.push({x:q.x,z:q.z,r:1.1,label:'Say hi',act:()=>hiQuokka(q)}));
   BIZ.forEach(b=>{const st=bizState(b.id),L=LOTS[b.id];T.push({x:L.x,z:L.z+1.25,r:1.5,label:st.own?(st.till?'Collect '+st.till+' coins':b.short):'For sale \u00b7 '+b.price+' coins',act:()=>openBiz(b.id)});});
   T.push({x:BEACH.x,z:BEACH.z+1.1,r:1.6,label:'Lie in the hammock',act:lieDown});
-  T.push({x:7.4,z:2.2,r:1.4,label:player.bike?'Park bike':'Ride bike',act:()=>{player.bike=!player.bike;if(player.bike&&!S.rodeBike){S.rodeBike=true;toast('Riding! Twice as fast. Press the action button to hop off.');}}});
+  T.push({...IW(7.4,2.2),r:1.4,label:player.bike?'Park bike':'Ride bike',act:()=>{player.bike=!player.bike;if(player.bike&&!S.rodeBike){S.rodeBike=true;toast('Riding! Twice as fast. Press the action button to hop off.');}}});
   PLOTS.forEach((pl,i)=>{const st=S.plots[i];const tx=pl.x,tz=pl.z+1.05;if(!st){T.push({x:tx,z:tz,r:.95,label:'Plant seeds',act:()=>openPlant(i)});return;}const C=CROPS[st.k];
     if(st.g>=C.days)T.push({x:tx,z:tz,r:.95,label:'Harvest '+C.name,act:()=>harvest(i)});else if(!st.w)T.push({x:tx,z:tz,r:.95,label:'Water '+C.name,act:()=>waterPlot(i)});else T.push({x:tx,z:tz,r:.95,label:C.name+' · day '+st.g+'/'+C.days,disabled:true});});
-  {const ok=canSail();T.push({x:-20.4,z:5,r:1.4,label:ok?'Sail to South Perth · 1 hr':S.time>=1080?'Last ferry left at 18:00':'Ferry sails after the café closes',disabled:!ok,act:()=>sail(true)});}
+  {const ok=canSail();T.push({...IW(-20.4,5),r:1.4,label:ok?'Sail to South Perth · 1 hr':S.time>=1080?'Last ferry left at 18:00':'Ferry sails after the café closes',disabled:!ok,act:()=>sail(true)});}
   T.push({x:SPX,z:-8.6,r:1.4,label:'Sail back to Rottnest · 1 hr',act:()=>sail(false)});
   T.push({x:HB.x,z:HB.z+.9,r:1.4,label:'Harbour upgrades \u00b7 level '+(S.jetty||0)+'/4',act:()=>openShop('jetty')});
   PROP_LIST.forEach(P=>T.push({x:P.x,z:P.z,r:1.4,label:propOwned(P.id)?'Home \u00b7 sleep here':'For sale \u00b7 '+P.price+' coins',act:()=>openProp(P.id)}));
   FREO_NPCS.forEach(n=>{if(n.shop)T.push({x:n.x,z:n.z,r:1.5,label:'Visit '+SHOPS[n.shop].name.split(',')[0],act:()=>openShop(n.shop)});});
   T.push({x:288,z:-17.6,r:1.4,label:'Sail back to Rottnest \u00b7 30 min',act:()=>sailFreo(false)});
-  T.push({x:-16,z:4.4,r:1.2,label:freoUnlocked()?'Sail to Fremantle \u00b7 30 min':'Fremantle: locked (see Quests)',disabled:!freoUnlocked(),act:()=>sailFreo(true)});
+  T.push({...IW(-16,4.4),r:1.2,label:freoUnlocked()?'Sail to Fremantle \u00b7 30 min':'Fremantle: locked (see Quests)',disabled:!freoUnlocked(),act:()=>sailFreo(true)});
   T.push({x:278,z:1.6,r:1.4,label:'Read the Round House plaque',act:()=>say([{who:'Round House',text:'Built in 1830 and 1831, the Round House is the oldest public building still standing in Western Australia.'}])});
   T.push({x:308,z:-4.4,r:1.4,label:'Town Hall',act:()=>say([{who:'Fremantle Town Hall',text:'Opened in 1887, the Town Hall still anchors Kings Square.'}])});
   T.push({x:314.4,z:-2.6,r:1.3,label:'St John\u2019s Church',act:()=>say([{who:'St John\u2019s Church',text:'This limestone church has stood on Kings Square since the 1880s.'}])});
@@ -27,16 +27,16 @@ function buildTargets(){const T=[];const ph=phase();
   {const zq=zoneOf(player.x);const B=BUS_STOPS;if(zq==='sp'&&!unlocked('bus'))T.push({x:B.sp.x,z:B.sp.z+.5,r:1.2,label:'Bus stop (locked)',act:()=>say([{who:'Timetable',text:'Buses to Heirisson Island and Victoria Park. Sell some produce to Mei first. She knows the route!'}])});if(zq==='sp'&&unlocked('bus'))T.push({x:B.sp.x,z:B.sp.z+.5,r:1.4,label:'Bus stop \u00b7 Heirisson Island, Victoria Park',act:()=>openBusStop('sp')});
    if(zq==='hi'){T.push({x:B.hi.x,z:B.hi.z+.5,r:1.4,label:'Bus stop \u00b7 South Perth, Victoria Park',act:()=>openBusStop('hi')});T.push({x:412,z:8.4,r:1.4,label:'Read the Yagan Memorial plaque',act:()=>say([{who:'Yagan Memorial',text:'This statue honours Yagan, a Noongar warrior and leader of the Swan River region in the 1830s.'}])});}
    if(zq==='vp'){T.push({x:B.vp.x,z:B.vp.z+.5,r:1.4,label:'Bus stop \u00b7 Heirisson Island, South Perth',act:()=>openBusStop('vp')});VP_SHOPS.forEach(sh=>T.push({x:sh.npc.x,z:sh.npc.z,r:1.4,label:'Visit '+sh.name,act:()=>openShop('vp_'+sh.id)}));T.push({x:VP_BUSKER.x,z:VP_BUSKER.z,r:1.4,label:'Tip the busker \u00b7 2 coins',act:()=>{if(S.coins>=2){S.coins-=2;popText('\u266a',{x:VP_BUSKER.x,y:2,z:VP_BUSKER.z});say(['Busker: Cheers, mate! This one\u2019s for the quokka.']);}}});}}
-  T.push({x:-6.4,z:1.4,r:1.2,label:'Caf\u00e9 HQ \u00b7 upgrade, style & branches',act:()=>{hqTab='main';openCafe();}});
+  T.push({...IW(-6.4,1.4),r:1.2,label:'Caf\u00e9 HQ \u00b7 upgrade, style & branches',act:()=>{hqTab='main';openCafe();}});
   {const zq=zoneOf(player.x);BRANCHES.forEach(b=>{if(b.zone!==zq)return;const st=brState(b.id);T.push({x:b.x,z:b.z+(b.ry?-2.6:2.6),r:1.6,label:st.own?'Quokka Cafe '+b.name+(st.till?' \u00b7 till '+st.till:'')+' \u00b7 manage':'Caf\u00e9 lot for sale \u00b7 '+b.price,act:()=>{hqTab=b.id;openCafe();}});});}
-  if(S.time>=1080||S.time<OPEN)T.push({x:-3.9,z:-3.8,r:1.2,label:'Sleep in the back room until 7:00',act:()=>endDay()});
-  if(zoneOf(player.x)==='island'){COACH.forEach(b=>T.push({x:b.x,z:b.z+.6,r:1.1,label:unlocked('coach')?'Quokka Coach · '+b.name:'Bus stop (coach starts day 3)',act:()=>unlocked('coach')?openCoach(b.id):say([{who:'Timetable',text:'The Quokka Coach starts running on day 3.'}])}));
-   T.push({x:14.2,z:-3.6,r:1.3,label:unlocked('train')?'Quokka Express to Oliver Hill · 15 min':'Settlement Station (opens soon)',act:()=>unlocked('train')?openTravel('Quokka Express','Settlement Station',[{id:'oliver',name:'Oliver Hill',note:'Scenic ride along the island',ride:()=>trainRide('oliver'),tp:()=>trainTo('oliver')}]):say([{who:'Station',text:'The Quokka Express opens once you have explored the island by coach.'}])});
-   T.push({x:54.6,z:.2,r:1.3,label:'Quokka Express to Settlement · 15 min',act:()=>openTravel('Quokka Express','Oliver Hill Station',[{id:'settle',name:'Settlement',note:'Scenic ride along the island',ride:()=>trainRide('settle'),tp:()=>trainTo('settle')}])});
-   T.push({x:55.2,z:5.2,r:1.4,label:'Read the battery plaque',act:()=>say([{who:'Oliver Hill Battery',text:'Two 9.2-inch guns were installed here in the 1930s to protect Fremantle harbour. The tunnels underneath are open for tours.'}])});
-   T.push({x:95.6,z:-.8,r:1.3,label:'Read the memorial',act:()=>say([{who:'Vlamingh Memorial',text:'Dutch captain Willem de Vlamingh landed in 1696 and named the island “Rotte nest”, thinking the quokkas were giant rats.'}])});
-   T.push({x:95,z:3.4,r:1.6,label:'Watch the fur seals',act:()=>say([{who:'Kip',text:'New Zealand fur seals sunbathing on Cathedral Rocks. They’re so lazy. I love them.'}])});
-   T.push({x:61.4,z:-1.9,r:1.3,label:'Geordie Bay Store',act:()=>{if(S.coins>=5){S.coins-=5;eat(15);say(['Kip: An iced coffee by the bay. Someone else makes it for once! (+15 stamina)']);}}});}
+  if(S.time>=1080||S.time<OPEN)T.push({...IW(-3.9,-3.8),r:1.2,label:'Sleep in the back room until 7:00',act:()=>endDay()});
+  if(zoneOf(player.x)==='island'){COACH.forEach(b=>T.push({x:b.x,z:b.z+.6,r:1.1,label:unlocked('coach')?'Island Explorer · '+b.name:'Bus stop (the bus starts day 3)',act:()=>unlocked('coach')?openCoach(b.id):say([{who:'Timetable',text:'The Island Explorer bus starts running on day 3.'}])}));
+   T.push({...IW(14.2,-3.6),r:1.3,label:unlocked('train')?'Quokka Express to Oliver Hill · 15 min':'Settlement Station (opens soon)',act:()=>unlocked('train')?openTravel('Quokka Express','Settlement Station',[{id:'oliver',name:'Oliver Hill',note:'Scenic ride along the island',ride:()=>trainRide('oliver'),tp:()=>trainTo('oliver')}]):say([{who:'Station',text:'The Quokka Express opens once you have explored the island by coach.'}])});
+   T.push({...IW(54.6,.2),r:1.3,label:'Quokka Express to Settlement · 15 min',act:()=>openTravel('Quokka Express','Oliver Hill Station',[{id:'settle',name:'Settlement',note:'Scenic ride along the island',ride:()=>trainRide('settle'),tp:()=>trainTo('settle')}])});
+   T.push({...IW(55.2,5.2),r:1.4,label:'Read the battery plaque',act:()=>say([{who:'Oliver Hill Battery',text:'Two 9.2-inch guns were installed here in the 1930s to protect Fremantle harbour. The tunnels underneath are open for tours.'}])});
+   T.push({...IW(95.6,-.8),r:1.3,label:'Read the memorial',act:()=>say([{who:'Vlamingh Memorial',text:'Dutch captain Willem de Vlamingh landed in 1696 and named the island “Rotte nest”, thinking the quokkas were giant rats.'}])});
+   T.push({...IW(95,3.4),r:1.6,label:'Watch the fur seals',act:()=>say([{who:'Kip',text:'New Zealand fur seals sunbathing on Cathedral Rocks. They’re so lazy. I love them.'}])});
+   T.push({...IW(61.4,-1.9),r:1.3,label:'Geordie Bay Store',act:()=>{if(S.coins>=5){S.coins-=5;eat(15);say(['Kip: An iced coffee by the bay. Someone else makes it for once! (+15 stamina)']);}}});}
   T.push({x:GSTORE.x,z:GSTORE.z+1.9,r:1.4,label:'Shop at the General Store',act:()=>openShop('gstore')});
   T.push({x:MUSEUM.x,z:MUSEUM.z+1.8,r:1.4,label:unlocked('museum')?'Wadjemup Museum \u00b7 donate':'Museum (opens after your first find)',act:()=>unlocked('museum')?openMuseum():say([{who:'Sign',text:'Wadjemup Museum: opening soon. The curator is waiting for the first fish, bug or fossil.'}])});T.push({x:BOARD.x,z:BOARD.z+.6,r:1.2,label:unlocked('board')?'Restoration Board':'Restoration Board (locked)',act:()=>unlocked('board')?openBoard():say([{who:'Notice',text:'The island council will open this board once your family lives on Wadjemup.'}])});T.push({x:MAILBOX.x,z:MAILBOX.z+.5,r:1.1,label:(S.mail||[]).some(m=>!m.read)?'Check mail (new!)':'Check mailbox',act:openMail});
   if(unlocked('fishing'))FISH_SPOTS.forEach(sp=>{if(zoneOf(player.x)===sp.zone)T.push({x:sp.x,z:sp.z,r:1.1,label:'Fish here',act:()=>startFishing(sp)});});
@@ -60,7 +60,7 @@ function buildTargets(){const T=[];const ph=phase();
    T.push({x:186,z:-8.6,r:1.3,label:'Coode St Jetty',act:()=>say(['Kip: A quiet little jetty. You can see the whole city skyline from the end, and the swans come right up close.'])});}
   T.push({x:ruth.x,z:ruth.z,r:1.4,label:'Talk to Captain Ruth',act:()=>say(['Captain Ruth: Welcome to Mends Street Jetty! Perth city is just across the Swan River.','Captain Ruth: Mei\u2019s grocer stall is along the foreshore. The ferry back to Rottnest leaves from the end of the jetty.'])});
   if(S.wish.hammock)T.push({x:HAMMOCK.x,z:HAMMOCK.z+.9,r:1.4,label:ph==='explore'?'Nap · 1 hr':'Nap after noon',disabled:ph!=='explore',act:nap});
-  return T;}
+  waTargets(T);wbTargets(T);wcTargets(T);lkTargets(T);return T;}
 function findTarget(){let best=null,bs=1e9;for(const t of buildTargets()){const d=Math.hypot(t.x-player.x,t.z-player.z);if(d>t.r)continue;const s=d+(t.disabled?5:0);if(s<bs){bs=s;best=t;}}if(player.lying)return S.juice===false?{label:'Get up',act:getUp}:{label:'Sip orange juice',act:drinkJuice};
   if(!player.bike&&S.ownBike&&!best)return{label:'Ride your bike',act:()=>{player.bike=true;}};
   if(player.bike&&(!best||best.disabled))return{label:'Hop off bike',act:()=>{player.bike=false;}};return best;}
@@ -151,7 +151,7 @@ function trackTarget(id){const near=list=>{let b=null,bd=1e9;list.forEach(o=>{co
   if(id==='lore'){const l=LORE.filter((L,i)=>!S.lore[i]);if(l.length){const L=near(l);return{x:L.x,z:L.z+.55,label:'Lore stone: '+L.title};}return null;}
   if(id==='garden'){const rdy=S.plots.findIndex(p=>p&&p.g>=CROPS[p.k].days);if(rdy>=0)return{x:PLOTS[rdy].x,z:PLOTS[rdy].z+1.05,label:'Harvest '+CROPS[S.plots[rdy].k].name};
     const dry=S.plots.findIndex(p=>p&&!p.w&&p.g<CROPS[p.k].days);if(dry>=0)return{x:PLOTS[dry].x,z:PLOTS[dry].z+1.05,label:'Water '+CROPS[S.plots[dry].k].name};
-    if(basketCount()&&canSail())return{x:-20.4,z:5,label:'Ferry to South Perth'};
+    if(basketCount()&&canSail())return{...IW(-20.4,5),label:'Ferry to South Perth'};
     const empty=S.plots.findIndex(p=>!p);if(!g.planted&&empty>=0)return{x:PLOTS[empty].x,z:PLOTS[empty].z+1.05,label:'Plant seeds'};return null;}
   return null;}
 function canSail(){return S.time<1080&&(phase()==='explore'||(S.staff||0)>0||!!S.wish.tickets);}
@@ -162,7 +162,7 @@ function bizWave(n){let gain=0;
   const ic=bizState('ice');if(ic.own){const p=(S.temp>=26?.7:S.temp>=23?.5:.3)*(S.wx===2?.8:1);let q=0,earn=0;for(let i=0;i<n;i++)if(Math.random()<p)q++;
     for(let i=0;i<q;i++){const k=(ic.stock.straw>0)?'straw':(ic.stock.nect>0)?'nect':null;if(k){ic.stock[k]--;earn+=7;}else earn+=3;}
     if(earn){ic.till+=earn;ic.total+=earn;gain+=earn;popText('+'+earn,{x:LOTS.ice.x,y:2.6,z:LOTS.ice.z});}}
-  if(S.ferryco&&S.ferryco.own){const f=n*3;S.coins+=f;S.ferryco.total=(S.ferryco.total||0)+f;gain+=f;popText('Ferry fares +'+f,{x:-17,y:2.6,z:5});}
+  if(S.ferryco&&S.ferryco.own){const f=n*3;S.coins+=f;S.ferryco.total=(S.ferryco.total||0)+f;gain+=f;popText('Ferry fares +'+f,Object.assign({y:2.6},IW(-17,5)));}
   S.bizToday=(S.bizToday||0)+gain;}
 function updateRiders(dt){for(let i=riders.length-1;i>=0;i--){const r=riders[i];const wp=r.path[0];if(stepWalker(r,wp[0],wp[1],3.6,dt)){r.path.shift();if(!r.path.length){scene.remove(r.m);const bi=BB.indexOf(r.m);if(bi>=0)BB.splice(bi,1);riders.splice(i,1);continue;}}
   r.m.position.set(r.x,groundY(r.x,r.z)+Math.abs(Math.sin(r.walkT*14))*.03,r.z);r.m.scale.x=r.face;}}

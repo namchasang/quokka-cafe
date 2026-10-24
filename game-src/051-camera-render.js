@@ -11,7 +11,7 @@ function ambient(dt,t){weatherTick(dt,t);water.material.map.offset.x=(t*.012)%1;
   {const nb=Math.min(4,1+(S.jetty||0)),nx=FERRY_ARR.find(a=>S.time<a+14);ferries.forEach((f,i)=>{if(i>=nb){f.visible=false;return;}const D=DOCKS[i];let fx=D[0],fz=D[1],vis=true;const ox=D[0]-14,oz=D[1]+(D[1]>5?3.2:-3.2);
     if(running&&player.x<100){if(nx===undefined||S.wx===3){}else{const k=S.time-nx+i*1.2;if(k<-10)vis=false;else if(k<0){const e=1-(-k/10);fx=lerp(ox,D[0],e*e*(3-2*e));fz=lerp(oz,D[1],e);}else if(k<8){}else{const e=Math.min(1,(k-8)/6);fx=lerp(D[0],ox,e*e);fz=lerp(D[1],oz,e);if(e>=1)vis=false;}}}
     f.visible=vis;f.position.set(fx,-.15+Math.sin(t*1.3+i)*.05,fz);f.rotation.set(0,D[2],Math.sin(t*1.1+i)*.02);});
-   if((S.jetty||0)>=4&&running&&player.x<100&&S.wx!==3){const k=S.time-600;let sx=-31.5,sz=9.6,v=true;if(k<-14||k>136)v=false;else if(k<0){const e=1+k/14;sx=lerp(-58,-31.5,e*e*(3-2*e));}else if(k>120){const e=(k-120)/16;sx=lerp(-31.5,-58,e*e);}ship.visible=v;ship.position.set(sx,-.2+Math.sin(t*.8)*.04,sz);}else ship.visible=false;}
+   if((S.jetty||0)>=4&&running&&player.x<100&&S.wx!==3){const k=S.time-600;let sx=-31.5,sz=9.6,v=true;if(k<-14||k>136)v=false;else if(k<0){const e=1+k/14;sx=lerp(-58,-31.5,e*e*(3-2*e));}else if(k>120){const e=(k-120)/16;sx=lerp(-31.5,-58,e*e);}const so=IW(0,0);sx+=so.x;sz+=so.z;ship.visible=v;ship.position.set(sx,-.2+Math.sin(t*.8)*.04,sz);}else ship.visible=false;}
   machineLight.visible=player.brewing>0?(Math.floor(t*6)%2===0):true;
   loreSparks.forEach((s,i)=>{s.position.y=1.7+Math.sin(t*2+i)*.1;s.visible=!S.lore[i]||Math.floor(t*2+i)%3===0;LORE[i].rune.material.color.setHex(S.lore[i]?0x6a7c80:0x8fe8ff);});
   SHELLS.forEach((s,i)=>{if(s.mesh.visible)s.mesh.position.set(s.x,.05+Math.abs(Math.sin(t*2+i))*.12,s.z);});
@@ -37,7 +37,7 @@ function engSnap(i,o){const s=ENG.snap,k=i*10,p=o.position,q=o.quaternion,c=o.sc
 function engGrow(n){if(ENG.snap.length>=n*10)return;const a=new Float64Array(Math.max(n*10,ENG.snap.length*2));a.set(ENG.snap);ENG.snap=a;}
 function engKeep(o){return o===scene||o.isLight||o.isCamera||(o.parent&&o.parent.isLight)||!o.matrixAutoUpdate||o.__engSkip||DIR4.includes(o)||o===player.mesh||o===player.blob;}
 function engRegister(root){const bb=ENG.bbs;root.traverse(o=>{if(engKeep(o)||o.__engId!=null)return;const i=ENG.list.length;engGrow(i+1);ENG.list.push(o);o.__engId=i;engSnap(i,o);o.matrixAutoUpdate=false;o.updateMatrix();});}
-function engCellOf(o){if(o.__engBox===undefined){const b=new THREE.Box3().setFromObject(o);if(b.isEmpty()){o.__engBox=null;return null;}const sx=b.max.x-b.min.x,sz=b.max.z-b.min.z;o.__engBox=(sx>ENG.CELL||sz>ENG.CELL)?null:[(b.min.x+b.max.x)/2,(b.min.z+b.max.z)/2];}
+function engCellOf(o){if(o.__engBox===undefined){const b=new THREE.Box3().setFromObject(o);if(b.isEmpty()){o.__engBox=null;return null;}const sx=b.max.x-b.min.x,sz=b.max.z-b.min.z;const mx=scene.scale.x<0?-1:1;o.__engBox=(sx>ENG.CELL||sz>ENG.CELL)?null:[mx*(b.min.x+b.max.x)/2,(b.min.z+b.max.z)/2];}
   const c=o.__engBox;if(!c)return null;return Math.floor(c[0]/ENG.CELL)+','+Math.floor(c[1]/ENG.CELL);}
 function engAddCell(o){const k=engCellOf(o);if(!k)return;let c=ENG.cells.get(k);if(!c){const [a,b]=k.split(',').map(Number);c={x:(a+.5)*ENG.CELL,z:(b+.5)*ENG.CELL,on:true,objs:[]};ENG.cells.set(k,c);}const d=[];o.traverse(n=>d.push(n));c.objs.push({o,d});}
 function engBatch(){const groups=new Map();
@@ -82,13 +82,4 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   safeRun('world',()=>{applyTime();updateWilds(dt,t);if(!overlay||overlay==='title')updateWalkers(dt);});
   if(!running||overlay){player.mesh.position.set(player.x,groundY(player.x,player.z),player.z);player.blob.position.set(player.x,.03+groundY(player.x,player.z),player.z);}
   safeRun('ambient',()=>ambient(dt,t));safeRun('camera',()=>updateCamera(dt));safeRun('hud',()=>{updateHud();updateQuestUI(dt,t);updateTrackBar(dt);updateActButton();});
-  safeRun('engine',()=>engTick(dt));try{renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}
-updateCamera(0,true);
-function flipIslandSigns(){const v=new THREE.Vector3();scene.updateMatrixWorld();const mx=scene.scale.x<0?-1:1;scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map)return;const t=o.material.map;if(FLIPPED.has(t)||!(SIGN_TEX.has(t)||t===signTex))return;o.getWorldPosition(v);if(v.x*mx>100)return;FLIPPED.add(t);t.repeat.x=-1;t.offset.x=1;});}
-flipIslandSigns();
-requestAnimationFrame(loop);
-
-// keep progress across live updates of the page
-const hot=window.claude&&window.claude.hot;
-if(hot&&hot.snapshot)hot.snapshot(()=>({S,running,px:player.x,pz:player.z}));
-if(hot&&hot.data&&hot.data.S&&hot.data.running){startGame(hot.data.S);player.x=hot.data.px;player.z=hot.data.pz;S.time=hot.data.S.time||420;S.closed=hot.data.S.closed;S.served=hot.data.S.served||0;S.earned=hot.data.S.earned||0;dlgQ=[];ui.dlg.hidden=true;updateCamera(0,true);}
+  safeRun('engine',()=>engTick(dt));safeRun('ground',gtTick);try{renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}

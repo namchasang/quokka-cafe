@@ -4,18 +4,48 @@ const DECK={x1:-5.2,x2:5.2,z1:-5,z2:3.6};
 const JETTY={x1:-21.4,x2:-12.6,z1:4.5,z2:5.5};
 const colliders=[];
 function col(x1,z1,x2,z2){colliders.push({x1,z1,x2,z2});}
+// ---------- Island Scale: Wadjemup is 2.5x bigger ----------
+// The island is still built in its original layout, then islandWarp() spreads it out before the first frame.
+// Places in a plateau keep their exact layout (the Settlement and café); everything else moves to where it sits
+// on the 2.5x island. Small groups of objects (a sign and its post, a kiosk and its stools) move together.
+// Old coordinates written in code go through IW() to find their new spot.
+const ISL={KX:3,KZ:2,PX:97,PZ:1.7,done:false,cl:[],late:[],plat:[
+  {n:'settlement',x:-10,z:1,R:26,T:7}]};
+function isS(x,z){return[ISL.PX+(x-ISL.PX)*ISL.KX,ISL.PZ+(z-ISL.PZ)*ISL.KZ];}
+function isPhi(p,r){if(r<=p.R)return 1;if(r>=p.R+p.T)return 0;const t=(r-p.R)/p.T;return 1-t*t*(3-2*t);}
+// smooth warp of an original island point
+function isW(x,z){if(x>=99.5)return[x,z];const o=isS(x,z);for(const p of ISL.plat){const dx=x-p.x,dz=z-p.z,r=Math.hypot(dx,dz);if(r>=p.R+p.T)continue;const f=isPhi(p,r);o[0]+=f*(1-ISL.KX)*dx;o[1]+=f*(1-ISL.KZ)*dz;}return o;}
+// inverse warp: where on the original island a new point came from
+function isWinv(X,Z){if(X>=99.5)return[X,Z];const p0=[ISL.PX+(X-ISL.PX)/ISL.KX,ISL.PZ+(Z-ISL.PZ)/ISL.KZ];
+  let near=null;for(const p of ISL.plat){const c=isS(p.x,p.z),D=[c[0]-p.x,c[1]-p.z];const pr=[X-D[0],Z-D[1]];if(Math.hypot(pr[0]-p.x,pr[1]-p.z)<=p.R)return pr;if(Math.hypot(p0[0]-p.x,p0[1]-p.z)<p.R+p.T+1||Math.hypot(pr[0]-p.x,pr[1]-p.z)<p.R+p.T+1){near={p,pr};break;}}
+  if(!near)return p0;let q=near.pr,e=isW(q[0],q[1]),e0=isW(p0[0],p0[1]);if(Math.hypot(e0[0]-X,e0[1]-Z)<Math.hypot(e[0]-X,e[1]-Z)){q=p0;e=e0;}
+  for(let it=0;it<30;it++){const ex=e[0]-X,ez=e[1]-Z,r0=ex*ex+ez*ez;if(r0<1e-8)break;const h=1e-3,a=isW(q[0]+h,q[1]),b=isW(q[0],q[1]+h);const j11=(a[0]-e[0])/h,j21=(a[1]-e[1])/h,j12=(b[0]-e[0])/h,j22=(b[1]-e[1])/h,det=j11*j22-j12*j21;if(Math.abs(det)<1e-9)break;
+    const sx=(j22*ex-j12*ez)/det,sz=(-j21*ex+j11*ez)/det;let st=1,nq,ne;for(let k=0;k<24;k++){nq=[q[0]-sx*st,q[1]-sz*st];ne=isW(nq[0],nq[1]);const fx=ne[0]-X,fz=ne[1]-Z;if(fx*fx+fz*fz<r0)break;st*=.5;}q=nq;e=ne;}
+  return q;}
+// old coordinate written in code -> new coordinate (follows the object group it belongs to)
+function IW(x,z){if(!ISL.done||x>=99.5||x<-40||z<-30||z>40)return{x,z};let best=null,ba=1e9;
+  for(const c of ISL.cl){if(x<c.x1||x>c.x2||z<c.z1||z>c.z2)continue;const a=(c.x2-c.x1)*(c.z2-c.z1);if(a<ba){ba=a;best=c;}}
+  if(best)return{x:x+best.dx,z:z+best.dz};const w=isW(x,z);return{x:w[0],z:w[1]};}
+function IWx(x,z){return IW(x,z).x;}function IWz(x,z){return IW(x,z).z;}
+function iwP(a){if(a&&a.length>=2&&typeof a[0]==='number'){const w=IW(a[0],a[1]);a[0]=w.x;a[1]=w.z;}return a;}
+function iwPts(L){L.forEach(iwP);return L;}
+function iwO(o,kx,kz){kx=kx||'x';kz=kz||'z';if(o&&typeof o[kx]==='number'&&typeof o[kz]==='number'){const w=IW(o[kx],o[kz]);o[kx]=w.x;o[kz]=w.z;}return o;}
+function iwR(r){const cx=(r.x1+r.x2)/2,cz=(r.z1+r.z2)/2;if(cx>=99.5)return r;const w=IW(cx,cz),dx=w.x-cx,dz=w.z-cz;r.x1+=dx;r.x2+=dx;r.z1+=dz;r.z2+=dz;return r;}
+// build something in the final island layout (runs after the warp; IW() is live)
+function islandLate(fn){ISL.late.push(fn);}
+let ISL_GROUND=[];const ISL_WALK=[];const WA={};
 // island shape as a signed-distance grid (organic coastline with bays)
 const GARDEN={x1:-12.4,x2:-6.2,z1:-2.9,z2:2.3};
 const LOTS={bikes:{x:-10.6,z:7.4},ice:{x:8.8,z:6.2},beach:{x:2.6,z:10.4}};
 const inGarden=(x,z)=>(x>GARDEN.x1-.6&&x<GARDEN.x2+.6&&z>GARDEN.z1-.6&&z<GARDEN.z2+.6)||Object.values(LOTS).some(l=>Math.hypot(x-l.x,z-l.z)<2.8);
-const TB={x1:-24,x2:99,z1:-16,z2:20},GR=4,GW=(TB.x2-TB.x1)*GR+1,GH=(TB.z2-TB.z1)*GR+1;
+const TB={x1:-24,x2:99,z1:-16,z2:20},GR=4;let GW=(TB.x2-TB.x1)*GR+1,GH=(TB.z2-TB.z1)*GR+1;
 const BAYS=[[-9,15.6,4.2],[20,-13.4,3.6],[33,15.8,3],[47.5,10.8,2.4],[2,-13.6,2.4],[60,-6.9,1.9],[67.4,-6.7,1.5],[70.4,9.2,2.3],[82.4,8.6,2.1],[62.5,8.7,1.3],[88.5,-6.4,1.4]];
 function islandF(x,z){const dx=(x-16.5)/32,dz=(z-1.7)/13;let f=1-Math.pow(Math.pow(Math.abs(dx),6)+Math.pow(Math.abs(dz),6),1/6);
   {const ax=(x-72)/26,az=(z-1.2)/7.2;const fa=(1-Math.pow(Math.pow(Math.abs(ax),4)+Math.pow(Math.abs(az),4),1/4))*.55;if(fa>f)f=fa;}
   f+=.03*Math.sin(x*.45+z*.2)+.025*Math.sin(z*.8-x*.3)+.018*Math.sin(x*1.3+1.7)+.012*Math.sin(z*1.9+x*.9);
   for(const [bx,bz,br] of BAYS)f=Math.min(f,(Math.hypot(x-bx,z-bz)-br)*.035);return f;}
-const Fg=new Float32Array(GW*GH);for(let j=0;j<GH;j++)for(let i=0;i<GW;i++)Fg[j*GW+i]=islandF(TB.x1+i/GR,TB.z1+j/GR);
-const Dg=new Float32Array(GW*GH);for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const k=j*GW+i;const i0=i>0?k-1:k,i1=i<GW-1?k+1:k,j0=j>0?k-GW:k,j1=j<GH-1?k+GW:k;
+let Fg=new Float32Array(GW*GH);for(let j=0;j<GH;j++)for(let i=0;i<GW;i++)Fg[j*GW+i]=islandF(TB.x1+i/GR,TB.z1+j/GR);
+let Dg=new Float32Array(GW*GH);for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const k=j*GW+i;const i0=i>0?k-1:k,i1=i<GW-1?k+1:k,j0=j>0?k-GW:k,j1=j<GH-1?k+GW:k;
   const fx=(Fg[i1]-Fg[i0])*GR/((i1-i0)||1),fz=(Fg[j1]-Fg[j0])*GR/(((j1-j0)/GW)||1);Dg[k]=Fg[k]/Math.max(.004,Math.hypot(fx,fz));}
 function landD(x,z){const u=(x-TB.x1)*GR,v=(z-TB.z1)*GR;const i=Math.floor(u),j=Math.floor(v);if(i<0||j<0||i>=GW-1||j>=GH-1)return -9;const a=u-i,b=v-j,k=j*GW+i;return(Dg[k]*(1-a)+Dg[k+1]*a)*(1-b)+(Dg[k+GW]*(1-a)+Dg[k+GW+1]*a)*b;}
 function hash2(i,j){const s=Math.sin(i*127.1+j*311.7)*43758.5453;return s-Math.floor(s);}
@@ -24,35 +54,54 @@ const PATHS=[[[45.4,-3.8],[50,-2.4],[58,-1.4],[68,-.8],[80,-.2],[91,.4]],[[59.4,
 function segD(px,pz,ax,az,bx,bz){const vx=bx-ax,vz=bz-az,wx=px-ax,wz=pz-az;const t=clamp((wx*vx+wz*vz)/(vx*vx+vz*vz),0,1);return Math.hypot(wx-vx*t,wz-vz*t);}
 function pathD(x,z){let d=1e9;for(const p of PATHS)for(let i=0;i<p.length-1;i++)d=Math.min(d,segD(x,z,p[i][0],p[i][1],p[i+1][0],p[i+1][1]));return d;}
 // hand-painted ground: grass patches, dry grass, beaches, wet sand, limestone trails, pink salt lake
-const TPX=16,terrC=mk((TB.x2-TB.x1)*TPX,(TB.z2-TB.z1)*TPX);
-(()=>{const W=terrC.width,H=terrC.height,x=terrC.getContext('2d'),img=x.createImageData(W,H),D=img.data;
-  const G=[[92,140,66],[116,160,82],[140,181,98],[160,176,92],[183,186,110]];
-  for(let j=0;j<H;j++){const z=TB.z1+(j+.5)/TPX;for(let i=0;i<W;i++){const wx=TB.x1+(i+.5)/TPX;const d=landD(wx,z);if(d<=0)continue;
-    const r=hash2(i*1.37+.5,j*2.11+.3);const n1=vnoise(wx*.17,z*.17),n2=vnoise(wx*.65+7,z*.65+3);let c;
-    const beachW=1.05+.7*vnoise(wx*.3+11,z*.3)+(r-.5)*.35;const zone=wx<49&&((z>9.3+n1*1.2)||(wx>32.3+n1&&z>3.6+n2));
-    const le=Math.min(((wx-42.2)/3.5)**2+((z+7.5)/1.6)**2,((wx-66.2)/2.6)**2+((z-2.7)/1.1)**2);const pd=(wx>-14&&wx<98&&z>-11&&z<9)?pathD(wx,z):9;
-    if(le<1)c=r>.93?[250,204,216]:(n2>.6?[244,176,194]:[236,156,178]);
-    else if(le<1.38+(r-.5)*.12)c=r<.5?[242,236,224]:[226,214,196];
+let TPX=4;const terrC=mk(2,2);terrC.getContext('2d');
+const TERR_G=[[92,140,66],[116,160,82],[140,181,98],[160,176,92],[183,186,110]];
+// paint ground pixels for rows j0..j1 of an image whose top-left is world (x0,z0), PX pixels per unit
+function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.x1)*PX),gz0=Math.round((z0-TB.z1)*PX);
+  for(let j=j0;j<j1;j++){const z=z0+(j+.5)/PX,gj=gz0+j;for(let i=0;i<W;i++){const wx=x0+(i+.5)/PX;const d=landD(wx,z);if(d<=0)continue;const gi=gx0+i;
+    const r=hash2(gi*1.37+.5,gj*2.11+.3);const [ox,oz]=islOld(wx,z);const n1=vnoise(wx*.17,z*.17),n2=vnoise(wx*.65+7,z*.65+3);let c;
+    const beachW=1.05+.7*vnoise(wx*.3+11,z*.3)+(r-.5)*.35;const zone=d<2.4+n2*1.6&&ox<49&&((oz>9.3+n1*1.2)||(ox>32.3+n1&&oz>3.6+n2));
+    const le=Math.min(((ox-42.2)/3.5)**2+((oz+7.5)/1.6)**2,((ox-66.2)/2.6)**2+((oz-2.7)/1.1)**2);const pd=islPD(wx,z);
+    const SG=ISL_GROUND.length?islGround(wx,z):null,SL=SG&&SG.g.t==='lake';
+    if(le<1||(SL&&SG.e<1))c=r>.93?[250,204,216]:(n2>.6?[244,176,194]:[236,156,178]);
+    else if(le<1.38+(r-.5)*.12||(SL&&SG.e<1.38+(r-.5)*.12))c=r<.5?[242,236,224]:[226,214,196];
     else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
-    else if(d<beachW||zone){if(d<.42)c=[222,214,196];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
+    else if(SG&&!SL&&SG.g.t!=='sand'&&!(SG.g.t!=='tarmac'&&d<beachW)){const t=SG.g.t;if(t==='fairway')c=((Math.floor((SG.u*SG.g.rx+40)/1.6))&1)?[132,196,96]:[146,208,108];else if(t==='green')c=r<.5?[118,198,98]:[126,206,104];else if(t==='bunker')c=r<.5?[240,226,188]:[232,216,176];else c=Math.abs(SG.v)<.08&&((Math.floor((SG.u*SG.g.rx+40)/1.4))&1)?[240,240,232]:(r<.5?[108,112,120]:[118,122,128]);}
+    else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(d<.42)c=[222,214,196];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
     else{let t=n1*.62+n2*.38+(r-.5)*.2;if(d<beachW+.8)t+=.18;c=G[t<.32?0:t<.46?1:t<.6?2:t<.72?3:4];
       if(r>.9966)c=[244,220,90];else if(r>.9956)c=[255,255,255];else if(r>.986)c=[176,206,122];else if(r<.014)c=[78,116,56];}
-    const b=1+(vnoise(wx*.05+40,z*.05)-.5)*.14;const k=(j*W+i)*4;D[k]=c[0]*b;D[k+1]=c[1]*b;D[k+2]=c[2]*b;D[k+3]=255;}}
-  x.putImageData(img,0,0);})();
-// shallow turquoise water, reefs, and surf lines
-const WPX=8,waterC2=mk((TB.x2-TB.x1)*WPX,(TB.z2-TB.z1)*WPX),foamC2=mk(waterC2.width,waterC2.height);
-(()=>{const W=waterC2.width,H=waterC2.height,a=waterC2.getContext('2d'),b=foamC2.getContext('2d'),A=a.createImageData(W,H),B=b.createImageData(W,H);
-  for(let j=0;j<H;j++){const z=TB.z1+(j+.5)/WPX;for(let i=0;i<W;i++){const wx=TB.x1+(i+.5)/WPX;const d=landD(wx,z);const k=(j*W+i)*4;const dist=Math.max(0,-d);
-    const t=clamp(dist/5,0,1);let R0=lerp(126,58,t),G0=lerp(228,176,t),B0=lerp(212,204,t);let al=Math.pow(clamp(1-dist/8,0,1),1.3)*.95;
-    const reef=vnoise(wx*.55+3,z*.55+9);const basin=Math.hypot(wx-20,z+12.8)<3.4;
-    if(dist>.6&&(reef>.7||(basin&&vnoise(wx*1.4,z*1.4)>.52))){R0*=.55;G0*=.78;B0*=.82;al=Math.max(al,.55);}
-    if(d>0)al=.95;A.data[k]=R0;A.data[k+1]=G0;A.data[k+2]=B0;A.data[k+3]=al*255;
-    const f=d>0?0:Math.exp(-Math.pow((dist-.22)/.16,2))*.95+Math.exp(-Math.pow((dist-1.05)/.14,2))*.4*(.55+.45*Math.sin(wx*1.1+z*.7))+Math.exp(-Math.pow((dist-2.1)/.12,2))*.18;
-    B.data[k]=255;B.data[k+1]=255;B.data[k+2]=250;B.data[k+3]=clamp(f,0,1)*255;}}
-  a.putImageData(A,0,0);b.putImageData(B,0,0);})();
+    const b=1+(vnoise(wx*.05+40,z*.05)-.5)*.14;const k=(j*W+i)*4;D[k]=c[0]*b;D[k+1]=c[1]*b;D[k+2]=c[2]*b;D[k+3]=255;}}}
+// shallow turquoise water, reefs (A) and surf lines (B); either can be null
+function paintWaterRect(A,B,W,x0,z0,PX,j0,j1){for(let j=j0;j<j1;j++){const z=z0+(j+.5)/PX;for(let i=0;i<W;i++){const wx=x0+(i+.5)/PX;const d=landD(wx,z);const k=(j*W+i)*4;const dist=Math.max(0,-d);
+    if(A){const t=clamp(dist/5,0,1);let R0=lerp(126,58,t),G0=lerp(228,176,t),B0=lerp(212,204,t);let al=Math.pow(clamp(1-dist/8,0,1),1.3)*.95;
+      if(al>0||d>0){const reef=vnoise(wx*.55+3,z*.55+9);const [ox,oz]=islOld(wx,z);const basin=Math.hypot(ox-20,oz+12.8)<3.4;
+        if(dist>.6&&(reef>.7||(basin&&vnoise(wx*1.4,z*1.4)>.52))){R0*=.55;G0*=.78;B0*=.82;al=Math.max(al,.55);}}
+      if(d>0)al=.95;A[k]=R0;A[k+1]=G0;A[k+2]=B0;A[k+3]=al*255;}
+    if(B){const f=d>0||dist>2.6?0:Math.exp(-Math.pow((dist-.22)/.16,2))*.95+Math.exp(-Math.pow((dist-1.05)/.14,2))*.4*(.55+.45*Math.sin(wx*1.1+z*.7))+Math.exp(-Math.pow((dist-2.1)/.12,2))*.18;
+      B[k]=255;B[k+1]=255;B[k+2]=250;B[k+3]=clamp(f,0,1)*255;}}}}
+function paintTerrain(){const W=terrC.width,H=terrC.height,x=terrC.getContext('2d'),img=x.createImageData(W,H);paintTerrRect(img.data,W,TB.x1,TB.z1,TPX,0,H);x.putImageData(img,0,0);}
+let WPX=3;const waterC2=mk(2,2),foamC2=mk(2,2);waterC2.getContext('2d');foamC2.getContext('2d');
+function paintWater(){foamC2.getContext('2d').clearRect(0,0,foamC2.width,foamC2.height);const W=waterC2.width,H=waterC2.height,a=waterC2.getContext('2d'),A=a.createImageData(W,H);paintWaterRect(A.data,null,W,TB.x1,TB.z1,WPX,0,H);a.putImageData(A,0,0);}
+// sharp ground near Kip: 40-unit tiles painted a few rows per frame, dropped again when far away
+const GT={S:40,PX:16,FX:8,R:46,list:[],job:null,foamMats:[]};
+function gtInit(){GT.list.forEach(t=>gtDrop(t));GT.list=[];for(let x=TB.x1;x<TB.x2;x+=GT.S)for(let z=TB.z1;z<TB.z2;z+=GT.S){const x2=Math.min(TB.x2,x+GT.S),z2=Math.min(TB.z2,z+GT.S);
+    let near=false;for(let a=x;a<=x2&&!near;a+=2)for(let b=z;b<=z2;b+=2)if(landD(a,b)>-3){near=true;break;}if(near)GT.list.push({x1:x,z1:z,x2,z2,st:0});}}
+function gtDrop(t){['tm','fm'].forEach(k=>{const m=t[k];if(!m)return;scene.remove(m);m.geometry.dispose();m.material.map.dispose();m.material.dispose();t[k]=null;});const i=GT.foamMats.indexOf(t.fmat);if(i>=0)GT.foamMats.splice(i,1);t.fmat=null;t.st=0;t.c=t.f=null;}
+function gtStart(t){const w=Math.round((t.x2-t.x1)*GT.PX),h=Math.round((t.z2-t.z1)*GT.PX),fw=Math.round((t.x2-t.x1)*GT.FX),fh=Math.round((t.z2-t.z1)*GT.FX);
+  t.c=mk(w,h);t.cx=t.c.getContext('2d');t.img=t.cx.createImageData(w,h);t.f=mk(fw,fh);t.fx=t.f.getContext('2d');t.fimg=t.fx.createImageData(fw,fh);t.row=0;t.frow=0;t.st=1;}
+function gtFinish(t){t.cx.putImageData(t.img,0,0);t.fx.putImageData(t.fimg,0,0);t.img=t.fimg=null;const w=t.x2-t.x1,h=t.z2-t.z1,cx=(t.x1+t.x2)/2,cz=(t.z1+t.z2)/2;
+  t.tm=flat(w,h,new THREE.MeshLambertMaterial({map:canvasPlaneTex(t.c,true),alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}),cx,.002,cz);t.tm.receiveShadow=true;
+  t.fmat=new THREE.MeshBasicMaterial({map:canvasPlaneTex(t.f),transparent:true,depthWrite:false});t.fm=flat(w,h,t.fmat,cx,-.105,cz);t.fm.receiveShadow=false;GT.foamMats.push(t.fmat);t.st=2;}
+function gtTick(){if(!ISL.done||!GT.list.length)return;const cx=camTarget.x,cz=camTarget.z;if(cx>=100){if(!GT.job)return;}
+  const R=GT.R*Math.max(1,zm||1),dist=t=>Math.hypot(Math.max(t.x1-cx,0,cx-t.x2),Math.max(t.z1-cz,0,cz-t.z2));
+  for(const t of GT.list)if(t.st&&dist(t)>R+30&&t!==GT.job)gtDrop(t);
+  if(!GT.job){let best=null,bd=1e9;for(const t of GT.list){if(t.st)continue;const d=dist(t);if(d<R&&d<bd){bd=d;best=t;}}if(best){gtStart(best);GT.job=best;}else GT.fast=false;}
+  const t=GT.job;if(!t)return;const t0=performance.now(),W=t.c.width,H=t.c.height,FW=t.f.width,FH=t.f.height;
+  while(performance.now()-t0<(GT.fast?60:5)){if(t.row<H){const n=Math.min(H,t.row+8);paintTerrRect(t.img.data,W,t.x1,t.z1,GT.PX,t.row,n);t.row=n;}else if(t.frow<FH){const n=Math.min(FH,t.frow+8);paintWaterRect(null,t.fimg.data,FW,t.x1,t.z1,GT.FX,t.frow,n);t.frow=n;}else{gtFinish(t);GT.job=null;break;}}
+  const op=foam.material.opacity;GT.foamMats.forEach(m=>m.opacity=op);}
 const water=flat(640,640,new THREE.MeshLambertMaterial({map:ctex(waterC,{rep:[160,160]})}),70,-.15,2);water.receiveShadow=false;
 function canvasPlaneTex(c,nearest){const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;if(nearest){t.magFilter=THREE.NearestFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());}else{t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;}return t;}
-const TCX=(TB.x1+TB.x2)/2,TCZ=(TB.z1+TB.z2)/2,TWD=TB.x2-TB.x1,THT=TB.z2-TB.z1;
+let TCX=(TB.x1+TB.x2)/2,TCZ=(TB.z1+TB.z2)/2,TWD=TB.x2-TB.x1,THT=TB.z2-TB.z1;
 const shore=flat(TWD,THT,new THREE.MeshBasicMaterial({map:canvasPlaneTex(waterC2),transparent:true,depthWrite:false}),TCX,-.12,TCZ);shore.receiveShadow=false;
 const foam=flat(TWD,THT,new THREE.MeshBasicMaterial({map:canvasPlaneTex(foamC2),transparent:true,depthWrite:false}),TCX,-.11,TCZ);foam.receiveShadow=false;
 const terrain=flat(TWD,THT,new THREE.MeshLambertMaterial({map:canvasPlaneTex(terrC,true),alphaTest:.5}),TCX,0,TCZ);

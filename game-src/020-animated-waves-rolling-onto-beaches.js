@@ -1,3 +1,19 @@
+// ---------- animated waves rolling onto the beaches ----------
+function makeWaveTex(){const d=new Uint8Array(GW*GH);for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const v=Dg[j*GW+i];d[j*GW+i]=Math.round(clamp((v+6)/9,0,1)*255);}const t=new THREE.DataTexture(d,GW,GH,THREE.LuminanceFormat,THREE.UnsignedByteType);t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearFilter;t.needsUpdate=true;return t;}
+const waveTex=makeWaveTex();
+const waveMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{tD:{value:waveTex},uT:{value:0},uB:{value:new THREE.Vector4(TB.x1,TB.z1,TB.x2-TB.x1,TB.z2-TB.z1)},uL:{value:1},uSurf:{value:new THREE.Vector2(82,11)},uMir:{value:1}},
+  vertexShader:'uniform float uMir;varying vec2 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=vec2(w.x*uMir,w.z);gl_Position=projectionMatrix*viewMatrix*w;}',
+  fragmentShader:['uniform sampler2D tD;uniform float uT;uniform vec4 uB;uniform float uL;uniform vec2 uSurf;varying vec2 vW;',
+   'void main(){vec2 uv=(vW-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)discard;float d=texture2D(tD,uv).r*9.-6.;if(d>.2)discard;',
+   'float surf=1.+1.4*exp(-dot(vW-uSurf,vW-uSurf)/40.);float wob=sin(vW.x*.7+uT*.6)*.25+sin(vW.y*.9-uT*.4)*.2;',
+   'float ph=fract(-d*.38/surf+uT*.2+wob*.12);float crest=smoothstep(.78,.93,ph)*(1.-smoothstep(.95,1.,ph));float band=smoothstep(-5.*surf,-.6,d)*(1.-smoothstep(-.1,.18,d));',
+   'float sw=.5+.5*sin(uT*.9+vW.x*.15+vW.y*.1);float swash=(1.-smoothstep(0.,.32,abs(d+.05+sw*.35)))*.85;float a=max(crest*band*(.7+.3*surf),swash*step(d,.12));',
+   'if(a<.02)discard;gl_FragColor=vec4(vec3(.96,.99,1.)*uL,min(1.,a*1.05));}'].join('\n')});
+const waves=flat(TB.x2-TB.x1,TB.z2-TB.z1,waveMat,(TB.x1+TB.x2)/2,-.1,(TB.z1+TB.z2)/2);waves.receiveShadow=false;waves.renderOrder=2;
+
+// potted plants on deck
+[[-4.6,3.1],[4.6,3.1],[-4.5,-1.9],[4.5,-1.9]].forEach(([x,z])=>{box(.45,.4,.45,new THREE.MeshLambertMaterial({color:0xc46a3c}),x,.36,z);const v=bushVariants[0];const g=new THREE.PlaneGeometry(1.1,.7);g.translate(0,.5,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,.3,z);scene.add(m);BB.push(m);col(x-.25,z-.25,x+.25,z+.25);});
+
 // ---------- Rottnest details ----------
 function outlineCanvas(c,rgb){const x=c.getContext('2d'),W=c.width,H=c.height,img=x.getImageData(0,0,W,H),d=img.data,out=new Uint8ClampedArray(d);
   for(let py=0;py<H;py++)for(let px=0;px<W;px++){const k=(py*W+px)*4;if(d[k+3])continue;let n=false;[[1,0],[-1,0],[0,1],[0,-1]].forEach(([a,b])=>{const X=px+a,Y=py+b;if(X>=0&&Y>=0&&X<W&&Y<H&&d[(Y*W+X)*4+3])n=true;});if(n){out[k]=rgb[0];out[k+1]=rgb[1];out[k+2]=rgb[2];out[k+3]=255;}}

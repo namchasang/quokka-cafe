@@ -14,9 +14,10 @@ const WEST={};
   box(3.4,.3,1.2,lmat(stoneC,[2,1]),14.2,.15,-4.6);signPost(12.6,-5.2,makeSign(['SETTLEMENT STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(12.5,-5.2,15.9,-4);
   // rails along the train line
   const RAIL=[[15.8,-3.6],[24,-3.4],[36,1.6],[48,2.8],[53,1.8]];const tieM=M('#5a3a22'),railM=M('#9aa0a8');
-  for(let i=0;i<RAIL.length-1;i++){const [ax,az]=RAIL[i],[bx,bz]=RAIL[i+1];const len=Math.hypot(bx-ax,bz-az),ang=Math.atan2(bz-az,bx-ax);
+  const buildRail=RAIL=>{const n0=scene.children.length;for(let i=0;i<RAIL.length-1;i++){const [ax,az]=RAIL[i],[bx,bz]=RAIL[i+1];const len=Math.hypot(bx-ax,bz-az),ang=Math.atan2(bz-az,bx-ax);
     for(let s=0;s<len;s+=.7){const t=new THREE.Mesh(new THREE.BoxGeometry(.18,.05,1),tieM);t.position.set(ax+Math.cos(ang)*s,.03,az+Math.sin(ang)*s);t.rotation.y=-ang;scene.add(t);}
-    [-.32,.32].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(len,.06,.06),railM);r.position.set((ax+bx)/2-Math.sin(ang)*o,.07,(az+bz)/2+Math.cos(ang)*o);r.rotation.y=-ang;scene.add(r);});}
+    [-.32,.32].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(len,.06,.06),railM);r.position.set((ax+bx)/2-Math.sin(ang)*o,.07,(az+bz)/2+Math.cos(ang)*o);r.rotation.y=-ang;scene.add(r);});}return scene.children.slice(n0);};
+  {const ms=buildRail(RAIL);ms.forEach(m=>m.__noWarp=true);ISL.rail={pts:RAIL.map(p=>p.slice()),meshes:ms,build:buildRail};}
   WEST.rail=RAIL;const tr=new THREE.Group();[0,1,2].forEach(i=>{const c=new THREE.Mesh(new THREE.BoxGeometry(1.7,.9,.9),M(i?'#f1c64a':'#1f5a3a'));c.position.set(-i*1.85,.6,0);c.castShadow=true;tr.add(c);const rf=new THREE.Mesh(new THREE.BoxGeometry(1.8,.1,1),M('#c8344a'));rf.position.set(-i*1.85,1.1,0);tr.add(rf);if(!i){const ch=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.4,8),M('#2a2a30'));ch.position.set(.5,1.3,0);tr.add(ch);}});scene.add(tr);WEST.train=tr;
   // Parker Point, Little Salmon Bay, Strickland Bay
   signPost(62.5,5.6,makeSign(['PARKER POINT','SNORKEL TRAIL'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(70.6,5,makeSign(['LITTLE SALMON','BAY'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(82.6,5.4,makeSign(['STRICKLAND','BAY · SURF'],52,20,'#e8735a','#ffffff'),1,.5);
@@ -35,20 +36,5 @@ const WEST={};
   signPost(47.2,-2.6,makeSign(['ISLAND LOOP','22 KM →'],48,20,'#c8344a','#ffffff'),1,.5);signPost(89.6,1.8,makeSign(['WEST END','CAPE VLAMINGH'],56,20,'#3a2a20','#f5ecd8'),1,.5);})();
 // Quokka Coach bus stops around the island
 const COACH=[{id:'settle',name:'Settlement',x:10.4,z:-1.8},{id:'basin',name:'The Basin',x:22,z:-6.6},{id:'light',name:'Wadjemup Lighthouse',x:32.2,z:-4.6},{id:'geordie',name:'Geordie Bay',x:59.4,z:-2.6},{id:'salmon',name:'Little Salmon Bay',x:71.2,z:.8},{id:'west',name:'West End',x:89.6,z:-.6}];
-COACH.forEach(b=>{box(.1,2.2,.1,new THREE.MeshLambertMaterial({color:0x1f5fae}),b.x,1.1,b.z);const s=new THREE.Mesh(new THREE.PlaneGeometry(.75,.75),new THREE.MeshBasicMaterial({map:makeSign(['BUS'],24,24,'#1f5fae','#ffffff'),side:THREE.DoubleSide}));s.position.set(b.x,2,b.z+.06);scene.add(s);col(b.x-.1,b.z-.1,b.x+.1,b.z+.1);});
-
-// ---------- animated waves rolling onto the beaches ----------
-const waveTex=(()=>{const d=new Uint8Array(GW*GH);for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const v=Dg[j*GW+i];d[j*GW+i]=Math.round(clamp((v+6)/9,0,1)*255);}const t=new THREE.DataTexture(d,GW,GH,THREE.LuminanceFormat,THREE.UnsignedByteType);t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearFilter;t.needsUpdate=true;return t;})();
-const waveMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{tD:{value:waveTex},uT:{value:0},uB:{value:new THREE.Vector4(TB.x1,TB.z1,TB.x2-TB.x1,TB.z2-TB.z1)},uL:{value:1},uSurf:{value:new THREE.Vector2(82,11)},uMir:{value:1}},
-  vertexShader:'uniform float uMir;varying vec2 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=vec2(w.x*uMir,w.z);gl_Position=projectionMatrix*viewMatrix*w;}',
-  fragmentShader:['uniform sampler2D tD;uniform float uT;uniform vec4 uB;uniform float uL;uniform vec2 uSurf;varying vec2 vW;',
-   'void main(){vec2 uv=(vW-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)discard;float d=texture2D(tD,uv).r*9.-6.;if(d>.2)discard;',
-   'float surf=1.+1.4*exp(-dot(vW-uSurf,vW-uSurf)/40.);float wob=sin(vW.x*.7+uT*.6)*.25+sin(vW.y*.9-uT*.4)*.2;',
-   'float ph=fract(-d*.38/surf+uT*.2+wob*.12);float crest=smoothstep(.78,.93,ph)*(1.-smoothstep(.95,1.,ph));float band=smoothstep(-5.*surf,-.6,d)*(1.-smoothstep(-.1,.18,d));',
-   'float sw=.5+.5*sin(uT*.9+vW.x*.15+vW.y*.1);float swash=(1.-smoothstep(0.,.32,abs(d+.05+sw*.35)))*.85;float a=max(crest*band*(.7+.3*surf),swash*step(d,.12));',
-   'if(a<.02)discard;gl_FragColor=vec4(vec3(.96,.99,1.)*uL,min(1.,a*1.05));}'].join('\n')});
-const waves=flat(TB.x2-TB.x1,TB.z2-TB.z1,waveMat,(TB.x1+TB.x2)/2,-.1,(TB.z1+TB.z2)/2);waves.receiveShadow=false;waves.renderOrder=2;
-
-// potted plants on deck
-[[-4.6,3.1],[4.6,3.1],[-4.5,-1.9],[4.5,-1.9]].forEach(([x,z])=>{box(.45,.4,.45,new THREE.MeshLambertMaterial({color:0xc46a3c}),x,.36,z);const v=bushVariants[0];const g=new THREE.PlaneGeometry(1.1,.7);g.translate(0,.5,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,.3,z);scene.add(m);BB.push(m);col(x-.25,z-.25,x+.25,z+.25);});
+window.__coachMeshes=[];COACH.forEach(b=>{const p=box(.1,2.2,.1,new THREE.MeshLambertMaterial({color:0x1f5fae}),b.x,1.1,b.z);const s=new THREE.Mesh(new THREE.PlaneGeometry(.75,.75),new THREE.MeshBasicMaterial({map:makeSign(['BUS'],24,24,'#1f5fae','#ffffff'),side:THREE.DoubleSide}));s.position.set(b.x,2,b.z+.06);scene.add(s);window.__coachMeshes.push(p,s);});
 

@@ -36,7 +36,7 @@ if(!reduceMotion)scene.add(motes);
 // ---------- characters ----------
 const ITEMS={flat:{name:'Flat White',price:8,brew:1.2},lam:{name:'Lamington',price:6,brew:0},smo:{name:'Mango Smoothie',price:10,brew:1.5},capp:{name:'Cappuccino',price:9,brew:1.2,lock:true},thai:{name:'Thai iced tea',price:9,brew:1.4,lock:true},fc:{name:'Fish & chips',price:12,brew:2.2,lock:true}};
 const ITEM_ICON={flat:'coffee',lam:'lam',smo:'smo',capp:'capp',thai:'thai',fc:'fc'};
-const STATIONS=[{key:'flat',x:-1.7},{key:'lam',x:0},{key:'smo',x:1.7},{key:'capp',x:-2.45,lock:true},{key:'thai',x:.85,lock:true},{key:'fc',x:2.45,lock:true}];
+const STATIONS=[{key:'flat',x:-1.7},{key:'lam',x:0},{key:'smo',x:1.7},{key:'capp',x:-2.45,lock:true},{key:'thai',x:.85,lock:true},{key:'fc',x:2.45,lock:true}];STATIONS.forEach(st=>st.z=-1.65);
 const WISH=[
  {id:'hammock',name:'Deck hammock',price:40,desc:'Somewhere to nap after the lunch rush. Lets you skip an hour in the afternoon.'},
  {id:'machine',name:'Twin-group espresso machine',price:70,desc:'Coffee and smoothies brew twice as fast.'},

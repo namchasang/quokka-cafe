@@ -16,7 +16,7 @@ const LAMPS=[];
   const glowC=(()=>{const c=mk(64,64),x=c.getContext('2d');const g=x.createRadialGradient(32,32,2,32,32,31);g.addColorStop(0,'rgba(255,214,140,.9)');g.addColorStop(.45,'rgba(255,190,110,.35)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return c;})();
   const glowT=new THREE.CanvasTexture(glowC);
   const hit=(x,z,p)=>colliders.some(c=>x>c.x1-p&&x<c.x2+p&&z>c.z1-p&&z<c.z2+p);
-  function lamp(x,z,force){if(!force&&x>-7&&x<10.5&&z>1.6&&z<6.5)return;if(!force&&BLANES.some(([a,b,w])=>segD(x,z,a[0],a[1],b[0],b[1])<w/2+.35))return;if(LAMPS.some(L=>Math.hypot(L.x-x,L.z-z)<4))return;if(!force&&hit(x,z,.6))return;
+  function lamp(x,z,force){{const a=IW(-7,1.6),b=IW(10.5,6.5);if(!force&&x>a.x&&x<b.x&&z>a.z&&z<b.z)return;}if(!force&&BLANES.some(([a,b,w])=>segD(x,z,a[0],a[1],b[0],b[1])<w/2+.35))return;if(LAMPS.some(L=>Math.hypot(L.x-x,L.z-z)<4))return;if(!force&&hit(x,z,.6))return;
     const g=new THREE.Group();const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.08,2.3,6),post);p.position.y=1.15;p.castShadow=true;g.add(p);
     const base=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.25,6),cap);base.position.y=.12;g.add(base);
     const arm=new THREE.Mesh(new THREE.BoxGeometry(.04,.04,.34),post);arm.position.set(0,2.2,.14);g.add(arm);
@@ -27,8 +27,8 @@ const LAMPS=[];
     const halo=new THREE.Mesh(new THREE.PlaneGeometry(.9,.9),new THREE.MeshBasicMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));halo.position.set(x,2.08,z+.42);scene.add(halo);
     LAMPS.push({x,z,bulbM,gm,halo});}
   lamp(9.4,2.3,true); // beside the café bike rack
-  // island: every few metres along the paths, set back from the path edge
-  for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];const L=Math.hypot(bx-ax,bz-az);const nx=-(bz-az)/L,nz=(bx-ax)/L;
+  // island: every few metres along the paths, set back from the path edge (laid out after the island grows)
+  ISL.lamp=lamp;if(false)for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];const L=Math.hypot(bx-ax,bz-az);const nx=-(bz-az)/L,nz=(bx-ax)/L;
     for(let d=1.5;d<L;d+=7){const t=d/L,px=ax+(bx-ax)*t,pz=az+(bz-az)*t;for(const s of [1,-1]){const x=px+nx*1.15*s,z=pz+nz*1.15*s;if(landD(x,z)>.9&&pathD(x,z)>.9){lamp(x,z);break;}}}}
   // South Perth foreshore path
   for(let x=104;x<198;x+=8){if(Math.abs(x-150)<3||Math.abs(x-186)<2)continue;lamp(x,-2.1);}

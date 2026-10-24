@@ -15,7 +15,7 @@ async function startVisit(code){let snap;try{if(!code.startsWith('QV1:'))throw 0
 function enterVisit(snap,online){
   save();VISIT={snap,back:S,pos:{x:player.x,z:player.z},time:S.time,online};
   S=Object.assign(fresh(),JSON.parse(JSON.stringify(snap.s)),{time:600,served:0,earned:0,closed:true,waves:{},digs:[],bottle:null,dt:{day:-1},dtasks:[],mail:[],unl:Object.assign({},VISIT.back.unl||{})});
-  customers.slice().forEach(removeCustomer);arrivals=[];player.carry=null;player.bike=false;player.x=-12.6;player.z=5;
+  customers.slice().forEach(removeCustomer);arrivals=[];player.carry=null;player.bike=false;player.x=IWx(-12.6,5);player.z=IWz(-12.6,5);
   hideOverlays();applyAllVisuals();updateCamera(0,true);$('#visitBar').hidden=false;$('#vbName').textContent=snap.owner+'’s island';$('#vbAct').hidden=!online;if(online){$('#vbLike').classList.toggle('liked',online.liked);$('#vbLike').textContent=online.liked?'\u2665':'\u2661';}$('#vbSub').textContent=(online?online.code+' \u00b7 ':'')+snap.island+' · Day '+(snap.s.day||1)+' · café level '+(snap.s.cafeLv||1)+' · '+Object.keys(snap.s.pc||{}).length+' postcards';
   say([{who:snap.owner,text:'Welcome to '+snap.island+'! Have a look around my café and garden. Nothing you do here changes your own game.'}]);}
 function leaveVisit(){if(!VISIT)return;const v=VISIT;VISIT=null;S=v.back;S.time=v.time;player.x=v.pos.x;player.z=v.pos.z;player.carry=null;$('#visitBar').hidden=true;$('#vbAct').hidden=true;hideOverlays();applyAllVisuals();updateCamera(0,true);save();toast('Back home on your own island',2.5);}
@@ -30,7 +30,7 @@ function stamTick(gameMin){if(VISIT||!running)return;if(S.stamina==null)S.stamin
 let blackT=false;
 function blackout(){if(blackT)return;blackT=true;transit=true;player.carry=null;player.bike=false;player.lying=false;fadeTarget=1;toast('Kip feels dizzy\u2026',2);
   setTimeout(()=>{const fee=Math.min(200,S.coins);S.coins-=fee;const before=S.time;S.time+=600;if(S.time>=1440)newDay();S.stamina=60;S.stamWarn=0;S.hospital=(S.hospital||0)+1;
-    player.x=8.2;player.z=-6.4;if(typeof MIR!=='undefined')updateCamera(0,true);save();drawHospital();$('#hpFee').textContent=fee+' coins';$('#hpNote').textContent=fee<200?'You didn\u2019t have the full 200 coins, so the nurse let the rest go. Phew!':'Ten hours later, Kip wakes up in a clean white bed.';
+    player.x=IWx(8.2,-6.4);player.z=IWz(8.2,-6.4);if(typeof MIR!=='undefined')updateCamera(0,true);save();drawHospital();$('#hpFee').textContent=fee+' coins';$('#hpNote').textContent=fee<200?'You didn\u2019t have the full 200 coins, so the nurse let the rest go. Phew!':'Ten hours later, Kip wakes up in a clean white bed.';
     showOverlay('hosp');fadeTarget=0;transit=false;blackT=false;},1400);}
 function drawHospital(){const c=$('#hpCanvas'),x=c.getContext('2d'),W=c.width,H=c.height;x.imageSmoothingEnabled=false;x.fillStyle='#dfe9ec';x.fillRect(0,0,W,H*.62);x.fillStyle='#c8d6da';for(let i=0;i<W;i+=16)x.fillRect(i,0,1,H*.62);
   x.fillStyle='#b9a88e';x.fillRect(0,H*.62,W,H*.38);x.fillStyle='#a8977c';for(let j=H*.62;j<H;j+=12)x.fillRect(0,j,W,1);
