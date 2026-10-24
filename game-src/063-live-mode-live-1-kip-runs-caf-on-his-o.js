@@ -4,8 +4,8 @@
 // The clock follows Perth time, the café never closes, rain tracks bring rain, the camera drifts between café shots,
 // customers keep arriving and Kip takes each order, makes it at the counter and carries it to the table.
 const LIVEM=(()=>{if(!LIVE)return null;
-  const Q=new URLSearchParams(location.search);const ST=Q.get('st')==='crystal'?'crystal':'lofi';
-  const FREQ={lofi:'92.1',crystal:'96.9'};
+  const Q=new URLSearchParams(location.search);const ST=['crystal','beats'].includes(Q.get('st'))?Q.get('st'):'lofi';
+  const FREQ={lofi:'92.1',crystal:'96.9',beats:'99.5'};
   const perthMin=()=>{const d=new Date();return (d.getUTCHours()*60+d.getUTCMinutes()+480+d.getUTCSeconds()/60)%1440;};
   // ---- overlay: brand, live badge, now playing, Perth clock ----
   const css=document.createElement('style');css.textContent=`
