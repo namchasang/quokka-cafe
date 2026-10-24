@@ -13,7 +13,7 @@ const LAB=(()=>{
     {id:'freo',name:'Fremantle',B:FB,ll:[-32.0550,115.7460],labels:()=>[['Victoria Quay',284,-16.6],['B-Shed',285,-10.4],['Maritime Museum',277.5,-12],['Round House',278,-3.4],['Bathers Beach',277.2,9.6],['Esplanade Park',290.5,12.4],['Fishing Boat Harbour',284,18.8],['Cappuccino Strip',304,-3.9],['High St',292,-1],['Kings Square',311,-14.6],['Fremantle Prison',325,4]]},
     {id:'hi',name:'Heirisson Island',B:HIB,ll:[-31.9600,115.8790],labels:()=>ZONE_DEF.hi.labels},
     {id:'vp',name:'Victoria Park',B:VPB,ll:[-31.9760,115.8980],labels:()=>ZONE_DEF.vp.labels},
-    {id:'cbd',name:'Perth CBD',B:CBDB,ll:[-31.9560,115.8590],labels:()=>ZONE_DEF.cbd.labels}];
+    {id:'cbd',name:'Perth CBD',B:CBDB,ll:[-31.9560,115.8590],labels:()=>ZONE_DEF.cbd.labels}].concat(AIR.on?[{id:'air',name:'Perth Airport',B:AIRB,ll:[-31.9400,115.9670],labels:()=>ZONE_DEF.air.labels}]:[]);
   const st={on:false,zone:0,tx:0,tz:0,dist:60,yaw:0,pitch:.75,auto:false,show:CATS.map(()=>true),tint:false,tags:true,frame:true,bloom:true,tilt:false,fog:false,time:null,seen:new WeakSet(),count:CATS.map(()=>0),scanT:0,saved:null};
   const BBset=new Set(BB);
   const box=new THREE.Box3(),sz=new THREE.Vector3(),col=new THREE.Color(),hsl={},texAvg=new Map(),tv=new THREE.Vector3();

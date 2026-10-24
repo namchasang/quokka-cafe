@@ -11,9 +11,10 @@ function passDevice(){try{let d=localStorage.getItem('qc-device');if(!d||!/^[A-Z
 function passRedeemServer(c){return qcRpc('qc_redeem_pass',{p_code:c,p_device:passDevice()});}
 function hasPass(){if(BUILD==='full'||isGM())return true;if(S&&S.pass)return true;try{return localStorage.getItem('qc-perth-pass')==='1';}catch(e){return false;}}
 // ---- Game Master account (full game for Paul) ----
+const GM_HASHES=['3f4847298077ffeb2641d5ddde4aa38bc91ca18727c6d9c59f01a5e7575e32c1'];// extra Game Master codes (Paul, Oct 2026)
 const GM_HASH='0a5d4613e90f1f8961136e39e7480c8b9e10fec5675830ca066f19431752a428';
 function isGM(){try{if(typeof S!=='undefined'&&S&&S.gm)return true;return localStorage.getItem('qc-gm')==='1';}catch(e){return false;}}
-async function gmCheck(raw){try{const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!/^GM[A-Z0-9]{12}$/.test(c)||!crypto.subtle)return false;const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('quokka-gm|'+c));return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('')===GM_HASH;}catch(e){return false;}}
+async function gmCheck(raw){try{const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!/^GM[A-Z0-9]{12}$/.test(c)||!crypto.subtle)return false;const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('quokka-gm|'+c));const hx=[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');return hx===GM_HASH||GM_HASHES.includes(hx);}catch(e){return false;}}
 function gmGift(){if(!S.gmGift500){S.gmGift500=1;S.coins+=500000;toast('\u2605 GM bonus: +500,000 coins',3);}}
 function gmEnable(){S.gm=true;S.pass=true;gmGift();try{localStorage.setItem('qc-gm','1');localStorage.setItem('qc-perth-pass','1');}catch(e){}S.seenZ=Object.assign(S.seenZ||{},{island:1,sp:1,hi:1,freo:1,vp:1,cbd:1});save();gmUI();}
 function gmUI(){const b=$('#gmBtn');if(b)b.hidden=!isGM();const pb=$('#passBtn');if(pb&&isGM())pb.textContent='Perth Pass \u2713';}

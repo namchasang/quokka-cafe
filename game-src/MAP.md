@@ -51,40 +51,41 @@ Find code: `grep -n 'name' game-src/*`.
 | 043-while-visiting-an-online-island.js | 3684-3730 | 9 | vaShow, vbBook, vbGift, applyAllVisuals, enterVisit, leaveVisit, STAM_MAX, eat, stamTick, blackT |
 | 044-quokka-cafe-branches-in-other-towns.js | 3731-3800 | 14 | BRANCHES, BR_UP, BR_COL, brMeshes, brState, buildBranch, buildKiosk, applyBranches, branchIncomeTick, branchMidnight |
 | 045-ride-or-teleport-transport-fares.js | 3801-3854 | 8 | FARE_RIDE, RIDE, pay, rideAlong, rideTick, COACH_ROUTE, COACH_IDX, coachMesh, trainRide, busRide |
-| 046-perth-pass-freemium.js | 3855-3904 | 8 | BUILD, PASS_LINKS, passBuyUrl, goBuyPass, passCodeShape, passDevice, passRedeemServer, hasPass, GM_HASH, isGM |
-| 047-special-caf-events-one-random-event-on.js | 3905-3982 | 14 | EVENTS, evToday, evCur, evRoll, evAnnounce, evOnServe, evClose, propSel, openProp, renderProp |
-| 048-ambient-crowds-tourists-joggers-cyclis.js | 3983-4037 | 7 | WALK_ROUTES, WALK_N, walkers, walkerZone, updateWalkers, zoneOf, hiWalk, vpWalk, HIB, ZONE_DEF |
-| 049-phase-1-look-on-mainland-same-tussocks.js | 4038-4085 | 7 | LAMPS, CAFE_NL, cafeNightTick, lampTick |
-| 050-bus-between-south-perth-heirisson-isla.js | 4086-4160 | 18 | busTo, VP_BUSKER, rollKey, _cbdBox, cbdSeeThrough, zoneTick, STARS, PCAT, at, PCS |
-| 051-area-stories-chapters-per-area-that-le.js | 4161-4217 | 10 | _story, STORY_DEF, STORY_ORDER, storyChap, chapSteps, stepDone, stepTarget, storyOpen, storyT, storyTick |
-| 052-side-quests-funny-and-heartfelt-errand.js | 4218-4350 | 28 | SIDEQ, sqPos, sqOpen, sqStep, sqReady, sqT, sqTick, sqQuests, sqTarget, snapPending |
-| 053-caf-pantry.js | 4351-4466 | 20 | STOCK_INFO, RECIPE, addStock, canMake, useStock, missingFor, lowStock, GSTORE, strandRolled, spawnStranded |
-| 054-customers.js | 4467-4511 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
-| 055-movement.js | 4512-4570 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
-| 056-overlays.js | 4571-4669 | 29 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
-| 057-maps-quest-guidance.js | 4670-4790 | 20 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
-| 058-island-scale-spread-island-out-runs-on.js | 4791-4833 | 4 | islandWarp, islandData |
-| 059-camera-render.js | 4834-4918 | 12 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
-| 060-island-scale-wave-a-settlement-heritag.js | 4919-5077 | 28 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
-| 061-island-scale-wave-b-north-coast-bays-s.js | 5078-5146 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
-| 062-inside-oliver-hill-tunnels-with-a-torc.js | 5147-5275 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
-| 063-island-scale-wave-c-salmon-bay-henriet.js | 5276-5321 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
-| 064-snorkelling-out-to-old-wreck-at-henrie.js | 5322-5393 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
-| 065-island-scale-phase-6-six-island-lookou.js | 5394-5475 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
-| 066-phase-8-east-cape-and-south-point-get.js | 5476-5535 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
-| 067-perth-cbd-city-across-river-from-south.js | 5536-5665 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
-| 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5666-6088 | 51 | CITY_DETAIL_LIVE, CDET |
-| 069-part.js | 6089-6116 | 3 |  |
-| 070-fremantle-detail-look-lab-layer-lab-or.js | 6117-6313 | 26 | FREO_DETAIL_LIVE, FDET |
-| 071-more-from-paul-s-perth-photos-same-loo.js | 6314-6382 | 8 |  |
-| 072-fremantle-map-closer-to-real-town-same.js | 6383-6458 | 11 | FREO_LAND |
-| 073-st-george-s-cathedral-on-st-georges-te.js | 6459-6506 | 5 |  |
-| 074-fremantle-from-paul-s-street-photos-sa.js | 6507-6646 | 19 | FREO2_LIVE |
-| 075-fremantle-town-plan-same-look-lab-laye.js | 6647-6809 | 19 |  |
-| 076-island-loop-bus-a-19-stop-loop-bus-lik.js | 6810-6855 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 077-tidy-island-after-it-grows-nothing-on.js | 6856-6965 | 13 | flipIslandSigns, hot |
-| 078-live-mode-live-1-kip-runs-caf-on-his-o.js | 6966-7040 | 8 | LIVEM |
-| 079-look-lab-landscape-layers-of-each-real.js | 7041-7226 | 24 | LAB |
-| 080-hd-plants-every-tree-bush-flower-and-g.js | 7227-7294 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 081-layered-pixel-trees-2-5d-look-lab-laye.js | 7295-7335 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 082-part.js | 7336-7338 | 0 |  |
+| 046-perth-pass-freemium.js | 3855-3905 | 9 | BUILD, PASS_LINKS, passBuyUrl, goBuyPass, passCodeShape, passDevice, passRedeemServer, hasPass, GM_HASHES, GM_HASH |
+| 047-special-caf-events-one-random-event-on.js | 3906-3983 | 14 | EVENTS, evToday, evCur, evRoll, evAnnounce, evOnServe, evClose, propSel, openProp, renderProp |
+| 048-ambient-crowds-tourists-joggers-cyclis.js | 3984-4038 | 7 | WALK_ROUTES, WALK_N, walkers, walkerZone, updateWalkers, zoneOf, hiWalk, vpWalk, HIB, ZONE_DEF |
+| 049-phase-1-look-on-mainland-same-tussocks.js | 4039-4086 | 7 | LAMPS, CAFE_NL, cafeNightTick, lampTick |
+| 050-bus-between-south-perth-heirisson-isla.js | 4087-4161 | 18 | busTo, VP_BUSKER, rollKey, _cbdBox, cbdSeeThrough, zoneTick, STARS, PCAT, at, PCS |
+| 051-area-stories-chapters-per-area-that-le.js | 4162-4218 | 10 | _story, STORY_DEF, STORY_ORDER, storyChap, chapSteps, stepDone, stepTarget, storyOpen, storyT, storyTick |
+| 052-side-quests-funny-and-heartfelt-errand.js | 4219-4351 | 29 | SIDEQ, sqPos, sqOpen, sqStep, sqReady, sqT, sqTick, sqQuests, sqTarget, snapPending |
+| 053-caf-pantry.js | 4352-4467 | 20 | STOCK_INFO, RECIPE, addStock, canMake, useStock, missingFor, lowStock, GSTORE, strandRolled, spawnStranded |
+| 054-customers.js | 4468-4512 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
+| 055-movement.js | 4513-4571 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
+| 056-overlays.js | 4572-4670 | 29 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
+| 057-maps-quest-guidance.js | 4671-4791 | 20 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
+| 058-island-scale-spread-island-out-runs-on.js | 4792-4834 | 4 | islandWarp, islandData |
+| 059-camera-render.js | 4835-4919 | 12 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
+| 060-island-scale-wave-a-settlement-heritag.js | 4920-5078 | 28 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
+| 061-island-scale-wave-b-north-coast-bays-s.js | 5079-5147 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
+| 062-inside-oliver-hill-tunnels-with-a-torc.js | 5148-5276 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
+| 063-island-scale-wave-c-salmon-bay-henriet.js | 5277-5322 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
+| 064-snorkelling-out-to-old-wreck-at-henrie.js | 5323-5394 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
+| 065-island-scale-phase-6-six-island-lookou.js | 5395-5476 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
+| 066-phase-8-east-cape-and-south-point-get.js | 5477-5536 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
+| 067-perth-cbd-city-across-river-from-south.js | 5537-5666 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
+| 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5667-6089 | 51 | CITY_DETAIL_LIVE, CDET |
+| 069-part.js | 6090-6117 | 3 |  |
+| 070-perth-airport-look-lab-area-lab-or-air.js | 6118-6242 | 17 | AIR_LIVE, AIR, AIRB, airWalk |
+| 071-hooks-zone-travel-map-story.js | 6243-6478 | 33 | FREO_DETAIL_LIVE, FDET |
+| 072-more-from-paul-s-perth-photos-same-loo.js | 6479-6547 | 8 |  |
+| 073-fremantle-map-closer-to-real-town-same.js | 6548-6623 | 11 | FREO_LAND |
+| 074-st-george-s-cathedral-on-st-georges-te.js | 6624-6671 | 5 |  |
+| 075-fremantle-from-paul-s-street-photos-sa.js | 6672-6811 | 19 | FREO2_LIVE |
+| 076-fremantle-town-plan-same-look-lab-laye.js | 6812-6974 | 19 |  |
+| 077-island-loop-bus-a-19-stop-loop-bus-lik.js | 6975-7020 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 078-tidy-island-after-it-grows-nothing-on.js | 7021-7130 | 13 | flipIslandSigns, hot |
+| 079-live-mode-live-1-kip-runs-caf-on-his-o.js | 7131-7205 | 8 | LIVEM |
+| 080-look-lab-landscape-layers-of-each-real.js | 7206-7391 | 25 | LAB |
+| 081-hd-plants-every-tree-bush-flower-and-g.js | 7392-7459 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 082-layered-pixel-trees-2-5d-look-lab-laye.js | 7460-7500 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 083-part.js | 7501-7503 | 0 |  |

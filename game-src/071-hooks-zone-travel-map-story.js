@@ -1,3 +1,42 @@
+// ---- hooks: zone, travel, map, story ----
+if(AIR.on){
+  BUS_STOPS.air={x:724,z:13.4,name:'Perth Airport',land:[724,13.4]};SAFE_SPOTS.air=[[724,13.4],[760,-1],[778,4.2]];
+  ZONE_DEF.air={B:AIRB,title:'Perth Airport',eb:'Airport · flights to everywhere',bg:'#7aa356',rects:[[713,-30,817,-12,'#7aa356'],[713,-26,817,-22.6,'#4a4d55'],[716,-16.2,800,-7.8,'#b8bab8'],[726,-8,796,-3,'#d8dcde'],[714,-.4,816,2.2,'#4a4d55'],[718,2.2,814,4.6,'#a8583a'],[736,5,802,15.4,'#4a4d55'],[717,4.9,731,11.5,'#2a2e34'],[800,-11.8,812,-3,'#7aa356']],
+    labels:[['Perth Airport',761,-5.5,1],['Runway',765,-24.3,1],['Control tower',807.5,-8.4,1],['Viewing deck',806,-10.5,0],['Arrivals',756,-1.5,0],['Airport Central',724,8.2,1],['Car hire',760,8,0],['Gates',760,-12,0]]};
+  const _tg=cbdTargets;cbdTargets=function(T){_tg(T);const z=zoneOf(player.x);
+    if(z==='cbd')T.push({x:685,z:-22.1,r:1.4,label:'Train to the Airport · Airport Central'+(hasPass()?'':' · \u{1F512} Perth Pass'),act:()=>airTrain('air')});
+    if(z!=='air')return;T.push({x:724,z:12.4,r:1.5,label:'Train to Perth Station (city)',act:()=>airTrain('cbd')});
+    AIR.npcs.forEach(n=>T.push({x:n.x,z:n.z+.5,r:1.3,label:'Talk to '+n.name,act:()=>airTalk(n)}));
+    if(storyChap('air')&&S.qg&&S.qg.askHut&&!S.qg.suitcase)T.push({x:799.4,z:14.9,r:1.2,label:'Pick up the blue suitcase',act:()=>{S.qg.suitcase=1;AIR.case.visible=false;save();say(['A blue suitcase with a yellow tag: MILO. It’s full of footy cards. And socks. Mostly socks.']);}});
+    T.push({x:804,z:-10,r:1.3,label:'Watch the planes',act:()=>{S.qg=S.qg||{};S.qg.spotted=1;save();say(['A plane in a teal tail rolls down the taxiway, then another roars down the runway and lifts off over the hills.','Kip: One day I’ll fly somewhere too. After the café is famous.']);}});
+    T.push({x:776,z:-2.4,r:1.3,label:'Coffee at the departures cart · 5 coins',act:()=>{if(S.coins<5){toast('Not enough coins',2);return;}S.coins-=5;eat(15,'Airport flat white');save();}});};
+  function airTalk(n){S.qg=S.qg||{};const c=storyChap('air'),n0=(S.story&&S.story.air)||0;
+    if(n.id==='june'&&!S.qg.metJune){S.qg.metJune=1;save();say([{who:'Auntie June',text:'Kip! Over here! Oh, look at you, a real café owner now.'},{who:'Milo',text:'We came on a plane! A BIG one!'},{who:'Kip',text:'Auntie June! Milo! Welcome to Perth. Wait till you see the island.'},{who:'Auntie June',text:'Show us around first. I want a photo of that tower for your uncle.'}]);return;}
+    if(n.id==='milo'&&n0===1&&!S.qg.gaveCase){if(S.qg.suitcase){S.qg.gaveCase=1;save();say([{who:'Milo',text:'MY SUITCASE! My footy cards! Thank you, Kip!'},{who:'Auntie June',text:'We’ll come to the café as soon as we land on Rottnest. Save us a table.'}]);}else say([{who:'Milo',text:'My blue suitcase didn’t come out on the belt. Raj at car hire might have seen it.'}]);return;}
+    if(n.id==='raj'&&n0===1&&!S.qg.askHut){S.qg.askHut=1;save();say([{who:'Raj',text:'A blue suitcase with a yellow tag? Rolled off a trolley this morning. Last I saw, it was heading for the far end of the lot.'}]);return;}
+    say(n.lines());}
+  window.airTrain=function(dest){if(transit||VISIT)return;if(dest==='air'&&needPass('cbd'))return;if(!pay(FARE_RIDE))return;transit=true;fadeTarget=.95;toast(dest==='air'?'Train to the Airport · Airport Central…':'Train to Perth Station…',2.2);
+    setTimeout(()=>{S.time+=20;player.bike=false;player.carry=null;if(dest==='air'){player.x=AIR.land[0];player.z=AIR.land[1];}else{player.x=680;player.z=-19.6;}updateCamera(0,true);fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[dest]=1;
+      if(dest==='air'){S.fq=S.fq||{};if(!S.fq.visitAir){S.fq.visitAir=1;save();say(['Kip: The airport! Planes taking off over the hills… and somewhere in arrivals, Auntie June and Milo.']);}}},900);};
+  [['airtower','Control tower','place',4.2],['airterm','Terminal canopy','place',5],['planespot','Plane spotting','place',3.4,()=>[[AIR.P.deck.x,AIR.P.deck.z]]],['airstn','Airport Central','place',4],['carhire','Car hire lot','place',4]]
+    .forEach(([id,name,cat,r,pos])=>PCS.push({id,name,zone:'air',cat,pos:pos||(()=>{const k={airtower:'tower',airterm:'terminal',airstn:'station',carhire:'lot'}[id];const p=AIR.P[k];return p?[[p.x,p.z]]:[];}),r}));
+  Object.assign(PC_HINTS,{airtower:'The control tower · the tall shaft with the dark glass cab at the airport',airterm:'Terminal canopy · the white curved blades over the airport kerb',planespot:'Plane spotting · the lawn beside the control tower',airstn:'Airport Central · the train station by the airport kerb',carhire:'Car hire lot · rows of white cars and shade sails'});
+  {const _sd=STORY_DEF;STORY_DEF=function(){const o=_sd();if(!o.air){const g=()=>S.qg||{};o.air={name:'Perth Airport',short:'Airport',chapters:[
+    {title:'Arrivals',giver:'Auntie June',intro:'Kip, love! Milo and I just flew in from Melbourne. Meet us at arrivals, then show us around this airport of yours.',outro:'What a welcome! Now… Milo has something to tell you about his suitcase.',coins:70,
+     steps:[['Meet Auntie June and Milo at arrivals',{check:()=>!!g().metJune,at:()=>({x:755.2,z:-.4,label:'Arrivals'})}],['Photograph the control tower','airtower'],['Photograph the terminal canopy','airterm'],['Watch the planes from the viewing deck',{check:()=>!!g().spotted,at:()=>({x:804,z:-10,label:'Viewing deck'})}]]},
+    {title:'The lost suitcase',giver:'Milo',intro:'My blue suitcase didn’t come out on the belt! It has all my footy cards. Can you help me find it, cousin Kip?',outro:'Footy cards, safe! See you on the island, Kip. We’ll be your first customers tomorrow.',coins:90,
+     steps:[['Ask Raj at the car hire hut',{check:()=>!!g().askHut,at:()=>({x:761.6,z:8.6,label:'Car hire hut'})}],['Find the blue suitcase in the car park',{check:()=>!!g().suitcase,at:()=>({x:799.4,z:14.9,label:'Blue suitcase'})}],['Give it back to Milo',{check:()=>!!g().gaveCase,at:()=>({x:757,z:-.2,label:'Milo'})}],['Photograph Airport Central','airstn']]}]};}return o;};}
+  STORY_ORDER.push('air');
+  // show the airport only when Kip is there (or in the Look Lab); planes, beacon, night lights
+  {const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);const here=zoneOf(player.x)==='air'||(typeof LAB!=='undefined'&&LAB.on);if(AIR.g.visible!==here)AIR.g.visible=here;if(here)airTick(dt);};}
+  function airTick(dt){dt=Math.min(dt||0,.1);const t=performance.now()/1000;
+    for(const p of AIR.planes){p.t+=dt;if(p.kind==='taxi'){const T=40,q=(p.t%T)/T;p.g.position.set(820-q*112,0,-17.9);p.g.visible=q<.98;}
+      else{const T=36,q=p.t%T;let x,y=0;if(q<6){x=708;}else{const s=q-6;x=708+.9*s*s;y=Math.max(0,(x-760)*.16);}p.g.position.set(x,y,-24.3);p.g.rotation.z=y>0?.14:0;p.g.visible=x<840;}}
+    if(AIR.beacon)AIR.beacon.visible=Math.sin(t*3)>0;
+    const under=player.z<-.3&&player.z>-3&&player.x>727&&player.x<795;(AIR.canopy||[]).forEach(b=>{const m=b.material;if(under&&!m.transparent){b.material=m.clone();b.material.transparent=true;b.material.opacity=.3;b.userData.mo=m;}else if(!under&&b.userData.mo){b.material=b.userData.mo;b.userData.mo=null;}});
+    const n=typeof NIGHT==='number'?NIGHT:0;if(AIR._n!==n){AIR._n=n;AIR.glow.forEach(([m,d,k])=>m.color.copy(d).lerp(k,n));AIR.halos.forEach(h=>h.material.opacity=n*.85);AIR.em.forEach(m=>m.emissive.setRGB(n*1.1,n*.95,n*.7));}
+    if(S.qg&&S.qg.suitcase&&AIR.case)AIR.case.visible=false;}
+}
 // ---------- Fremantle detail (Look Lab layer: ?lab or ?freo until FREO_DETAIL_LIVE is true) ----------
 // From Paul's photos: the 1897 market hall with its striped brick gables and verandah, a two-storey hotel with lacy
 // verandahs and a churro café on Cappuccino Strip, a covered walk with a secondhand bookshop, a blue fish-and-chip shed

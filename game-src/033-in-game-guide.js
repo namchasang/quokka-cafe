@@ -99,7 +99,7 @@ const GUIDE_TRAVEL=[
  ['Sleep away from home','Sleep in a South Perth home and you wake up on the 7:00 ferry back to Rottnest.'],
  ['Maps','Tap the minimap (M) for the local map. In the map, press Perth map to see all districts and routes. The red line always points to your tracked quest.']];
 const GUIDE_KEYS=[['Move','Drag left side · WASD / arrows'],['Act','Round button · Space or E'],['Camera','Right-drag · ⟲ ⟳ · Q / R'],['Zoom','+ − · pinch · wheel'],['Ride','V'],['Photo','P'],['Album','O'],['Bag','G'],['Quests','J'],['Map','M'],['Wishlist','I'],['Guide','H'],['Friend','F'],['Calendar','C']];
-const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle',cbd:'Perth CBD'};
+const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle',cbd:'Perth CBD',air:'Perth Airport'};
 let guideTab='start',guideZone='all';
 function openGuide(){if(!running||overlay)return;renderGuide();showOverlay('guide');}
 function renderGuide(){const T=$('#gdTabs');T.innerHTML='';[['start','How to play'],['places','Places'],['quests','Quests'],['people','People'],['acts','Activities'],['sys','Systems'],['travel','Travel & maps']].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(guideTab===k?' on':'');b.id='gdt-'+k;b.textContent=l;b.onclick=()=>{guideTab=k;renderGuide();$('#gdBody').scrollTop=0;};T.appendChild(b);});

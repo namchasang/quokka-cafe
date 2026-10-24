@@ -2678,7 +2678,7 @@ function QUESTS(){const g=S.qg||{};return[
   steps:(()=>{if(!star)return STARS.map(st=>[st.name+' ('+st.from+')',!!(S.pc&&S.pc['star_'+st.id])]);const st=(S.stars&&S.stars[star.s.id])||0,nd=starNeeds(star.s);return[['Say hello at the café deck',st>=1],['Bring a '+ITEMS[nd.item].name+' from the counter',st>=2],['Take a photo together (Photo button)',!!(S.pc&&S.pc['star_'+star.s.id])]];})(),reward:rw(30)+' coins + a special Star postcard',open:!!(S.stars&&Object.keys(S.stars).length)&&unlocked('stars')},
  {id:'rooms',title:'Missed the last ferry',giver:'Stranded tourists',desc:'Some evenings, tourists miss the last ferry home and wait at Main Jetty. Walk up and offer them the spare room above the café for 10 coins a night. Happy guests come back the next morning with their whole family.',steps:[['Offer a room to a stranded tourist',((S.qg&&S.qg.roomed)||0)>0],['Host 5 guests ('+Math.min(5,(S.qg&&S.qg.roomed)||0)+'/5)',((S.qg&&S.qg.roomed)||0)>=5]],reward:'10 coins a night + a family of customers the next morning',open:unlocked('rooms')},
  {id:'daily',title:'Today\u2019s tasks',giver:'Island Notice Board',desc:'Three small tasks every day. Each pays 15 coins, and finishing all three pays a 20 coin bonus. New tasks every morning.',steps:(S.dtasks||[]).map(k=>[DTASK[k][0]+' ('+Math.min(dtVal(k),DTASK[k][1])+'/'+DTASK[k][1]+')',!!(S.dtDone&&S.dtDone[k])]),reward:'15 coins each + 20 bonus',open:!!(S.dtasks&&S.dtasks.length)&&unlocked('daily')},
- {id:'festival',title:festToday()?'Festival: '+festToday().name:'Festivals',giver:'Island calendar',desc:festToday()?festToday().desc:'Seven festivals a year across Rottnest, South Perth, Fremantle and Victoria Park. Open the calendar (C) to see what\u2019s coming.',steps:festToday()?[['Go to '+({island:'Rottnest',sp:'South Perth',freo:'Fremantle',vp:'Victoria Park',hi:'Heirisson Island',cbd:'Perth CBD'})[festToday().where],zoneOf(player.x)===festToday().where],['Take the festival postcard',PCS.some(q=>q.cat==='festival'&&S.pc&&S.pc[q.id]===S.day)]]:FESTIVALS.map(f=>[SEASONS[f.s].n+' '+f.d+': '+f.name,PCS.some(q=>q.cat==='festival'&&q.id.slice(2).length&&S.pc&&S.pc[q.id]&&festToday(S.pc[q.id])&&festToday(S.pc[q.id]).id===f.id)]),reward:'A special festival postcard',open:true},
+ {id:'festival',title:festToday()?'Festival: '+festToday().name:'Festivals',giver:'Island calendar',desc:festToday()?festToday().desc:'Seven festivals a year across Rottnest, South Perth, Fremantle and Victoria Park. Open the calendar (C) to see what\u2019s coming.',steps:festToday()?[['Go to '+({island:'Rottnest',sp:'South Perth',freo:'Fremantle',vp:'Victoria Park',hi:'Heirisson Island',cbd:'Perth CBD',air:'Perth Airport'})[festToday().where],zoneOf(player.x)===festToday().where],['Take the festival postcard',PCS.some(q=>q.cat==='festival'&&S.pc&&S.pc[q.id]===S.day)]]:FESTIVALS.map(f=>[SEASONS[f.s].n+' '+f.d+': '+f.name,PCS.some(q=>q.cat==='festival'&&q.id.slice(2).length&&S.pc&&S.pc[q.id]&&festToday(S.pc[q.id])&&festToday(S.pc[q.id]).id===f.id)]),reward:'A special festival postcard',open:true},
  {id:'friends',title:'Island friendships',giver:'Kip\u2019s notebook',desc:'Walk up to a friend and press the \u2665 Friend button (F) to chat once a day and give one gift. Loved gifts earn the most hearts. At 3, 6 and 10 hearts friends share a story and a reward. Birthdays are on the calendar, and gifts count double.',steps:FRIENDS.map(f=>[f.name+' '+hearts(f.id)+'/10 \u2665',hearts(f.id)>=10]),reward:'Heart events, coins and letters',open:unlocked('friends')},
  {id:'postcards',title:'Postcards of Perth',giver:'Kip\u2019s album',desc:'There are '+PC_TOTAL+' postcards to collect across Rottnest, South Perth, Fremantle, Heirisson Island and Victoria Park: places, local animals, people and shops. Take the bus from the South Perth stop on Mill Point Road to reach the kangaroo sanctuary and Albany Highway.',
   steps:[[10,'Collect 10 postcards'],[25,'Collect 25 postcards'],[50,'Collect 50 postcards'],[100,'Collect all '+PC_TOTAL+' postcards']].map(([n,t])=>[t+' ('+Math.min(n,pcCount())+'/'+n+')',pcCount()>=n]),reward:'5 coins each, plus 50 at 25, 50, 75 and 100',open:true},
@@ -2992,7 +2992,7 @@ const GUIDE_TRAVEL=[
  ['Sleep away from home','Sleep in a South Perth home and you wake up on the 7:00 ferry back to Rottnest.'],
  ['Maps','Tap the minimap (M) for the local map. In the map, press Perth map to see all districts and routes. The red line always points to your tracked quest.']];
 const GUIDE_KEYS=[['Move','Drag left side · WASD / arrows'],['Act','Round button · Space or E'],['Camera','Right-drag · ⟲ ⟳ · Q / R'],['Zoom','+ − · pinch · wheel'],['Ride','V'],['Photo','P'],['Album','O'],['Bag','G'],['Quests','J'],['Map','M'],['Wishlist','I'],['Guide','H'],['Friend','F'],['Calendar','C']];
-const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle',cbd:'Perth CBD'};
+const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle',cbd:'Perth CBD',air:'Perth Airport'};
 let guideTab='start',guideZone='all';
 function openGuide(){if(!running||overlay)return;renderGuide();showOverlay('guide');}
 function renderGuide(){const T=$('#gdTabs');T.innerHTML='';[['start','How to play'],['places','Places'],['quests','Quests'],['people','People'],['acts','Activities'],['sys','Systems'],['travel','Travel & maps']].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(guideTab===k?' on':'');b.id='gdt-'+k;b.textContent=l;b.onclick=()=>{guideTab=k;renderGuide();$('#gdBody').scrollTop=0;};T.appendChild(b);});
@@ -3819,7 +3819,7 @@ function busRide(dest){if(transit||VISIT)return;if(PASS_ZONES.includes(dest)&&ne
 function busArrive(dest){if(dest==='cbd')setTimeout(()=>cbdArrive('cbd'),50);const D=BUS_STOPS[dest];S.time+=10;player.bike=false;player.carry=null;player.x=D.land[0];player.z=D.land[1];updateCamera(0,true);fadeTarget=0;transit=false;S.fq=S.fq||{};
   if(dest==='hi'&&!S.fq.visitHI){S.fq.visitHI=1;save();say(['Kip: Heirisson Island! There’s a kangaroo sanctuary in the middle of the river.','Kip: Perfect for postcards. Press the camera button when something new is nearby.']);}
   if(dest==='vp'&&!S.fq.visitVP){S.fq.visitVP=1;save();say(['Kip: Albany Highway! Pho, ramen, dumplings, Thai, bubble tea… I could eat my way down this whole street.'],()=>openQuest('vpfood',true));}}
-function openBusStop(from){const N={sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD'},L=['sp','cbd','hi','vp'];openTravel('Bus to\u2026',N[from]+' bus stop',L.map(k=>({id:k,name:N[k],here:k===from,note:k===from?'':(Math.abs(L.indexOf(k)-L.indexOf(from))*12)+' min',ride:()=>busRide(k),tp:()=>busTo(k)})));}
+function openBusStop(from){const N={sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport'},L=['sp','cbd','hi','vp'];openTravel('Bus to\u2026',N[from]+' bus stop',L.map(k=>({id:k,name:N[k],here:k===from,note:k===from?'':(Math.abs(L.indexOf(k)-L.indexOf(from))*12)+' min',ride:()=>busRide(k),tp:()=>busTo(k)})));}
 function openTravel(title,sub,opts){if(!running||overlay)return;$('#chTitle').textContent=title;$('#chSub').textContent=sub;const L=$('#chList');L.innerHTML='';
   opts.forEach(o=>{const d=document.createElement('div');d.className='trRow';const n=document.createElement('b');n.textContent=o.name+(o.here?' (you are here)':'');const sp=document.createElement('span');sp.textContent=(o.note||'')+(PASS_ZONES.includes(o.id)&&!o.here&&!hasPass()?' \u00b7 \u{1F512} Perth Pass':'');const bx=document.createElement('div');bx.className='trBtns';
     if(!o.here){const r=document.createElement('button');r.type='button';r.className='btn';r.id='ride-'+o.id;r.textContent='Ride · '+FARE_RIDE+'c';r.onclick=()=>{if(PASS_ZONES.includes(o.id)&&needPass(o.id))return;if(!pay(FARE_RIDE))return;hideOverlays();o.ride();};const t=document.createElement('button');t.type='button';t.className='btn ghost';t.id='tp-'+o.id;t.textContent='Teleport · '+FARE_TP+'c';t.onclick=()=>{if(PASS_ZONES.includes(o.id)&&needPass(o.id))return;if(!pay(FARE_TP))return;hideOverlays();o.tp();};bx.append(r,t);}
@@ -3865,9 +3865,10 @@ function passDevice(){try{let d=localStorage.getItem('qc-device');if(!d||!/^[A-Z
 function passRedeemServer(c){return qcRpc('qc_redeem_pass',{p_code:c,p_device:passDevice()});}
 function hasPass(){if(BUILD==='full'||isGM())return true;if(S&&S.pass)return true;try{return localStorage.getItem('qc-perth-pass')==='1';}catch(e){return false;}}
 // ---- Game Master account (full game for Paul) ----
+const GM_HASHES=['3f4847298077ffeb2641d5ddde4aa38bc91ca18727c6d9c59f01a5e7575e32c1'];// extra Game Master codes (Paul, Oct 2026)
 const GM_HASH='0a5d4613e90f1f8961136e39e7480c8b9e10fec5675830ca066f19431752a428';
 function isGM(){try{if(typeof S!=='undefined'&&S&&S.gm)return true;return localStorage.getItem('qc-gm')==='1';}catch(e){return false;}}
-async function gmCheck(raw){try{const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!/^GM[A-Z0-9]{12}$/.test(c)||!crypto.subtle)return false;const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('quokka-gm|'+c));return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('')===GM_HASH;}catch(e){return false;}}
+async function gmCheck(raw){try{const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!/^GM[A-Z0-9]{12}$/.test(c)||!crypto.subtle)return false;const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('quokka-gm|'+c));const hx=[...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');return hx===GM_HASH||GM_HASHES.includes(hx);}catch(e){return false;}}
 function gmGift(){if(!S.gmGift500){S.gmGift500=1;S.coins+=500000;toast('\u2605 GM bonus: +500,000 coins',3);}}
 function gmEnable(){S.gm=true;S.pass=true;gmGift();try{localStorage.setItem('qc-gm','1');localStorage.setItem('qc-perth-pass','1');}catch(e){}S.seenZ=Object.assign(S.seenZ||{},{island:1,sp:1,hi:1,freo:1,vp:1,cbd:1});save();gmUI();}
 function gmUI(){const b=$('#gmBtn');if(b)b.hidden=!isGM();const pb=$('#passBtn');if(pb&&isGM())pb.textContent='Perth Pass \u2713';}
@@ -4003,7 +4004,7 @@ function updateWalkers(dt){const zone=walkerZone(),rain=wxC.rain>.5,night=NIGHT>
     const gy=groundY(w.x,w.z);w.m.position.set(w.x,gy+(w.bike?Math.abs(Math.sin(w.walkT*14))*.03:0),w.z);w.m.scale.x=w.face;w.sh.position.set(w.x,gy+.03,w.z);});}
 
 // ---------- zones ----------
-function zoneOf(x){return x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
+function zoneOf(x){return x>710&&AIR&&AIR.on?'air':x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
 function hiWalk(x,z){return x>404.5&&x<435.5&&z>-9.6&&z<9.8;}
 function vpWalk(x,z){return x>489&&x<561&&z>-10.2&&z<12;}
 const HIB={x1:388,x2:452,z1:-12.75,z2:12.75},VPB={x1:488,x2:562,z1:-14.75,z2:14.75};
@@ -4034,7 +4035,7 @@ function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCach
   if(z==='island')return draw();const snap=zoneSnap(ZONE_B(z),W,H);
   if(snap){const lab=labelsOnly(draw);const x=snap.getContext('2d');x.drawImage(lab,0,0);c=snap;}else c=draw();
   zoneCache[k]=c;return c;}
-const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB})[z];
+const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB,air:typeof AIRB!=='undefined'?AIRB:VPB})[z];
 // ---------- Phase 1 look on the mainland: same tussocks, wildflowers and pixel bushes as Rottnest ----------
 (()=>{const R2=mulberry32(4711);const areas=[];scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map||o.material.map.image!==grassC||!o.geometry||o.geometry.type!=='PlaneGeometry')return;const wp=new THREE.Vector3();o.getWorldPosition(wp);if(wp.x<100||Math.abs(o.rotation.x+Math.PI/2)>.01||o.rotation.z)return;const w=o.geometry.parameters.width*o.scale.x,h=o.geometry.parameters.height*o.scale.y;if(w*h<6)return;areas.push({x1:wp.x-w/2,x2:wp.x+w/2,z1:wp.z-h/2,z2:wp.z+h/2,a:w*h});});
   const grassMeshes=new Set();scene.traverse(o=>{if(o.isMesh&&o.material&&o.material.map&&o.material.map.image===grassC)grassMeshes.add(o);});
@@ -4326,7 +4327,7 @@ function sqTick(dt){if(VISIT||!running||dlgOpen()||overlay||transit)return;sqT-=
     if(st.carry)player.carry=null;if(st.have&&st.have.take)S.inv[st.have.k]-=st.have.n;S.sq[q.id]=i+1;save();const fin=i+1>=q.steps.length;
     const lines=(st.say||[]).slice();if(fin){const pay=rw(q.coins);S.coins+=pay;lines.push({who:(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} ')+'Side quest complete',text:q.title+' \u00b7 +'+pay+' coins. '+q.outro});if(S.track==='sq_'+q.id)S.track=null;}
     say(lines);return;}}
-function sqQuests(){return SIDEQ.map(q=>{const i=sqStep(q),done=i>=q.steps.length;return{id:'sq_'+q.id,title:(done?'':(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} '))+'Side \u00b7 '+q.title,giver:q.giver+' \u00b7 '+({island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD'})[q.zone],desc:q.desc,steps:q.steps.map((st,k)=>[st.l,k<i]),reward:rw(q.coins)+' coins'+(rewardMult()>1?' (\u00d7'+rewardMult()+' Kip\u2019s Journey bonus)':''),open:sqOpen(q)};});}
+function sqQuests(){return SIDEQ.map(q=>{const i=sqStep(q),done=i>=q.steps.length;return{id:'sq_'+q.id,title:(done?'':(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} '))+'Side \u00b7 '+q.title,giver:q.giver+' \u00b7 '+({island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport'})[q.zone],desc:q.desc,steps:q.steps.map((st,k)=>[st.l,k<i]),reward:rw(q.coins)+' coins'+(rewardMult()>1?' (\u00d7'+rewardMult()+' Kip\u2019s Journey bonus)':''),open:sqOpen(q)};});}
 function sqTarget(id){const q=SIDEQ.find(x=>x.id===id);if(!q||zoneOf(player.x)!==q.zone)return null;const i=sqStep(q);const st=q.steps[i];if(!st)return null;if(st.carry&&player.carry!==st.carry){const k=STATIONS.find(x=>x.key===st.carry);if(k)return{x:k.x,z:k.z+.9,label:'Make a '+ITEMS[st.carry].name};}const P=sqPos(st);return P?{x:P.x,z:P.z,label:st.l}:null;}
 let snapPending=null;
 function snapPhoto(){if(!running||overlay||transit)return;if(VISIT){toast('Photo saved to your camera roll memories! (postcards only count on your own island)',2.5);const fl=$('#flash');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');return;}const p=pcCandidate();if(!p){toast('Nothing new to photograph here');return;}
@@ -4337,13 +4338,13 @@ let pcFilter='all';
 function openAlbum(){if(!running||overlay)return;renderAlbum();showOverlay('album');}
 function renderAlbum(){const got=S.pc||{};$('#alCount').textContent=pcCount()+' / '+PC_TOTAL+' postcards \u00b7 '+PCS.filter(p=>isSpecial(p.cat)&&got[p.id]).length+' / '+PCS.filter(p=>isSpecial(p.cat)).length+' special';const F=$('#alFilters');F.innerHTML='';
   [['all','All']].concat(Object.keys(PCAT).map(k=>[k,PCAT[k].label])).forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(pcFilter===k?' on':'');b.id='alf-'+k;const n=PCS.filter(p=>(k==='all'||p.cat===k)&&got[p.id]).length,tot=PCS.filter(p=>k==='all'||p.cat===k).length;b.textContent=l+' '+n+'/'+tot;b.onclick=()=>{pcFilter=k;renderAlbum();};F.appendChild(b);});
-  const G=$('#alGrid');G.innerHTML='';const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD'};
+  const G=$('#alGrid');G.innerHTML='';const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport'};
   PCS.forEach((p,i)=>{if(pcFilter!=='all'&&p.cat!==pcFilter)return;const has=!!got[p.id];const d=document.createElement('div');d.className='pc'+(has?'':' miss');d.style.setProperty('--c',PCAT[p.cat].col);
     const ph=document.createElement('div');ph.className='ph';if(has&&pcThumbs[p.id]){const im=document.createElement('img');im.src=pcThumbs[p.id];im.alt=p.name;ph.appendChild(im);}else ph.textContent=has?'✓':'?';
     const nm=document.createElement('div');nm.className='nm';nm.textContent=has?p.name:'#'+(i+1);const zz=document.createElement('div');zz.className='zn';zz.textContent=zn[p.zone];d.append(ph,nm,zz);if(!has){const hn=document.createElement('div');hn.className='zn pcHint';hn.textContent='Hint: '+pcHint(p);d.appendChild(hn);}G.appendChild(d);});}
 const PC_FEST={f_swim:'swim',f_lny:'lny',f_whale:'whales',f_fireworks:'fireworks',f_quokkaday:'quokkaday',f_wild:'wildflower',f_arts:'streetarts'};
 const PC_TIP={place:'a landmark, stand close and tap Photo',animal:'wanders around, keep an eye out while exploring',people:'a local, walk up close and tap Photo',food:'a shop or food stop, photograph it from outside'};
-function pcHint(p){if(PC_HINTS[p.id])return PC_HINTS[p.id];const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD'}[p.zone];
+function pcHint(p){if(PC_HINTS[p.id])return PC_HINTS[p.id];const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport'}[p.zone];
   if(p.cat==='festival'){const f=FESTIVALS.find(q=>q.id===PC_FEST[p.id]);return f?p.name+' \u00b7 only during '+f.name+' ('+SEASONS[f.s].n+' '+f.d+(f.len?'\u2013'+(f.d+f.len-1):'')+') in '+zn:p.name+' \u00b7 festival day';}
   if(p.cat==='star')return p.name+' \u00b7 a star guest who visits the caf\u00e9 sometimes. Help them, then take a photo together';
   return p.name+' \u00b7 '+(PC_TIP[p.cat]||'take a photo');}
@@ -4430,7 +4431,7 @@ function renderPerthMap(c){const x=c.getContext('2d'),W=c.width,H=c.height;x.ima
   txt('Indian Ocean',250,110,30,'#cfe6f7','700 ');txt('Swan River',740,206,26,'#e3f3fb','700 ');txt('Kings Park',935,175,18,'#e6f2d8','700 ');
   x.font='800 '+Math.round(9*2.6)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=8;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',16,26);x.fillStyle='#ffd34d';x.fillText('N↑',16,26);
   x.textAlign='left';x.textBaseline='alphabetic';x.font='700 26px "M PLUS Rounded 1c", sans-serif';x.lineWidth=6;[['- - -  Ferry','#f5ecd8',28],['━━  Bus','#3ec46a',210],['●  You are here','#ffd34d',360]].forEach(([t,col,px])=>{x.strokeText(t,px,532);x.fillStyle=col;x.fillText(t,px,532);});x.textAlign='right';x.fillStyle='#f5ecd8';x.strokeText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);x.fillText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);}
-function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD'}[id];if(zoneOf(player.x)===id)return{ok:false,why:'You are already in '+nm+'.',nm};
+function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport'}[id];if(zoneOf(player.x)===id)return{ok:false,why:'You are already in '+nm+'.',nm};
   if(id==='freo'&&!freoUnlocked())return{ok:false,why:'Fremantle is still locked: upgrade Main Jetty to Lv3 and start Kip\u2019s Ferry Co.',nm};
   if(!isGM()&&id!=='island'&&!(S.seenZ&&S.seenZ[id]))return{ok:false,why:'Visit '+nm+' once by ferry or bus before you can fast travel there.',nm};
   return{ok:true,nm};}
@@ -4511,7 +4512,7 @@ function updateCustomers(dt){for(const c of customers.slice()){
 
 // ---------- movement ----------
 function groundY(x,z){if(x>286.9&&x<289.1&&z>-19&&z<-14.6)return .11;if(x>149.4&&x<150.6&&z>-9.4&&z<-3.8)return .11;if(x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2)return .16;if(x>JETTY.x1&&x<JETTY.x2+.4&&z>JETTY.z1&&z<JETTY.z2)return .11;if(x<100&&ISL_WALK.length&&ISL_WALK.some(r=>x>r.x1-.1&&x<r.x2+.1&&z>r.z1&&z<r.z2))return .13;return 0;}
-function blocked(x,z){const r=.28;const inLand=x>590?cbdWalk(x,z):x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<12)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45&&!islGroundBlock(x,z);const inJ=(x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05)||(x<100&&ISL_WALK.some(r=>x>r.x1&&x<r.x2&&z>r.z1&&z<r.z2));if(!inLand&&!inJ)return true;
+function blocked(x,z){const r=.28;const inLand=x>710?airWalk(x,z):x>590?cbdWalk(x,z):x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<12)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45&&!islGroundBlock(x,z);const inJ=(x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05)||(x<100&&ISL_WALK.some(r=>x>r.x1&&x<r.x2&&z>r.z1&&z<r.z2));if(!inLand&&!inJ)return true;
   for(const b of colliders)if(x>b.x1-r&&x<b.x2+r&&z>b.z1-r&&z<b.z2+r)return true;
   if(S.wish.room&&x>HUT.x-1.8&&x<HUT.x+1.8&&z>HUT.z-1.6&&z<HUT.z+1.6)return true;return false;}
 function updatePlayer(dt){let mx=0,mz=0;
@@ -6114,6 +6115,170 @@ CDET.tick=function(dt){if(!CDET.on||!CDET.g||!CDET.g.visible)return;const now=pe
   for(const R of CDET.routes||[]){R.t-=dt;if(R.t>0)continue;R.t=(R.bike?5:3.5)+Math.random()*6;const cnt=V.filter(v=>v.R===R).length;if(cnt>=R.n+1)continue;
     const q0=R.P[0];if(V.some(v=>Math.hypot(v.x-q0[0],v.z-q0[1])<3))continue;CDET.spawn(R,0);}};
 
+// ---------- Perth Airport (Look Lab area: ?lab or ?air until AIR_LIVE is true) ----------
+// From Paul's photos: a long terminal with a wavy roof and a curved blade canopy on slanted white columns, the
+// control tower with its flared cab, planes at the gates, one taxiing and one taking off, the hills behind the runway,
+// the kerb road with bus bays, a red-gravel garden with grass trees, gums and boulders, the car hire lot with white
+// shade sails and rows of cars, and Airport Central station with a glass skybridge. Kip rides the train from
+// Perth Station. Story: Auntie June and cousin Milo fly in from Melbourne.
+var AIR_LIVE=false;
+var AIR={on:AIR_LIVE||/[?&#](lab|air)\b/.test(location.search+location.hash),npcs:[],P:{},planes:[],cars:[],glow:[],halos:[],em:[]};
+const AIRB={x1:713,x2:817,z1:-30,z2:22};
+function airWalk(x,z){if(!AIR||!AIR.on)return false;if(x>716&&x<812&&z>-2.9&&z<16.2)return true;if(x>800&&x<812&&z>-11.8&&z<=-2.9)return true;return false;}
+if(AIR.on)(()=>{const G=new THREE.Group();G.name='airport';G.userData.airG=1;scene.add(G);AIR.g=G;
+  const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
+  const put=(geo,mat,x,y,z,o,to)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(o){if(o.rx)m.rotation.x=o.rx;if(o.ry)m.rotation.y=o.ry;if(o.rz)m.rotation.z=o.rz;if(o.s)m.scale.set(...o.s);}m.castShadow=!(o&&o.nc);m.receiveShadow=true;(to||G).add(m);return m;};
+  const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d),C=(a,b,h,s)=>new THREE.CylinderGeometry(a,b,h,s||10);
+  const tex=(W,H,draw,rep)=>{const c=mk(W,H),x=c.getContext('2d');draw(x,W,H);return ctex(c,rep?{rep}:{});};
+  const texM=(W,H,draw,rep,o)=>new THREE.MeshLambertMaterial(Object.assign({map:tex(W,H,draw,rep)},o||{}));
+  const paint=(w,d,mat,x,z,y)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),typeof mat==='string'?M(mat):mat);m.rotation.x=-Math.PI/2;m.position.set(x,y||.03,z);m.receiveShadow=true;G.add(m);return m;};
+  const plane=(w,h,mat,x,y,z,ry,to)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);m.position.set(x,y,z);if(ry)m.rotation.y=ry;(to||G).add(m);return m;};
+  const sign=(t,bg,fg,w,h,x,y,z,ry,to)=>{const L=Array.isArray(t)?t:[t];const tx=makeSign(L,Math.max(32,Math.max(...L.map(s=>s.length))*6+8),L.length*11+1,bg,fg);return plane(w,h,new THREE.MeshBasicMaterial({map:tx,side:THREE.DoubleSide}),x,y,z,ry,to);};
+  const r=mulberry32(1944),pick=a=>a[(r()*a.length)|0];
+  const haloT=(()=>{const c=mk(32,32),x=c.getContext('2d'),g=x.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,230,170,1)');g.addColorStop(.4,'rgba(255,200,120,.45)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,32,32);return ctex(c);})();
+  const halo=(x,y,z,s,c)=>{const m=new THREE.Sprite(new THREE.SpriteMaterial({map:haloT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,opacity:0,color:c||0xffffff}));m.position.set(x,y,z);m.scale.set(s,s,1);G.add(m);AIR.halos.push(m);return m;};
+  const glow=(day,night)=>{const m=new THREE.MeshBasicMaterial({color:new THREE.Color(day)});AIR.glow.push([m,new THREE.Color(day),new THREE.Color(night)]);return m;};
+  const asphMat=(w,d)=>texM(16,16,(x)=>{x.fillStyle='#4a4d55';x.fillRect(0,0,16,16);x.fillStyle='#55585f';for(let i=0;i<30;i++)x.fillRect(r()*16|0,r()*16|0,1,1);x.fillStyle='#43464e';for(let i=0;i<20;i++)x.fillRect(r()*16|0,r()*16|0,1,1);},[Math.max(1,w/3),Math.max(1,d/3)]);
+  const conc=texM(16,16,(x)=>{x.fillStyle='#b8bab8';x.fillRect(0,0,16,16);x.fillStyle='#a8aaa8';x.fillRect(0,0,16,1);x.fillRect(0,0,1,16);for(let i=0;i<20;i++){x.fillStyle='#c4c6c2';x.fillRect(r()*16|0,r()*16|0,1,1);}},[40,4]);
+  const WHITE=M('#f3f3ea'),YEL=M('#e8c430');
+  // sprites: grass trees and gums, painted with the same pixel look as every other plant
+  const sprMat=c=>{const t=ctex(c);return{m:new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.12,.12,.1),emissiveMap:t}),d:new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.5})};};
+  const bb=(v,x,z,w,h,tree)=>{const g=new THREE.PlaneGeometry(w,h);g.translate(0,h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);G.add(m);BB.push(m);if(tree)trees.push({x,z,m,v:{...v,f:v.f||v.m},fade:false});return m;};
+  const grassTree=sprMat((()=>{const W=20,H=28,c=mk(W,H),x=c.getContext('2d');for(let y=16;y<H;y++){x.fillStyle=y%3?'#2a2420':'#3a3028';x.fillRect(9,y,3,1);}
+    const FR=TREE_COLS[0];for(let k=0;k<26;k++){const a=-Math.PI*.95+k/25*Math.PI*.9,len=6+r()*3;for(let t=0;t<=1;t+=.1){const px=10.5+Math.cos(a)*len*t,py=15+Math.sin(a)*len*t*.9+t*t*4*Math.abs(Math.cos(a));x.fillStyle=FR[t<.3?1:t>.75?3:2];x.fillRect(Math.round(px),Math.round(py),1,2);}}
+    for(let k=0;k<10;k++){const a=Math.PI*.15+k/9*Math.PI*.7,len=4+r()*2;for(let t=0;t<=1;t+=.15){x.fillStyle=FR[0];x.fillRect(Math.round(10.5+Math.cos(a)*len*t*1.4),Math.round(16+Math.sin(a)*len*t*.5),1,1);}}
+    if(r()<2){x.fillStyle='#5a4a30';x.fillRect(10,1,1,10);x.fillStyle='#a89060';for(let y=1;y<8;y+=2)x.fillRect(10,y,1,1);}return c;})());
+  const gums=treeVariants;
+  // ===== ground: airside grass, the runway, a taxiway and the apron; landside paving =====
+  box(104,.5,52,lmat(paveC,[52,26]),765,-.26,-4,{noCast:true});
+  paint(104,18,lmat(grassC,[30,6]),765,-21,.012);put(B(240,.5,90),lmat(grassC,[60,22]),765,-.62,-20,{nc:1});
+  paint(104,3.4,asphMat(104,3.4),765,-24.3,.02);for(let x=716;x<814;x+=4)paint(2,.12,WHITE,x,-24.3,.026);[717,813].forEach(x=>{for(let k=0;k<6;k++)paint(.9,.16,WHITE,x,-25.6+k*.52,.026);});
+  paint(104,1.4,asphMat(104,1.4),765,-17.9,.02);for(let x=716;x<814;x+=1.4)paint(.6,.05,YEL,x,-17.9,.026);
+  paint(84,8.4,conc,758,-12,.02);[735,752,769,786].forEach(x=>paint(.08,7.6,YEL,x,-12.2,.027));
+  // the hills on the horizon behind the runway
+  for(let i=0;i<9;i++){const m=put(new THREE.SphereGeometry(1,12,6,0,Math.PI*2,0,Math.PI/2),M(i%2?'#5e6e5a':'#68785e'),712+i*14,0,-44-r()*4,{nc:1});m.scale.set(13+r()*6,4+r()*3,6);}
+  // ===== the terminal: a long glass hall with a wavy roof =====
+  {const x1=726,x2=796,z0=-5.5,D=5,H=3.2,W=x2-x1,cx=(x1+x2)/2;
+    put(B(W,H,D),M('#d8dcde'),cx,H/2,z0);
+    const glassM=(()=>{const t=tex(32,16,(x)=>{x.fillStyle='#6a8aa0';x.fillRect(0,0,32,16);x.fillStyle='#8aaac0';x.fillRect(0,0,32,7);x.fillStyle='#3a4a58';for(let i=0;i<32;i+=4)x.fillRect(i,0,1,16);x.fillRect(0,8,32,1);x.fillStyle='#ffe0a8';x.fillRect(2,10,3,5);x.fillRect(14,11,4,4);x.fillRect(25,10,3,5);},[18,1]);const e=tex(32,16,(x)=>{x.fillStyle='#000';x.fillRect(0,0,32,16);x.fillStyle='#ffd8a0';x.fillRect(1,9,30,7);x.fillStyle='#806040';x.fillRect(1,1,30,6);},[18,1]);const m=new THREE.MeshLambertMaterial({map:t,emissiveMap:e,emissive:new THREE.Color(0,0,0)});AIR.em.push(m);return m;})();
+    plane(W-.2,H-.3,glassM,cx,(H-.3)/2+.05,z0+D/2+.01);
+    const s=new THREE.Shape();s.moveTo(-D/2-.5,0);s.lineTo(D/2+.6,0);s.lineTo(D/2+.6,.2);s.quadraticCurveTo(0,1.3,-D/2-.5,.2);s.closePath();const rg=new THREE.ExtrudeGeometry(s,{depth:W+1,bevelEnabled:false});rg.translate(0,0,-(W+1)/2);
+    const roof=new THREE.Mesh(rg,M('#c8ccd0'));roof.rotation.y=-Math.PI/2;roof.position.set(cx,H,z0);roof.castShadow=true;G.add(roof);
+    sign('PERTH AIRPORT · DEPARTURES · ARRIVALS','#1d3a6e','#ffffff',8,.42,cx,H+.25,z0+D/2+.62);
+    sign(['ARRIVALS'],'#f6f6f0','#1d3a6e',2.2,.4,756,2.6,z0+D/2+.03);sign(['DEPARTURES'],'#f6f6f0','#1d3a6e',2.4,.4,776,2.6,z0+D/2+.03);
+    col(x1,z0-D/2,x2,z0+D/2);
+    // jet bridges out to the gates, with a plane at each
+    [735,752,769,786].forEach((x,i)=>{put(B(1,1,3.4),M('#c8ccd0'),x,2.2,z0-D/2-1.7);put(C(.12,.12,2.2,6),M('#8a8e92'),x,1.1,z0-D/2-3);put(B(1.2,1.1,.8),M('#6a7a8a'),x,2.2,z0-D/2-3.5);
+      if(i!==2){const p=makePlane(i%2?'#2a9a8a':'#e8732a');p.position.set(x+1.4,0,-13.6);p.rotation.y=-Math.PI/2;G.add(p);}});
+    // the kerb canopy: overlapping curved blades on slanted white columns
+    for(let k=0;k<5;k++){const z=-2.6+k*.55,y=3.9-k*.16;const bl=put(B(W-2,.06,.62),M(k%2?'#e8eaec':'#f6f6f6'),cx,y,z,{rx:-.18});bl.userData.canopy=1;AIR.canopy=(AIR.canopy||[]).concat([bl]);}
+    for(let x=x1+3;x<x2-1;x+=5.5){put(C(.08,.11,3.9,8),M('#f6f6f6'),x,1.9,-.75,{rx:.14});put(C(.08,.11,3.9,8),M('#f6f6f6'),x+.5,1.9,-.6,{rx:.14,rz:-.18});col(x-.15,-.95,x+.7,-.45);}
+    // spot lights under the canopy
+    for(let x=x1+5;x<x2;x+=8){put(C(.12,.12,.04,10),glow('#f6f2e0','#fff0c0'),x,3.5,-1.6,{nc:1});halo(x,3.3,-1.6,1.6);}
+    AIR.P.terminal={x:cx,z:-.2};}
+  // ===== the control tower: a tall shaft with a flared cab, dark glass band and an aerial =====
+  {const x=807.5,z=-8.4,g=new THREE.Group();g.position.set(x,0,z);G.add(g);const cM=M('#d8d0c4');
+    put(C(.62,.78,8.4,14),cM,0,4.2,0,null,g);put(C(1.15,.62,.9,14),cM,0,8.85,0,null,g);put(C(1.25,1.15,.18,14),M('#ece6dc'),0,9.4,0,null,g);
+    put(C(1.18,1.25,.55,14),glow('#2a3038','#6a8aa0'),0,9.78,0,null,g);put(C(1.4,1.2,.16,14),M('#ece6dc'),0,10.12,0,null,g);put(C(.95,1.1,.42,14),glow('#2a3038','#5a7a90'),0,10.4,0,null,g);
+    put(C(1.05,.95,.12,14),M('#ece6dc'),0,10.66,0,null,g);put(C(.5,.7,.3,10),cM,0,10.85,0,null,g);put(C(.03,.03,1.2,5),M('#e8e8e8'),0,11.6,0,null,g);
+    const bl=put(new THREE.SphereGeometry(.07,6,4),glow('#c83020','#ff3020'),0,12.2,0,{nc:1},g);AIR.beacon=bl;halo(x,12.2,z,1,0xff4030);
+    col(x-.8,z-.8,x+.8,z+.8);AIR.P.tower={x,z:z+2.4};}
+  // the plane-spotting deck beside the tower: lawn, a fence on the airside, a bench
+  paint(12,8.8,lmat(grassC,[4,3]),806,-7.4,.022);for(let x=800.3;x<812;x+=.6)put(B(.04,.9,.04),M('#3a3e44'),x,.45,-11.9);put(B(11.8,.04,.04),M('#3a3e44'),806,.88,-11.9);col(800,-12.1,812,-11.7);
+  put(B(1.2,.06,.36),M('#7a5a3a'),803,.42,-10.4);put(B(1.2,.3,.05),M('#7a5a3a'),803,.6,-10.25);col(802.4,-10.6,803.6,-10.2);AIR.P.deck={x:804,z:-9.6};
+  // ===== the kerb road: one-way loop, bus bays, zebra crossings, tall lights =====
+  paint(102,2.6,asphMat(102,2.6),765,.9,.021);for(let x=716;x<814;x+=2.4)paint(1,.06,WHITE,x,1.1,.027);paint(102,.06,YEL,765,-.35,.028);paint(102,.06,YEL,765,2.15,.028);
+  [[740,'BUS'],[744,'BUS'],[748,'BUS']].forEach(([x,t])=>{paint(3.2,.9,'#5a4a4a',x,-.0,.024);sign([t],'#5a4a4a','#e8c430',.8,.3,x,.03,-.0,0).rotation.x=-Math.PI/2;});
+  [745.5,772,790].forEach(x=>{for(let k=0;k<6;k++)paint(.25,2.4,WHITE,x-1+k*.42,.9,.029);});
+  {const bs=new THREE.Group();bs.position.set(744,0,-.45);G.add(bs);put(B(6,.06,.9),M('#e8eaec'),0,2.3,0,null,bs);[-2.8,2.8].forEach(o=>put(B(.08,2.3,.08),M('#3a3e44'),o,1.15,-.3,null,bs));sign(['TRAIN & BUS','CITY  ·  FREMANTLE'],'#1d3a6e','#ffffff',1.6,.6,-1.5,1.8,-.4,0,bs);}
+  // ===== the garden median: red gravel, grass trees, gums, boulders =====
+  paint(96,2.4,texM(8,8,(x)=>{x.fillStyle='#a8583a';x.fillRect(0,0,8,8);for(let i=0;i<14;i++){x.fillStyle=pick(['#b86848','#9a4a30','#c8805a','#8a3a28']);x.fillRect(r()*8|0,r()*8|0,1,1);}},[48,1]),766,3.4,.022);
+  for(let x=722;x<810;x+=r()*3+2.2){if(Math.abs(x-745.5)<1.6||Math.abs(x-772)<1.6||Math.abs(x-790)<1.6)continue;const k=r();if(k<.45){bb(grassTree,x,3.4+(r()-.5)*1.2,1.7,2.4);}
+    else if(k<.7){const v=gums[(r()*3)|0];bb(v,x,3.6,v.w*1.9,v.h*1.9,true);col(x-.25,3.45,x+.25,3.75);}
+    else{const b=put(new THREE.DodecahedronGeometry(.32+r()*.25,0),M(pick(['#8a6a50','#a07a5a','#7a5a44'])),x,.2,3.3+(r()-.5),{rx:r(),ry:r()});b.scale.y=.6;col(x-.35,2.9,x+.35,3.7);}}
+  // light towers
+  [[730,4.4],[760,4.4],[790,4.4],[770,15.6],[742,15.6]].forEach(([x,z])=>{put(C(.08,.12,6.4,6),M('#9aa0a6'),x,3.2,z);put(B(.6,.12,.3),glow('#e8e8e0','#fff4d0'),x,6.4,z,{nc:1});halo(x,6.3,z,3);col(x-.12,z-.12,x+.12,z+.12);});
+  // ===== the car hire lot: huts, white shade sails, a fence, rows of cars =====
+  {const x1=736,x2=802,z1=5,z2=15.4;paint(x2-x1,z2-z1,asphMat(x2-x1,z2-z1),(x1+x2)/2,(z1+z2)/2,.02);
+    for(let x=x1;x<x2;x+=.5){if((x>745&&x<747)||(x>771&&x<773.5))continue;put(B(.03,.9,.03),M('#2a2c30'),x,.45,4.85,{nc:1});}put(B(x2-x1,.04,.04),M('#2a2c30'),(x1+x2)/2,.88,4.85,{nc:1});col(x1,4.75,745,4.95);col(747,4.75,771,4.95);col(773.5,4.75,x2,4.95);
+    [[750,'CAR HIRE','#c8202a'],[760,'CAR HIRE','#e86a1a'],[782,'RENTALS','#2a5a9a']].forEach(([x,t,c])=>{put(B(2.4,1.6,1.4),M('#f6f6f0'),x,.8,6.2);put(B(2.5,.3,1.5),M(c),x,1.75,6.2);sign([t],c,'#ffffff',1.6,.24,x,1.75,6.96);plane(.8,1,M('#3a4a5a'),x-.5,.6,6.91);col(x-1.2,5.5,x+1.2,6.9);});
+    AIR.P.hut={x:760,z:7.6};
+    [[754.6,6.6],[756.6,6.6],[786.5,6.6]].forEach(([x,z])=>{put(C(0,1.1,.8,4),M('#f6f6f0'),x,2.1,z,{ry:Math.PI/4});put(C(.05,.05,1.8,6),M('#d8d8d8'),x,.9,z);col(x-.08,z-.08,x+.08,z+.08);});
+    for(let row=0;row<3;row++){const z=9+row*2.4;for(let x=x1+1;x<x2-1;x+=1.0){if(r()<.18)continue;const c=r()<.12&&CDET.retroCar?CDET.retroCar():CDET.makeCar?CDET.makeCar(pick(['sedan','hatch','hatch','ute']),pick(['#f6f6f0','#f6f6f0','#f6f6f0','#d8dce0','#c8ccd0','#9aa4ac','#c8202a','#2a2a30'])):null;if(!c)continue;
+      c.g.position.set(x,0,z);c.g.rotation.y=Math.PI/2*(row%2?1:-1);G.add(c.g);col(x-c.wid/2,z-c.len/2,x+c.wid/2,z+c.len/2);}}
+    AIR.P.lot={x:778,z:8.4};}
+  // ===== Airport Central station and the glass skybridge over the road =====
+  {const x0=724,z0=8.2;put(B(14,3.6,6.6),M('#2a2e34'),x0,1.8,z0);const gm=(()=>{const t=tex(16,16,(x)=>{x.fillStyle='#7a9ab0';x.fillRect(0,0,16,16);x.fillStyle='#2a2e34';for(let i=0;i<16;i+=4)x.fillRect(i,0,1,16);x.fillRect(0,7,16,1);x.fillStyle='#ffe2a8';x.fillRect(5,9,3,6);},[7,2]);const e=tex(16,16,(x)=>{x.fillStyle='#000';x.fillRect(0,0,16,16);x.fillStyle='#ffd8a0';x.fillRect(1,8,14,8);},[7,2]);const m=new THREE.MeshLambertMaterial({map:t,emissiveMap:e,emissive:new THREE.Color(0,0,0)});AIR.em.push(m);return m;})();
+    plane(13.6,3.2,gm,x0,1.7,z0+3.31);put(B(14.6,.3,7.2),M('#e8eaec'),x0,3.75,z0);sign(['AIRPORT CENTRAL'],'#1d3a6e','#ffffff',3.6,.42,x0,3.2,z0+3.34);sign(['TRAINS TO PERTH'],'#2e8a52','#ffffff',2.4,.3,x0+4.2,2.6,z0+3.34);
+    col(x0-7,z0-3.3,x0+7,z0+3.3);
+    const br=new THREE.Group();br.position.set(x0+5.4,0,1.9);G.add(br);put(B(2,1.4,10.2),new THREE.MeshLambertMaterial({color:0xa8c8d8,transparent:true,opacity:.55}),0,4.2,-1.9,null,br);put(B(2.1,.12,10.3),M('#e8eaec'),0,3.5,-1.9,null,br);put(B(2.1,.12,10.3),M('#e8eaec'),0,4.92,-1.9,null,br);
+    for(let k=0;k<6;k++){const s=put(B(.06,1.4,.06),M('#e8eaec'),.98,4.2,-6.8+k*2,{rx:.6},br);put(B(.06,1.4,.06),M('#e8eaec'),-.98,4.2,-6.8+k*2,{rx:.6},br);}
+    put(B(.5,3.5,.5),M('#c8ccd0'),0,1.75,1.4,null,br);col(x0+5.15,3.05,x0+5.65,3.55);
+    AIR.P.station={x:x0,z:z0+4.6};AIR.land=[x0,13.4];}
+  // ===== planes: low-poly, a fictional local airline =====
+  function makePlane(tail){const g=new THREE.Group();const W=M('#f4f4f2'),T=M(tail),D=M('#3a4048');
+    put(C(.62,.62,7,14),W,0,1.3,0,{rz:Math.PI/2},g);const nose=put(new THREE.SphereGeometry(.62,14,10),W,3.5,1.3,0,null,g);nose.scale.set(1.5,1,1);put(C(.1,.62,2.2,14),W,-4.6,1.42,0,{rz:-Math.PI/2},g);
+    plane(.9,.18,D,4.3,1.55,.47,0,g).rotation.y=-.2;plane(.9,.18,D,4.3,1.55,-.47,Math.PI,g).rotation.y=Math.PI+.2;
+    [1,-1].forEach(s=>{const wnd=plane(6,.12,texM(32,2,(x)=>{x.fillStyle='#f4f4f2';x.fillRect(0,0,32,2);x.fillStyle='#2a3038';for(let i=1;i<32;i+=2)x.fillRect(i,0,1,2);}),0,1.48,s*.625,s<0?Math.PI:0,g);
+      sign(['QUOKKA AIR'],'#f4f4f2',tail,1.8,.3,-1.4,1.1,s*.626,s<0?Math.PI:0,g);
+      const w=put(B(1.4,.1,4.2),W,-.2,.95,s*2.5,{ry:s*.38},g);put(C(.26,.26,1,12),D,.5,.62,s*1.8,{rz:Math.PI/2},g);put(C(.2,.2,.04,12),M('#8a8e92'),1.01,.62,s*1.8,{rz:Math.PI/2},g);
+      put(B(.8,.07,1.6),W,-4.8,1.55,s*.9,{ry:s*.4},g);});
+    put(B(1.4,1.7,.1),T,-4.7,2.4,0,{rz:-.35},g);put(B(.6,.08,.1),T,-4.4,1.65,0,null,g);
+    [[2.6,0],[-.6,.55],[-.6,-.55]].forEach(([x,z])=>{put(C(.04,.04,.6,5),D,x,.45,z,null,g);put(C(.14,.14,.12,10),M('#1c1c1e'),x,.16,z,{rx:Math.PI/2},g);});
+    const lt=put(new THREE.SphereGeometry(.06,5,4),glow('#c83020','#ff3020'),-.2,.95,2.9*1,{nc:1},g);const lt2=put(new THREE.SphereGeometry(.06,5,4),glow('#209040','#30ff60'),-.2,.95,-2.9,{nc:1},g);
+    return g;}
+  AIR.makePlane=makePlane;
+  const taxi=makePlane('#2a9a8a');taxi.rotation.y=Math.PI;G.add(taxi);const take=makePlane('#e8732a');G.add(take);AIR.planes=[{g:taxi,kind:'taxi',t:0},{g:take,kind:'take',t:12}];
+  // ===== people: family from Melbourne at arrivals, a pilot on the deck, the car hire clerk =====
+  function npc(id,name,v,x,z,lines,face){const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(x,0,z);if(face)m.scale.x=face;G.add(m);const b=blob(.85);b.position.set(x,.03,z);const n={id,name,x,z,m,lines};AIR.npcs.push(n);AIR.P[id]={x,z:z+1.4};return n;}
+  npc('june','Auntie June',{hair:'#8a5a3a',skin:'#f1c7a0',shirt:'#c8344a',pants:'#3a3a48',hat:null},755.2,-1.6,()=>[{who:'Auntie June',text:pick(['Four hours on the plane and Milo still had energy. I did not.','Melbourne says hello! It was raining when we left. Of course it was.','Your mum sends a whole bag of biscuits. Don’t tell her I ate two.'])}]);
+  npc('milo','Milo',{hair:'#2a1d16',skin:'#f1c7a0',shirt:'#2a5a9a',pants:'#c9b68a',hat:'#e8c430'},757,-1.3,()=>[{who:'Milo',text:pick(['Cousin Kip! Is it true quokkas smile at you?','I saw the ocean from the plane window! It’s SO blue.','Can we go on a boat? Can we? Can we?'])}],-1);
+  npc('capt','Captain Ana',{hair:'#1e1a18',skin:'#c8865a',shirt:'#f6f6f0',pants:'#1d2a4a',hat:'#1d2a4a'},805,-9.4,()=>[{who:'Captain Ana',text:pick(['The best seat in the house is the window on the left, landing from the west. You see Rottnest first.','That one taking off is going to Broome. Lucky things.','Every pilot waves at the tower. The tower never waves back.'])}]);
+  npc('raj','Raj',{hair:'#1e1a18',skin:'#8d5a3b',shirt:'#e86a1a',pants:'#2a2a30',hat:null},761.6,7.6,()=>[{who:'Raj',text:pick(['Small car, big car, ute? We have them all. Mostly white ones.','Everyone wants the little two-tone one. It’s always booked.','Lost property? Try the far end of the lot. Things roll down there.'])}]);
+  // Milo's lost suitcase, at the far end of the lot
+  {const g=new THREE.Group();g.position.set(799.4,0,14.4);G.add(g);put(B(.5,.62,.28),M('#2a6ac8'),0,.36,0,null,g);put(B(.22,.06,.06),M('#1c1c1e'),0,.72,0,null,g);[-.18,.18].forEach(o=>put(C(.05,.05,.04,8),M('#1c1c1e'),o,.05,.12,{rx:Math.PI/2},g));put(B(.1,.1,.02),M('#e8c430'),.12,.45,.15,null,g);AIR.case=g;AIR.P.suitcase={x:799.4,z:14.4};}
+  // the area starts hidden (shown when Kip is at the airport, or in the Look Lab)
+  G.visible=false;
+})();
+// ---- hooks: zone, travel, map, story ----
+if(AIR.on){
+  BUS_STOPS.air={x:724,z:13.4,name:'Perth Airport',land:[724,13.4]};SAFE_SPOTS.air=[[724,13.4],[760,-1],[778,4.2]];
+  ZONE_DEF.air={B:AIRB,title:'Perth Airport',eb:'Airport · flights to everywhere',bg:'#7aa356',rects:[[713,-30,817,-12,'#7aa356'],[713,-26,817,-22.6,'#4a4d55'],[716,-16.2,800,-7.8,'#b8bab8'],[726,-8,796,-3,'#d8dcde'],[714,-.4,816,2.2,'#4a4d55'],[718,2.2,814,4.6,'#a8583a'],[736,5,802,15.4,'#4a4d55'],[717,4.9,731,11.5,'#2a2e34'],[800,-11.8,812,-3,'#7aa356']],
+    labels:[['Perth Airport',761,-5.5,1],['Runway',765,-24.3,1],['Control tower',807.5,-8.4,1],['Viewing deck',806,-10.5,0],['Arrivals',756,-1.5,0],['Airport Central',724,8.2,1],['Car hire',760,8,0],['Gates',760,-12,0]]};
+  const _tg=cbdTargets;cbdTargets=function(T){_tg(T);const z=zoneOf(player.x);
+    if(z==='cbd')T.push({x:685,z:-22.1,r:1.4,label:'Train to the Airport · Airport Central'+(hasPass()?'':' · \u{1F512} Perth Pass'),act:()=>airTrain('air')});
+    if(z!=='air')return;T.push({x:724,z:12.4,r:1.5,label:'Train to Perth Station (city)',act:()=>airTrain('cbd')});
+    AIR.npcs.forEach(n=>T.push({x:n.x,z:n.z+.5,r:1.3,label:'Talk to '+n.name,act:()=>airTalk(n)}));
+    if(storyChap('air')&&S.qg&&S.qg.askHut&&!S.qg.suitcase)T.push({x:799.4,z:14.9,r:1.2,label:'Pick up the blue suitcase',act:()=>{S.qg.suitcase=1;AIR.case.visible=false;save();say(['A blue suitcase with a yellow tag: MILO. It’s full of footy cards. And socks. Mostly socks.']);}});
+    T.push({x:804,z:-10,r:1.3,label:'Watch the planes',act:()=>{S.qg=S.qg||{};S.qg.spotted=1;save();say(['A plane in a teal tail rolls down the taxiway, then another roars down the runway and lifts off over the hills.','Kip: One day I’ll fly somewhere too. After the café is famous.']);}});
+    T.push({x:776,z:-2.4,r:1.3,label:'Coffee at the departures cart · 5 coins',act:()=>{if(S.coins<5){toast('Not enough coins',2);return;}S.coins-=5;eat(15,'Airport flat white');save();}});};
+  function airTalk(n){S.qg=S.qg||{};const c=storyChap('air'),n0=(S.story&&S.story.air)||0;
+    if(n.id==='june'&&!S.qg.metJune){S.qg.metJune=1;save();say([{who:'Auntie June',text:'Kip! Over here! Oh, look at you, a real café owner now.'},{who:'Milo',text:'We came on a plane! A BIG one!'},{who:'Kip',text:'Auntie June! Milo! Welcome to Perth. Wait till you see the island.'},{who:'Auntie June',text:'Show us around first. I want a photo of that tower for your uncle.'}]);return;}
+    if(n.id==='milo'&&n0===1&&!S.qg.gaveCase){if(S.qg.suitcase){S.qg.gaveCase=1;save();say([{who:'Milo',text:'MY SUITCASE! My footy cards! Thank you, Kip!'},{who:'Auntie June',text:'We’ll come to the café as soon as we land on Rottnest. Save us a table.'}]);}else say([{who:'Milo',text:'My blue suitcase didn’t come out on the belt. Raj at car hire might have seen it.'}]);return;}
+    if(n.id==='raj'&&n0===1&&!S.qg.askHut){S.qg.askHut=1;save();say([{who:'Raj',text:'A blue suitcase with a yellow tag? Rolled off a trolley this morning. Last I saw, it was heading for the far end of the lot.'}]);return;}
+    say(n.lines());}
+  window.airTrain=function(dest){if(transit||VISIT)return;if(dest==='air'&&needPass('cbd'))return;if(!pay(FARE_RIDE))return;transit=true;fadeTarget=.95;toast(dest==='air'?'Train to the Airport · Airport Central…':'Train to Perth Station…',2.2);
+    setTimeout(()=>{S.time+=20;player.bike=false;player.carry=null;if(dest==='air'){player.x=AIR.land[0];player.z=AIR.land[1];}else{player.x=680;player.z=-19.6;}updateCamera(0,true);fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[dest]=1;
+      if(dest==='air'){S.fq=S.fq||{};if(!S.fq.visitAir){S.fq.visitAir=1;save();say(['Kip: The airport! Planes taking off over the hills… and somewhere in arrivals, Auntie June and Milo.']);}}},900);};
+  [['airtower','Control tower','place',4.2],['airterm','Terminal canopy','place',5],['planespot','Plane spotting','place',3.4,()=>[[AIR.P.deck.x,AIR.P.deck.z]]],['airstn','Airport Central','place',4],['carhire','Car hire lot','place',4]]
+    .forEach(([id,name,cat,r,pos])=>PCS.push({id,name,zone:'air',cat,pos:pos||(()=>{const k={airtower:'tower',airterm:'terminal',airstn:'station',carhire:'lot'}[id];const p=AIR.P[k];return p?[[p.x,p.z]]:[];}),r}));
+  Object.assign(PC_HINTS,{airtower:'The control tower · the tall shaft with the dark glass cab at the airport',airterm:'Terminal canopy · the white curved blades over the airport kerb',planespot:'Plane spotting · the lawn beside the control tower',airstn:'Airport Central · the train station by the airport kerb',carhire:'Car hire lot · rows of white cars and shade sails'});
+  {const _sd=STORY_DEF;STORY_DEF=function(){const o=_sd();if(!o.air){const g=()=>S.qg||{};o.air={name:'Perth Airport',short:'Airport',chapters:[
+    {title:'Arrivals',giver:'Auntie June',intro:'Kip, love! Milo and I just flew in from Melbourne. Meet us at arrivals, then show us around this airport of yours.',outro:'What a welcome! Now… Milo has something to tell you about his suitcase.',coins:70,
+     steps:[['Meet Auntie June and Milo at arrivals',{check:()=>!!g().metJune,at:()=>({x:755.2,z:-.4,label:'Arrivals'})}],['Photograph the control tower','airtower'],['Photograph the terminal canopy','airterm'],['Watch the planes from the viewing deck',{check:()=>!!g().spotted,at:()=>({x:804,z:-10,label:'Viewing deck'})}]]},
+    {title:'The lost suitcase',giver:'Milo',intro:'My blue suitcase didn’t come out on the belt! It has all my footy cards. Can you help me find it, cousin Kip?',outro:'Footy cards, safe! See you on the island, Kip. We’ll be your first customers tomorrow.',coins:90,
+     steps:[['Ask Raj at the car hire hut',{check:()=>!!g().askHut,at:()=>({x:761.6,z:8.6,label:'Car hire hut'})}],['Find the blue suitcase in the car park',{check:()=>!!g().suitcase,at:()=>({x:799.4,z:14.9,label:'Blue suitcase'})}],['Give it back to Milo',{check:()=>!!g().gaveCase,at:()=>({x:757,z:-.2,label:'Milo'})}],['Photograph Airport Central','airstn']]}]};}return o;};}
+  STORY_ORDER.push('air');
+  // show the airport only when Kip is there (or in the Look Lab); planes, beacon, night lights
+  {const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);const here=zoneOf(player.x)==='air'||(typeof LAB!=='undefined'&&LAB.on);if(AIR.g.visible!==here)AIR.g.visible=here;if(here)airTick(dt);};}
+  function airTick(dt){dt=Math.min(dt||0,.1);const t=performance.now()/1000;
+    for(const p of AIR.planes){p.t+=dt;if(p.kind==='taxi'){const T=40,q=(p.t%T)/T;p.g.position.set(820-q*112,0,-17.9);p.g.visible=q<.98;}
+      else{const T=36,q=p.t%T;let x,y=0;if(q<6){x=708;}else{const s=q-6;x=708+.9*s*s;y=Math.max(0,(x-760)*.16);}p.g.position.set(x,y,-24.3);p.g.rotation.z=y>0?.14:0;p.g.visible=x<840;}}
+    if(AIR.beacon)AIR.beacon.visible=Math.sin(t*3)>0;
+    const under=player.z<-.3&&player.z>-3&&player.x>727&&player.x<795;(AIR.canopy||[]).forEach(b=>{const m=b.material;if(under&&!m.transparent){b.material=m.clone();b.material.transparent=true;b.material.opacity=.3;b.userData.mo=m;}else if(!under&&b.userData.mo){b.material=b.userData.mo;b.userData.mo=null;}});
+    const n=typeof NIGHT==='number'?NIGHT:0;if(AIR._n!==n){AIR._n=n;AIR.glow.forEach(([m,d,k])=>m.color.copy(d).lerp(k,n));AIR.halos.forEach(h=>h.material.opacity=n*.85);AIR.em.forEach(m=>m.emissive.setRGB(n*1.1,n*.95,n*.7));}
+    if(S.qg&&S.qg.suitcase&&AIR.case)AIR.case.visible=false;}
+}
 // ---------- Fremantle detail (Look Lab layer: ?lab or ?freo until FREO_DETAIL_LIVE is true) ----------
 // From Paul's photos: the 1897 market hall with its striped brick gables and verandah, a two-storey hotel with lacy
 // verandahs and a churro café on Cappuccino Strip, a covered walk with a secondhand bookshop, a blue fish-and-chip shed
@@ -7053,7 +7218,7 @@ const LAB=(()=>{
     {id:'freo',name:'Fremantle',B:FB,ll:[-32.0550,115.7460],labels:()=>[['Victoria Quay',284,-16.6],['B-Shed',285,-10.4],['Maritime Museum',277.5,-12],['Round House',278,-3.4],['Bathers Beach',277.2,9.6],['Esplanade Park',290.5,12.4],['Fishing Boat Harbour',284,18.8],['Cappuccino Strip',304,-3.9],['High St',292,-1],['Kings Square',311,-14.6],['Fremantle Prison',325,4]]},
     {id:'hi',name:'Heirisson Island',B:HIB,ll:[-31.9600,115.8790],labels:()=>ZONE_DEF.hi.labels},
     {id:'vp',name:'Victoria Park',B:VPB,ll:[-31.9760,115.8980],labels:()=>ZONE_DEF.vp.labels},
-    {id:'cbd',name:'Perth CBD',B:CBDB,ll:[-31.9560,115.8590],labels:()=>ZONE_DEF.cbd.labels}];
+    {id:'cbd',name:'Perth CBD',B:CBDB,ll:[-31.9560,115.8590],labels:()=>ZONE_DEF.cbd.labels}].concat(AIR.on?[{id:'air',name:'Perth Airport',B:AIRB,ll:[-31.9400,115.9670],labels:()=>ZONE_DEF.air.labels}]:[]);
   const st={on:false,zone:0,tx:0,tz:0,dist:60,yaw:0,pitch:.75,auto:false,show:CATS.map(()=>true),tint:false,tags:true,frame:true,bloom:true,tilt:false,fog:false,time:null,seen:new WeakSet(),count:CATS.map(()=>0),scanT:0,saved:null};
   const BBset=new Set(BB);
   const box=new THREE.Box3(),sz=new THREE.Vector3(),col=new THREE.Color(),hsl={},texAvg=new Map(),tv=new THREE.Vector3();

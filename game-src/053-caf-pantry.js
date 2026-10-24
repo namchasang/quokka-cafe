@@ -80,7 +80,7 @@ function renderPerthMap(c){const x=c.getContext('2d'),W=c.width,H=c.height;x.ima
   txt('Indian Ocean',250,110,30,'#cfe6f7','700 ');txt('Swan River',740,206,26,'#e3f3fb','700 ');txt('Kings Park',935,175,18,'#e6f2d8','700 ');
   x.font='800 '+Math.round(9*2.6)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=8;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',16,26);x.fillStyle='#ffd34d';x.fillText('N↑',16,26);
   x.textAlign='left';x.textBaseline='alphabetic';x.font='700 26px "M PLUS Rounded 1c", sans-serif';x.lineWidth=6;[['- - -  Ferry','#f5ecd8',28],['━━  Bus','#3ec46a',210],['●  You are here','#ffd34d',360]].forEach(([t,col,px])=>{x.strokeText(t,px,532);x.fillStyle=col;x.fillText(t,px,532);});x.textAlign='right';x.fillStyle='#f5ecd8';x.strokeText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);x.fillText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);}
-function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD'}[id];if(zoneOf(player.x)===id)return{ok:false,why:'You are already in '+nm+'.',nm};
+function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport'}[id];if(zoneOf(player.x)===id)return{ok:false,why:'You are already in '+nm+'.',nm};
   if(id==='freo'&&!freoUnlocked())return{ok:false,why:'Fremantle is still locked: upgrade Main Jetty to Lv3 and start Kip\u2019s Ferry Co.',nm};
   if(!isGM()&&id!=='island'&&!(S.seenZ&&S.seenZ[id]))return{ok:false,why:'Visit '+nm+' once by ferry or bus before you can fast travel there.',nm};
   return{ok:true,nm};}

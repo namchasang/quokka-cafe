@@ -21,7 +21,7 @@ function updateWalkers(dt){const zone=walkerZone(),rain=wxC.rain>.5,night=NIGHT>
     const gy=groundY(w.x,w.z);w.m.position.set(w.x,gy+(w.bike?Math.abs(Math.sin(w.walkT*14))*.03:0),w.z);w.m.scale.x=w.face;w.sh.position.set(w.x,gy+.03,w.z);});}
 
 // ---------- zones ----------
-function zoneOf(x){return x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
+function zoneOf(x){return x>710&&AIR&&AIR.on?'air':x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
 function hiWalk(x,z){return x>404.5&&x<435.5&&z>-9.6&&z<9.8;}
 function vpWalk(x,z){return x>489&&x<561&&z>-10.2&&z<12;}
 const HIB={x1:388,x2:452,z1:-12.75,z2:12.75},VPB={x1:488,x2:562,z1:-14.75,z2:14.75};
@@ -52,4 +52,4 @@ function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCach
   if(z==='island')return draw();const snap=zoneSnap(ZONE_B(z),W,H);
   if(snap){const lab=labelsOnly(draw);const x=snap.getContext('2d');x.drawImage(lab,0,0);c=snap;}else c=draw();
   zoneCache[k]=c;return c;}
-const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB})[z];
+const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB,air:typeof AIRB!=='undefined'?AIRB:VPB})[z];
