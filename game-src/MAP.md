@@ -78,11 +78,13 @@ Find code: `grep -n 'name' game-src/*`.
 | 070-fremantle-detail-look-lab-layer-lab-or.js | 6117-6313 | 26 | FREO_DETAIL_LIVE, FDET |
 | 071-more-from-paul-s-perth-photos-same-loo.js | 6314-6382 | 8 |  |
 | 072-fremantle-map-closer-to-real-town-same.js | 6383-6458 | 11 | FREO_LAND |
-| 073-st-george-s-cathedral-on-st-georges-te.js | 6459-6549 | 9 |  |
-| 074-island-loop-bus-a-19-stop-loop-bus-lik.js | 6550-6595 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 075-tidy-island-after-it-grows-nothing-on.js | 6596-6705 | 13 | flipIslandSigns, hot |
-| 076-live-mode-live-1-kip-runs-caf-on-his-o.js | 6706-6780 | 8 | LIVEM |
-| 077-look-lab-landscape-layers-of-each-real.js | 6781-6966 | 24 | LAB |
-| 078-hd-plants-every-tree-bush-flower-and-g.js | 6967-7034 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 079-layered-pixel-trees-2-5d-look-lab-laye.js | 7035-7075 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 080-part.js | 7076-7078 | 0 |  |
+| 073-st-george-s-cathedral-on-st-georges-te.js | 6459-6506 | 5 |  |
+| 074-fremantle-from-paul-s-street-photos-sa.js | 6507-6646 | 19 | FREO2_LIVE |
+| 075-fremantle-town-plan-same-look-lab-laye.js | 6647-6809 | 19 |  |
+| 076-island-loop-bus-a-19-stop-loop-bus-lik.js | 6810-6855 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 077-tidy-island-after-it-grows-nothing-on.js | 6856-6965 | 13 | flipIslandSigns, hot |
+| 078-live-mode-live-1-kip-runs-caf-on-his-o.js | 6966-7040 | 8 | LIVEM |
+| 079-look-lab-landscape-layers-of-each-real.js | 7041-7226 | 24 | LAB |
+| 080-hd-plants-every-tree-bush-flower-and-g.js | 7227-7294 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 081-layered-pixel-trees-2-5d-look-lab-laye.js | 7295-7335 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 082-part.js | 7336-7338 | 0 |  |

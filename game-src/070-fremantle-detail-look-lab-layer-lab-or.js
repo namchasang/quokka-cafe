@@ -39,7 +39,7 @@ if(FDET.on)(()=>{
   const ivy=sprMat(canopy(24,14,(()=>{const b=[];for(let i=0;i<7;i++)b.push([12+(r()-.5)*18,5+(r()-.5)*4,3+r()*2.5]);return b;})(),['#25502a','#356a34','#4a8440','#6aa050'],r,null));
   const palmC=(()=>{const W=24,H=48,c=mk(W,H),x=c.getContext('2d');for(let y=15;y<H;y++){const w=3+(y>H-4?1:0);for(let i=0;i<w;i++){x.fillStyle=(y%3===0)?'#5a4a38':i===0?'#5e503c':i===w-1?'#6e604c':'#8a7a62';x.fillRect(12-(w>>1)+i,y,1,1);}}
     x.fillStyle='#6a5a40';x.fillRect(10,13,4,3);const FR=TREE_COLS[1];for(let k=0;k<12;k++){const a=-Math.PI+k/11*Math.PI,len=8+r()*3;for(let t=0;t<=1;t+=.06){const px=12+Math.cos(a)*len*t,py=14+Math.sin(a)*len*t*.55+t*t*7*Math.abs(Math.cos(a))+(Math.abs(Math.cos(a))<.3?-t*3:0);x.fillStyle=FR[t<.2?0:t>.7?3:1+(k%2)];x.fillRect(Math.round(px),Math.round(py),1,1);if(t>.25&&t<.8){x.fillStyle=FR[0];x.fillRect(Math.round(px),Math.round(py)+1,1,1);}}}return c;})();
-  const palm=sprMat(palmC);
+  const palm=sprMat(palmC);FDET.palm=palm;FDET.bb=bb;
   const person=(v,x,z,face)=>{const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(x,0,z);if(face)m.scale.x=face;scene.add(m);blob(.8).position.set(x,.03,z);FDET.people=(FDET.people||[]);FDET.people.push(m);return m;};
 
   // ===== 1. the market hall (1897): striped brick and cream, two gables, a verandah with sign panels and lacy iron =====
