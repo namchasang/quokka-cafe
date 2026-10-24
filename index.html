@@ -1382,10 +1382,10 @@ const TREES_HD={on:TREES_HD_LIVE||/[?&#](lab|trees)\b/.test(location.search+loca
 function canopyHD(W,H,blobs,pal,r,trunk){const c=mk(W,H),x=c.getContext('2d');const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   const hash=(a,b)=>{let h=(a*374761393+b*668265263+77)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
   const vnoise=(px,py,s)=>{const gx=Math.floor(px/s),gy=Math.floor(py/s),fx=px/s-gx,fy=py/s-gy;const a=hash(gx,gy),b=hash(gx+1,gy),c2=hash(gx,gy+1),d=hash(gx+1,gy+1);const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c2-a)*v+(a-b-c2+d)*u*v;};
-  if(trunk){const [tx,ty,tw]=trunk;const bark=['#2e1d12','#4a3020','#6b4428','#8f6038'];
+  if(trunk){const [tx,ty,tw]=trunk;const bark=trunk[3]||['#2e1d12','#4a3020','#6b4428','#8f6038'],bulge=trunk[4]||0;
     // two branches reaching into the crown
     x.strokeStyle=bark[1];x.lineWidth=3;x.beginPath();x.moveTo(tx+tw/2,ty+14);x.lineTo(tx-6,ty-8);x.moveTo(tx+tw/2,ty+10);x.lineTo(tx+tw+7,ty-10);x.stroke();x.strokeStyle=bark[2];x.lineWidth=1;x.stroke();
-    for(let py=ty;py<H;py++){const flare=py>H-6?(py-(H-6)):0;for(let px=tx-flare;px<tx+tw+flare;px++){const e=(px-tx+flare)/(tw+2*flare);let i=e<.2?0:e<.45?1:e<.8?2:3;if(hash(px,py>>1)<.18)i=Math.max(0,i-1);if((py+px*3)%9===0)i=Math.max(0,i-1);x.fillStyle=bark[i];x.fillRect(px,py,1,1);}}}
+    for(let py=ty;py<H;py++){const flare=(py>H-6?(py-(H-6)):0)+Math.round(bulge*Math.sin(Math.PI*Math.min(1,(py-ty)/(H-ty)*1.15)));for(let px=tx-flare;px<tx+tw+flare;px++){const e=(px-tx+flare)/(tw+2*flare);let i=e<.2?0:e<.45?1:e<.8?2:3;if(hash(px,py>>1)<.18)i=Math.max(0,i-1);if((py+px*3)%9===0)i=Math.max(0,i-1);x.fillStyle=bark[i];x.fillRect(px,py,1,1);}}}
   const img0=x.getImageData(0,0,W,H);const out=img0.data;const solid=new Uint8Array(W*H);const shadeA=new Float32Array(W*H);
   for(let py=0;py<H;py++)for(let px=0;px<W;px++){let inside=false,sh=-9,edge=0;for(const [bx,by,br] of blobs){const dx=px-bx,dy=py-by,d=Math.sqrt(dx*dx+dy*dy);const wob=(vnoise(px,py,3)-.5)*3.2;if(d<br+wob){inside=true;const s=(-dx*.55-dy*.85)/br;if(s>sh){sh=s;edge=1-d/br;}}}
     if(!inside)continue;const k=py*W+px;
@@ -5548,11 +5548,27 @@ if(CDET.on)(()=>{
     [-.1,0,.1].forEach(o=>put(bx(1.2,.04,.08),wd,0,.42,o,null,g));[.6,.74].forEach(y=>put(bx(1.2,.07,.035),wd,0,y,-.17,null,g));[-.52,.52].forEach(o=>{put(bx(.05,.42,.34),ir,o,.21,-.02,null,g);put(bx(.05,.42,.04),ir,o,.6,-.17,null,g);});
     const q=Math.abs(Math.sin(ry||0))>.5;col(x-(q?.22:.62),z-(q?.62:.22),x+(q?.22:.62),z+(q?.62:.22));}
   const BUSH=['#4f8f3e','#5ea64a','#3f7a33','#6aa84f'];
-  function bushes(x,z,w,d,n,flowers){for(let i=0;i<n;i++){const bx2=x+(r()-.5)*w,bz=z+(r()-.5)*d,s=.75+r()*.5;put(ic(.28),M(pick2(BUSH)),bx2,.32*s+.2,bz,{s:[s,s*.85,s],ry:r()*6},);
-      if(flowers)for(let k=0;k<3;k++)put(sp(.045,5),M(pick2(flowers)),bx2+(r()-.5)*.4,.5*s+.25,bz+(r()-.5)*.35,{nc:1});}}
-  function planter(x,z,w,fl){put(bx(w,.35,.6),M('#b8b2a6'),x,.175,z);put(bx(w-.1,.02,.5),M('#5a4232'),x,.355,z,{nc:1});bushes(x,z,w-.4,.25,Math.round(w*2),fl);col(x-w/2,z-.3,x+w/2,z+.3);}
-  function treePlanter(x,z){put(cy(.42,.38,.4,10),M('#b8b2a6'),x,.2,z);put(cy(.06,.08,1.1,6),M('#6b4a32'),x,.95,z);put(ic(.5),M('#4f8f3e'),x,1.75,z,{s:[1,.9,1]});put(ic(.34),M('#6aa84f'),x+.25,1.55,z+.15);col(x-.42,z-.42,x+.42,z+.42);}
-  function hedge(x1,z1,x2,z2){const L=Math.hypot(x2-x1,z2-z1),n=Math.ceil(L/.42);for(let i=0;i<=n;i++){const t=i/n;put(ic(.3),M(pick2(BUSH)),x1+(x2-x1)*t,.3,z1+(z2-z1)*t,{s:[1.1,.9,1.1],ry:r()*6});}col(Math.min(x1,x2)-.3,Math.min(z1,z2)-.3,Math.max(x1,x2)+.3,Math.max(z1,z2)+.3);}
+  // plants are pixel sprites that face the camera, like the rest of the game's trees (buildings and street furniture stay 3D)
+  function sprMat(c){const t=ctex(c);return{m:new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.12,.12,.1),emissiveMap:t}),d:new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.5})};}
+  function bb(v,x,z,w,h,y){const g=new THREE.PlaneGeometry(w,h);g.translate(0,h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,y||0,z);G.add(m);BB.push(m);return m;}
+  const SPR={};{const rr=mulberry32(4242);
+    const bushB=k=>{const b=[];for(let i=0;i<6;i++)b.push([16+(rr()-.5)*16,12+(rr()-.5)*4,6+rr()*4]);return b;};
+    SPR.bush=[0,1,2].map(k=>sprMat(canopyHD(32,20,bushB(k),TREE_PAL[k],rr,null)));
+    SPR.flower=[['#ef7d9a','#f6f2e8'],['#d8323a','#e8c040']].map(([a,b2],k)=>{const c=canopyHD(32,20,bushB(k),TREE_PAL[1],rr,null),x=c.getContext('2d');for(let i=0;i<14;i++){const fx=3+rr()*26|0,fy=2+rr()*12|0;const d=x.getImageData(fx,fy,1,1).data;if(!d[3])continue;x.fillStyle=i%3?a:b2;x.fillRect(fx,fy,2,2);x.fillStyle='#fff8e6';x.fillRect(fx,fy,1,1);}return sprMat(c);});
+    const gb=()=>{const b=[];for(let i=0;i<9;i++)b.push([24+(rr()-.5)*30,20+(rr()-.5)*22,6+rr()*6]);return b;};
+    SPR.gum=[0,1].map(()=>sprMat(canopyHD(48,96,gb(),['#283a22','#344a2a','#435c33','#56713d','#6c8748','#879e58','#aebd7a'],rr,[21,40,6,['#8a8478','#b8b0a0','#d8d2c4','#efe9dc']])));
+    {const b=[[12,16,7],[24,12,8],[36,16,7],[18,8,5],[30,8,5]];SPR.boab=sprMat(canopyHD(48,64,b,TREE_PAL[1],rr,[17,22,14,['#6e5e50','#9a8674','#bca690','#d8c4ac'],7]));}
+    {const b=[[16,13,9],[11,16,6],[21,17,6],[16,8,6]];SPR.small=sprMat(canopyHD(32,48,b,TREE_PAL[0],rr,[14,26,4]));}
+    // a Canary Island date palm: ringed trunk and a crown of drooping fronds
+    {const W=48,H=96,c=mk(W,H),x=c.getContext('2d');for(let y=30;y<H;y++){const w=6+(y>H-8?(y-(H-8))/2:0);for(let i=0;i<w;i++){x.fillStyle=(y%4===0)?'#5a4a38':i<1?'#5e503c':i>w-2?'#6e604c':'#8a7a62';x.fillRect(24-w/2+i,y,1,1);}}
+      x.fillStyle='#6a5a40';x.beginPath();x.ellipse(24,30,6,5,0,0,7);x.fill();const FR=['#2f5a2a','#3e7232','#4f8a3c','#68a24a'];
+      for(let k=0;k<16;k++){const a=-Math.PI+k/15*Math.PI,len=17+rr()*5;for(let t=0;t<=1;t+=.03){const px=24+Math.cos(a)*len*t,py=29+Math.sin(a)*len*t*.55+t*t*13*Math.abs(Math.cos(a))+(Math.abs(Math.cos(a))<.3?-t*6:0);const wd=Math.max(1,3*(1-t));
+        x.fillStyle=FR[t<.15?0:k%4];x.fillRect(px-wd/2,py,wd,1.4);if(t>.2&&(t*33|0)%2)x.fillStyle=FR[3],x.fillRect(px,py+1,1,1);}}
+      SPR.palm=sprMat(c);}}
+  function bushes(x,z,w,d,n,flowers,y0){for(let i=0;i<n;i++){const s=.8+r()*.4;bb(flowers?SPR.flower[i%2]:SPR.bush[i%3],x+(r()-.5)*w,z+(r()-.5)*d,1.0*s,.62*s,y0||0);}}
+  function planter(x,z,w,fl){put(bx(w,.35,.6),M('#b8b2a6'),x,.175,z);put(bx(w-.1,.02,.5),M('#5a4232'),x,.355,z,{nc:1});bushes(x,z,w-.5,.15,Math.max(2,Math.round(w*1.4)),fl,.3);col(x-w/2,z-.3,x+w/2,z+.3);}
+  function treePlanter(x,z){put(cy(.42,.38,.4,10),M('#b8b2a6'),x,.2,z);bb(SPR.small,x,z+.05,1.5,2.25,.32);col(x-.42,z-.42,x+.42,z+.42);}
+  function hedge(x1,z1,x2,z2){const L=Math.hypot(x2-x1,z2-z1),n=Math.ceil(L/.6);for(let i=0;i<=n;i++){const t=i/n;bb(SPR.bush[i%3],x1+(x2-x1)*t,z1+(z2-z1)*t,1.05,.66);}col(Math.min(x1,x2)-.3,Math.min(z1,z2)-.3,Math.max(x1,x2)+.3,Math.max(z1,z2)+.3);}
   function bistro(x,z,c){put(cy(.24,.24,.04,10),M('#f6f6f0'),x,.56,z);put(cy(.03,.05,.56,6),M(DARK),x,.28,z);[-1,1].forEach(s=>{put(bx(.24,.04,.24),M(DARK),x+s*.42,.34,z);put(bx(.24,.3,.03),M(DARK),x+s*.42,.5,z-.11);});
     put(cy(.02,.02,1.4,5),M('#d8d4c0'),x,1.12,z);put(new THREE.ConeGeometry(.72,.3,8),M(c),x,1.75,z);col(x-.55,z-.25,x+.55,z+.25);}
   function aFrame(x,z,lines,c){const g=new THREE.Group();g.position.set(x,0,z);G.add(g);const t=signPlane(lines,c,'#f6f2e8',.42,.5,0,.36,.07,0,g);t.rotation.x=-.16;const b=put(bx(.44,.54,.02),M('#5a4232'),0,.35,-.09,{rx:.16},g);}
@@ -5777,19 +5793,15 @@ if(CDET.on)(()=>{
     put(bx(.12,.5,.12),M('#e8c020'),2.4,.8,-2.2,null,bt);}
   // Perth's traffic-light poles are yellow and the street lights are tall and grey
   // ===== palms on Riverside Drive =====
-  function palm(x,z,h){const tr=M('#8a7a62');put(cy(.15,.22,h,7),tr,x,h/2,z);for(let y=.4;y<h;y+=.45)put(cy(.2,.2,.05,7),M('#6e604c'),x,y,z,{nc:1});put(sp(.32,8),M('#6a5a40'),x,h,z,{s:[1,1.2,1]});
-    const fm=M('#4f7f3a'),fm2=M('#5f9444');for(let i=0;i<12;i++){const g=new THREE.Group();g.position.set(x,h+.15,z);g.rotation.y=i/12*6.283+(i%2)*.2;G.add(g);const f=new THREE.Mesh(bx(1.5,.04,.34),i%2?fm:fm2);f.position.x=.7;f.rotation.z=-.35-(i%3)*.22;f.castShadow=true;g.add(f);}
-    col(x-.22,z-.22,x+.22,z+.22);}
+  function palm(x,z,h){bb(SPR.palm,x,z,h*.62,h*1.24);col(x-.22,z-.22,x+.22,z+.22);}
   [624.5,634.5,666.8,673.5,687.5,695.5].forEach(x=>palm(x,9.05,3.4+((x*7)%5)*.15));
 
   // ===== Kings Park: a hedge along the city edge, paths, gums, a boab, flower beds, a lily pond, picnics and a kiosk =====
   [[-25.5,-22.9],[-20.5,-11.9],[-10.1,-4.5],[-1.6,3.6],[7.2,11.4]].forEach(([a,b])=>hedge(621.4,a,621.4,b));
   {const gm=lmat(pathC,[1,10]);paint(1.1,35,gm,618,-6.5,.022);paint(17,1.1,lmat(pathC,[8,1]),612.5,-11,.023);paint(5.2,1,lmat(pathC,[3,1]),615.2,8.6,.023);}
-  function gum(x,z,h){put(cy(.11,.2,h,7),M('#e8e2d4'),x,h/2,z);put(bx(.06,1.1,.06),M('#e0d8c8'),x+.3,h*.72,z,{rz:-.6});put(bx(.06,.9,.06),M('#e0d8c8'),x-.25,h*.78,z+.1,{rz:.7});
-    [[0,h+.1,0,1],[.6,h-.3,.2,.8],[-.55,h-.2,-.1,.75],[.1,h+.5,.3,.7]].forEach(([a,b,c,s])=>put(ic(.85),M(pick2(['#6f8f4a','#7a9a58','#5f8040'])),x+a,b,z+c,{s:[s,s*.8,s],ry:r()*6}));col(x-.25,z-.25,x+.25,z+.25);}
+  function gum(x,z,h){bb(SPR.gum[(x*3|0)%2],x,z,2.7*h/4,5.4*h/4);col(x-.25,z-.25,x+.25,z+.25);}
   gum(613.2,-19.2,4.2);gum(601.6,-17.4,3.8);gum(608.6,-1.2,4);gum(620.3,-9.4,3.6);
-  {const x=615.6,z=-3.4;put(sp(.75,10),M('#cdb8a2'),x,.95,z,{s:[1,1.35,1]});put(cy(.32,.5,.8,9),M('#cdb8a2'),x,2.1,z);[[.6,.5],[-.6,-.4],[.1,1.2]].forEach(([a,rz])=>put(bx(.12,1,.12),M('#b8a490'),x+a*.6,2.75,z+(a>0?.1:-.1),{rz}));
-    [[.75,3.1,0],[-.7,3,.2],[.05,3.4,-.3]].forEach(([a,b,c])=>put(ic(.45),M('#7a9a4a'),x+a,b,z+c,{s:[1,.6,1]}));col(x-.7,z-.7,x+.7,z+.7);}
+  bb(SPR.boab,615.6,-3.4,3,4);col(615.6-.7,-3.4-.7,615.6+.7,-3.4+.7);
   function bed(x,z,a,b,kind){const m=new THREE.Mesh(new THREE.CircleGeometry(1,18),M('#6a4a32'));m.rotation.x=-Math.PI/2;m.scale.set(a,b,1);m.position.set(x,.025,z);m.receiveShadow=true;G.add(m);
     const n=Math.round(a*b*14);for(let i=0;i<n;i++){const t=r()*6.283,q=Math.sqrt(r())*.88,px=x+Math.cos(t)*a*q,pz=z+Math.sin(t)*b*q;
       if(kind==='paw'){put(cy(.015,.015,.5,4),M('#5a8a3a'),px,.25,pz,{nc:1});put(bx(.05,.13,.05),M(r()<.75?'#d8323a':'#e8c040'),px,.56,pz);put(bx(.04,.25,.12),M('#4f8f3e'),px,.12,pz,{ry:r()*3,nc:1});}

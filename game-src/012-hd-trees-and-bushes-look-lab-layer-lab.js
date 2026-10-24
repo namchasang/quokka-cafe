@@ -5,10 +5,10 @@ const TREES_HD={on:TREES_HD_LIVE||/[?&#](lab|trees)\b/.test(location.search+loca
 function canopyHD(W,H,blobs,pal,r,trunk){const c=mk(W,H),x=c.getContext('2d');const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   const hash=(a,b)=>{let h=(a*374761393+b*668265263+77)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
   const vnoise=(px,py,s)=>{const gx=Math.floor(px/s),gy=Math.floor(py/s),fx=px/s-gx,fy=py/s-gy;const a=hash(gx,gy),b=hash(gx+1,gy),c2=hash(gx,gy+1),d=hash(gx+1,gy+1);const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c2-a)*v+(a-b-c2+d)*u*v;};
-  if(trunk){const [tx,ty,tw]=trunk;const bark=['#2e1d12','#4a3020','#6b4428','#8f6038'];
+  if(trunk){const [tx,ty,tw]=trunk;const bark=trunk[3]||['#2e1d12','#4a3020','#6b4428','#8f6038'],bulge=trunk[4]||0;
     // two branches reaching into the crown
     x.strokeStyle=bark[1];x.lineWidth=3;x.beginPath();x.moveTo(tx+tw/2,ty+14);x.lineTo(tx-6,ty-8);x.moveTo(tx+tw/2,ty+10);x.lineTo(tx+tw+7,ty-10);x.stroke();x.strokeStyle=bark[2];x.lineWidth=1;x.stroke();
-    for(let py=ty;py<H;py++){const flare=py>H-6?(py-(H-6)):0;for(let px=tx-flare;px<tx+tw+flare;px++){const e=(px-tx+flare)/(tw+2*flare);let i=e<.2?0:e<.45?1:e<.8?2:3;if(hash(px,py>>1)<.18)i=Math.max(0,i-1);if((py+px*3)%9===0)i=Math.max(0,i-1);x.fillStyle=bark[i];x.fillRect(px,py,1,1);}}}
+    for(let py=ty;py<H;py++){const flare=(py>H-6?(py-(H-6)):0)+Math.round(bulge*Math.sin(Math.PI*Math.min(1,(py-ty)/(H-ty)*1.15)));for(let px=tx-flare;px<tx+tw+flare;px++){const e=(px-tx+flare)/(tw+2*flare);let i=e<.2?0:e<.45?1:e<.8?2:3;if(hash(px,py>>1)<.18)i=Math.max(0,i-1);if((py+px*3)%9===0)i=Math.max(0,i-1);x.fillStyle=bark[i];x.fillRect(px,py,1,1);}}}
   const img0=x.getImageData(0,0,W,H);const out=img0.data;const solid=new Uint8Array(W*H);const shadeA=new Float32Array(W*H);
   for(let py=0;py<H;py++)for(let px=0;px<W;px++){let inside=false,sh=-9,edge=0;for(const [bx,by,br] of blobs){const dx=px-bx,dy=py-by,d=Math.sqrt(dx*dx+dy*dy);const wob=(vnoise(px,py,3)-.5)*3.2;if(d<br+wob){inside=true;const s=(-dx*.55-dy*.85)/br;if(s>sh){sh=s;edge=1-d/br;}}}
     if(!inside)continue;const k=py*W+px;
