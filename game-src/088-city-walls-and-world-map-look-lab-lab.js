@@ -1,0 +1,92 @@
+// ---------- City walls and the world map (Look Lab: ?lab or ?world until WORLD_LIVE is true) ----------
+// Every area except Rottnest gets a limestone city wall round its edge, with a gate on the west (left) and east (right).
+// Walking out through a gate opens the world map: Kip drives his little two-tone retro car between the towns, the car
+// rides the ferries across the water, and driving into a town enters it by the gate on the side he arrives from.
+// Rottnest has no wall: drive to the jetty on the map and ride into Thomson Bay. The old ferries and buses still work.
+var WORLD_LIVE=false;
+const WORLD={on:WORLD_LIVE||/[?&#](lab|world)\b/.test(location.search+location.hash),walls:{},g:null};
+// the overlay exists in every build (hideOverlays looks for it); it only opens when the world layer is on
+(()=>{const ov=document.createElement('div');ov.id='wmOv';ov.className='overlay';ov.hidden=true;
+  ov.innerHTML='<div id="wmBox"><div id="wmTop"><b id="wmTitle">World map</b><span id="wmTabs"><button type="button" id="wmTabP" aria-pressed="true">Perth</button><button type="button" id="wmTabA" aria-pressed="false">Australia</button></span><button type="button" id="wmBack">Back to town</button></div>'+
+    '<canvas id="wmCv" width="320" height="200"></canvas><div id="wmHud"><div><p id="wmName">On the road</p><p id="wmNote"></p></div><button type="button" id="wmAct">Enter</button></div>'+
+    '<p id="wmHelp">Drive with the arrow keys or WASD, or tap where to go · Space or the button to enter a town</p></div>';
+  document.body.appendChild(ov);
+  const st=document.createElement('style');st.textContent='#wmOv{position:fixed;inset:0;z-index:60;background:#0d1426;display:flex;align-items:center;justify-content:center;padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}'+
+    '#wmBox{width:min(100%,calc((100vh - 150px)*1.6),980px);display:flex;flex-direction:column;gap:8px;font-family:"M PLUS Rounded 1c",system-ui,sans-serif;color:#f5ecd8}'+
+    '#wmTop{display:flex;align-items:center;gap:8px;flex-wrap:wrap}#wmTitle{font-family:"Pixelify Sans",monospace;color:#ffd34d;font-size:20px;margin-right:auto}'+
+    '#wmTabs{display:flex;gap:4px}#wmOv button{font-family:"Pixelify Sans",monospace;font-size:15px;background:#1d2540;color:#a9b3cf;border:2px solid #2c3658;border-radius:4px;padding:6px 10px;cursor:pointer}'+
+    '#wmOv button[aria-pressed="true"],#wmAct{background:#ffd34d!important;color:#141a2e!important;border-color:#ffd34d!important}#wmAct[disabled]{opacity:.4}'+
+    '#wmCv{width:100%;aspect-ratio:16/10;image-rendering:pixelated;image-rendering:crisp-edges;border:3px solid #2c3658;border-radius:6px;touch-action:none;background:#0d1a2c}'+
+    '#wmHud{display:flex;gap:10px;align-items:center;background:#1d2540;border:2px solid #2c3658;border-radius:6px;padding:8px 10px}#wmHud>div{flex:1;min-width:0}'+
+    '#wmName{font-family:"Pixelify Sans",monospace;font-size:18px;margin:0}#wmNote{margin:0;font-size:12px;color:#a9b3cf}#wmHelp{margin:0;font-size:11px;color:#7f89a8;text-align:center}';
+  document.head.appendChild(st);})();
+const _wmHide=hideOverlays;hideOverlays=function(){_wmHide();const e=$('#wmOv');if(e)e.hidden=true;if(WORLD.map)WORLD.map.stop();};
+const _wmClose=closeOverlays;closeOverlays=function(){if(overlay==='wm'){hideOverlays();return;}_wmClose();};
+if(WORLD.on)(()=>{
+  const G=new THREE.Group();G.name='cityWalls';scene.add(G);WORLD.g=G;
+  const r=mulberry32(1829);
+  const limeT=(()=>{const c=mk(16,16),x=c.getContext('2d');x.fillStyle='#d8c49a';x.fillRect(0,0,16,16);for(let j=0;j<16;j+=4)for(let i=(j%8?3:0);i<16;i+=6){x.fillStyle=['#e2d0a8','#cdb88c','#d4c094','#e8d8b4','#c8b080'][(i*3+j)%5];x.fillRect(i,j,5,3);}x.fillStyle='rgba(120,100,70,.35)';for(let j=3;j<16;j+=4)x.fillRect(0,j,16,1);return c;})();
+  const limeM=(rx,ry)=>{const t=ctex(limeT,{rep:[rx,ry]});return new THREE.MeshLambertMaterial({map:t});};
+  const capM=new THREE.MeshLambertMaterial({color:0xe6d6b0}),roofM=new THREE.MeshLambertMaterial({color:0xb8562e}),darkM=new THREE.MeshLambertMaterial({color:0x2a2018});
+  const mer=new THREE.BoxGeometry(.42,.34,.56);const merPos=[];
+  const put=(geo,mat,x,y,z,ry)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(ry)m.rotation.y=ry;m.castShadow=true;m.receiveShadow=true;G.add(m);return m;};
+  // a straight run of wall from (x1,z1) to (x2,z2), h high
+  function run(x1,z1,x2,z2,h){const L=Math.hypot(x2-x1,z2-z1);if(L<.3)return;const hz=Math.abs(z2-z1)<Math.abs(x2-x1);
+    put(new THREE.BoxGeometry(hz?L:.5,h,hz?.5:L),limeM(L/1.6,h/1.6),(x1+x2)/2,h/2,(z1+z2)/2);put(new THREE.BoxGeometry(hz?L+.04:.6,.1,hz?.6:L+.04),capM,(x1+x2)/2,h+.05,(z1+z2)/2);
+    for(let s=.35;s<L;s+=.9){const t=s/L;merPos.push([x1+(x2-x1)*t,h+.27,z1+(z2-z1)*t,hz?0:Math.PI/2]);}}
+  // a gate: two round towers with tiled caps, an arch over the opening, a sign
+  function gate(x,z,side,zone){const g=new THREE.Group();g.position.set(x,0,z);G.add(g);const L=limeM(1.4,1.6);
+    [-1.25,1.25].forEach(o=>{const t=new THREE.Mesh(new THREE.CylinderGeometry(.55,.62,2.6,10),L);t.position.set(0,1.3,o);t.castShadow=true;g.add(t);const c=new THREE.Mesh(new THREE.ConeGeometry(.72,.9,10),roofM);c.position.set(0,3.05,o);c.castShadow=true;g.add(c);
+      const b=new THREE.Mesh(new THREE.CylinderGeometry(.66,.66,.12,10),capM);b.position.set(0,2.62,o);g.add(b);const w=new THREE.Mesh(new THREE.PlaneGeometry(.14,.4),darkM);w.position.set(0,1.8,o+.6);g.add(w);
+      col(x-.6,z+o-.6,x+.6,z+o+.6);});
+    const lin=new THREE.Mesh(new THREE.BoxGeometry(.6,.5,2),L);lin.position.set(0,2.2,0);lin.castShadow=true;g.add(lin);const ac=new THREE.Mesh(new THREE.TorusGeometry(.7,.09,6,12,Math.PI),capM);ac.rotation.y=Math.PI/2;ac.position.set(0,1.95,0);g.add(ac);
+    const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.7,.4),new THREE.MeshBasicMaterial({map:makeSign([(side==='w'?'← ':'')+'WORLD MAP'+(side==='e'?' →':'')],64,12,'#5a3a22','#ffd34d'),side:THREE.DoubleSide}));sg.position.set(0,2.75,.05);g.add(sg);
+    // a little banner of the town on each tower
+    const ZC={sp:'#3e7d5c',freo:'#2a5a9a',hi:'#8a6a40',vp:'#c8344a',cbd:'#1d3a6e',air:'#2a9a8a'}[zone]||'#5a3a22';[-1.25,1.25].forEach(o=>{const f=new THREE.Mesh(new THREE.PlaneGeometry(.36,.7),new THREE.MeshLambertMaterial({color:new THREE.Color(ZC),side:THREE.DoubleSide}));f.position.set(side==='w'?.58:-.58,1.6,o);f.rotation.y=Math.PI/2;g.add(f);});}
+  // work out each area's walkable land, then wall it in
+  const ZS=['sp','freo','hi','vp','cbd'].concat(typeof AIR!=='undefined'&&AIR.on?['air']:[]);
+  const GS=.5;
+  ZS.forEach(zone=>{const B=ZONE_B(zone);if(!B)return;const W=Math.ceil((B.x2-B.x1)/GS),H=Math.ceil((B.z2-B.z1)/GS);const ok=new Uint8Array(W*H),seen=new Uint8Array(W*H);
+    const cx=i=>B.x1+(i+.5)*GS,cz=j=>B.z1+(j+.5)*GS;const walk=(i,j)=>{const x=cx(i),z=cz(j);return zoneOf(x)===zone&&!blocked(x,z);};
+    const S0=(SAFE_SPOTS[zone]||[])[0]||(BUS_STOPS[zone]&&BUS_STOPS[zone].land);if(!S0)return;let si=Math.floor((S0[0]-B.x1)/GS),sj=Math.floor((S0[1]-B.z1)/GS);
+    const q=[];if(si>=0&&sj>=0&&si<W&&sj<H){seen[sj*W+si]=1;if(walk(si,sj)){ok[sj*W+si]=1;q.push(sj*W+si);}}
+    for(let h=0;h<q.length;h++){const c=q[h],i=c%W,j=(c/W)|0;for(const[di,dj]of[[1,0],[-1,0],[0,1],[0,-1]]){const ni=i+di,nj=j+dj;if(ni<0||nj<0||ni>=W||nj>=H)continue;const n=nj*W+ni;if(seen[n])continue;seen[n]=1;if(walk(ni,nj)){ok[n]=1;q.push(n);}}}
+    let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9,zs=[];for(let j=0;j<H;j++)for(let i=0;i<W;i++)if(ok[j*W+i]){const x=cx(i),z=cz(j);x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z);zs.push(z);}
+    if(!zs.length)return;zs.sort((a,b)=>a-b);const zmid=zs[zs.length>>1];
+    // gates: the reachable cell furthest west (east), as close to the middle of the town as possible
+    const pickGate=dir=>{let best=null;const edge=dir<0?x0:x1;for(let j=0;j<H;j++)for(let i=0;i<W;i++){if(!ok[j*W+i])continue;const x=cx(i),z=cz(j);if(Math.abs(x-edge)>2.6)continue;
+        let room=0;for(let k=-3;k<=3;k++){const jj=j+k;if(jj>=0&&jj<H&&ok[jj*W+i])room++;}if(room<5)continue;const sc=Math.abs(x-edge)*3+Math.abs(z-zmid)*.4;if(!best||sc<best.sc)best={x,z,sc};}return best;};
+    const gw=pickGate(-1),ge=pickGate(1);const WZ={x0:x0-.25,x1:x1+.25,z0:z0-.25,z1:z1+.25,w:null,e:null};
+    const pad=.55,wx0=x0-.25-pad,wx1=x1+.25+pad,wz0=z0-.25-pad,wz1=z1+.25+pad;
+    // only wall the stretches where the town actually reaches the edge (land, not open water far away)
+    const inside=(x,z,nx,nz)=>{for(let d=.6;d<=2.4;d+=.45){const px=x+nx*d,pz=z+nz*d;const i=Math.floor((px-B.x1)/GS),j=Math.floor((pz-B.z1)/GS);if(i>=0&&j>=0&&i<W&&j<H&&ok[j*W+i])return true;}return false;};
+    const side=(ax,az,bx,bz,nx,nz,h,gap)=>{const L=Math.hypot(bx-ax,bz-az),n=Math.ceil(L/.5);let s0=null;
+      for(let k=0;k<=n;k++){const t=k/n,x=ax+(bx-ax)*t,z=az+(bz-az)*t;const inGap=gap&&Math.abs(z-gap.z)<1.85;const on=k<n&&!inGap&&inside(x,z,nx,nz);
+        if(on&&s0==null)s0=[x,z];if(!on&&s0!=null){if(Math.hypot(x-s0[0],z-s0[1])>1.6)run(s0[0],s0[1],x,z,h);s0=null;}}};
+    if(gw){gw.x=wx0;WZ.w=gw;}if(ge){ge.x=wx1;WZ.e=ge;}
+    side(wx0,wz0,wx1,wz0,0,1,1.7);// north
+    side(wx0,wz1,wx1,wz1,0,-1,.95);// south: low, so it never hides Kip from the camera
+    side(wx0,wz0,wx0,wz1,1,0,1.7,gw);side(wx1,wz0,wx1,wz1,-1,0,1.7,ge);
+    if(gw)gate(gw.x,gw.z,'w',zone);if(ge)gate(ge.x,ge.z,'e',zone);
+    WORLD.walls[zone]=WZ;});
+  if(merPos.length){const im=new THREE.InstancedMesh(mer,capM,merPos.length);const o=new THREE.Object3D();merPos.forEach(([x,y,z,ry],i)=>{o.position.set(x,y,z);o.rotation.set(0,ry,0);o.updateMatrix();im.setMatrixAt(i,o.matrix);});im.castShadow=true;G.add(im);}
+  // ---- gate actions and the trip ----
+  const ZN={sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport',island:'Rottnest Island'};
+  const _t=cbdTargets;cbdTargets=function(T){_t(T);const z=zoneOf(player.x),W=WORLD.walls[z];if(!W)return;
+    ['w','e'].forEach(sd=>{const g=W[sd];if(!g)return;const ix=sd==='w'?g.x+1.15:g.x-1.15;T.push({x:ix,z:g.z,r:1.5,label:(sd==='w'?'West':'East')+' gate · out to the world map',act:()=>openWorld(z,sd)});});
+    if(z==='island')return;};
+  // Rottnest has no wall: the jetty takes you out to the map
+  const _t2=cbdTargets;cbdTargets=function(T){_t2(T);if(zoneOf(player.x)!=='island')return;const L=SAFE_SPOTS.island[0];T.push({x:L[0],z:L[1],r:1.4,label:'World map · drive off the ferry',act:()=>openWorld('island','e')});};
+  window.openWorld=function(from,side){if(transit||VISIT||(overlay&&overlay!=='wm'))return;transit=true;fadeTarget=.95;
+    setTimeout(()=>{transit=false;fadeTarget=0;overlay='wm';ui.hud.hidden=true;ui.act.hidden=true;$('#wmOv').hidden=false;WORLD.map.start(from,side);},500);};
+  function enter(id,side){if(id!=='island'&&id!=='sp'&&id!=='hi'){if(needPass(id==='air'?'cbd':id))return;}
+    WORLD.map.stop();$('#wmOv').hidden=true;overlay=null;transit=true;fadeTarget=.95;toast('Driving into '+ZN[id]+'…',1.6);
+    setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;const W=WORLD.walls[id];let x,z;
+      if(id==='island'){[x,z]=SAFE_SPOTS.island[0];}else if(W&&W[side]){const g=W[side];x=side==='w'?g.x+1.4:g.x-1.4;z=g.z;}else{[x,z]=SAFE_SPOTS[id][0];}
+      player.x=x;player.z=z;updateCamera(0,true);hideOverlays();fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[id]=1;if(id==='cbd'&&typeof cbdArrive==='function')cbdArrive('cbd');save();},700);}
+  WORLD.map=wmBuild($('#wmCv'),{air:typeof AIR!=='undefined'&&AIR.on,el:{name:$('#wmName'),note:$('#wmNote'),act:$('#wmAct'),tabP:$('#wmTabP'),tabA:$('#wmTabA')},
+    side:(id,pref)=>{if(id==='island')return 'w';const W=WORLD.walls[id];if(!W)return pref;return W[pref]?pref:(W.w?'w':'e');},enter});
+  $('#wmBack').onclick=()=>hideOverlays();
+})();
+
+})();

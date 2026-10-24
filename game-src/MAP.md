@@ -64,30 +64,34 @@ Find code: `grep -n 'name' game-src/*`.
 | 056-overlays.js | 4572-4670 | 29 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
 | 057-maps-quest-guidance.js | 4671-4791 | 20 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
 | 058-island-scale-spread-island-out-runs-on.js | 4792-4834 | 4 | islandWarp, islandData |
-| 059-camera-render.js | 4835-4919 | 12 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
-| 060-island-scale-wave-a-settlement-heritag.js | 4920-5078 | 28 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
-| 061-island-scale-wave-b-north-coast-bays-s.js | 5079-5147 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
-| 062-inside-oliver-hill-tunnels-with-a-torc.js | 5148-5276 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
-| 063-island-scale-wave-c-salmon-bay-henriet.js | 5277-5322 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
-| 064-snorkelling-out-to-old-wreck-at-henrie.js | 5323-5394 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
-| 065-island-scale-phase-6-six-island-lookou.js | 5395-5476 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
-| 066-phase-8-east-cape-and-south-point-get.js | 5477-5536 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
-| 067-perth-cbd-city-across-river-from-south.js | 5537-5666 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
-| 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5667-6089 | 51 | CITY_DETAIL_LIVE, CDET |
-| 069-part.js | 6090-6117 | 3 |  |
-| 070-perth-airport-look-lab-area-lab-or-air.js | 6118-6268 | 21 | AIR_LIVE, AIR, AIRB, airWalk |
-| 071-hooks-zone-travel-map-story.js | 6269-6504 | 33 | FREO_DETAIL_LIVE, FDET |
-| 072-more-from-paul-s-perth-photos-same-loo.js | 6505-6573 | 8 |  |
-| 073-fremantle-map-closer-to-real-town-same.js | 6574-6649 | 11 | FREO_LAND |
-| 074-st-george-s-cathedral-on-st-georges-te.js | 6650-6697 | 5 |  |
-| 075-fremantle-from-paul-s-street-photos-sa.js | 6698-6837 | 19 | FREO2_LIVE |
-| 076-fremantle-town-plan-same-look-lab-laye.js | 6838-6959 | 15 |  |
-| 077-perth-cbd-fill-empty-corners-same-look.js | 6960-7017 | 7 |  |
-| 078-perth-cbd-busy-footpaths-same-look-lab.js | 7018-7088 | 8 |  |
-| 079-island-loop-bus-a-19-stop-loop-bus-lik.js | 7089-7134 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 080-tidy-island-after-it-grows-nothing-on.js | 7135-7244 | 13 | flipIslandSigns, hot |
-| 081-live-mode-live-1-kip-runs-caf-on-his-o.js | 7245-7319 | 8 | LIVEM |
-| 082-look-lab-landscape-layers-of-each-real.js | 7320-7505 | 25 | LAB |
-| 083-hd-plants-every-tree-bush-flower-and-g.js | 7506-7573 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 084-layered-pixel-trees-2-5d-look-lab-laye.js | 7574-7614 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 085-part.js | 7615-7617 | 0 |  |
+| 059-camera-render.js | 4835-4920 | 12 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
+| 060-island-scale-wave-a-settlement-heritag.js | 4921-5079 | 28 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
+| 061-island-scale-wave-b-north-coast-bays-s.js | 5080-5148 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
+| 062-inside-oliver-hill-tunnels-with-a-torc.js | 5149-5277 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
+| 063-island-scale-wave-c-salmon-bay-henriet.js | 5278-5323 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
+| 064-snorkelling-out-to-old-wreck-at-henrie.js | 5324-5395 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
+| 065-island-scale-phase-6-six-island-lookou.js | 5396-5477 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
+| 066-phase-8-east-cape-and-south-point-get.js | 5478-5537 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
+| 067-perth-cbd-city-across-river-from-south.js | 5538-5667 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
+| 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5668-6090 | 51 | CITY_DETAIL_LIVE, CDET |
+| 069-part.js | 6091-6118 | 3 |  |
+| 070-perth-airport-look-lab-area-lab-or-air.js | 6119-6269 | 21 | AIR_LIVE, AIR, AIRB, airWalk |
+| 071-hooks-zone-travel-map-story.js | 6270-6505 | 33 | FREO_DETAIL_LIVE, FDET |
+| 072-more-from-paul-s-perth-photos-same-loo.js | 6506-6574 | 8 |  |
+| 073-fremantle-map-closer-to-real-town-same.js | 6575-6650 | 11 | FREO_LAND |
+| 074-st-george-s-cathedral-on-st-georges-te.js | 6651-6698 | 5 |  |
+| 075-fremantle-from-paul-s-street-photos-sa.js | 6699-6838 | 20 | FREO2_LIVE |
+| 076-fremantle-town-plan-same-look-lab-laye.js | 6839-6960 | 15 |  |
+| 077-perth-cbd-fill-empty-corners-same-look.js | 6961-7018 | 7 |  |
+| 078-perth-cbd-busy-footpaths-same-look-lab.js | 7019-7089 | 8 |  |
+| 079-island-loop-bus-a-19-stop-loop-bus-lik.js | 7090-7135 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 080-tidy-island-after-it-grows-nothing-on.js | 7136-7245 | 13 | flipIslandSigns, hot |
+| 081-live-mode-live-1-kip-runs-caf-on-his-o.js | 7246-7320 | 8 | LIVEM |
+| 082-look-lab-landscape-layers-of-each-real.js | 7321-7506 | 25 | LAB |
+| 083-hd-plants-every-tree-bush-flower-and-g.js | 7507-7574 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 084-layered-pixel-trees-2-5d-look-lab-laye.js | 7575-7615 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 085-world-map-engine-shared-with-mockup.js | 7616-7689 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
+| 086-sprites.js | 7690-7738 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
+| 087-loop.js | 7739-7784 | 5 | last, frame, label, perth, aus |
+| 088-city-walls-and-world-map-look-lab-lab.js | 7785-7876 | 11 | WORLD_LIVE, WORLD, _wmHide, _wmClose |
+| 089-part.js | 7877-7879 | 0 |  |

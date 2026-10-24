@@ -5,7 +5,7 @@
 // shade sails and rows of cars, and Airport Central station with a glass skybridge. Kip rides the train from
 // Perth Station. Story: Auntie June and cousin Milo fly in from Melbourne.
 var AIR_LIVE=false;
-var AIR={on:AIR_LIVE||/[?&#](lab|air)\b/.test(location.search+location.hash),npcs:[],P:{},planes:[],cars:[],glow:[],halos:[],em:[]};
+var AIR={on:AIR_LIVE||/[?&#](lab|air|world)\b/.test(location.search+location.hash),npcs:[],P:{},planes:[],cars:[],glow:[],halos:[],em:[]};
 const AIRB={x1:713,x2:817,z1:-30,z2:22};
 function airWalk(x,z){if(!AIR||!AIR.on)return false;if(x>716&&x<812&&z>-2.9&&z<16.2)return true;if(x>800&&x<812&&z>-11.8&&z<=-2.9)return true;return false;}
 if(AIR.on)(()=>{const G=new THREE.Group();G.name='airport';G.userData.airG=1;scene.add(G);AIR.g=G;
