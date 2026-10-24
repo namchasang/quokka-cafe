@@ -20,7 +20,7 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   // night: windows glow (emissive), bulbs brighten, soft halos
   const EM=[],GL=[],HA=[];
   const haloT=(()=>{const c=mk(32,32),x=c.getContext('2d'),g=x.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,220,150,1)');g.addColorStop(.4,'rgba(255,190,110,.45)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,32,32);return ctex(c);})();
-  const halo=(x,y,z,s)=>{const m=new THREE.Sprite(new THREE.SpriteMaterial({map:haloT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,opacity:0}));m.position.set(x,y,z);m.scale.set(s,s,1);G.add(m);HA.push(m);return m;};
+  const halo=(x,y,z,s,to)=>{const m=new THREE.Sprite(new THREE.SpriteMaterial({map:haloT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,opacity:0}));m.position.set(x,y,z);m.scale.set(s,s,1);(to||G).add(m);HA.push(m);return m;};
   const glow=(day,night)=>{const m=new THREE.MeshBasicMaterial({color:new THREE.Color(day)});GL.push([m,new THREE.Color(day),new THREE.Color(night)]);return m;};
   // windows only glow: the emissive map keeps the warm window panes and blacks out the walls
   const litM=(W,H,draw,rep)=>{const t=tex(W,H,draw,rep);const e=tex(W,H,(x,w,h)=>{draw(x,w,h);const d=x.getImageData(0,0,w,h),a=d.data;for(let i=0;i<a.length;i+=4){const warm=a[i]>200&&a[i+1]>150&&a[i+2]<200&&a[i]-a[i+2]>40;if(!warm){a[i]=a[i+1]=a[i+2]=0;}}x.putImageData(d,0,0);},rep);
@@ -73,7 +73,7 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
       if(kind==='op'){x.fillStyle='#e87aa8';x.fillRect(4,7,2,6);x.fillStyle='#5cc6d8';x.fillRect(8,7,2,6);x.fillStyle='#e8c430';x.fillRect(22,7,2,6);}});}
   const upperM=c=>litM(16,16,(x)=>{x.fillStyle=c;x.fillRect(0,0,16,16);x.fillStyle='#f2e8d4';x.fillRect(2,2,5,11);x.fillRect(9,2,5,11);x.fillStyle='#ffe2a8';x.fillRect(3,3,3,9);x.fillRect(10,3,3,9);x.fillStyle='#f2e8d4';x.fillRect(3,7,3,1);x.fillRect(10,7,3,1);});
   // x,z: centre; W,D: size; front faces +z; wrap: 'w' or 'e' adds the verandah round that side too
-  function vic(x0,z0,W,D,o){const H=3.6,zf=z0+D/2,c=o.col,trim=o.trim||'#f2e8d4',g=new THREE.Group();g.position.set(x0,0,z0);G.add(g);
+  function vic(x0,z0,W,D,o){const H=3.6,zf=z0+D/2,c=o.col,trim=o.trim||'#f2e8d4',g=new THREE.Group();g.position.set(x0,0,z0);(o.parent||G).add(g);if(o.ry)g.rotation.y=o.ry;
     put(B(W,H,D),M(c),0,H/2,0,null,g);
     plane(W-.1,1.5,shopFront(o.name,c,o.kind),0,.78,D/2+.01,0,g);plane(W-.1,1.4,upperM(c),0,2.55,D/2+.01,0,g);
     // parapet: Victorian pediment, or a curved Spanish gable with terracotta tiles
@@ -90,7 +90,7 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
     const trims=(cx,cz,len,ry)=>{plane(len,.45,railM,cx,2.0,cz,ry,g);plane(len,.3,laceM,cx,1.5,cz,ry,g);plane(len,.3,laceM,cx,3.18,cz,ry,g);};
     deck((xa+xb)/2,D/2+vd/2,xb-xa,vd);trims((xa+xb)/2,zv,xb-xa,0);const n=Math.max(2,Math.round((xb-xa)/1.3));for(let k=0;k<=n;k++)post(xa+k*(xb-xa)/n,zv);
     [[-1,wl],[1,wr]].forEach(([sd,w])=>{if(!w)return;const ex=sd*(W/2+vd);deck(sd*(W/2+vd/2),0,vd,D);trims(ex,0,D,Math.PI/2);for(let k=0;k<2;k++)post(ex,-D/2+k*D/2);});
-    if(o.lamps)[-1,1].forEach(sd=>{put(new THREE.SphereGeometry(.09,6,5),glow('#e8e0c8','#ffd890'),sd*W/3,1.55,D/2+vd,{nc:1},g);halo(x0+sd*W/3,1.55,z0+D/2+vd,1.1);});
+    if(o.lamps)[-1,1].forEach(sd=>{put(new THREE.SphereGeometry(.09,6,5),glow('#e8e0c8','#ffd890'),sd*W/3,1.55,D/2+vd,{nc:1},g);halo(x0+sd*W/3,1.55,z0+D/2+vd,1.1,o.parent);});
     col(x0-W/2,z0-D/2,x0+W/2,z0+D/2);return g;}
   // High St, north side: hide the plain filler shops and build the real kinds of places in their spots
   [[284,-4.4],[294,-4.4],[299,-4.4],[289,-4.4]].forEach(([x,z])=>hide(findGroup(x,z)));
@@ -115,49 +115,8 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   [[286,-7],[296,-7],[336,4],[336,12],[318,16.8],[345,19]].forEach(([x,z])=>lamp(x,z));
 
   // night tick: chained after the traffic and the water life
-  const _lt=FDET.lifeTick;FDET.lifeTick=function(dt){_lt&&_lt(dt);if(!G.visible)return;const n=typeof NIGHT==='number'?NIGHT:0;if(FDET._n===n)return;FDET._n=n;
+  const night3=()=>{const n=typeof NIGHT==='number'?NIGHT:0;if(FDET._n===n)return;FDET._n=n;
     GL.forEach(([m,d,k])=>m.color.copy(d).lerp(k,n));HA.forEach(h=>h.material.opacity=n*.8);EM.forEach(m=>m.emissive.setRGB(n*1.2,n*1.0,n*.75));};
+  Object.assign(FDET,{vic,glow3:glow,halo3:halo,lit3:litM,night3});
+  const _lt=FDET.lifeTick;FDET.lifeTick=function(dt){_lt&&_lt(dt);if(!G.visible)return;night3();};
 })();
-// keep the layer hidden away from Fremantle (and on the title screen), like the city layer
-if(FDET.on&&FDET.g){FDET.g.visible=false;}
-
-// last check on the real-shaped island: every action spot and fishing spot must be reachable on foot
-islandLate(()=>{const fix=o=>{if(o&&typeof o.x==='number'&&o.x<99.5&&blocked(o.x,o.z)){const p=freeNear(o.x,o.z);o.x=p[0];o.z=p[1];}};
-  [WB.acts,WC.acts,LK.acts,P8.acts,WA.plaques||[],WA.npcs||[]].forEach(L=>L.forEach(fix));FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});['golf','armyjetty','airport'].forEach(k=>fix(WA[k]));});
-// one repaint at the end, after every wave has changed the ground
-islandLate(()=>{islRepaint();});
-
-// everything that remembers an island position in numbers moves with it
-ISL.data=[()=>{
-  [LOTS.bikes,LOTS.ice,LOTS.beach,HAMMOCK,HUT,HB,VILLAGE,VILLAGE_ELDER,REG,MUSEUM,BOARD,MAILBOX,GSTORE,STAR_SPOT,player,gus,wren].forEach(o=>iwO(o));
-  [DECK,JETTY,GARDEN,LAND].forEach(iwR);
-  LORE.forEach(o=>iwO(o));SHELLS.forEach(o=>iwO(o));PLOTS.forEach(o=>iwO(o));SEATS.forEach(o=>iwO(o));STAFF_HOME.forEach(h=>{const w=IW(h[0],h[1]);h[0]=w.x;h[1]=w.z;});STATIONS.forEach(o=>iwO(o));COACH.forEach(o=>iwO(o));
-  for(let i=0;i<JX1.length;i++)JX1[i]=IWx(JX1[i],5);DOCKS.forEach(iwP);STRAND_SPOTS.forEach(iwP);STAFF_HOME.forEach(iwP);
-  COACH_ROUTE.forEach(iwP);SAFE_SPOTS.island.forEach(iwP);SIGHTS.forEach(o=>iwO(o));LAMPS.forEach(o=>iwO(o));
-  FISH_SPOTS.forEach(f=>{if(f.zone==='island')iwO(f);});BRANCHES.forEach(b=>{if(b.zone==='island')iwO(b);});PROP_LIST.forEach(P=>{if(P.zone==='island')iwO(P);});
-  FESTIVALS.forEach(f=>{if(f.where==='island')iwP(f.spot);});
-  WALK_ROUTES.island.forEach(iwPts);walkers.forEach(w=>{if(w.zone==='island')iwO(w);});
-  TITLE_SHOTS.forEach(t=>{const w=IW(t[0],t[2]);t[0]=w.x;t[2]=w.z;});MAP_LABELS.forEach(l=>{const w=IW(l[1],l[2]);l[1]=w.x;l[2]=w.z;});
-  wilds.forEach(q=>{const w=IW(q.hx,q.hz),dx=w.x-q.hx,dz=w.z-q.hz;q.hx+=dx;q.hz+=dz;q.x+=dx;q.z+=dz;q.tx+=dx;q.tz+=dz;});
-  trees.forEach(t=>{if(t.x<99.5){t.x=t.m.position.x;t.z=t.m.position.z;}});snorks.forEach(o=>iwO(o));
-  WEST.boats.forEach(o=>iwO(o));WEST.snork.forEach(o=>iwO(o));
-  {const w=IW(-10,1);ISL.D0={x:w.x+10,z:w.z-1};}
-}];
-// bike lanes and the railway are re-laid on the bigger island
-ISL.late.push(()=>{
-  {// fit the whole real island: width or height, whichever needs more room
-  const x1=TB.x1+4,x2=TB.x2-2,z1=TB.z1+6,z2=TB.z2-6,xc=(x1+x2)/2,zc=(z1+z2)/2;let hw=(x2-x1)/2,hh=hw*mmH/mmW;if(hh<(z2-z1)/2){hh=(z2-z1)/2;hw=hh*mmW/mmH;}MM.x1=xc-hw;MM.x2=xc+hw;MM.z1=zc-hh;MM.z2=zc+hh;}
-  wilds.forEach(q=>{if(q.hx<99.5&&blocked(q.hx,q.hz)){const f=freeNear(q.hx,q.hz),dx=f[0]-q.hx,dz=f[1]-q.hz;q.hx+=dx;q.hz+=dz;q.x+=dx;q.z+=dz;q.tx=q.hx;q.tz=q.hz;}});
-  for(let i=BLANES.length-1;i>=0;i--)if(BLANES[i][0][0]<99.5&&BLANES[i].__isl)BLANES.splice(i,1);
-  (ISL.strips||[]).forEach(r=>{r.meshes.forEach(m=>{scene.remove(m);m.geometry.dispose();});const a=IW(r.a[0],r.a[1]),b=IW(r.b[0],r.b[1]);laneStrip([a.x,a.z],[b.x,b.z],r.w,r.icons,r.y);});
-  if(ISL.rail){ISL.rail.meshes.forEach(m=>{scene.remove(m);m.geometry.dispose();});const R0=ISL.rail.pts.map(([x,z])=>{const w=IW(x,z);return[w.x,w.z];});
-    // the warp can swing the straight track through buildings (it ran through the lighthouse): lay it in short steps and bend it round them
-    let R=[];for(let i=0;i<R0.length-1;i++){const[ax,az]=R0[i],[bx,bz]=R0[i+1],n=Math.max(1,Math.ceil(Math.hypot(bx-ax,bz-az)/1.5));for(let k=0;k<n;k++)R.push([ax+(bx-ax)*k/n,az+(bz-az)*k/n]);}R.push(R0[R0.length-1].slice());
-    const ends=[R[0],R[R.length-1]],obs=colliders.filter(c=>{const w=c.x2-c.x1,d=c.z2-c.z1;return w>.6&&d>.6&&w<9&&d<9&&!ends.some(([x,z])=>x>c.x1-1.5&&x<c.x2+1.5&&z>c.z1-1.5&&z<c.z2+1.5);}).map(c=>({x:(c.x1+c.x2)/2,z:(c.z1+c.z2)/2,r:Math.hypot(c.x2-c.x1,c.z2-c.z1)/2+1.1}));
-    const push=()=>{for(let i=1;i<R.length-1;i++)for(const o of obs){const dx=R[i][0]-o.x,dz=R[i][1]-o.z,d=Math.hypot(dx,dz);if(d<o.r){const k=d>1e-3?o.r/d:1;R[i]=[o.x+(d>1e-3?dx:1)*k,o.z+(d>1e-3?dz:0)*k];}}};
-    for(let it=0;it<14;it++){push();const Q=R.map(p=>p.slice());for(let i=1;i<R.length-1;i++)Q[i]=[(R[i-1][0]+R[i][0]*2+R[i+1][0])/4,(R[i-1][1]+R[i][1]*2+R[i+1][1])/4];R=Q;}push();for(let it=0;it<3;it++){const Q=R.map(p=>p.slice());for(let i=1;i<R.length-1;i++)Q[i]=[(R[i-1][0]+R[i][0]*2+R[i+1][0])/4,(R[i-1][1]+R[i][1]*2+R[i+1][1])/4];R=Q;}
-    ISL.rail.meshes=ISL.rail.build(R);WEST.rail=R;}
-  // more street lights along the longer paths
-  if(ISL.lamp)for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];if(ax>=99.5)continue;const L=Math.hypot(bx-ax,bz-az);if(L<.1)continue;const nx=-(bz-az)/L,nz=(bx-ax)/L;
-    for(let d=1.5;d<L;d+=7){const t=d/L,px=ax+(bx-ax)*t,pz=az+(bz-az)*t;for(const s of [1,-1]){const x=px+nx*1.15*s,z=pz+nz*1.15*s;if(landD(x,z)>.9&&pathD(x,z)>.9){ISL.lamp(x,z);break;}}}}
-});

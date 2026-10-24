@@ -6700,7 +6700,7 @@ if(FDET.on&&FDET.city)(()=>{const G=FDET.city;
 // tower and slate spire, a white grid building with arched shop hoods, stone ball bollards and tall palms.
 // South Terrace gets its red road, banners on the lamp posts, a red-brick technical school on High St,
 // the prison gatehouse with two towers and a clock, and small two-tone retro hatchbacks driving through town.
-const FREO2_LIVE=false;const FREO2_ON=FREO2_LIVE||/[?&#](lab|freo)\b/.test(location.search+location.hash);
+const FREO2_LIVE=false;const FREO2_ON=FREO2_LIVE||/[?&#](lab|freo|city)\b/.test(location.search+location.hash);
 if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
   const put=(geo,mat,x,y,z,o,to)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(o){if(o.rx)m.rotation.x=o.rx;if(o.ry)m.rotation.y=o.ry;if(o.rz)m.rotation.z=o.rz;if(o.s)m.scale.set(...o.s);}m.castShadow=!(o&&o.nc);m.receiveShadow=true;(to||G).add(m);return m;};
@@ -6857,7 +6857,7 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   // night: windows glow (emissive), bulbs brighten, soft halos
   const EM=[],GL=[],HA=[];
   const haloT=(()=>{const c=mk(32,32),x=c.getContext('2d'),g=x.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,220,150,1)');g.addColorStop(.4,'rgba(255,190,110,.45)');g.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=g;x.fillRect(0,0,32,32);return ctex(c);})();
-  const halo=(x,y,z,s)=>{const m=new THREE.Sprite(new THREE.SpriteMaterial({map:haloT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,opacity:0}));m.position.set(x,y,z);m.scale.set(s,s,1);G.add(m);HA.push(m);return m;};
+  const halo=(x,y,z,s,to)=>{const m=new THREE.Sprite(new THREE.SpriteMaterial({map:haloT,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,opacity:0}));m.position.set(x,y,z);m.scale.set(s,s,1);(to||G).add(m);HA.push(m);return m;};
   const glow=(day,night)=>{const m=new THREE.MeshBasicMaterial({color:new THREE.Color(day)});GL.push([m,new THREE.Color(day),new THREE.Color(night)]);return m;};
   // windows only glow: the emissive map keeps the warm window panes and blacks out the walls
   const litM=(W,H,draw,rep)=>{const t=tex(W,H,draw,rep);const e=tex(W,H,(x,w,h)=>{draw(x,w,h);const d=x.getImageData(0,0,w,h),a=d.data;for(let i=0;i<a.length;i+=4){const warm=a[i]>200&&a[i+1]>150&&a[i+2]<200&&a[i]-a[i+2]>40;if(!warm){a[i]=a[i+1]=a[i+2]=0;}}x.putImageData(d,0,0);},rep);
@@ -6910,7 +6910,7 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
       if(kind==='op'){x.fillStyle='#e87aa8';x.fillRect(4,7,2,6);x.fillStyle='#5cc6d8';x.fillRect(8,7,2,6);x.fillStyle='#e8c430';x.fillRect(22,7,2,6);}});}
   const upperM=c=>litM(16,16,(x)=>{x.fillStyle=c;x.fillRect(0,0,16,16);x.fillStyle='#f2e8d4';x.fillRect(2,2,5,11);x.fillRect(9,2,5,11);x.fillStyle='#ffe2a8';x.fillRect(3,3,3,9);x.fillRect(10,3,3,9);x.fillStyle='#f2e8d4';x.fillRect(3,7,3,1);x.fillRect(10,7,3,1);});
   // x,z: centre; W,D: size; front faces +z; wrap: 'w' or 'e' adds the verandah round that side too
-  function vic(x0,z0,W,D,o){const H=3.6,zf=z0+D/2,c=o.col,trim=o.trim||'#f2e8d4',g=new THREE.Group();g.position.set(x0,0,z0);G.add(g);
+  function vic(x0,z0,W,D,o){const H=3.6,zf=z0+D/2,c=o.col,trim=o.trim||'#f2e8d4',g=new THREE.Group();g.position.set(x0,0,z0);(o.parent||G).add(g);if(o.ry)g.rotation.y=o.ry;
     put(B(W,H,D),M(c),0,H/2,0,null,g);
     plane(W-.1,1.5,shopFront(o.name,c,o.kind),0,.78,D/2+.01,0,g);plane(W-.1,1.4,upperM(c),0,2.55,D/2+.01,0,g);
     // parapet: Victorian pediment, or a curved Spanish gable with terracotta tiles
@@ -6927,7 +6927,7 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
     const trims=(cx,cz,len,ry)=>{plane(len,.45,railM,cx,2.0,cz,ry,g);plane(len,.3,laceM,cx,1.5,cz,ry,g);plane(len,.3,laceM,cx,3.18,cz,ry,g);};
     deck((xa+xb)/2,D/2+vd/2,xb-xa,vd);trims((xa+xb)/2,zv,xb-xa,0);const n=Math.max(2,Math.round((xb-xa)/1.3));for(let k=0;k<=n;k++)post(xa+k*(xb-xa)/n,zv);
     [[-1,wl],[1,wr]].forEach(([sd,w])=>{if(!w)return;const ex=sd*(W/2+vd);deck(sd*(W/2+vd/2),0,vd,D);trims(ex,0,D,Math.PI/2);for(let k=0;k<2;k++)post(ex,-D/2+k*D/2);});
-    if(o.lamps)[-1,1].forEach(sd=>{put(new THREE.SphereGeometry(.09,6,5),glow('#e8e0c8','#ffd890'),sd*W/3,1.55,D/2+vd,{nc:1},g);halo(x0+sd*W/3,1.55,z0+D/2+vd,1.1);});
+    if(o.lamps)[-1,1].forEach(sd=>{put(new THREE.SphereGeometry(.09,6,5),glow('#e8e0c8','#ffd890'),sd*W/3,1.55,D/2+vd,{nc:1},g);halo(x0+sd*W/3,1.55,z0+D/2+vd,1.1,o.parent);});
     col(x0-W/2,z0-D/2,x0+W/2,z0+D/2);return g;}
   // High St, north side: hide the plain filler shops and build the real kinds of places in their spots
   [[284,-4.4],[294,-4.4],[299,-4.4],[289,-4.4]].forEach(([x,z])=>hide(findGroup(x,z)));
@@ -6952,9 +6952,69 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   [[286,-7],[296,-7],[336,4],[336,12],[318,16.8],[345,19]].forEach(([x,z])=>lamp(x,z));
 
   // night tick: chained after the traffic and the water life
-  const _lt=FDET.lifeTick;FDET.lifeTick=function(dt){_lt&&_lt(dt);if(!G.visible)return;const n=typeof NIGHT==='number'?NIGHT:0;if(FDET._n===n)return;FDET._n=n;
+  const night3=()=>{const n=typeof NIGHT==='number'?NIGHT:0;if(FDET._n===n)return;FDET._n=n;
     GL.forEach(([m,d,k])=>m.color.copy(d).lerp(k,n));HA.forEach(h=>h.material.opacity=n*.8);EM.forEach(m=>m.emissive.setRGB(n*1.2,n*1.0,n*.75));};
+  Object.assign(FDET,{vic,glow3:glow,halo3:halo,lit3:litM,night3});
+  const _lt=FDET.lifeTick;FDET.lifeTick=function(dt){_lt&&_lt(dt);if(!G.visible)return;night3();};
 })();
+// ---------- Perth CBD: fill the empty corners (same Look Lab layer: ?lab, ?freo or ?city) ----------
+// A fountain square by Barrack St with a Victorian corner hotel, a Victorian arcade in the gap on St Georges Tce,
+// festoon lights strung over Hay St Mall, a flower garden on the riverside walk, and a stone fountain with flower beds
+// and benches in Kings Park. Windows, bulbs and halos glow after dark.
+if(FDET.on&&FREO2_ON&&FDET.city&&FDET.vic)(()=>{const G=FDET.city;
+  const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
+  const put=(geo,mat,x,y,z,o,to)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(o){if(o.rx)m.rotation.x=o.rx;if(o.ry)m.rotation.y=o.ry;if(o.rz)m.rotation.z=o.rz;if(o.s)m.scale.set(...o.s);}m.castShadow=!(o&&o.nc);m.receiveShadow=true;(to||G).add(m);return m;};
+  const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d),C=(a,b,h,s)=>new THREE.CylinderGeometry(a,b,h,s||12);
+  const tex=(W,H,draw,rep)=>{const c=mk(W,H),x=c.getContext('2d');draw(x,W,H);return ctex(c,rep?{rep}:{});};
+  const texM=(W,H,draw,rep,o)=>new THREE.MeshLambertMaterial(Object.assign({map:tex(W,H,draw,rep)},o||{}));
+  const paint=(w,d,mat,x,z,y)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),typeof mat==='string'?M(mat):mat);m.rotation.x=-Math.PI/2;m.position.set(x,y||.03,z);m.receiveShadow=true;G.add(m);return m;};
+  const disc=(r,mat,x,z,y)=>{const m=new THREE.Mesh(new THREE.CircleGeometry(r,24),typeof mat==='string'?M(mat):mat);m.rotation.x=-Math.PI/2;m.position.set(x,y||.03,z);m.receiveShadow=true;G.add(m);return m;};
+  const r=mulberry32(1901),pick=a=>a[(r()*a.length)|0];
+  const glow=FDET.glow3,halo=(x,y,z,s)=>FDET.halo3(x,y,z,s,G);
+  const sprMat=c=>{const t=ctex(c);return{m:new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.12,.12,.1),emissiveMap:t}),d:new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.5})};};
+  const bb=(v,x,z,w,h,tree)=>{const g=new THREE.PlaneGeometry(w,h);g.translate(0,h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);G.add(m);BB.push(m);if(tree)trees.push({x,z,m,v:{...v,f:v.f||v.m},fade:false});return m;};
+  const bushB=()=>{const b=[];for(let i=0;i<4;i++)b.push([8+(r()-.5)*8,6+(r()-.5)*2,3.5+r()*2]);return b;};
+  const flowerBush=cols=>sprMat((()=>{const c=canopy(16,10,bushB(),TREE_COLS[1],r,null),x=c.getContext('2d');for(let i=0;i<14;i++){const fx=1+r()*14|0,fy=1+r()*7|0;if(!x.getImageData(fx,fy,1,1).data[3])continue;x.fillStyle=pick(cols);x.fillRect(fx,fy,1,1);}return c;})());
+  const FLOWERS=[flowerBush(['#d8323a','#f04a5a']),flowerBush(['#f6d84a','#ffe880']),flowerBush(['#9a6ad8','#c8a0f0']),flowerBush(['#f6f2e8','#ffc0d0'])];
+  const bench=(x,z,ry)=>{const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry||0;G.add(g);put(B(1,.06,.34),M('#7a5a3a'),0,.42,0,null,g);put(B(1,.3,.05),M('#7a5a3a'),0,.6,-.15,null,g);[-.42,.42].forEach(o=>put(B(.06,.42,.34),M('#2a2a30'),o,.21,0,null,g));const s=Math.abs(Math.sin(ry||0))>.5;col(x-(s?.2:.5),z-(s?.5:.2),x+(s?.2:.5),z+(s?.5:.2));};
+  const lamp=(x,z,h)=>{h=h||2.7;put(C(.04,.06,h,6),M('#2e3236'),x,h/2,z);put(new THREE.SphereGeometry(.13,8,6),glow('#f6efd8','#ffe2a0'),x,h+.08,z,{nc:1});halo(x,h+.08,z,1.6);col(x-.08,z-.08,x+.08,z+.08);};
+  // a tiered stone fountain with animated spray
+  const JETS=[];
+  function fountain(x,z,R){const stone=M('#d8d0bc'),water=new THREE.MeshLambertMaterial({color:0x5cb8d8,transparent:true,opacity:.85});
+    put(C(R,R+.08,.4,24),stone,x,.2,z);put(C(R-.12,R-.12,.05,24),water,x,.38,z,{nc:1});
+    put(C(.18,.24,1.1,10),stone,x,.9,z);put(C(.6,.4,.16,16),stone,x,1.45,z);put(C(.5,.5,.04,16),water,x,1.53,z,{nc:1});put(C(.08,.12,.5,8),stone,x,1.75,z);put(C(.28,.18,.1,12),stone,x,2.0,z);
+    const sprayM=new THREE.MeshBasicMaterial({color:0xd8f4ff,transparent:true,opacity:.75});
+    for(let k=0;k<10;k++){const a=k/10*Math.PI*2;const d=put(new THREE.SphereGeometry(.05,5,4),sprayM,x,2,z,{nc:1});JETS.push({m:d,x,z,a,ph:k/10,r1:.55,y0:2.05});}
+    for(let k=0;k<14;k++){const a=k/14*Math.PI*2;const d=put(new THREE.SphereGeometry(.045,5,4),sprayM,x,1.5,z,{nc:1});JETS.push({m:d,x,z,a,ph:k/14,r1:R-.25,y0:1.5});}
+    halo(x,.6,z,R*2.2);col(x-R,z-R,x+R,z+R);}
+
+  // ===== Barrack St fountain square: paved circle, fountain, benches, flower beds, two trees, lamps =====
+  {const cx=673.2,cz=2.1;paint(6.8,3.6,texM(8,8,(x)=>{x.fillStyle='#d8d2c4';x.fillRect(0,0,8,8);x.fillStyle='#c8c0b0';for(let j=0;j<8;j+=2)for(let i=(j%4?1:0);i<8;i+=2)x.fillRect(i,j,1,1);},[7,4]),cx,cz,.029);
+    disc(1.75,'#b8a890',cx,cz,.031);disc(1.6,'#d8d0bc',cx,cz,.032);fountain(cx,cz,1.05);
+    bench(cx-2.6,cz,Math.PI/2);bench(cx+2.6,cz,-Math.PI/2);
+    [[cx-2.8,cz-1.4],[cx+2.8,cz-1.4],[cx-2.8,cz+1.45],[cx+2.8,cz+1.45]].forEach(([x,z],i)=>{put(B(.9,.3,.6),M('#8a7a64'),x,.15,z);bb(FLOWERS[i%4],x,z,.95,.6);col(x-.45,z-.3,x+.45,z+.3);});
+    lamp(cx-3.2,cz+1.95);lamp(cx+3.2,cz+1.95);CBD.P.fountainsq={x:cx,z:cz+2};}
+  // ===== a Victorian corner hotel facing the square, iron-lace verandah wrapping round the side =====
+  FDET.vic(681,1.3,6.6,2,{parent:G,name:'THE WATTLE ARMS · 1896',kind:'pub',col:'#e8d8b0',trim:'#f6f2e8',signBg:'#5a2a2a',signFg:'#f6e8c8',wrap:'w',iron:'#1c1c1e',lamps:1});
+  // ===== a Victorian arcade in the gap on St Georges Tce =====
+  FDET.vic(634.6,-8.7,5.6,3,{parent:G,name:'TERRACE ARCADE · 1898',kind:'books',col:'#d8b890',trim:'#f2e8d4',signBg:'#2c4a3a',signFg:'#f6e8c8',iron:'#2c4a3a',lamps:1});
+  // ===== Hay St Mall: festoon lights zig-zagging the whole length, planters on the posts =====
+  {const string=(ax,az,bx,bz,y,n)=>{for(let k=0;k<=n;k++){const t=k/n,x=ax+(bx-ax)*t,z=az+(bz-az)*t,yy=y-Math.sin(t*Math.PI)*.35;put(new THREE.SphereGeometry(.05,6,4),glow('#e8e0c8',pick(['#ffd890','#ffe8b0','#ffc070'])),x,yy,z,{nc:1});if(k%3===1)halo(x,yy,z,.7);}
+      const L=new THREE.Line(new THREE.BufferGeometry().setFromPoints([...Array(n+1)].map((_,k)=>{const t=k/n;return new THREE.Vector3(ax+(bx-ax)*t,y-Math.sin(t*Math.PI)*.35+.04,az+(bz-az)*t);})),new THREE.LineBasicMaterial({color:0x2a2a2a}));G.add(L);};
+    const XS=[];for(let x=623.5;x<699;x+=5){if(Math.abs(x-639.1)<2||Math.abs(x-667.3)<2)continue;XS.push(x);}
+    XS.forEach(x=>[-14.85,-12.15].forEach(z=>{put(C(.04,.05,3.1,6),M('#2e3236'),x,1.55,z);col(x-.06,z-.06,x+.06,z+.06);}));
+    for(let i=0;i<XS.length-1;i++){if(XS[i+1]-XS[i]>6)continue;string(XS[i],-14.85,XS[i+1],-12.15,3.0,9);string(XS[i],-12.15,XS[i+1],-14.85,3.0,9);}}
+  // ===== a flower garden along the riverside walk =====
+  {paint(15.2,1,lmat(grassC,[5,1]),630.8,7.9,.026);for(let x=623.6;x<638.4;x+=1.15)bb(FLOWERS[(x*7|0)%4],x,7.9,.9,.55);col(623.2,7.45,638.4,8.35);}
+  // ===== Kings Park: a stone fountain in a round of flower beds, benches and lamps =====
+  {const cx=609.5,cz=-2.5;disc(3,lmat(grassC,[2,2]),cx,cz,.028);disc(2.6,'#d8cfb8',cx,cz,.03);fountain(cx,cz,1.25);
+    for(let k=0;k<8;k++){const a=k/8*Math.PI*2+.2,x=cx+Math.cos(a)*2.25,z=cz+Math.sin(a)*2.25;if(k%2){bb(FLOWERS[k%4],x,z,1,.62);col(x-.3,z-.3,x+.3,z+.3);}else bench(x,z,-a+Math.PI/2);}
+    lamp(cx-3.2,cz-2.2);lamp(cx+3.2,cz+2.2);CBD.P.kpfountain={x:cx,z:cz+2.8};
+    [[605,-22],[612,-20.5],[606,-15.5],[614,-17],[604,5.2],[615,5.5]].forEach(([x,z],i)=>{for(let k=0;k<3;k++)bb(FLOWERS[(i+k)%4],x+k*.8-.8,z+(k%2)*.4,.95,.6);col(x-1.3,z-.3,x+1.3,z+.7);});}
+  // ===== tick: fountain spray, night lights in the city =====
+  CBD.cityFillTick=function(){if(!G.visible)return;const t=performance.now()/1000;for(const j of JETS){const p=(t*.9+j.ph)%1;const rr=j.r1*p;j.m.position.set(j.x+Math.cos(j.a)*rr,j.y0+Math.sin(p*Math.PI)*.45-p*p*.35,j.z+Math.sin(j.a)*rr);}if(FDET.night3)FDET.night3();};
+})();
+if(typeof CBD!=='undefined'&&CBD.cityFillTick){const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);if(zoneOf(player.x)==='cbd'||(typeof LAB!=='undefined'&&LAB.on))CBD.cityFillTick();};}
 // keep the layer hidden away from Fremantle (and on the title screen), like the city layer
 if(FDET.on&&FDET.g){FDET.g.visible=false;}
 

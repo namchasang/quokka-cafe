@@ -3,7 +3,7 @@
 // tower and slate spire, a white grid building with arched shop hoods, stone ball bollards and tall palms.
 // South Terrace gets its red road, banners on the lamp posts, a red-brick technical school on High St,
 // the prison gatehouse with two towers and a clock, and small two-tone retro hatchbacks driving through town.
-const FREO2_LIVE=false;const FREO2_ON=FREO2_LIVE||/[?&#](lab|freo)\b/.test(location.search+location.hash);
+const FREO2_LIVE=false;const FREO2_ON=FREO2_LIVE||/[?&#](lab|freo|city)\b/.test(location.search+location.hash);
 if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
   const put=(geo,mat,x,y,z,o,to)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(o){if(o.rx)m.rotation.x=o.rx;if(o.ry)m.rotation.y=o.ry;if(o.rz)m.rotation.z=o.rz;if(o.s)m.scale.set(...o.s);}m.castShadow=!(o&&o.nc);m.receiveShadow=true;(to||G).add(m);return m;};
