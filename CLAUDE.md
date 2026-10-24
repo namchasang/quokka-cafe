@@ -26,6 +26,7 @@ Owner: Paul (Paul Perth AI Lab). Replies to Paul in Thai unless he writes Englis
 - Freemium plan: Fremantle and Victoria Park are paid unlocks (Perth Pass); Paul has a Game Master account.
 - Planned next: Thai language (menus + main story) with a TH/EN switch. Needs a Thai-capable font.
 - Paul wants playable links, never zip files. Visual changes: show him a preview before going live.
+- Art style (Paul, Oct 2026): trees, bushes, flowers, palms, people and animals are pixel-art sprites that face the camera (32px-style canvases, `treeVariants`/`canopy`/`canopyHD`). Low-poly 3D is only for buildings, vehicles, street furniture and props. Never mix a low-poly 3D tree in. When listing assets, tag each one `sprite` or `3d`.
 - Look Lab: open the game with `?lab` (part `051-look-lab-landscape-layers.js`). It sorts every scene object into landscape layers (ground, water, paths, buildings, plants, props, characters, lights, effects) by shape and colour, orbits each area, and shows real place names. New look work goes in as a lab layer first.
 
 ## Map of the game (see game-src/MAP.md for exact parts)
