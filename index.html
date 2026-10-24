@@ -32,8 +32,8 @@
   --sea:#5cc6d8;
   --leaf:#86b86e;
   --coral:#ef7d5e;
-  --display:"Pixelify Sans","Courier New",monospace;
-  --body:"M PLUS Rounded 1c","Trebuchet MS",system-ui,sans-serif;
+  --display:"Pixelify Sans","Mitr","Courier New",monospace;
+  --body:"M PLUS Rounded 1c","Mitr","Trebuchet MS",system-ui,sans-serif;
   color-scheme:dark;
 }
 html,body{height:100%}
@@ -337,6 +337,8 @@ body.studio{cursor:none}
 .kjCh.cur{border-color:var(--gold)}.kjCh.done summary b{color:#86d06a}.kjCh.later{opacity:.62}.kjLore{margin:0 12px 6px;font-size:12.5px;font-style:italic;color:#d8cfb6;line-height:1.45}
 .kjCh ul{list-style:none;margin:0;padding:0 12px 10px;display:grid;gap:5px}.kjCh li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center}.kjCh li>i{width:16px;height:16px;border:1.5px solid var(--gold-dim);border-radius:3px;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;color:#0f1424}.kjCh li.ok>i{background:#86b86e;border-color:#86b86e}
 .kjCh li span{display:grid;min-width:0}.kjCh li b{font-size:13px;font-weight:700}.kjCh li.ok b{color:var(--muted);text-decoration:line-through}.kjCh li small{font-size:11px;color:var(--muted)}.kjCh li .btn{padding:4px 10px;font-size:11px}
+.langRow{display:flex;gap:8px;justify-content:center;margin:10px 0 4px}.langBtn{padding:6px 14px;font-size:13px}.langBtn.on{background:var(--gold,#e8c070);color:#1a1a1a;border-color:transparent}
+body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
 </style>
 
 <div id="app">
@@ -400,6 +402,7 @@ body.studio{cursor:none}
       <div class="title">Quokka Cafe</div>
       <div class="subtitle">and Friends</div>
       <p>Fresh out of university, Kip the quokka has left his little home in Victoria Park to open a tiny café by the jetty on Rottnest. Serve the morning ferry crowd, explore the island after closing time, and save for everything on the wishlist so Mum and Dad can move in.</p>
+      <div class="langRow" data-notr><button class="btn ghost langBtn" data-l="en" type="button">English</button><button class="btn ghost langBtn" data-l="th" type="button">ภาษาไทย</button></div>
       <div class="btns" id="titleBtns"></div>
       <div class="keys">
         <b>Move</b><span>Drag on the left of the screen · WASD / arrows</span>
@@ -639,7 +642,7 @@ body.studio{cursor:none}
     <div class="card panel">
       <div class="eyebrow">Perth Pass</div>
       <h2 id="psTitle">Unlock Fremantle &amp; Victoria Park</h2>
-      <p class="bgE" id="psSub">Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass opens the last two towns for good.</p>
+      <p class="bgE" id="psSub">Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass opens Fremantle, Victoria Park and Perth CBD for good.</p>
       <ul class="psList">
         <li><b>Fremantle</b> · the Cappuccino Strip, markets, the round house and a harbour-side café branch</li>
         <li><b>Victoria Park</b> · Albany Hwy shops, new friends, seeds and furniture you can’t get elsewhere</li>
@@ -699,6 +702,7 @@ body.studio{cursor:none}
       <h2>Paused</h2>
       <p class="bgE" id="pzInfo">Time is stopped. Kip, customers and the clock wait for you.</p>
       <div class="btns" style="justify-content:center;flex-wrap:wrap"><button class="btn" id="pzResume" type="button">▶ Resume</button><button class="btn ghost" id="pzSave" type="button">Save</button><button class="btn ghost" id="pzGuide" type="button">Guide</button></div>
+      <div class="langRow" data-notr><button class="btn ghost langBtn" data-l="en" type="button">English</button><button class="btn ghost langBtn" data-l="th" type="button">ภาษาไทย</button></div>
     </div>
   </div>
 
@@ -762,6 +766,28 @@ body.studio{cursor:none}
 (function(){
 'use strict';
 const $=s=>document.querySelector(s);
+// ---------- Thai / English: every piece of text on screen goes through trS() ----------
+// The game is written in English. In Thai mode a watcher swaps any English text shown in the page for its Thai line
+// from TH (exact line first, then the same line with its numbers as #, then each part between " · ").
+// Elements marked data-notr (codes, names people type) are never touched.
+const THAI_READY=false;// the Thai lines are still being finished: until then the game stays in English and the switch is hidden
+let LANG='en';try{if(THAI_READY)LANG=localStorage.getItem('qc-lang')||((navigator.language||'').toLowerCase().startsWith('th')?'th':'en');}catch(e){}
+const TH={},TH_W=[];function thLoad(o){for(const k in o){const v=o[k];if(v==null)continue;{const m=/^([A-Z][\w’' ]{0,24}):\s(.+)$/.exec(k),mv=/^[^:]{1,30}:\s(.+)$/.exec(v);if(m&&mv&&TH[m[2]]==null)TH[m[2]]=mv[1];}if(k.includes('*')){const re=new RegExp('^'+k.replace(/[.?+^$()[\]{}|\\]/g,'\\$&').replace(/\*/g,'(.+?)')+'$');TH_W.push([re,v]);}else TH[k]=v;}}
+const TH_CAP=window.__trCap?(window.__trCapSet=new Set()):null;
+function trS(s){if(LANG!=='th'||!s)return s;const t=s.trim();if(!t||!/[A-Za-z]/.test(t))return s;let r=TH[t];
+  if(r==null){const nums=[];const k=t.replace(/\d+(?:[.,:]\d+)*/g,m=>{nums.push(m);return'#';});const v=nums.length?TH[k]:null;if(v!=null){let i=0;r=v.replace(/#/g,()=>nums[i++]!=null?nums[i-1]:'#');}}
+  if(r==null&&TH_W.length){const nums=[];const k=t.replace(/\d+(?:[.,:]\d+)*/g,m=>{nums.push(m);return'#';});for(const [re,tpl] of TH_W){const m=re.exec(k);if(!m)continue;let i=0,c=1;r=tpl.replace(/#|\*/g,ch=>ch==='#'?(nums[i++]!=null?nums[i-1]:'#'):trS(m[c++]||''));break;}}
+  if(r==null&&t.includes(' · ')){const parts=t.split(' · ');const tp=parts.map(p=>trS(p));if(tp.some((p,i)=>p!==parts[i]))r=tp.join(' · ');}
+  if(r==null){const m=/^([A-Z][\w’' ]{0,24}):\s(.+)$/.exec(t);if(m){const b=trS(m[2]);if(b!==m[2])r=trS(m[1])+': '+b;}}
+  if(r==null){if(TH_CAP)TH_CAP.add(t);return s;}return s.replace(t,r);}
+function trNode(n){if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest('[data-notr],script,style,textarea'))return;
+  if(n.__tr!==undefined&&n.data===n.__tr)return;n.__en=n.data;const t=LANG==='th'?trS(n.data):n.data;n.__tr=t;if(t!==n.data)n.data=t;}
+function trWalk(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode())){if(n.__en!==undefined&&n.__tr!==undefined&&n.data===n.__tr){const t=LANG==='th'?trS(n.__en):n.__en;n.__tr=t;n.data=t;}else trNode(n);}
+  root.querySelectorAll&&root.querySelectorAll('[placeholder]').forEach(e=>{if(e.__enp==null)e.__enp=e.getAttribute('placeholder');e.setAttribute('placeholder',LANG==='th'?trS(e.__enp):e.__enp);});}
+let trObs=null;function trStart(){if(trObs||typeof MutationObserver==='undefined')return;trObs=new MutationObserver(ms=>{for(const m of ms){if(m.type==='characterData'){trNode(m.target);continue;}m.addedNodes.forEach(n=>{if(n.nodeType===3)trNode(n);else if(n.nodeType===1)trWalk(n);});}});
+  trObs.observe(document.body,{childList:true,subtree:true,characterData:true});trWalk(document.body);}
+function setLang(l){LANG=l;try{localStorage.setItem('qc-lang',l);}catch(e){}document.documentElement.lang=l;document.body.classList.toggle('th',l==='th');trWalk(document.body);document.querySelectorAll('.langBtn').forEach(b=>b.classList.toggle('on',b.dataset.l===l));}
+trStart();document.querySelectorAll('.langBtn').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.l)));document.querySelectorAll('.langRow').forEach(r=>r.hidden=!THAI_READY);setLang(LANG);
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 const R=mulberry32(20261021);
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
@@ -2217,7 +2243,7 @@ function popText(t,pos,cls){const el=document.createElement('div');el.className=
 function fmtTime(t){let h=Math.floor(t/60),m=Math.floor((t%60)/10)*10;const ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+(m<10?'0':'')+m+' '+ap;}
 function objective(){{const e=evCur();if(e&&phase()==='cafe'&&zoneOf(player.x)==='island')return e.icon+' '+e.name+': '+(S.ev.id==='sick'?'run the caf\u00e9 alone ('+(S.served||0)+'/8 served)':S.ev.id==='critic'?(S.ev.criticDone?'review done':'serve the critic fast'):S.ev.id==='heat'?'smoothies sell best today':'big crowds on every ferry');}
   if((S.stamina==null?100:S.stamina)<=20)return'Kip is very hungry! Buy food at the General Store in the Settlement before stamina hits 0.';
-  {const zz=zoneOf(player.x);if(zz==='hi')return'Heirisson Island \u00b7 Photograph the kangaroos and swans. Bus back from the stop by the Causeway.';if(zz==='vp')return'Victoria Park \u00b7 Eat your way down Albany Highway. Bus stop at the west end.';}
+  {const zz=zoneOf(player.x);if(zz==='hi')return'Heirisson Island \u00b7 Photograph the kangaroos and swans. Bus back from the stop by the Causeway.';if(zz==='vp')return'Victoria Park \u00b7 Eat your way down Albany Highway. Bus stop at the west end.';if(zz==='cbd')return'Perth CBD \u00b7 Ferry from Mends St Jetty, City Loop bus on Wellington St.';}
   if(zoneOf(player.x)==='freo'){const n=FREO_STOPS.filter(f=>S.fq&&S.fq[f.id]).length;return'Fremantle \u00b7 A day out in Freo ('+n+'/'+FREO_STOPS.length+'). Ferry back from B-Shed.';}
   if(player.x>100)return basketCount()?'South Perth · Sell your harvest to Mei at the Swan River Grocer.':'South Perth · Take the ferry back to Rottnest from the jetty.';
   if(phase()==='cafe')return'Serve tourists until 16:00. Ferries from Fremantle bring a new wave about every hour.';
@@ -2342,7 +2368,7 @@ function buildTargets(){const T=[];const ph=phase();
    T.push({x:186,z:-8.6,r:1.3,label:'Coode St Jetty',act:()=>say(['Kip: A quiet little jetty. You can see the whole city skyline from the end, and the swans come right up close.'])});}
   T.push({x:ruth.x,z:ruth.z,r:1.4,label:'Talk to Captain Ruth',act:()=>say(['Captain Ruth: Welcome to Mends Street Jetty! Perth city is just across the Swan River.','Captain Ruth: Mei\u2019s grocer stall is along the foreshore. The ferry back to Rottnest leaves from the end of the jetty.'])});
   if(S.wish.hammock)T.push({x:HAMMOCK.x,z:HAMMOCK.z+.9,r:1.4,label:ph==='explore'?'Nap · 1 hr':'Nap after noon',disabled:ph!=='explore',act:nap});
-  waTargets(T);wbTargets(T);wcTargets(T);lkTargets(T);p8Targets(T);return T;}
+  waTargets(T);wbTargets(T);wcTargets(T);lkTargets(T);p8Targets(T);cbdTargets(T);return T;}
 function findTarget(){let best=null,bs=1e9;for(const t of buildTargets()){const d=Math.hypot(t.x-player.x,t.z-player.z);if(d>t.r)continue;const s=d+(t.disabled?5:0);if(s<bs){bs=s;best=t;}}if(player.lying)return S.juice===false?{label:'Get up',act:getUp}:{label:'Sip orange juice',act:drinkJuice};
   if(!player.bike&&S.ownBike&&!best)return{label:'Ride your bike',act:()=>{player.bike=true;}};
   if(player.bike&&(!best||best.disabled))return{label:'Hop off bike',act:()=>{player.bike=false;}};return best;}
@@ -2393,7 +2419,7 @@ function QUESTS(){const g=S.qg||{};return[
   steps:(()=>{if(!star)return STARS.map(st=>[st.name+' ('+st.from+')',!!(S.pc&&S.pc['star_'+st.id])]);const st=(S.stars&&S.stars[star.s.id])||0,nd=starNeeds(star.s);return[['Say hello at the café deck',st>=1],['Bring a '+ITEMS[nd.item].name+' from the counter',st>=2],['Take a photo together (Photo button)',!!(S.pc&&S.pc['star_'+star.s.id])]];})(),reward:rw(30)+' coins + a special Star postcard',open:!!(S.stars&&Object.keys(S.stars).length)&&unlocked('stars')},
  {id:'rooms',title:'Missed the last ferry',giver:'Stranded tourists',desc:'Some evenings, tourists miss the last ferry home and wait at Main Jetty. Walk up and offer them the spare room above the café for 10 coins a night. Happy guests come back the next morning with their whole family.',steps:[['Offer a room to a stranded tourist',((S.qg&&S.qg.roomed)||0)>0],['Host 5 guests ('+Math.min(5,(S.qg&&S.qg.roomed)||0)+'/5)',((S.qg&&S.qg.roomed)||0)>=5]],reward:'10 coins a night + a family of customers the next morning',open:unlocked('rooms')},
  {id:'daily',title:'Today\u2019s tasks',giver:'Island Notice Board',desc:'Three small tasks every day. Each pays 15 coins, and finishing all three pays a 20 coin bonus. New tasks every morning.',steps:(S.dtasks||[]).map(k=>[DTASK[k][0]+' ('+Math.min(dtVal(k),DTASK[k][1])+'/'+DTASK[k][1]+')',!!(S.dtDone&&S.dtDone[k])]),reward:'15 coins each + 20 bonus',open:!!(S.dtasks&&S.dtasks.length)&&unlocked('daily')},
- {id:'festival',title:festToday()?'Festival: '+festToday().name:'Festivals',giver:'Island calendar',desc:festToday()?festToday().desc:'Seven festivals a year across Rottnest, South Perth, Fremantle and Victoria Park. Open the calendar (C) to see what\u2019s coming.',steps:festToday()?[['Go to '+({island:'Rottnest',sp:'South Perth',freo:'Fremantle',vp:'Victoria Park',hi:'Heirisson Island'})[festToday().where],zoneOf(player.x)===festToday().where],['Take the festival postcard',PCS.some(q=>q.cat==='festival'&&S.pc&&S.pc[q.id]===S.day)]]:FESTIVALS.map(f=>[SEASONS[f.s].n+' '+f.d+': '+f.name,PCS.some(q=>q.cat==='festival'&&q.id.slice(2).length&&S.pc&&S.pc[q.id]&&festToday(S.pc[q.id])&&festToday(S.pc[q.id]).id===f.id)]),reward:'A special festival postcard',open:true},
+ {id:'festival',title:festToday()?'Festival: '+festToday().name:'Festivals',giver:'Island calendar',desc:festToday()?festToday().desc:'Seven festivals a year across Rottnest, South Perth, Fremantle and Victoria Park. Open the calendar (C) to see what\u2019s coming.',steps:festToday()?[['Go to '+({island:'Rottnest',sp:'South Perth',freo:'Fremantle',vp:'Victoria Park',hi:'Heirisson Island',cbd:'Perth CBD'})[festToday().where],zoneOf(player.x)===festToday().where],['Take the festival postcard',PCS.some(q=>q.cat==='festival'&&S.pc&&S.pc[q.id]===S.day)]]:FESTIVALS.map(f=>[SEASONS[f.s].n+' '+f.d+': '+f.name,PCS.some(q=>q.cat==='festival'&&q.id.slice(2).length&&S.pc&&S.pc[q.id]&&festToday(S.pc[q.id])&&festToday(S.pc[q.id]).id===f.id)]),reward:'A special festival postcard',open:true},
  {id:'friends',title:'Island friendships',giver:'Kip\u2019s notebook',desc:'Walk up to a friend and press the \u2665 Friend button (F) to chat once a day and give one gift. Loved gifts earn the most hearts. At 3, 6 and 10 hearts friends share a story and a reward. Birthdays are on the calendar, and gifts count double.',steps:FRIENDS.map(f=>[f.name+' '+hearts(f.id)+'/10 \u2665',hearts(f.id)>=10]),reward:'Heart events, coins and letters',open:unlocked('friends')},
  {id:'postcards',title:'Postcards of Perth',giver:'Kip\u2019s album',desc:'There are '+PC_TOTAL+' postcards to collect across Rottnest, South Perth, Fremantle, Heirisson Island and Victoria Park: places, local animals, people and shops. Take the bus from the South Perth stop on Mill Point Road to reach the kangaroo sanctuary and Albany Highway.',
   steps:[[10,'Collect 10 postcards'],[25,'Collect 25 postcards'],[50,'Collect 50 postcards'],[100,'Collect all '+PC_TOTAL+' postcards']].map(([n,t])=>[t+' ('+Math.min(n,pcCount())+'/'+n+')',pcCount()>=n]),reward:'5 coins each, plus 50 at 25, 50, 75 and 100',open:true},
@@ -2690,7 +2716,7 @@ const GUIDE_SYS=[
  ['Saving','The game saves automatically to one of 6 slots. Load another slot from the title screen.'],
  ['Island Code (visit friends online)','\u2630 \u2192 Island Code \u2192 Get my island code. You get a code like QK-4821 and your game backs up to the cloud by itself. Friends type your code to visit the newest version of your island, even when you are offline. While visiting you can \u2661 like the caf\u00e9, \u270e sign the guestbook and \U0001F381 leave a gift. Gifts and notes arrive in Island Code \u2192 Mailbox. Keep your recovery key secret: with it you can restore the island on a new phone. No internet? The Offline code tab still makes a Dream Code to paste.'],
  ['Caf\u00e9 chain','Buy Quokka Cafe branches at Geordie Bay (900), South Perth (1,500), Victoria Park (1,800) and Fremantle (2,500). Each earns every hour 7:00\u201316:00. Open \u2630 \u2192 Caf\u00e9 HQ from anywhere to collect tills, upgrade to Level 4, change style or hire a manager who banks the till at midnight.'],
- ['Radio','\u2630 \u2192 Radio: five stations of original music made for the café (Seaside Piano, Island Lo-fi, Lo-fi Beats, Crystal Harbour, Asian Breeze). Island Lo-fi, Lo-fi Beats and Crystal Harbour play named tracks you can skip; set the volume or turn it off.'],
+ ['Radio','\u2630 \u2192 Radio: three stations of gentle background music (Seaside Piano, Island Lo-fi, Asian Breeze), volume control, or turn it off.'],
  ['Caf\u00e9 upgrades and styles','Use the Caf\u00e9 plans sign beside the deck (or \u2630 \u2192 Caf\u00e9). Four levels: Kiosk, Caf\u00e9 (450), Bistro (900) and Destination caf\u00e9 (1,500), each adding a table and bonuses. Five styles: Classic Rotto, English Cottage, French Riviera, Japanese Ryokan and Seaside Mykonos (250 coins each to unlock, then switch for free).'],
  ['Seasons and calendar','Four Australian seasons of 28 days: Summer, Autumn, Winter, Spring. Weather follows the season (wetter winters). Tap the day in the clock card, or press C.'],
  ['Mail','Check the mailbox beside the caf\u00e9. Letters from Mum, friends and the notice board, sometimes with coins.'],
@@ -2707,7 +2733,7 @@ const GUIDE_TRAVEL=[
  ['Sleep away from home','Sleep in a South Perth home and you wake up on the 7:00 ferry back to Rottnest.'],
  ['Maps','Tap the minimap (M) for the local map. In the map, press Perth map to see all districts and routes. The red line always points to your tracked quest.']];
 const GUIDE_KEYS=[['Move','Drag left side · WASD / arrows'],['Act','Round button · Space or E'],['Camera','Right-drag · ⟲ ⟳ · Q / R'],['Zoom','+ − · pinch · wheel'],['Ride','V'],['Photo','P'],['Album','O'],['Bag','G'],['Quests','J'],['Map','M'],['Wishlist','I'],['Guide','H'],['Friend','F'],['Calendar','C']];
-const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle'};
+const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle',cbd:'Perth CBD'};
 let guideTab='start',guideZone='all';
 function openGuide(){if(!running||overlay)return;renderGuide();showOverlay('guide');}
 function renderGuide(){const T=$('#gdTabs');T.innerHTML='';[['start','How to play'],['places','Places'],['quests','Quests'],['people','People'],['acts','Activities'],['sys','Systems'],['travel','Travel & maps']].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(guideTab===k?' on':'');b.id='gdt-'+k;b.textContent=l;b.onclick=()=>{guideTab=k;renderGuide();$('#gdBody').scrollTop=0;};T.appendChild(b);});
@@ -2916,7 +2942,6 @@ function renderCafe(){setTimeout(hqQuestCheck,0);renderHQTabs();const isMain=hqT
 const RADIO={ctx:null,master:null,rev:null,st:'off',vol:.5,timer:null,next:0,step:0,bar:0,nodes:[],wave:null,crackle:null};
 const RSTATIONS={
  seaside:{name:'Seaside Piano',desc:'Gentle piano and soft waves, like a slow morning on the jetty.',bpm:72},
- beats:{name:'Lo-fi Beats',desc:'30 original lo-fi hip hop tracks for work and study: jazzy chords, boom-bap drums, vinyl crackle.',bpm:86},
  lofi:{name:'Island Lo-fi',desc:'30 original lo-fi tracks: 15 to study and work to, 15 slow ones with soft rain on the roof.',bpm:78},
  breeze:{name:'Asian Breeze',desc:'Pentatonic plucks like a koto or guzheng over a calm pad.',bpm:66},
  crystal:{name:'Crystal Harbour',desc:'33 original orchestral tracks in the style of classic 90s RPGs: harp, flute, strings and music box.',bpm:80},
@@ -3162,102 +3187,9 @@ function lfPlay(tr,e,t,spb){
   else if(e.k==='bass')bass(t,e.n,e.d*spb,e.v);
   else if(e.k==='kick')lkick(t,e.v);else if(e.k==='snare')lsnare(t,e.v);else if(e.k==='rim')rim(t,e.v);else if(e.k==='hat')lhat(t,e.v);
   else if(e.k==='bed')lbed(t,e.d*spb,e.kind);}
-// ---------- Lo-fi Beats: 30 original lo-fi hip hop tracks for work and study ----------
-// Jazzy chord loops chopped into stabs, swung 16th hats, a boom-bap kick and snare with ghost notes,
-// a round bass with approach notes, and a melody on e-piano, guitar, vibes, flute or a reedy lead.
-const HP_P={
- iiVI:[[2,'m9'],[7,'13'],[0,'maj9'],[0,'69']],
- viiiV:[[9,'m9'],[2,'m9'],[7,'13'],[0,'maj9']],
- four:[[5,'maj9'],[4,'m7'],[9,'m9'],[2,'m9']],
- dor:[[0,'m9'],[5,'7'],[0,'m9'],[5,'7']],
- desc:[[0,'m11'],[10,'69'],[8,'maj7'],[7,'7']],
- turn:[[4,'m7'],[9,'7'],[2,'m9'],[7,'13']],
- lift:[[5,'maj7'],[7,'9sus'],[0,'maj9'],[9,'m9']],
- night:[[0,'m9'],[3,'maj7'],[8,'maj7'],[7,'7']]};
-const HP_MINOR=['dor','desc','night'];
-const HOP=[
- {t:'Espresso Shot Beats',key:62,bpm:88,A:'iiVI',B:'four',lead:'ep',sw:.2,r:0,len:214,seed:301},
- {t:'Notebook Margins',key:65,bpm:84,A:'viiiV',B:'lift',lead:'vib',sw:.22,r:1,len:222,seed:307},
- {t:'Highlighter Yellow',key:60,bpm:90,A:'four',B:'turn',lead:'pluck',sw:.18,r:2,len:210,seed:311},
- {t:'Deadline in Daylight',key:57,bpm:86,A:'dor',B:'desc',lead:'flute',sw:.21,r:3,len:218,seed:313},
- {t:'Laptop by the Jetty',key:63,bpm:82,A:'lift',B:'viiiV',lead:'ep',sw:.23,r:4,len:226,seed:317},
- {t:'Inbox Zero',key:64,bpm:92,A:'turn',B:'iiVI',lead:'vib',sw:.19,r:5,len:208,seed:331},
- {t:'Coffee Ring Notes',key:61,bpm:85,A:'iiVI',B:'lift',lead:'reed',sw:.22,r:6,len:220,seed:337},
- {t:'Cold Brew Focus',key:59,bpm:80,A:'night',B:'dor',lead:'ep',sw:.24,r:7,len:230,seed:347},
- {t:'Sticky Note Wall',key:65,bpm:88,A:'four',B:'iiVI',lead:'pluck',sw:.2,r:8,len:214,seed:349},
- {t:'Ferry Wi-Fi Study',key:62,bpm:84,A:'viiiV',B:'turn',lead:'flute',sw:.21,r:0,len:222,seed:353},
- {t:'Café Corner Booth',key:60,bpm:86,A:'lift',B:'four',lead:'vib',sw:.22,r:1,len:218,seed:359},
- {t:'Late Lecture Rewind',key:58,bpm:82,A:'desc',B:'night',lead:'reed',sw:.23,r:2,len:226,seed:367},
- {t:'Bike Lane Commute',key:67,bpm:92,A:'iiVI',B:'viiiV',lead:'pluck',sw:.18,r:3,len:208,seed:373},
- {t:'Overtime at the Counter',key:63,bpm:84,A:'dor',B:'night',lead:'ep',sw:.22,r:4,len:222,seed:379},
- {t:'Pomodoro Twenty-Five',key:64,bpm:90,A:'turn',B:'lift',lead:'vib',sw:.2,r:5,len:210,seed:383},
- {t:'Thesis Draft Three',key:61,bpm:80,A:'viiiV',B:'four',lead:'flute',sw:.24,r:6,len:230,seed:389},
- {t:'Quokka on a Coffee Break',key:65,bpm:88,A:'lift',B:'iiVI',lead:'pluck',sw:.2,r:7,len:214,seed:397},
- {t:'Reading Room by the Sea',key:59,bpm:82,A:'night',B:'desc',lead:'ep',sw:.23,r:8,len:226,seed:401},
- {t:'Steam Wand Swing',key:62,bpm:94,A:'iiVI',B:'turn',lead:'reed',sw:.19,r:0,len:206,seed:409},
- {t:'Spreadsheet Sunset',key:57,bpm:84,A:'desc',B:'dor',lead:'vib',sw:.22,r:1,len:222,seed:419},
- {t:'Library Card',key:64,bpm:86,A:'four',B:'viiiV',lead:'flute',sw:.21,r:2,len:218,seed:421},
- {t:'Golden Hour Homework',key:60,bpm:82,A:'lift',B:'turn',lead:'ep',sw:.23,r:3,len:226,seed:431},
- {t:'Index Card Shuffle',key:66,bpm:90,A:'turn',B:'iiVI',lead:'pluck',sw:.19,r:4,len:210,seed:433},
- {t:'Quiet Desk, Loud Ideas',key:63,bpm:86,A:'night',B:'dor',lead:'reed',sw:.22,r:5,len:218,seed:439},
- {t:'Second Flat White',key:65,bpm:88,A:'iiVI',B:'four',lead:'vib',sw:.2,r:6,len:214,seed:443},
- {t:'Saltwater Study Hall',key:61,bpm:84,A:'viiiV',B:'lift',lead:'flute',sw:.22,r:7,len:222,seed:449},
- {t:'Coastline Commute',key:62,bpm:92,A:'four',B:'turn',lead:'pluck',sw:.18,r:8,len:208,seed:457},
- {t:'Midnight Revision',key:58,bpm:80,A:'dor',B:'desc',lead:'ep',sw:.24,r:0,len:230,seed:461},
- {t:'Clocking Off',key:60,bpm:84,A:'lift',B:'viiiV',lead:'vib',sw:.22,r:1,len:222,seed:463},
- {t:'Tomorrow’s To-Do List',key:63,bpm:82,A:'iiVI',B:'night',lead:'reed',sw:.23,r:2,len:226,seed:467}];
-function hpCompile(tr){const R=lfRng(tr.seed),ev=[],bar4=4,sw=tr.sw;
-  const S16=b=>{const f=b%.5;return b+(Math.abs(f-.25)<1e-6?sw*.5:0);};// swing the off 16ths
-  const minor=HP_MINOR.includes(tr.A);const pent=minor?[0,3,5,7,10]:[0,2,4,7,9];
-  const scale=[];for(let o=-12;o<=36;o+=12)pent.forEach(p=>scale.push(tr.key+p+o));
-  const lo=tr.key+9,hi=tr.key+24;
-  // form: intro, groove, theme, answer, break, theme, answer..., outro (sized to tr.len)
-  const target=Math.round(tr.len*tr.bpm/60/bar4);const form=[['I',4],['A',8]];let used=12;
-  while(used+16+4<=target){form.push(['M',8],['N',8]);used+=16;if(used+4+16+4<=target&&form.filter(f=>f[0]==='M').length%2===1){form.push(['K',4]);used+=4;}}
-  while(used+8+4<=target){form.push(['A',8]);used+=8;}
-  form.push(['O',4]);used+=4;
-  const motifs=[0,1].map(()=>{const r=LF_R[(tr.r+Math.floor(R()*4))%LF_R.length];let s=0;return r.map(()=>{s+=R()<.55?(R()<.5?-1:1):(R()<.5?-2:2);if(s>4)s-=3;if(s<-4)s+=3;return s;}).map((s,i)=>[r[i][0],r[i][1],s]);});
-  const near=(m,arr)=>arr.reduce((a,b)=>Math.abs(b-m)<Math.abs(a-m)?b:a);
-  const kickPat=[[0,1],[.75,R()<.5?.55:0],[2.5,.9],[2.75,R()<.4?.5:0]].filter(k=>k[1]>0);
-  let bar=0,prevV=64;
-  form.forEach(([sec,n])=>{const prog=HP_P[sec==='N'?tr.B:tr.A];
-    const drums=sec==='A'||sec==='M'||sec==='N';
-    for(let k=0;k<n;k++){const B=(bar+k)*bar4,ch=prog[(bar+k)%4],root=tr.key+ch[0];
-      const fade=sec==='O'?1-k/n*.6:sec==='I'?.65+k/n*.35:1;const last=sec==='O'&&k===n-1;
-      const v=lfVoice(tr.key,ch,prevV);prevV=v.reduce((a,b)=>a+b,0)/v.length;
-      // chopped chord stabs
-      if(last)ev.push({b:B,k:'ep',ns:v,d:6,v:.5*fade});
-      else{ev.push({b:B,k:'ep',ns:v,d:1.2,v:.52*fade});ev.push({b:S16(1.75)+B,k:'ep',ns:v.slice(1),d:.45,v:.34*fade});ev.push({b:B+2.5,k:'ep',ns:v,d:.9,v:.42*fade});if(R()<.45)ev.push({b:S16(3.25)+B,k:'ep',ns:v.slice(2),d:.4,v:.26*fade});}
-      // bass: root, push, root, approach note into the next chord
-      if(sec!=='I'||k>=2){let bn=root;while(bn>45)bn-=12;while(bn<33)bn+=12;const nx=tr.key+prog[(bar+k+1)%4][0];let an=nx-1;while(an>bn+7)an-=12;while(an<bn-7)an+=12;
-        if(last)ev.push({b:B,k:'bass',n:bn,d:4,v:.2*fade});
-        else{ev.push({b:B,k:'bass',n:bn,d:.8,v:.22*fade});ev.push({b:S16(1.75)+B,k:'bass',n:bn+12,d:.25,v:.12*fade});ev.push({b:B+2.5,k:'bass',n:bn+(R()<.5?7:0),d:.9,v:.18*fade});ev.push({b:S16(3.75)+B,k:'bass',n:an,d:.25,v:.13*fade});}}
-      // boom-bap drums
-      if(drums&&!last){kickPat.forEach(([b,vv])=>ev.push({b:B+b,k:'kick',v:vv}));
-        ev.push({b:B+1,k:'snare',v:1});ev.push({b:B+3,k:'snare',v:1});if(R()<.35)ev.push({b:S16(1.75)+B,k:'snare',v:.22});if(R()<.3)ev.push({b:S16(3.75)+B,k:'snare',v:.28});
-        for(let h=0;h<16;h++){const hb=h*.25;if(h%2===1&&R()<.35)continue;ev.push({b:S16(hb)+B,k:'hat',v:h%4===0?.9:h%2===0?.6:.32});}
-        if((bar+k)%2===1)ev.push({b:B+3.5,k:'ohat',v:.5});}
-      else if(sec==='K'&&!last){ev.push({b:B,k:'kick',v:.5});for(let h=0;h<8;h++)ev.push({b:B+h*.5+(h%2?sw:0),k:'hat',v:h%2?.25:.4});}}
-    // melody: theme and answer over two-bar motifs, held note to end each phrase
-    if(sec==='M'||sec==='N'||sec==='K'){const mo=motifs[sec==='N'?1:0];
-      for(let g=0;g<n/2;g++){const b0=(bar+g*2)*bar4,ch=prog[(bar+g*2)%4];const ct=LF_V[ch[1]].map(x=>tr.key+ch[0]+x);
-        const base=near(tr.key+17+(g%2?2:0),scale.filter(m=>m>=lo&&m<=hi));const cad=g===n/2-1;
-        mo.forEach(([st,du,s],ni)=>{if(sec==='K'&&ni%2)return;if(cad&&st>=4)return;
-          let idx=scale.indexOf(base)+s+(g===2&&ni===mo.length-1?1:0);idx=Math.max(0,Math.min(scale.length-1,idx));let m=scale[idx];while(m>hi)m-=12;while(m<lo)m+=12;
-          if(du>=1&&Number.isInteger(st)){const c=ct.map(x=>{while(x<lo)x+=12;while(x>hi)x-=12;return x;});const cn=near(m,c);if(Math.abs(cn-m)<=2)m=cn;}
-          ev.push({b:b0+st+(st%1?sw*.5:0),k:'lead',n:m,d:du,v:.58});});
-        if(cad){const c=ct.map(x=>{while(x<lo)x+=12;while(x>hi)x-=12;return x;});ev.push({b:b0+4,k:'lead',n:near(base,c),d:3.2,v:.52});}}}
-    bar+=n;});
-  const beats=used*bar4+1;ev.push({b:0,k:'bed',kind:'crackle',d:beats});
-  ev.sort((a,b)=>a.b-b.b);return{ev,beats};}
-function lohat(t,v){const c=RADIO.ctx;const s=c.createBufferSource();s.buffer=RADIO.noise;const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=6000;const g=c.createGain();g.gain.setValueAtTime(.03*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);s.connect(hp);hp.connect(g);s.start(t,Math.random());s.stop(t+.3);out(g,.7,.1);}
-function hpPlay(tr,e,t,spb){
-  if(e.k==='lead'){const d=e.d*spb;if(tr.lead==='ep')epiano(t,e.n,d*.95,e.v);else if(tr.lead==='pluck')pluck(t,e.n-12,e.v*.85);else if(tr.lead==='vib')bell(t,e.n,d,e.v*.75);else if(tr.lead==='flute')flute(t,e.n,d*.9,e.v*1.3);else oboe(t,e.n,d*.9,e.v*1.15);}
-  else if(e.k==='ohat')lohat(t,e.v);
-  else lfPlay(tr,e,t,spb);}
 // Track stations: Crystal Harbour and Island Lo-fi play composed tracks in order.
 function crPlay(tr,e,t,spb){if(e.k==='lead'){(tr.lead==='flute'?flute:tr.lead==='oboe'?oboe:bell)(t,e.n,e.d*spb*.95,e.v*1.6);}else if(e.k==='bell')bell(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='harp')harp(t,e.n,e.v);else if(e.k==='piano')piano(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='bass')bass(t,e.n,e.d*spb,e.v*.65);else if(e.k==='strings')strings(t,e.ns,e.d*spb,e.v*.8);else if(e.k==='hat')hat(t,e.v*.6);}
-const TSTN={crystal:{list:CRYSTAL,compile:crCompile,play:crPlay},lofi:{list:LOFI,compile:lfCompile,play:lfPlay},beats:{list:HOP,compile:hpCompile,play:hpPlay}};
+const TSTN={crystal:{list:CRYSTAL,compile:crCompile,play:crPlay},lofi:{list:LOFI,compile:lfCompile,play:lfPlay}};
 function tsOf(){return TSTN[RADIO.st]||TSTN.crystal;}
 function crStart(i,t0){const T=tsOf(),L=T.list;const tr=L[((i%L.length)+L.length)%L.length];RADIO.trk=L.indexOf(tr);RADIO.trkSt=RADIO.st;RADIO.cr=T.compile(tr);RADIO.crI=0;RADIO.crT0=t0!=null?t0:RADIO.ctx.currentTime+.15;RADIO.crSpb=60/tr.bpm;RADIO.crLoops=0;
   try{const n=$('#rdNow');if(n&&overlay==='radio')renderRadio();}catch(e){}if(running&&TSTN[RADIO.st]&&!RADIO.pl)toast('♫ Now playing: '+tr.t,2.6);}
@@ -3274,9 +3206,7 @@ const STUDIO_PL=[
  {id:'rain',st:'crystal',name:'Rain on the Island',hint:'try Showers',titles:['Rain on the Tin Roof','Salt Lake Reverie','Tidepools at Parakeet Bay','Old Lighthouse Waltz','Letter to Mum & Dad','Lantern Moths','Lighthouse Keeper’s Thank-You','Pink Lake Lullaby','Kip’s Promise','Starlit Settlement','The Day Mum and Dad Arrived','Homeward Ferry','Quokka Village Campfire','Lanterns on the Jetty','Hand in Hand on the Jetty','Goodnight, Rottnest','Island Overture','Home Is Where You Are']},
  {id:'golden',st:'crystal',name:'Golden Hour',hint:'try Sunny, 17:30–18:30',titles:['Picnic at Pinky Beach','Sea Breeze Promenade','Warm Bread, Warm Hearts','Homeward Ferry','Lanterns on the Jetty','Quokka Village Campfire','Hand in Hand on the Jetty','Fireworks Over the Swan','Market Lanterns','Lighthouse Keeper’s Thank-You','The Day Mum and Dad Arrived','Kip’s Promise','Lantern Moths','Starlit Settlement','Best Friends Forever','Pink Lake Lullaby','Letter to Mum & Dad','Goodnight, Rottnest','Home Is Where You Are']},
  {id:'study',st:'lofi',name:'Lofi to Study & Work',hint:'try Sunny, 09:00–15:00',titles:['Flat White Focus','Notes on the Ferry','Thomson Bay Homework','Pencil Shavings','Library at the Settlement','Espresso & Index Cards','Kip’s Study Desk','Lighthouse Wi-Fi','Salt Air Deadlines','Bike Bell Break','Afternoon Lamington','Quiet Hours at the Café','Postcard Draft','Mango Smoothie Pomodoro','Last Ferry, Last Chapter']},
- {id:'softrain',st:'lofi',name:'Soft Rain + Slow Lofi',hint:'try Showers',titles:['Rain on the Awning','Wet Sand, Warm Mug','Grey Morning at Geordie Bay','Drizzle on the Jetty','Window Seat','Umbrella for Two','Storm over the Salt Lakes','Foggy Lighthouse','Kip Naps Through the Rain','Damp Postcards','Steam from the Teapot','Slow Ferry in the Rain','Rainy Day Reading','Puddles by the Bakery','After the Storm']},
- {id:'beats1',st:'beats',name:'Lo-fi Beats Vol. 1',hint:'try Sunny, 09:00–15:00',titles:['Espresso Shot Beats','Notebook Margins','Highlighter Yellow','Deadline in Daylight','Laptop by the Jetty','Inbox Zero','Coffee Ring Notes','Cold Brew Focus','Sticky Note Wall','Ferry Wi-Fi Study','Café Corner Booth','Late Lecture Rewind','Bike Lane Commute','Overtime at the Counter','Pomodoro Twenty-Five']},
- {id:'beats2',st:'beats',name:'Lo-fi Beats Vol. 2',hint:'try Sunny, 15:00–18:00',titles:['Thesis Draft Three','Quokka on a Coffee Break','Reading Room by the Sea','Steam Wand Swing','Spreadsheet Sunset','Library Card','Golden Hour Homework','Index Card Shuffle','Quiet Desk, Loud Ideas','Second Flat White','Saltwater Study Hall','Coastline Commute','Midnight Revision','Clocking Off','Tomorrow’s To-Do List']}];
+ {id:'softrain',st:'lofi',name:'Soft Rain + Slow Lofi',hint:'try Showers',titles:['Rain on the Awning','Wet Sand, Warm Mug','Grey Morning at Geordie Bay','Drizzle on the Jetty','Window Seat','Umbrella for Two','Storm over the Salt Lakes','Foggy Lighthouse','Kip Naps Through the Rain','Damp Postcards','Steam from the Teapot','Slow Ferry in the Rain','Rainy Day Reading','Puddles by the Bakery','After the Storm']}];
 let PL_SEL=-1;
 function plTracks(P){const L=TSTN[P.st].list;return P.titles.map(t=>L.findIndex(x=>x.t===t)).filter(i=>i>=0);}
 function plLen(list,st){const T=TSTN[st];return list.reduce((a,i)=>{const tr=T.list[i];return a+T.compile(tr).beats*60/tr.bpm+PL_GAP;},0);}
@@ -3504,17 +3434,17 @@ const COACH_IDX={settle:0,basin:5,light:8,geordie:15,salmon:17,west:19};
 let coachMesh=null;
 function trainRide(dest){const R=WEST.rail;const S0=[IWx(14.2,-3.6),IWz(14.2,-3.6)];const pts=dest==='oliver'?[S0].concat(R):R.slice().reverse().concat([S0]);WEST.riding=true;toast('All aboard the Quokka Express! · '+FARE_RIDE+' coins',2.2);startCine();
   rideAlong(pts,WEST.train,4.5,()=>{WEST.riding=false;if(dest==='oliver'){player.x=IWx(54.6,.2);player.z=IWz(54.6,.2);}else{player.x=IWx(14.2,-3.2);player.z=IWz(14.2,-3.2);}S.qg=S.qg||{};S.qg.train=1;save();},.4);}
-function busRide(dest){if(transit||VISIT)return;if(dest==='vp'&&needPass('vp'))return;const zq=zoneOf(player.x);const F=BUS_STOPS[zq],D=BUS_STOPS[dest];if(!F)return;const bm=window.__busProto.clone();scene.add(bm);
+function busRide(dest){if(transit||VISIT)return;if(PASS_ZONES.includes(dest)&&needPass(dest))return;const zq=zoneOf(player.x);const F=BUS_STOPS[zq],D=BUS_STOPS[dest];if(!F)return;const bm=window.__busProto.clone();scene.add(bm);
   const fx=F.x+.6,fz=F.z+1.4;toast('Riding the bus to '+D.name+' · '+FARE_RIDE+' coins',2.4);
   rideAlong([[fx,fz],[fx+14,fz]],bm,5,()=>{fadeTarget=.95;transit=true;setTimeout(()=>{scene.remove(bm);const bm2=window.__busProto.clone();scene.add(bm2);const tx=D.x+.6,tz=D.z+1.4;player.x=tx-14;player.z=tz;updateCamera(0,true);fadeTarget=0;
     rideAlong([[tx-14,tz],[tx,tz]],bm2,5,()=>{scene.remove(bm2);busArrive(dest);},.3);},700);},.3);}
-function busArrive(dest){const D=BUS_STOPS[dest];S.time+=10;player.bike=false;player.carry=null;player.x=D.land[0];player.z=D.land[1];updateCamera(0,true);fadeTarget=0;transit=false;S.fq=S.fq||{};
+function busArrive(dest){if(dest==='cbd')setTimeout(()=>cbdArrive('cbd'),50);const D=BUS_STOPS[dest];S.time+=10;player.bike=false;player.carry=null;player.x=D.land[0];player.z=D.land[1];updateCamera(0,true);fadeTarget=0;transit=false;S.fq=S.fq||{};
   if(dest==='hi'&&!S.fq.visitHI){S.fq.visitHI=1;save();say(['Kip: Heirisson Island! There’s a kangaroo sanctuary in the middle of the river.','Kip: Perfect for postcards. Press the camera button when something new is nearby.']);}
   if(dest==='vp'&&!S.fq.visitVP){S.fq.visitVP=1;save();say(['Kip: Albany Highway! Pho, ramen, dumplings, Thai, bubble tea… I could eat my way down this whole street.'],()=>openQuest('vpfood',true));}}
-function openBusStop(from){const N={sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park'};openTravel('Bus to\u2026',N[from]+' bus stop',['sp','hi','vp'].map(k=>({id:k,name:N[k],here:k===from,note:k===from?'':(Math.abs(['sp','hi','vp'].indexOf(k)-['sp','hi','vp'].indexOf(from))*15)+' min',ride:()=>busRide(k),tp:()=>busTo(k)})));}
+function openBusStop(from){const N={sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD'},L=['sp','cbd','hi','vp'];openTravel('Bus to\u2026',N[from]+' bus stop',L.map(k=>({id:k,name:N[k],here:k===from,note:k===from?'':(Math.abs(L.indexOf(k)-L.indexOf(from))*12)+' min',ride:()=>busRide(k),tp:()=>busTo(k)})));}
 function openTravel(title,sub,opts){if(!running||overlay)return;$('#chTitle').textContent=title;$('#chSub').textContent=sub;const L=$('#chList');L.innerHTML='';
-  opts.forEach(o=>{const d=document.createElement('div');d.className='trRow';const n=document.createElement('b');n.textContent=o.name+(o.here?' (you are here)':'');const sp=document.createElement('span');sp.textContent=(o.note||'')+(o.id==='vp'&&!o.here&&!hasPass()?' \u00b7 \u{1F512} Perth Pass':'');const bx=document.createElement('div');bx.className='trBtns';
-    if(!o.here){const r=document.createElement('button');r.type='button';r.className='btn';r.id='ride-'+o.id;r.textContent='Ride · '+FARE_RIDE+'c';r.onclick=()=>{if(o.id==='vp'&&needPass('vp'))return;if(!pay(FARE_RIDE))return;hideOverlays();o.ride();};const t=document.createElement('button');t.type='button';t.className='btn ghost';t.id='tp-'+o.id;t.textContent='Teleport · '+FARE_TP+'c';t.onclick=()=>{if(o.id==='vp'&&needPass('vp'))return;if(!pay(FARE_TP))return;hideOverlays();o.tp();};bx.append(r,t);}
+  opts.forEach(o=>{const d=document.createElement('div');d.className='trRow';const n=document.createElement('b');n.textContent=o.name+(o.here?' (you are here)':'');const sp=document.createElement('span');sp.textContent=(o.note||'')+(PASS_ZONES.includes(o.id)&&!o.here&&!hasPass()?' \u00b7 \u{1F512} Perth Pass':'');const bx=document.createElement('div');bx.className='trBtns';
+    if(!o.here){const r=document.createElement('button');r.type='button';r.className='btn';r.id='ride-'+o.id;r.textContent='Ride · '+FARE_RIDE+'c';r.onclick=()=>{if(PASS_ZONES.includes(o.id)&&needPass(o.id))return;if(!pay(FARE_RIDE))return;hideOverlays();o.ride();};const t=document.createElement('button');t.type='button';t.className='btn ghost';t.id='tp-'+o.id;t.textContent='Teleport · '+FARE_TP+'c';t.onclick=()=>{if(PASS_ZONES.includes(o.id)&&needPass(o.id))return;if(!pay(FARE_TP))return;hideOverlays();o.tp();};bx.append(r,t);}
     const tx=document.createElement('div');tx.append(n,sp);d.append(tx,bx);L.appendChild(d);});showOverlay('coach');}
 
 // ---------- sightseeing cut-scenes on the Island Loop bus and Express ----------
@@ -3561,7 +3491,7 @@ const GM_HASH='0a5d4613e90f1f8961136e39e7480c8b9e10fec5675830ca066f19431752a428'
 function isGM(){try{if(typeof S!=='undefined'&&S&&S.gm)return true;return localStorage.getItem('qc-gm')==='1';}catch(e){return false;}}
 async function gmCheck(raw){try{const c=String(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(!/^GM[A-Z0-9]{12}$/.test(c)||!crypto.subtle)return false;const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('quokka-gm|'+c));return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('')===GM_HASH;}catch(e){return false;}}
 function gmGift(){if(!S.gmGift500){S.gmGift500=1;S.coins+=500000;toast('\u2605 GM bonus: +500,000 coins',3);}}
-function gmEnable(){S.gm=true;S.pass=true;gmGift();try{localStorage.setItem('qc-gm','1');localStorage.setItem('qc-perth-pass','1');}catch(e){}S.seenZ=Object.assign(S.seenZ||{},{island:1,sp:1,hi:1,freo:1,vp:1});save();gmUI();}
+function gmEnable(){S.gm=true;S.pass=true;gmGift();try{localStorage.setItem('qc-gm','1');localStorage.setItem('qc-perth-pass','1');}catch(e){}S.seenZ=Object.assign(S.seenZ||{},{island:1,sp:1,hi:1,freo:1,vp:1,cbd:1});save();gmUI();}
 function gmUI(){const b=$('#gmBtn');if(b)b.hidden=!isGM();const pb=$('#passBtn');if(pb&&isGM())pb.textContent='Perth Pass \u2713';}
 function openGM(){if(!running||overlay)return;renderGM();showOverlay('gm');}
 function renderGM(){const B=$('#gmBody');B.innerHTML='';const row=(t,fn,id)=>{const b=document.createElement('button');b.type='button';b.className='btn ghost';b.textContent=t;if(id)b.id=id;b.onclick=()=>{fn();renderGM();};B.appendChild(b);};
@@ -3572,10 +3502,10 @@ function renderGM(){const B=$('#gmBody');B.innerHTML='';const row=(t,fn,id)=>{co
   row('Story: finish current chapters',()=>{STORY_ORDER.forEach(a=>{const c=storyChap(a);if(!c)return;chapSteps(c).forEach(st=>{if(typeof st[1]==='string'){S.pc=S.pc||{};S.pc[st[1]]=S.pc[st[1]]||S.day;}});});S.storyIntro=S.storyIntro||{};STORY_ORDER.forEach(a=>{S.storyIntro[a+':'+((S.story&&S.story[a])||0)]=1;});save();});
   Object.keys(EVENTS).forEach(k=>row('Event: '+EVENTS[k].name,()=>{S.ev={day:S.day,id:k};save();hideOverlays();evAnnounce();}));
   row('Leave Game Master mode',()=>{S.gm=false;try{localStorage.removeItem('qc-gm');}catch(e){}save();gmUI();hideOverlays();toast('Game Master mode off',2);});
-  const T=document.createElement('div');T.className='gmTp';[['island','Rottnest'],['sp','South Perth'],['hi','Heirisson'],['freo','Fremantle'],['vp','Vic Park']].forEach(([z,n])=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='\u2708 '+n;b.onclick=()=>{hideOverlays();const sp=freeNear(...(SAFE_SPOTS[z]||SAFE_SPOTS.island)[0]);RIDE=null;transit=true;fadeTarget=.95;setTimeout(()=>{player.bike=false;player.carry=null;player.x=sp[0];player.z=sp[1];updateCamera(0,true);fadeTarget=0;transit=false;},600);};T.appendChild(b);});B.appendChild(T);}
+  const T=document.createElement('div');T.className='gmTp';[['island','Rottnest'],['sp','South Perth'],['hi','Heirisson'],['freo','Fremantle'],['vp','Vic Park'],['cbd','Perth CBD']].forEach(([z,n])=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='\u2708 '+n;b.onclick=()=>{hideOverlays();const sp=freeNear(...(SAFE_SPOTS[z]||SAFE_SPOTS.island)[0]);RIDE=null;transit=true;fadeTarget=.95;setTimeout(()=>{player.bike=false;player.carry=null;player.x=sp[0];player.z=sp[1];updateCamera(0,true);fadeTarget=0;transit=false;},600);};T.appendChild(b);});B.appendChild(T);}
 let passFor=null;
-function openPass(where){if(VISIT)return;passFor=where||null;hideOverlays();const own=hasPass();$('#psTitle').textContent=own?'Perth Pass \u2713':(where==='freo'?'Fremantle needs the Perth Pass':where==='vp'?'Victoria Park needs the Perth Pass':'Unlock Fremantle & Victoria Park');
-  $('#psSub').textContent=own?'You own the Perth Pass. Fremantle and Victoria Park are open on this device. Thanks for supporting Quokka Caf\u00e9!':'Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass ('+PASS_PRICE+', one-time) opens the last two towns for good.';
+function openPass(where){if(VISIT)return;passFor=where||null;hideOverlays();const own=hasPass();$('#psTitle').textContent=own?'Perth Pass \u2713':(where==='freo'?'Fremantle needs the Perth Pass':where==='vp'?'Victoria Park needs the Perth Pass':where==='cbd'?'Perth CBD needs the Perth Pass':'Unlock Fremantle, Victoria Park & Perth CBD');
+  $('#psSub').textContent=own?'You own the Perth Pass. Fremantle, Victoria Park and Perth CBD are open on this device. Thanks for supporting Quokka Caf\u00e9!':'Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass ('+PASS_PRICE+', one-time) opens Fremantle, Victoria Park and Perth CBD for good.';
   const B=$('#psBuy');B.innerHTML='';if(!own){const a=document.createElement('button');a.type='button';a.className='btn';a.id='psBuyBtn';a.textContent='Buy Perth Pass \u00b7 '+PASS_PRICE;a.onclick=goBuyPass;B.appendChild(a);}
   
   $('#psInput').value='';$('#psMsg').textContent='';$('#psMsg').className='psMsg';$('#psInput').closest('label').hidden=own;$('#psRedeem').hidden=own;showOverlay('pass');}
@@ -3584,6 +3514,7 @@ async function redeemPass(){const v=$('#psInput').value;const m=$('#psMsg');if(/
   if(!r||!r.ok){m.textContent=r&&r.reason==='limit'?'This code is already used on 3 devices. Email us if you need help.':'That code isn’t valid. Check it matches your email (QCP-XXXX-XXXX-XX).';m.className='psMsg bad';return;}
   S.pass=true;try{localStorage.setItem('qc-perth-pass','1');}catch(e){}save();m.textContent='Perth Pass unlocked! Fremantle and Victoria Park are open.';m.className='psMsg ok';$('#passBtn').textContent='Perth Pass \u2713';
   setTimeout(()=>{hideOverlays();toast('\u{1F39F} Perth Pass unlocked \u00b7 Fremantle & Victoria Park are open',3.5);},900);}
+const PASS_ZONES=['freo','vp','cbd'];
 function needPass(where){if(hasPass())return false;openPass(where);return true;}
 function openPause(){if(!running||overlay)return;$('#pzInfo').textContent='Time is stopped at '+fmtTime(S.time)+' on '+dayLabel()+'. Kip, customers and the clock wait for you.';showOverlay('pause');}
 function togglePause(){if(overlay==='pause'){hideOverlays();return;}openPause();}
@@ -3677,6 +3608,7 @@ const WALK_ROUTES={
  freo:[[[279,-2.2],[320,-2.2]],[[302.4,-1.5],[302.4,21]],[[305.6,-1.5],[305.6,21]],[[281,4.6],[303,4.6]],[[283,8],[298,8],[298,12.6],[283,12.6],[283,8]],[[306,20.6],[332,20.6]],[[307,-8.8],[316,-8.8]],[[293,13.6],[279,13.6]]]};
 WALK_ROUTES.hi=[[[407,5.2],[433,5.2]],[[433,5],[433,-8]],[[408,-8.6],[428,-8.6]]];WALK_ROUTES.vp=[[[490,-1.6],[560,-1.6]],[[490,1.6],[560,1.6]],[[500,4.6],[550,4.6]],[[500,9.4],[550,9.4]],[[492,-1.6],[492,-9.6],[556,-9.6]]];
 const WALK_N={island:16,sp:10,freo:20,hi:6,vp:26};
+WALK_ROUTES.cbd=[[[624,-13.5],[698,-13.5]],[[626,7.4],[700,7.4]],[[624,-1.5],[698,-1.5]],[[667.3,-20],[667.3,4]],[[640,-20],[640,4]],[[605,-11],[618,-11],[618,3]]];WALK_N.cbd=24;
 const walkers=[];
 (()=>{const r=mulberry32(4242);const looks=()=>({skin:SKINS[r()*SKINS.length|0],hair:HAIRS[r()*HAIRS.length|0],shirt:SHIRTS[r()*SHIRTS.length|0],pants:PANTS[r()*PANTS.length|0],hat:HATS[r()*HATS.length|0]});
   Object.keys(WALK_ROUTES).forEach(zone=>{const R=WALK_ROUTES[zone];for(let i=0;i<WALK_N[zone];i++){const route=R[i%R.length];const bike=zone==='island'&&i%4===3;
@@ -3692,12 +3624,12 @@ function updateWalkers(dt){const zone=walkerZone(),rain=wxC.rain>.5,night=NIGHT>
     const gy=groundY(w.x,w.z);w.m.position.set(w.x,gy+(w.bike?Math.abs(Math.sin(w.walkT*14))*.03:0),w.z);w.m.scale.x=w.face;w.sh.position.set(w.x,gy+.03,w.z);});}
 
 // ---------- zones ----------
-function zoneOf(x){return x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
+function zoneOf(x){return x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
 function hiWalk(x,z){return x>404.5&&x<435.5&&z>-9.6&&z<9.8;}
 function vpWalk(x,z){return x>489&&x<561&&z>-10.2&&z<12;}
 const HIB={x1:388,x2:452,z1:-12.75,z2:12.75},VPB={x1:488,x2:562,z1:-14.75,z2:14.75};
 const ZONE_DEF={
- hi:{B:HIB,title:'Heirisson Island',eb:'Matagarup · Swan River',bg:'#2f78a8',rects:[[404,-10,436,10,'#f6f1e3'],[405,-9,435,9,'#7aa356'],[410,-7,430,3,'#a9c46d'],[392,-12.8,448,-10.2,'#8a8f99'],[407,4.6,433,5.8,'#ddd3bd'],[432.4,-9,433.6,5,'#ddd3bd']],labels:[['Heirisson Island',420,8.4,1],['Kangaroo sanctuary',420,-2,1],['Kangaroo sculpture',412,9.6,0],['The Causeway',420,-11.5,1],['Swan River',398,4,0],['Bus stop',432,-7.2,0]]},
+ hi:{B:HIB,title:'Heirisson Island',eb:'Swan River',bg:'#2f78a8',rects:[[404,-10,436,10,'#f6f1e3'],[405,-9,435,9,'#7aa356'],[410,-7,430,3,'#a9c46d'],[392,-12.8,448,-10.2,'#8a8f99'],[407,4.6,433,5.8,'#ddd3bd'],[432.4,-9,433.6,5,'#ddd3bd']],labels:[['Heirisson Island',420,8.4,1],['Kangaroo sanctuary',420,-2,1],['Kangaroo sculpture',412,9.6,0],['The Causeway',420,-11.5,1],['Swan River',398,4,0],['Bus stop',432,-7.2,0]]},
  vp:{B:VPB,title:'Victoria Park',eb:'Albany Highway · Asian food town',bg:'#d8ccb4',rects:[[488,-1.2,562,1.2,'#4a4d55'],[488,-2,562,-1.2,'#ddd3bd'],[488,1.2,562,2,'#ddd3bd'],[498,3.1,552,10.1,'#b98552'],[491,4,497,10,'#7aa356'],[553,4,559,10,'#7aa356'],[488,-11.4,562,-10.6,'#6a5a4a'],[555.9,-9.2,561.3,-6.8,'#dfe6ec']],shops:true,labels:[['Albany Highway',525,.1,1],['Night market',525,10.8,1],['Victoria Park Station',558.6,-12.6,1],['Street mural',491,2.8,0]]}};
 function renderZoneBase(id,W,H,s,all){const Z=ZONE_DEF[id],c=mk(W,H),x=c.getContext('2d'),m=mapper(W,H,Z.B);x.fillStyle=Z.bg;x.fillRect(0,0,W,H);
   const rect=(x1,z1,x2,z2,col)=>{x.fillStyle=col;x.fillRect(m.X(x1),m.Z(z1),m.X(x2)-m.X(x1),m.Z(z2)-m.Z(z1));};Z.rects.forEach(r=>rect(...r));
@@ -3723,7 +3655,7 @@ function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCach
   if(z==='island')return draw();const snap=zoneSnap(ZONE_B(z),W,H);
   if(snap){const lab=labelsOnly(draw);const x=snap.getContext('2d');x.drawImage(lab,0,0);c=snap;}else c=draw();
   zoneCache[k]=c;return c;}
-const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB})[z];
+const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB})[z];
 // ---------- Phase 1 look on the mainland: same tussocks, wildflowers and pixel bushes as Rottnest ----------
 (()=>{const R2=mulberry32(4711);const areas=[];scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map||o.material.map.image!==grassC||!o.geometry||o.geometry.type!=='PlaneGeometry')return;const wp=new THREE.Vector3();o.getWorldPosition(wp);if(wp.x<100||Math.abs(o.rotation.x+Math.PI/2)>.01||o.rotation.z)return;const w=o.geometry.parameters.width*o.scale.x,h=o.geometry.parameters.height*o.scale.y;if(w*h<6)return;areas.push({x1:wp.x-w/2,x2:wp.x+w/2,z1:wp.z-h/2,z2:wp.z+h/2,a:w*h});});
   const grassMeshes=new Set();scene.traverse(o=>{if(o.isMesh&&o.material&&o.material.map&&o.material.map.image===grassC)grassMeshes.add(o);});
@@ -3773,10 +3705,10 @@ function cafeNightTick(on,k){const isl=player.x<100;CAFE_NL.spots.forEach(s=>{s.
 function lampTick(){const on=NIGHT>.05||S.time>1110||S.time<400;const k=on?Math.max(.55,NIGHT):0;cafeNightTick(on,k);LAMPS.forEach(L=>{L.bulbM.color.setRGB(on?1:.42,on?.88:.38,on?.6:.31);L.gm.opacity=k*.8;L.halo.material.opacity=k*.9;});}
 
 // ---------- bus between South Perth, Heirisson Island and Victoria Park ----------
-function busTo(dest){if(transit||VISIT)return;if(dest==='vp'&&needPass('vp'))return;const D=BUS_STOPS[dest];transit=true;fadeTarget=.95;toast('Bus to '+D.name+'…',2);
+function busTo(dest){if(transit||VISIT)return;if(PASS_ZONES.includes(dest)&&needPass(dest))return;const D=BUS_STOPS[dest];transit=true;fadeTarget=.95;toast('Bus to '+D.name+'…',2);
   setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;player.x=D.land[0];player.z=D.land[1];updateCamera(0,true);fadeTarget=0;transit=false;S.fq=S.fq||{};
     if(dest==='hi'&&!S.fq.visitHI){S.fq.visitHI=1;save();say(['Kip: Heirisson Island! There’s a kangaroo sanctuary in the middle of the river.','Kip: Perfect for postcards. Press the camera button when something new is nearby.']);}
-    if(dest==='vp'&&!S.fq.visitVP){S.fq.visitVP=1;save();say(['Kip: Albany Highway! Pho, ramen, dumplings, Thai, bubble tea… I could eat my way down this whole street.'],()=>openQuest('vpfood',true));}},900);}
+    if(dest==='vp'&&!S.fq.visitVP){S.fq.visitVP=1;save();say(['Kip: Albany Highway! Pho, ramen, dumplings, Thai, bubble tea… I could eat my way down this whole street.'],()=>openQuest('vpfood',true));}if(dest==='cbd')cbdArrive('cbd');},900);}
 // ---------- Victoria Park shops ----------
 VP_SHOPS.forEach(sh=>{const v={skin:pick(SKINS),hair:pick(HAIRS),shirt:sh.col,pants:pick(PANTS),hat:null};sh.npc={x:sh.x+1.4,z:-1.7};const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(sh.npc.x,0,sh.npc.z);scene.add(m);blob(.85).position.set(sh.npc.x,.03,sh.npc.z);
   const items=[];if(sh.dish)items.push({id:'vp_'+sh.id,name:sh.dish,price:sh.price,desc:sh.cui+' \u00b7 +40 stamina and Kip walks 20% faster today.',buy:()=>{S.fq=S.fq||{};S.fq['vp_'+sh.id]=1;S.refreshed=true;eat(40,sh.dish);}});
@@ -3786,7 +3718,7 @@ VP_SHOPS.forEach(sh=>{const v={skin:pick(SKINS),hair:pick(HAIRS),shirt:sh.col,pa
   SHOPS['vp_'+sh.id]={name:sh.name,who:sh.cui,desc:sh.dish?'One of Albany Highway’s '+sh.cui+' favourites.':sh.cui+' on Albany Highway.',items};});
 const VP_BUSKER={x:510,z:3.2};(()=>{const m=spriteMesh(humanFrames({hair:'#9b3b22',skin:'#f1c7a0',shirt:'#9478d4',pants:'#2f3b5c',hat:'#2a2a30'}),.95,1.58);m.position.set(VP_BUSKER.x,0,VP_BUSKER.z);scene.add(m);blob(.85).position.set(VP_BUSKER.x,.03,VP_BUSKER.z);})();
 let rollKey='';
-function zoneTick(dt,t){const z=zoneOf(player.x);
+function zoneTick(dt,t){const z=zoneOf(player.x);if(z==='cbd'&&typeof CBD!=='undefined'){const k=Math.min(1,dt*6);for(const e of CBD.cut){const behind=player.z<e.z1+.6&&player.z>e.z1-18&&player.x>e.x1-2.5&&player.x<e.x2+2.5;const tg=behind?Math.max(.06,1.3/e.h):1;if(Math.abs(e.g.scale.y-tg)>.002)e.g.scale.y+=(tg-e.g.scale.y)*k;}}
   if(running&&!VISIT&&rollKey!==SLOT+'|'+S.day){rollKey=SLOT+'|'+S.day;if(!S.dt||S.dt.day!==S.day)setupDay();makeMail();syncDayVisuals();{const fe=festToday();if(fe)setTimeout(()=>toast('Festival today: '+fe.name+'!',4),1500);if((S.mail||[]).some(m=>!m.read))setTimeout(()=>toast('You\u2019ve got mail! Check the mailbox by the caf\u00e9.',3.5),4000);}stranded.forEach(p=>{scene.remove(p.m);scene.remove(p.b);});stranded=[];strandRolled=false;rollStar();}
   if(running&&!VISIT&&!strandRolled&&S.time>=1050&&S.time<1290){strandRolled=true;spawnStranded();}
   if(z==='hi'){roos.forEach(r=>{r.wait-=dt;let mv=false;if(r.wait<=0){const dx=r.tx-r.x,dz=r.tz-r.z,d=Math.hypot(dx,dz);if(d<.1){r.wait=1.5+Math.random()*4;r.tx=411+Math.random()*18;r.tz=-6+Math.random()*8;}else{const s=Math.min(d,2.4*dt);r.x+=dx/d*s;r.z+=dz/d*s;r.face=dx>0?1:-1;r.hop+=dt;mv=true;}}
@@ -3862,7 +3794,7 @@ function STORY_DEF(){if(_story)return _story;const g=()=>S.qg||{};const vpDish=(
   {title:'Kangaroos in the city',giver:'Sanctuary sign',intro:'Sign: Western grey kangaroos live on this island in the middle of the Swan River. Please walk quietly and keep your distance.',outro:'Kip: A joey peeked out of the pouch! Best day ever. Home in Victoria Park is one more bus stop away.',coins:60,
    steps:[['Spot a western grey kangaroo','roo'],['Find a joey in the pouch','joey'],['Photograph the black swans','swan'],['Find the Australian pelican','pelican'],['Visit the kangaroo sculpture','yagan']]}]},
  freo:{name:'Fremantle',short:'Freo',chapters:[
-  {title:'The port city',giver:'Skipper Lou',intro:'Welcome to Walyalup, Fremantle! I’ve sailed in here a thousand times. Start with the harbour: the B-Shed, the museum and the Round House on the hill.',outro:'Now you’ve got your sea legs. Go and have a coffee on the strip.',coins:60,
+  {title:'The port city',giver:'Skipper Lou',intro:'Welcome to Fremantle! I’ve sailed in here a thousand times. Start with the harbour: the B-Shed, the museum and the Round House on the hill.',outro:'Now you’ve got your sea legs. Go and have a coffee on the strip.',coins:60,
    steps:[['Photograph B-Shed ferry terminal','bshed'],['Take a photo with Skipper Lou','lou'],['Visit the WA Maritime Museum','museum'],['Climb up to the Round House','roundhouse'],['Walk Bathers Beach','bathers']]},
   {title:'Cappuccino Strip',giver:'Khun Noi',intro:'Sawasdee ka, Kip! I run Tasty Thai on the strip. Come and eat, then explore the market behind us.',outro:'You’re family here now. The harbour and the old prison have more stories.',coins:80,
    steps:[['Walk the Cappuccino Strip','strip'],['Coffee at Pippo’s','ninos'],['Eat at Freo Thai Basil','tastythai'],['Take a photo with Khun Noi','noipc'],['Shop at Freo Markets','freomkts']]},
@@ -4002,7 +3934,7 @@ function sqTick(dt){if(VISIT||!running||dlgOpen()||overlay||transit)return;sqT-=
     if(st.carry)player.carry=null;if(st.have&&st.have.take)S.inv[st.have.k]-=st.have.n;S.sq[q.id]=i+1;save();const fin=i+1>=q.steps.length;
     const lines=(st.say||[]).slice();if(fin){const pay=rw(q.coins);S.coins+=pay;lines.push({who:(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} ')+'Side quest complete',text:q.title+' \u00b7 +'+pay+' coins. '+q.outro});if(S.track==='sq_'+q.id)S.track=null;}
     say(lines);return;}}
-function sqQuests(){return SIDEQ.map(q=>{const i=sqStep(q),done=i>=q.steps.length;return{id:'sq_'+q.id,title:(done?'':(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} '))+'Side \u00b7 '+q.title,giver:q.giver+' \u00b7 '+({island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park'})[q.zone],desc:q.desc,steps:q.steps.map((st,k)=>[st.l,k<i]),reward:rw(q.coins)+' coins'+(rewardMult()>1?' (\u00d7'+rewardMult()+' Kip\u2019s Journey bonus)':''),open:sqOpen(q)};});}
+function sqQuests(){return SIDEQ.map(q=>{const i=sqStep(q),done=i>=q.steps.length;return{id:'sq_'+q.id,title:(done?'':(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} '))+'Side \u00b7 '+q.title,giver:q.giver+' \u00b7 '+({island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD'})[q.zone],desc:q.desc,steps:q.steps.map((st,k)=>[st.l,k<i]),reward:rw(q.coins)+' coins'+(rewardMult()>1?' (\u00d7'+rewardMult()+' Kip\u2019s Journey bonus)':''),open:sqOpen(q)};});}
 function sqTarget(id){const q=SIDEQ.find(x=>x.id===id);if(!q||zoneOf(player.x)!==q.zone)return null;const i=sqStep(q);const st=q.steps[i];if(!st)return null;if(st.carry&&player.carry!==st.carry){const k=STATIONS.find(x=>x.key===st.carry);if(k)return{x:k.x,z:k.z+.9,label:'Make a '+ITEMS[st.carry].name};}const P=sqPos(st);return P?{x:P.x,z:P.z,label:st.l}:null;}
 let snapPending=null;
 function snapPhoto(){if(!running||overlay||transit)return;if(VISIT){toast('Photo saved to your camera roll memories! (postcards only count on your own island)',2.5);const fl=$('#flash');fl.classList.remove('on');void fl.offsetWidth;fl.classList.add('on');return;}const p=pcCandidate();if(!p){toast('Nothing new to photograph here');return;}
@@ -4013,13 +3945,13 @@ let pcFilter='all';
 function openAlbum(){if(!running||overlay)return;renderAlbum();showOverlay('album');}
 function renderAlbum(){const got=S.pc||{};$('#alCount').textContent=pcCount()+' / '+PC_TOTAL+' postcards \u00b7 '+PCS.filter(p=>isSpecial(p.cat)&&got[p.id]).length+' / '+PCS.filter(p=>isSpecial(p.cat)).length+' special';const F=$('#alFilters');F.innerHTML='';
   [['all','All']].concat(Object.keys(PCAT).map(k=>[k,PCAT[k].label])).forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(pcFilter===k?' on':'');b.id='alf-'+k;const n=PCS.filter(p=>(k==='all'||p.cat===k)&&got[p.id]).length,tot=PCS.filter(p=>k==='all'||p.cat===k).length;b.textContent=l+' '+n+'/'+tot;b.onclick=()=>{pcFilter=k;renderAlbum();};F.appendChild(b);});
-  const G=$('#alGrid');G.innerHTML='';const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park'};
+  const G=$('#alGrid');G.innerHTML='';const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD'};
   PCS.forEach((p,i)=>{if(pcFilter!=='all'&&p.cat!==pcFilter)return;const has=!!got[p.id];const d=document.createElement('div');d.className='pc'+(has?'':' miss');d.style.setProperty('--c',PCAT[p.cat].col);
     const ph=document.createElement('div');ph.className='ph';if(has&&pcThumbs[p.id]){const im=document.createElement('img');im.src=pcThumbs[p.id];im.alt=p.name;ph.appendChild(im);}else ph.textContent=has?'✓':'?';
     const nm=document.createElement('div');nm.className='nm';nm.textContent=has?p.name:'#'+(i+1);const zz=document.createElement('div');zz.className='zn';zz.textContent=zn[p.zone];d.append(ph,nm,zz);if(!has){const hn=document.createElement('div');hn.className='zn pcHint';hn.textContent='Hint: '+pcHint(p);d.appendChild(hn);}G.appendChild(d);});}
 const PC_FEST={f_swim:'swim',f_lny:'lny',f_whale:'whales',f_fireworks:'fireworks',f_quokkaday:'quokkaday',f_wild:'wildflower',f_arts:'streetarts'};
 const PC_TIP={place:'a landmark, stand close and tap Photo',animal:'wanders around, keep an eye out while exploring',people:'a local, walk up close and tap Photo',food:'a shop or food stop, photograph it from outside'};
-function pcHint(p){if(PC_HINTS[p.id])return PC_HINTS[p.id];const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park'}[p.zone];
+function pcHint(p){if(PC_HINTS[p.id])return PC_HINTS[p.id];const zn={island:'Rottnest',sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD'}[p.zone];
   if(p.cat==='festival'){const f=FESTIVALS.find(q=>q.id===PC_FEST[p.id]);return f?p.name+' \u00b7 only during '+f.name+' ('+SEASONS[f.s].n+' '+f.d+(f.len?'\u2013'+(f.d+f.len-1):'')+') in '+zn:p.name+' \u00b7 festival day';}
   if(p.cat==='star')return p.name+' \u00b7 a star guest who visits the caf\u00e9 sometimes. Help them, then take a photo together';
   return p.name+' \u00b7 '+(PC_TIP[p.cat]||'take a photo');}
@@ -4097,23 +4029,24 @@ function renderPerthMap(c){const x=c.getContext('2d'),W=c.width,H=c.height;x.ima
   const pin=(px,py,id,locked)=>{const me=zq===id;if(me){x.fillStyle='rgba(255,233,160,.25)';x.beginPath();x.arc(px,py,30,0,6.283);x.fill();}x.beginPath();x.arc(px,py,locked?11:14,0,6.283);x.fillStyle=locked?'#6b7280':me?'#ffd34d':'#ff5a4a';x.fill();x.lineWidth=3;x.strokeStyle='#0f1426';x.stroke();x.fillStyle='#fff';x.beginPath();x.arc(px,py,4,0,6.283);x.fill();};
   PERTH_PINS.length=0;const place=(px,py,id,name,sub,lx,ly,locked)=>{PERTH_PINS.push({id,name,px,py,lx,ly});if(ftSel===id){x.save();x.strokeStyle='#ffd34d';x.lineWidth=5;x.setLineDash([8,6]);x.beginPath();x.arc(px,py,30,0,6.283);x.stroke();x.restore();}pin(px,py,id,locked);txt(name,lx,ly,34,'#f5ecd8');txt(sub,lx,ly+34,22,locked?'#c0c4cc':'#ffd34d','700 ');if(zq===id)txt('★ You are here',lx,ly-34,20,'#ffd34d');};
   place(220,334,'island','Rottnest Island','Rottnest · café home',220,442);
-  place(500,336,'freo','Fremantle',fr?'Walyalup · ferry':'Locked',560,402,!fr);
+  place(500,336,'freo','Fremantle',fr?'Port city · ferry':'Locked',560,402,!fr);
   place(1010,268,'sp','South Perth','Mends St Jetty · ferry',900,330);
   {const own=PROP_LIST.filter(P=>propOwned(P.id)).length,sale=PROP_LIST.length-own;const hl=own?('\u{1F3E0} Your home'+(own>1?'s ×'+own:'')+(sale?' · '+sale+' for sale':'')):(unlocked('homes')?'\u{1F3E0} '+sale+' homes for sale':'\u{1F3E0} Homes for sale · open after your first business');txt(hl,900,392,20,own?'#9fd98a':'#f5ecd8','700 ');}
   place(1150,214,'hi','Heirisson Island','Kangaroos · bus',1230,150);
   place(1215,372,'vp','Victoria Park','Albany Hwy · bus',1230,440);
-  txt('Indian Ocean',250,110,30,'#cfe6f7','700 ');txt('Swan River',740,206,26,'#e3f3fb','700 ');txt('Perth CBD',1078,30,24,'#f5ecd8','700 ');txt('Kings Park',960,120,18,'#e6f2d8','700 ');
+  route([[1010,262],[1035,215],[1058,172]],'#ffffff',[12,9]);place(1058,166,'cbd','Perth CBD','Ferry · City Loop bus',1000,68);
+  txt('Indian Ocean',250,110,30,'#cfe6f7','700 ');txt('Swan River',740,206,26,'#e3f3fb','700 ');txt('Kings Park',935,175,18,'#e6f2d8','700 ');
   x.font='800 '+Math.round(9*2.6)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=8;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',16,26);x.fillStyle='#ffd34d';x.fillText('N↑',16,26);
   x.textAlign='left';x.textBaseline='alphabetic';x.font='700 26px "M PLUS Rounded 1c", sans-serif';x.lineWidth=6;[['- - -  Ferry','#f5ecd8',28],['━━  Bus','#3ec46a',210],['●  You are here','#ffd34d',360]].forEach(([t,col,px])=>{x.strokeText(t,px,532);x.fillStyle=col;x.fillText(t,px,532);});x.textAlign='right';x.fillStyle='#f5ecd8';x.strokeText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);x.fillText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);}
-function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park'}[id];if(zoneOf(player.x)===id)return{ok:false,why:'You are already in '+nm+'.',nm};
+function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD'}[id];if(zoneOf(player.x)===id)return{ok:false,why:'You are already in '+nm+'.',nm};
   if(id==='freo'&&!freoUnlocked())return{ok:false,why:'Fremantle is still locked: upgrade Main Jetty to Lv3 and start Kip\u2019s Ferry Co.',nm};
   if(!isGM()&&id!=='island'&&!(S.seenZ&&S.seenZ[id]))return{ok:false,why:'Visit '+nm+' once by ferry or bus before you can fast travel there.',nm};
   return{ok:true,nm};}
 function ftSelect(id){ftSel=id;const c=ftCheck(id);const h=$('#ftHint'),g=$('#ftGo');h.hidden=false;g.hidden=!c.ok;if(c.ok){h.textContent='\u2708 Fast travel to '+c.nm+' for '+FT_COST+' coins? (you have '+S.coins+')';g.textContent='Fast travel \u00b7 '+FT_COST+' coins';g.disabled=S.coins<FT_COST;}else h.textContent=c.why;renderPerthMap($('#bigMap'));}
-function ftGo(){const id=ftSel;if(!id)return;if(id.startsWith('bus:')){const b=COACH.find(q=>'bus:'+q.id===id);if(!b||transit||VISIT)return;if(!pay(FARE_TP))return;hideOverlays();coachTo(b);return;}const c=ftCheck(id);if(!c.ok)return;if((id==='freo'||id==='vp')&&!hasPass()){hideOverlays();needPass(id);return;}if(transit||VISIT)return;if(S.coins<FT_COST){toast('Fast travel costs '+FT_COST+' coins',2);return;}
+function ftGo(){const id=ftSel;if(!id)return;if(id.startsWith('bus:')){const b=COACH.find(q=>'bus:'+q.id===id);if(!b||transit||VISIT)return;if(!pay(FARE_TP))return;hideOverlays();coachTo(b);return;}const c=ftCheck(id);if(!c.ok)return;if(PASS_ZONES.includes(id)&&!hasPass()){hideOverlays();needPass(id);return;}if(transit||VISIT)return;if(S.coins<FT_COST){toast('Fast travel costs '+FT_COST+' coins',2);return;}
   S.coins-=FT_COST;hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2708 Fast travel to '+c.nm+'\u2026 \u2212'+FT_COST+' coins',2.2);
   setTimeout(()=>{const sp=freeNear(...(SAFE_SPOTS[id]||SAFE_SPOTS.island)[0]);player.bike=false;player.carry=null;player.lying=false;player.x=sp[0];player.z=sp[1];S.time+=20;updateCamera(0,true);fadeTarget=0;transit=false;save();},900);}
-function togglePerthMap(){ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;const c=$('#bigMap');mapMode=mapMode==='zone'?'perth':'zone';if(mapMode==='perth'){renderPerthMap(c);$('#mapOv .legend').hidden=true;$('#mapQuest').hidden=true;$('#mapOv h2').textContent='Perth';$('#mapOv .eyebrow').textContent='Boorloo · Kip’s Perth';$('#mapPerth').textContent='Back to local map';}else{overlay=null;mapMode='zone';openMap();}}
+function togglePerthMap(){ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;const c=$('#bigMap');mapMode=mapMode==='zone'?'perth':'zone';if(mapMode==='perth'){renderPerthMap(c);$('#mapOv .legend').hidden=true;$('#mapQuest').hidden=true;$('#mapOv h2').textContent='Perth';$('#mapOv .eyebrow').textContent='Kip’s Perth';$('#mapPerth').textContent='Back to local map';}else{overlay=null;mapMode='zone';openMap();}}
 
 function basketCount(){return Object.keys(S.inv).reduce((a,k)=>a+(S.inv[k]||0),0);}
 function basketStr(){const ks=Object.keys(S.inv).filter(k=>S.inv[k]>0);return ks.map(k=>S.inv[k]+' '+(S.inv[k]>1?CROPS[k].plural:CROPS[k].name)).join(', ');}
@@ -4186,7 +4119,7 @@ function updateCustomers(dt){for(const c of customers.slice()){
 
 // ---------- movement ----------
 function groundY(x,z){if(x>286.9&&x<289.1&&z>-19&&z<-14.6)return .11;if(x>149.4&&x<150.6&&z>-9.4&&z<-3.8)return .11;if(x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2)return .16;if(x>JETTY.x1&&x<JETTY.x2+.4&&z>JETTY.z1&&z<JETTY.z2)return .11;if(x<100&&ISL_WALK.length&&ISL_WALK.some(r=>x>r.x1-.1&&x<r.x2+.1&&z>r.z1&&z<r.z2))return .13;return 0;}
-function blocked(x,z){const r=.28;const inLand=x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<12)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45&&!islGroundBlock(x,z);const inJ=(x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05)||(x<100&&ISL_WALK.some(r=>x>r.x1&&x<r.x2&&z>r.z1&&z<r.z2));if(!inLand&&!inJ)return true;
+function blocked(x,z){const r=.28;const inLand=x>590?cbdWalk(x,z):x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<12)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45&&!islGroundBlock(x,z);const inJ=(x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05)||(x<100&&ISL_WALK.some(r=>x>r.x1&&x<r.x2&&z>r.z1&&z<r.z2));if(!inLand&&!inJ)return true;
   for(const b of colliders)if(x>b.x1-r&&x<b.x2+r&&z>b.z1-r&&z<b.z2+r)return true;
   if(S.wish.room&&x>HUT.x-1.8&&x<HUT.x+1.8&&z>HUT.z-1.6&&z<HUT.z+1.6)return true;return false;}
 function updatePlayer(dt){let mx=0,mz=0;
@@ -4251,7 +4184,7 @@ function openWish(){if(!running||(overlay&&overlay!=='cafe'))return;S.qg=S.qg||{
 function hqTpSpot(x,z){const off=[[0,2.6],[0,3.4],[2.4,2.4],[-2.4,2.4],[0,-2.6],[2.8,0],[-2.8,0],[0,4.4]];for(const [dx,dz] of off){if(!blocked(x+dx,z+dz))return[x+dx,z+dz];}return[x,z+2.6];}
 function hqTpTarget(){if(hqTab==='main')return{...IW(0,2.9),name:'Quokka Cafe, Rottnest',zone:'island',exact:true};if(hqTab==='wish')return null;const b=BRANCHES.find(q=>q.id===hqTab);if(!b||!brState(b.id).own)return null;return{x:b.x,z:b.z,name:'Quokka Cafe '+b.name,zone:b.zone};}
 function hqTpButton(){const t=hqTpTarget(),btn=$('#cfTp');btn.hidden=!t||!!VISIT;if(t){const here=zoneOf(player.x)===t.zone&&Math.hypot(player.x-t.x,player.z-t.z)<6;btn.disabled=here;btn.textContent=here?'You are here':'Teleport to '+t.name+' \u00b7 free';}}
-function hqTeleport(){const t=hqTpTarget();if(!t||transit||VISIT)return;if((t.zone==='freo'||t.zone==='vp')&&!hasPass()){hideOverlays();needPass(t.zone);return;}hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2728 Teleporting to '+t.name+'\u2026',2);
+function hqTeleport(){const t=hqTpTarget();if(!t||transit||VISIT)return;if(PASS_ZONES.includes(t.zone)&&!hasPass()){hideOverlays();needPass(t.zone);return;}hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2728 Teleporting to '+t.name+'\u2026',2);
   setTimeout(()=>{const sp=freeNear(...(t.exact?[t.x,t.z]:hqTpSpot(t.x,t.z)));player.bike=false;player.carry=null;player.x=sp[0];player.z=sp[1];updateCamera(0,true);fadeTarget=0;transit=false;},800);}
 // ---------- Kip's Journey: the main RPG path, in five chapters ----------
 function jHas(fn){try{return!!fn();}catch(e){return false;}}
@@ -4396,7 +4329,7 @@ function drawMapDynamic(x,W,H,s,t,q,B){const m=mapper(W,H,B);const sp=B!==MM&&!B
   x.save();x.translate(PX,PZ);x.rotate(ang);x.fillStyle='#ffd34d';x.strokeStyle='#2a1d1a';x.lineWidth=1.5*s;x.beginPath();x.moveTo(7*s,0);x.lineTo(-5*s,-5*s);x.lineTo(-2*s,0);x.lineTo(-5*s,5*s);x.closePath();x.fill();x.stroke();x.restore();}
 const PIN_ROWS=["..ooooo..",".orrrrro.","orrwwrrro","orrwwrrro","orrrrrrro",".orrrrro.","..orrro..","..orrro..","...oro...","...oro...","....o...."];
 const questPin=spriteMesh([pix(PIN_ROWS,{o:'#3a1418',r:'#ff5d5d',w:'#ffffff'})],.5,.62,{basic:true,shadow:false});questPin.visible=false;scene.add(questPin);
-function questTarget(){const zq=zoneOf(player.x);if(zq==='hi'||zq==='vp'){if(S.track==='vpfood'&&zq==='vp'){const tt=trackTarget('vpfood');if(tt)return tt;}const c=nearestPostcard();return c||{x:BUS_STOPS[zq].x,z:BUS_STOPS[zq].z+.6,label:'Bus back to South Perth'};}
+function questTarget(){const zq=zoneOf(player.x);if(zq==='hi'||zq==='vp'||zq==='cbd'){if(S.track==='vpfood'&&zq==='vp'){const tt=trackTarget('vpfood');if(tt)return tt;}const c=nearestPostcard();return c||{x:BUS_STOPS[zq].x,z:BUS_STOPS[zq].z+.6,label:'Bus back to South Perth'};}
   if(false){}
   const near=list=>{let b=null,bd=1e9;list.forEach(o=>{const d=Math.hypot(o.x-player.x,o.z-player.z);if(d<bd){bd=d;b=o;}});return b;};
   if(zq==='freo'){const left=FREO_STOPS.filter(f=>!(S.fq&&S.fq[f.id]));if(left.length){let b=left[0],bd=1e9;left.forEach(f=>{const d=Math.hypot(f.x-player.x,f.z-player.z);if(d<bd){bd=d;b=f;}});return{x:b.x,z:b.z,label:b.label};}return{x:288,z:-17.6,label:'Ferry back to Rottnest'};}
@@ -4418,7 +4351,7 @@ function updateQuestUI(dt,t){curQuest=running?questTarget():null;
   const q=curQuest,far=q&&Math.hypot(q.x-player.x,q.z-player.z)>1.7;questPin.visible=!!far;if(far)questPin.position.set(q.x,2.15+Math.sin(t*3)*.12,q.z);
   mmT-=dt;if(mmT>0||ui.hud.hidden)return;mmT=.1;const zq=zoneOf(player.x);if(zq==='island'){const FW=mmBase.width,FH=mmBase.height,ww=(MM.x2-MM.x1)*mmW/FW,wh=ww*mmH/mmW;let cx=clamp(player.x,MM.x1+ww/2,MM.x2-ww/2),cz=clamp(player.z,MM.z1+wh/2,MM.z2-wh/2);const LB={mir:true,x1:cx-ww/2,x2:cx+ww/2,z1:cz-wh/2,z2:cz+wh/2};const sx=(MM.x2-LB.x2)/(MM.x2-MM.x1)*FW,sz=(LB.z1-MM.z1)/(MM.z2-MM.z1)*FH;mmX.fillStyle='#2a8db2';mmX.fillRect(0,0,mmW,mmH);mmX.drawImage(mmBase,sx,sz,mmW,mmH,0,0,mmW,mmH);drawMapDynamic(mmX,mmW,mmH,1,t,q,LB);}else{mmX.drawImage(zoneBase(zq,false),0,0);drawMapDynamic(mmX,mmW,mmH,1,t,q,ZONE_B(zq));}
   const lbl=q?'→ '+q.label+' · '+Math.round(Math.hypot(q.x-player.x,q.z-player.z)*10)+' m':'All quests done · explore freely';if(lbl!==lastMmLbl){lastMmLbl=lbl;mmLbl.textContent=lbl;}}
-function openMap(){if(!running||overlay)return;mapMode='zone';ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;$('#mapOv .legend').hidden=false;$('#mapQuest').hidden=false;if($('#mapPerth'))$('#mapPerth').textContent='Perth map';const c=$('#bigMap'),x=c.getContext('2d');const zq=zoneOf(player.x);if(zq==='island'){if(!bigBase)bigBase=renderMapBase(c.width,c.height,2.6,true);x.drawImage(bigBase,0,0);}else x.drawImage(zoneBase(zq,true),0,0);drawMapDynamic(x,c.width,c.height,2.6,performance.now()/1000,questTarget(),ZONE_B(zq));const ZN={island:['Island map','Rottnest Island \u00b7 Western Australia'],sp:['South Perth','Mends Street Jetty \u00b7 Swan River'],freo:['Fremantle','Walyalup \u00b7 Fremantle'],hi:[ZONE_DEF.hi.title,ZONE_DEF.hi.eb],vp:[ZONE_DEF.vp.title,ZONE_DEF.vp.eb]}[zq];$('#mapOv h2').textContent=ZN[0];$('#mapOv .eyebrow').textContent=ZN[1];
+function openMap(){if(!running||overlay)return;mapMode='zone';ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;$('#mapOv .legend').hidden=false;$('#mapQuest').hidden=false;if($('#mapPerth'))$('#mapPerth').textContent='Perth map';const c=$('#bigMap'),x=c.getContext('2d');const zq=zoneOf(player.x);if(zq==='island'){if(!bigBase)bigBase=renderMapBase(c.width,c.height,2.6,true);x.drawImage(bigBase,0,0);}else x.drawImage(zoneBase(zq,true),0,0);drawMapDynamic(x,c.width,c.height,2.6,performance.now()/1000,questTarget(),ZONE_B(zq));const ZN={island:['Island map','Rottnest Island \u00b7 Western Australia'],sp:['South Perth','Mends Street Jetty \u00b7 Swan River'],freo:['Fremantle','Port city \u00b7 Fremantle'],hi:[ZONE_DEF.hi.title,ZONE_DEF.hi.eb],vp:[ZONE_DEF.vp.title,ZONE_DEF.vp.eb],cbd:[ZONE_DEF.cbd.title,ZONE_DEF.cbd.eb]}[zq];$('#mapOv h2').textContent=ZN[0];$('#mapOv .eyebrow').textContent=ZN[1];
   document.querySelectorAll('#mapOv .lg-sp').forEach(e=>e.hidden=zq!=='sp');
   const q=questTarget();$('#mapQuest').textContent=q?'Current goal: '+q.label:'All quests done. Explore freely.';showOverlay('map');}
 $('#mm').addEventListener('click',openMap);$('#mapClose').addEventListener('click',hideOverlays);
@@ -4504,7 +4437,7 @@ function updateMirror(){const m=!running||zoneOf(player.x)==='island';flipT-=1/6
 function updateCamera(dt,snap){updateMirror();tmpV.set(player.x,.6,player.z);if(overlay==='title'||overlay==='slots'){const tt=performance.now()/1000/9,i=Math.floor(tt)%TITLE_SHOTS.length,f=tt%1,A=TITLE_SHOTS[i],B=TITLE_SHOTS[(i+1)%TITLE_SHOTS.length],e=f<.7?0:(f-.7)/.3;const k=e*e*(3-2*e);tmpV.set(lerp(A[0],B[0],k)+f*.8,.6,lerp(A[2],B[2],k));yawT=lerp(A[3],B[3],k)+f*.12;zm=lerp(A[4],B[4],k);S.time=1050;}
   if(CINE&&RIDE){const f=CINE.focus;if(f){tmpV.x=lerp(player.x,f.x,.7);tmpV.z=lerp(player.z,f.z,.7);}yawT+=dt*.06*(MIR?-1:1);zm+=((f?2.1:1.6)-zm)*(1-Math.exp(-dt*1.2));}
   camTarget.lerp(tmpV,snap?1:1-Math.exp(-dt*(CINE?2:5)));yaw+=(yawT-yaw)*(snap?1:1-Math.exp(-dt*8));camOff.set(Math.sin(yaw)*CAM_DIR.z,CAM_DIR.y,Math.cos(yaw)*CAM_DIR.z);camera.position.copy(camTarget).addScaledVector(camOff,Math.min(52,camDist*zm));for(let i=0;i<BB.length;i++)BB[i].rotation.y=yaw;dir4Tick();if(MIR){camera.position.x=-camera.position.x;camera.lookAt(-camTarget.x,camTarget.y,camTarget.z);}else camera.lookAt(camTarget);
-  tmpV.set(MIR?-camTarget.x:camTarget.x,.8,camTarget.z).project(camera);post.uniforms.focus.value=clamp((tmpV.y+1)/2,.25,.75);{const zq=zoneOf(player.x);const bk={island:.45,sp:.3,hi:.45,vp:.55,freo:.45}[zq]||.5;post.uniforms.bloomK.value+=(bk-post.uniforms.bloomK.value)*.1;post.uniforms.blurK.value+=((zq==='sp'?.75:1)-post.uniforms.blurK.value)*.1;}}
+  tmpV.set(MIR?-camTarget.x:camTarget.x,.8,camTarget.z).project(camera);post.uniforms.focus.value=clamp((tmpV.y+1)/2,.25,.75);{const zq=zoneOf(player.x);const bk={island:.45,sp:.3,hi:.45,vp:.55,freo:.45,cbd:.5}[zq]||.5;post.uniforms.bloomK.value+=(bk-post.uniforms.bloomK.value)*.1;post.uniforms.blurK.value+=((zq==='sp'?.75:1)-post.uniforms.blurK.value)*.1;}}
 function ambient(dt,t){weatherTick(dt,t);water.material.map.offset.x=(t*.012)%1;water.material.map.offset.y=(Math.sin(t*.4)*.02);
   {const nb=Math.min(4,1+(S.jetty||0)),nx=FERRY_ARR.find(a=>S.time<a+14);ferries.forEach((f,i)=>{if(i>=nb){f.visible=false;return;}const D=DOCKS[i];let fx=D[0],fz=D[1],vis=true;const ox=D[0]-14,oz=D[1]+(D[1]>5?3.2:-3.2);
     if(running&&player.x<100){if(nx===undefined||S.wx===3){}else{const k=S.time-nx+i*1.2;if(k<-10)vis=false;else if(k<0){const e=1-(-k/10);fx=lerp(ox,D[0],e*e*(3-2*e));fz=lerp(oz,D[1],e);}else if(k<8){}else{const e=Math.min(1,(k-8)/6);fx=lerp(D[0],ox,e*e);fz=lerp(D[1],oz,e);if(e>=1)vis=false;}}}
@@ -4574,8 +4507,7 @@ function engCull(){const cx=camTarget.x,cz=camTarget.z,R=ENG.R*Math.max(1,zm||1)
 // map snapshots render the whole zone from above: switch everything on and let the frame matrices follow while they render
 function engSuspend(){if(!ENG.init)return;ENG.sus++;ENG.cells.forEach(c=>{c.on=true;for(const e of c.objs)for(const n of e.d)n.layers.enable(0);});ENG.list.forEach(o=>{if(o)o.matrixAutoUpdate=true;});}
 function engResume(){if(!ENG.init||!ENG.sus)return;ENG.sus--;if(ENG.sus)return;ENG.list.forEach((o,i)=>{if(!o)return;o.updateMatrix();o.matrixAutoUpdate=false;engSnap(i,o);});ENG.cullT=0;}
-function loop(now){requestAnimationFrame(loop);let dt=(now-last)/1000;dt=dt>0?Math.min(.05,dt):0;last=now;// rAF time can be earlier than `last` after a long first build: a negative dt blew the camera up to NaN
-  if(!isFinite(yaw))yaw=isFinite(yawT)?yawT:0;if(!isFinite(camTarget.x)||!isFinite(camTarget.z))camTarget.set(player.x,.6,player.z);const t=now/1000;
+function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;const t=now/1000;
   if(transit&&!RIDE&&fadeTarget<.5){transitT+=dt;if(transitT>6){transit=false;transitT=0;}}else transitT=0;
   if(running&&!overlay&&!PORTRAIT_LOCK)safeRun('update',()=>update(dt));
   safeRun('world',()=>{applyTime();updateWilds(dt,t);if(!overlay||overlay==='title')updateWalkers(dt);});
@@ -5171,6 +5103,136 @@ islandLate(()=>{const R=srand(818);
   // more trees and shrubs on the open parts of the east cape and the south point
   {const tv=[treeVariants[0],treeVariants[1],treeVariants[3]].filter(Boolean);let n=0;for(let i=0;i<260&&n<70;i++){const x=-175+R()*100,z=-15+R()*72;if(landD(x,z)<3||!islSiteOK(x,z,.5,.4,{land:2.4,path:1.2,pad:.8}))continue;if(trees.some(t=>Math.abs(t.x-x)<4&&Math.abs(t.z-z)<4))continue;waTree(x,z,tv[n%tv.length],.8+R()*.4);n++;}}
   P8.ready=true;});
+// ---------- Perth CBD: the city across the river from South Perth (ferry to Barrack Street Jetty, City Loop bus) ----------
+// Layout from south (river) to north: riverfront and jetty, Riverside Drive, St Georges Terrace with office towers,
+// Hay Street Mall, shops, Wellington Street and the station. Kings Park on the west, the Gold Exchange and food trucks on the east.
+const CBDB={x1:598,x2:702,z1:-27,z2:24};
+const CBD={npcs:[],acts:[],P:{},cut:[]};
+function cbdWalk(x,z){if(x>600.2&&x<699.8&&z>-25.6&&z<11.8&&!(x>640&&x<660&&z>6.2))return true;if(x>668.2&&x<670.8&&z>11&&z<19.6)return true;if(x>639&&x<661&&z>9.4&&z<11.2)return true;return false;}
+(()=>{const M=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c)});
+  // every building is registered so it can fold down when Kip walks behind it (the camera looks north)
+  const cb=(x,z,w,d,h,c,o)=>{const g=bld(x,z,w,d,h,c,o);CBD.cut.push({g,x1:x-w/2,x2:x+w/2,z1:z-d/2,h:h+((o&&o.roofH)||0)});return g;};
+  // ground: three blocks of pavement leave Elizabeth Quay's inlet open to the river
+  box(40,.5,38,lmat(paveC,[20,19]),620,-.26,-7,{noCast:true});box(40,.5,38,lmat(paveC,[20,19]),680,-.26,-7,{noCast:true});box(20,.5,32,lmat(paveC,[10,16]),650,-.26,-10,{noCast:true});
+  flat(22,38,lmat(grassC,[6,10]),611,.012,-7);// Kings Park
+  flat(78,1.6,lmat(pathC,[39,1]),661,.016,10.2);// riverside walk
+  [[661,4.8,78,1.6],[661,-3.1,78,2.2],[661,-21.7,78,1.5]].forEach(([x,z,w,d])=>{flat(w,d,lmat(asphC,[w/2,1]),x,.02,z);for(let k=x-w/2+1;k<x+w/2;k+=2.4)flat(1,.08,M('#f3f3ea'),k,.026,z);});// Riverside Dr, St Georges Tce, Wellington St
+  flat(2.4,25.5,lmat(asphC,[1,12]),667.3,.021,-8.8);flat(2.2,25.5,lmat(asphC,[1,12]),639.1,.021,-8.8);// Barrack St, William St
+  flat(78,2.2,lmat(pathC,[39,1.1]),661,.018,-13.5);// Hay Street Mall
+  // the jetty, the ferry stop and Elizabeth Quay's footbridge
+  box(2.6,.16,8.6,lmat(deckC,[1,4]),669.5,.08,15.3,{noCast:true});for(let i=0;i<6;i++)[-1.1,1.1].forEach(o=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1.2,6),legMat);p.position.set(669.5+o,-.35,12+i*1.5);scene.add(p);});
+  signPost(671.4,12.6,makeSign(['BARRACK ST JETTY','FERRY · SOUTH PERTH'],72,20,'#1d3a6e','#f5ecd8'),1.6,.5);
+  {const g=new THREE.Group();const n=14;for(let i=0;i<=n;i++){const t=i/n,x=-11+t*22,y=.15+Math.sin(t*Math.PI)*1.2;const s=new THREE.Mesh(new THREE.BoxGeometry(1.7,.12,1.8),lmat(deckC,[1,1]));s.position.set(x,y,0);s.rotation.z=Math.cos(t*Math.PI)*.17;g.add(s);}
+    for(let i=0;i<=n;i+=2){const t=i/n,x=-11+t*22,y=.15+Math.sin(t*Math.PI)*1.2;[-.85,.85].forEach(o=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.06,.7,.06),M('#f6f6f0'));p.position.set(x,y+.4,o);g.add(p);});}
+    const arc=new THREE.Mesh(new THREE.TorusGeometry(6,.12,6,24,Math.PI),M('#f6f6f0'));arc.position.set(0,.1,0);g.add(arc);g.position.set(650,0,10.3);scene.add(g);}
+  // Bell tower: a glass spire with copper wings over the bells
+  {const g=new THREE.Group();const base=new THREE.Mesh(new THREE.CylinderGeometry(1.9,2.1,1.2,12),lmat(stoneC,[2,1]));base.position.y=.6;g.add(base);
+    const core=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.5,6,12),M('#8fb8c8'));core.position.y=4.2;g.add(core);const spire=new THREE.Mesh(new THREE.ConeGeometry(1.1,5,12),M('#a8d0dc'));spire.position.y=9.7;g.add(spire);
+    [-1,1].forEach(s=>{const w=new THREE.Mesh(new THREE.BoxGeometry(.25,7,1.6),M('#b8743a'));w.position.set(s*1.5,5,0);w.rotation.z=s*.16;g.add(w);});
+    for(let i=0;i<6;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6,0,6.283,0,Math.PI/2),M('#c8a040'));b.rotation.x=Math.PI;b.position.set(Math.cos(i)*0.6,3.2+i%2*.5,1.2);g.add(b);}
+    g.traverse(o=>{if(o.isMesh)o.castShadow=true;});g.position.set(678,0,8.2);scene.add(g);col(676,6.2,680,10.2);CBD.P.belltower={x:678,z:11.4};}
+  // Elizabeth Quay: a tall ribbon sculpture on the plaza and pavilions along the water
+  {const g=new THREE.Group();for(let i=0;i<3;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(2.2+i*.6,.14,6,20,Math.PI*1.3),M(['#f6f6f0','#e8e2d0','#ffffff'][i]));r.rotation.set(Math.PI/2*.2,i*.6,Math.PI/2);r.position.y=2.6+i*.4;g.add(r);}g.position.set(650,0,1.2);scene.add(g);col(649,.4,651,2);CBD.P.eqquay={x:650,z:4.6};}
+  cb(630,1,6,3,3,'#e8e2d4',{sign:'FERRY TICKETS',signBg:'#1d3a6e',ver:'#1d3a6e'});cb(689,1,8,3,3.4,'#f6f2e8',{sign:'RIVERSIDE KIOSKS',signBg:'#3f7a5a',ver:'#3f7a5a'});
+  // office towers on St Georges Terrace (taller to the north, so they never hide the street)
+  const TW=[[627,-8.5,8,5,13,'#9ab0c0'],[646,-8.5,9,5,16,'#c8d2d8'],[662,-8.5,6,5,11,'#b8c4cc'],[675,-8.5,9,5,18,'#8aa0b4'],[685,-8.5,6,5,12,'#d0c8bc']];
+  TW.forEach(([x,z,w,d,h,c],i)=>{cb(x,z,w,d,h,c,{winCol:'#5a7a96',sign:i===3?'RIVERVIEW TOWER':null,signBg:'#1d3a6e'});});CBD.P.devtower={x:675,z:-5};
+  // Tudor Lane: an old arcade with timber-framed shop fronts and a clock
+  {const lx=655.6;for(const s of [-1,1]){const g=cb(lx+s*1.9,-8.5,1.6,5,3.8,'#f2ead8',{win:false,noCol:false});for(let k=0;k<3;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(.08,3.6,.08),M('#4a3424'));b.position.set(lx+s*1.1,1.9,-10.6+k*2.1);scene.add(b);}}
+    const clk=new THREE.Mesh(new THREE.CircleGeometry(.55,16),M('#f6f2e8'));clk.position.set(lx,3.2,-5.9);scene.add(clk);const rim=new THREE.Mesh(new THREE.TorusGeometry(.56,.06,6,16),M('#c8a040'));rim.position.set(lx,3.2,-5.88);scene.add(rim);
+    const arch=new THREE.Mesh(new THREE.BoxGeometry(2.4,.6,.4),M('#4a3424'));arch.position.set(lx,3.9,-5.9);scene.add(arch);signPost(lx-1.6,-4.9,makeSign(['TUDOR LANE'],48,12,'#4a3424','#f5ecd8'),1,.3);CBD.P.tudor={x:lx,z:-4.4};}
+  // Hay Street Mall shops
+  const SH=[['SWAN BOOKS','#2f5a3a','#f2ead8'],['GUMLEAF FASHION','#8a3a5a','#f6f2e8'],['QUOKKA SWEETS','#e86a8a','#fff3e6'],['HARBOUR OUTFITTERS','#1d3a6e','#e8e2d4'],['CITY PHARMACY','#3f9a6a','#f6f6f0'],['LANTERN TEA','#c8344a','#f6e8d0'],['CORNER NEWS','#5a4a3a','#efe3c4']];
+  const SX=[643,649.5,656,672.5,679,685.5];SH.slice(0,6).forEach(([n,c,w],i)=>{cb(SX[i],-18,5.6,4,4,w,{ver:c,sign:n,signBg:c});});CBD.P.haymall={x:664,z:-13.5};
+  cb(630,-18,11,5,5,'#efe3c4',{sign:'CITY MUSEUM',signBg:'#5a3a22',parapet:'#d8c8a0'});CBD.P.citymuseum={x:630,z:-14.8};
+  cb(677,-24.2,24,3,4.2,'#e8dcc0',{sign:'PERTH STATION',signBg:'#1d3a6e',parapet:'#c8b896',ver:'#1d3a6e'});CBD.P.perthstn={x:672,z:-20.2};
+  // the skyline: tall towers north of the station, outside the walkable streets
+  box(104,.5,8,lmat(paveC,[52,4]),650,-.26,-29,{noCast:true});[[606,14,'#9ab0c0'],[616,20,'#c8d2d8'],[628,16,'#8aa0b4'],[641,24,'#b8c4cc'],[654,18,'#d0c8bc'],[667,22,'#9ab0c0'],[681,15,'#c8d2d8'],[693,19,'#8aa0b4']].forEach(([x,h,c])=>{bld(x,-29.5,8,5,h,c,{winCol:'#5a7a96',noCol:true});});
+  // the Gold Exchange: an old limestone building where they pour gold
+  cb(694,-8,9,5,4.4,'#efe3c4',{win:true,sign:'GOLD EXCHANGE · 1899',signBg:'#8a6a20',parapet:'#d8c896',roof:'#a84a3a',roofH:1.2});CBD.P.goldex={x:694,z:-4.6};
+  // food trucks at the east end of the mall (open from 6pm)
+  CBD.trucks=[['SATAY','#c8344a',8,'Satay skewers',35],['DUMPLINGS','#2a2a30',9,'Pan-fried dumplings',35],['TACOS','#e8a33a',9,'Fish tacos',35],['GELATO','#5cc6d8',6,'Gelato cup',20]].map(([n,c,p,dish,st],i)=>{const x=692+(i%2)*4.6,z=-15.6+Math.floor(i/2)*3.6;
+    const g=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(3.4,1.9,1.7),M(c));b.position.y=1.15;g.add(b);const w=new THREE.Mesh(new THREE.BoxGeometry(2,.7,.05),M('#2a2a30'));w.position.set(0,1.4,.87);g.add(w);
+    [[-1.1,.85],[1.1,.85],[-1.1,-.85],[1.1,-.85]].forEach(([a,o])=>{const wh=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.2,10),M('#1a1a1a'));wh.rotation.x=Math.PI/2;wh.position.set(a,.3,o);g.add(wh);});
+    const sg=new THREE.Mesh(new THREE.PlaneGeometry(2,.36),new THREE.MeshBasicMaterial({map:makeSign([n],Math.max(48,n.length*6+8),12,'#1b1b2b','#ffd34d')}));sg.position.set(0,2.3,.86);g.add(sg);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});g.position.set(x,0,z);scene.add(g);col(x-1.7,z-.85,x+1.7,z+.85);
+    return{x,z:z+1.4,p,dish,st,name:n};});CBD.P.foodtrucks={x:694,z:-11};
+  // Kings Park: big trees, a lookout over the river, the glass bridge walk and a spiral tower
+  {const tv=treeVariants;[[603,-22],[609,-23],[616,-21],[604,-14],[612,-12],[619,-15],[603,-3],[618,-1],[606,2],[614,5],[620,-24],[601,-9]].forEach(([x,z],i)=>{const v=tv[i%3];const g=new THREE.PlaneGeometry(v.w*1.2,v.h*1.2);g.translate(0,v.h*.6,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});col(x-.3,z-.15,x+.3,z+.15);});
+    const lk=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.3,.16,18),lmat(stoneC,[2,2]));lk.position.set(610,.08,8.6);scene.add(lk);for(let i=0;i<=12;i++){const a=i/12*Math.PI;const p=new THREE.Mesh(new THREE.BoxGeometry(.06,.7,.06),fenceMat);p.position.set(610+Math.cos(a)*2.1,.45,8.6+Math.sin(a)*2.1);scene.add(p);}
+    signPost(606.8,7,makeSign(['KINGS PARK','LOOKOUT'],48,20,'#3f7a5a','#ffffff'),1,.5);CBD.P.kplookout={x:610,z:10.5};
+    const gb=new THREE.Group();for(let i=0;i<8;i++){const s=new THREE.Mesh(new THREE.BoxGeometry(2,.1,1.3),new THREE.MeshLambertMaterial({color:0xbfe6f2,transparent:true,opacity:.6}));s.position.set(-7+i*2,1.4,0);gb.add(s);}
+    [-.7,.7].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(16,.05,.05),M('#e8eef2'));r.position.set(0,2.1,o);gb.add(r);});[-8,8].forEach(x=>{const st=new THREE.Mesh(new THREE.BoxGeometry(.6,1.4,1.3),lmat(stoneC,[1,1]));st.position.set(x,.7,0);gb.add(st);});
+    gb.position.set(611,0,-6.5);scene.add(gb);col(602.6,-7.3,603.4,-5.7);col(618.6,-7.3,619.4,-5.7);CBD.P.glassbridge={x:611,z:-4.6};
+    const dna=new THREE.Group();for(let i=0;i<14;i++){const d=new THREE.Mesh(new THREE.BoxGeometry(1.6,.14,.4),M('#e8e2d0'));d.position.y=.4+i*.55;d.rotation.y=i*.45;dna.add(d);}const pole=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,8,6),legMat);pole.position.y=4;dna.add(pole);
+    dna.position.set(607,0,-18);scene.add(dna);col(606.2,-18.8,607.8,-17.2);CBD.P.kingspark={x:611,z:-15};}
+  // street trees and lamps along the terrace
+  for(let x=624;x<700;x+=7.5){if(Math.abs(x-667)<2||Math.abs(x-639)<2)continue;const v=treeVariants[1];const g=new THREE.PlaneGeometry(v.w*.8,v.h*.8);g.translate(0,v.h*.4,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,-1.2);scene.add(m);BB.push(m);trees.push({x,z:-1.2,m,v,fade:false});col(x-.25,-1.35,x+.25,-1.05);}
+  // City Loop bus stop on Wellington Street
+  {const p=box(.1,2.2,.1,new THREE.MeshLambertMaterial({color:0x3ec46a}),662,1.1,-20.4);const s=new THREE.Mesh(new THREE.PlaneGeometry(.9,.6),new THREE.MeshBasicMaterial({map:makeSign(['CITY','LOOP'],32,20,'#3ec46a','#ffffff'),side:THREE.DoubleSide}));s.position.set(662,2,-20.34);scene.add(s);}
+})();
+BUS_STOPS.cbd={x:661.4,z:-20.6,name:'Perth CBD',land:[661.4,-19.6]};
+SAFE_SPOTS.cbd=[[667,-1],[650,6],[664,-13.5]];
+ZONE_DEF.cbd={B:CBDB,title:'Perth CBD',eb:'Perth city · Swan River',bg:'#5cc6d8',rects:[[600,-25.6,700,12,'#d8d2c4'],[640,6.2,660,12,'#5cc6d8'],[600,-25.6,622,12,'#7aa356'],[622,4,700,5.6,'#4a4d55'],[622,-4.2,700,-2,'#4a4d55'],[622,-22.5,700,-21,'#4a4d55'],[622,-14.6,700,-12.4,'#e8dcbc'],[668.2,11,670.8,19.6,'#b98552']],
+  labels:[['Perth CBD',662,-6.2,1],['Kings Park',611,-10,1],['Elizabeth Quay',650,3,1],['Bell tower',678,6,0],['Barrack St Jetty',669.5,17,1],['Hay St Mall',664,-13.6,1],['St Georges Tce',682,-3.1,0],['Perth Station',677,-24.2,1],['Gold Exchange',694,-8,0],['Food trucks',694,-12.2,0],['Tudor Lane',655.6,-8.5,0],['City Museum',630,-18,0],['Swan River',650,18,1]]};
+// people of the city
+function cbdNPC(id,name,v,x,z,lines){const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(x,0,z);scene.add(m);blob(.85).position.set(x,.03,z);const n={id,name,x,z,lines};CBD.npcs.push(n);CBD.P[id]={x,z:z+1.4};return n;}
+cbdNPC('agnes','Agnes',{hair:'#d8d4cc',skin:'#f1c7a0',shirt:'#1d3a6e',pants:'#3a3a48',hat:null},675.4,11,()=>[{who:'Agnes',text:pick(['Twelve bells, rung by hand. It takes a whole team and a very good ear.','Pigeons. Lovely birds. Terrible timing.','On the hour, every hour. You can set your watch by me. Most people do.'])}]);
+cbdNPC('jack','Prospector Jack',{hair:'#e8e4dc',skin:'#c8865a',shirt:'#8a5a36',pants:'#5a4a3a',hat:'#7a5033'},690.4,-4.4,()=>[{who:'Prospector Jack',text:pick(['Found a nugget the size of a lamington once. Well. A small lamington.','Watch them pour the gold at ten, twelve and two. Glows like a sunset in a bucket.','Gold rush stories get bigger every year. Like my nugget.'])}]);
+cbdNPC('tilly','Ranger Tilly',{hair:'#6b4226',skin:'#e8b892',shirt:'#3f7a5a',pants:'#c9b68a',hat:'#7a6a4a'},614,-9,()=>[{who:'Ranger Tilly',text:pick(['I can tell a wildflower by its smell with my eyes shut. Spring is the best.','The glass bridge goes right through the treetops. Don’t look down. Or do, it’s lovely.','From the lookout you can see the whole river, all the way to South Perth.'])}]);
+cbdNPC('mai','Mai',{hair:'#1e1a18',skin:'#d8a47a',shirt:'#e8732a',pants:'#2a2a30',hat:'#f6f6f0'},698.6,-12.2,()=>[{who:'Mai',text:pick(['One day I’ll have my own café. Like yours! Maybe with dumplings.','The trucks open at six. The queue starts at five fifty.','Secret to a good dumpling: patience. And a lot of garlic.'])}]);
+cbdNPC('dev','Dev',{hair:'#2a1d16',skin:'#8d5a3b',shirt:'#f6f6f0',pants:'#2a2a48',hat:null},672.5,-4.6,()=>[{who:'Dev',text:pick(['Late again! Two coffees: one to drink, one to calm down.','Thirty floors up, and I still can’t see Rottnest. I’ve tried.','The lifts in this tower have opinions.'])}]);
+cbdNPC('pete','Pete',{hair:'#d8a050',skin:'#f1c7a0',shirt:'#9478d4',pants:'#2f3b5c',hat:'#2a2a30'},652,-13,()=>[{who:'Pete',text:pick(['I know three songs. I play them very, very well.','Any requests? As long as it’s one of my three.','A quokka once danced to my music. Best day of my career.'])}]);
+cbdNPC('iris','Iris',{hair:'#b8b0a8',skin:'#c68a5e',shirt:'#1d3a6e',pants:'#2a2a30',hat:'#1d3a6e'},634.5,-14.6,()=>[{who:'Iris',text:pick(['Night shift at the museum. The whale skeleton is great company. Very quiet.','We call the big whale Bones. Bones doesn’t mind.','Bring fossils from the island to the museum. We love a good fossil.'])}]);
+// the bell tower view: spot the pigeon that keeps ringing bell seven
+function bellView(){const q=SIDEQ.find(s=>s.id==='twelvebells'),want=q&&sqStep(q)===1;S.cbd=S.cbd||{};
+  const T=[{id:'pigeon',name:'Sneaky pigeon',x:420,y:210,r:24,pos:t=>[420+Math.sin(t*.8)*14,210],fact:'A pigeon, perched on bell seven’s rope and bouncing on it like a trampoline.'},{id:'bell7',name:'Bell seven',x:300,y:250,r:30,fact:'Bell seven, a bit out of tune from all the extra ringing.'},{id:'rope',name:'Ringing rope',x:190,y:300,r:26,fact:'Each bell has its own rope. Twelve ropes, twelve ringers.'}];
+  const draw=(x,t)=>{x.fillStyle='#2a2e3a';x.fillRect(0,0,640,400);x.fillStyle='#8fb8c8';for(let i=0;i<9;i++){x.globalAlpha=.25;x.fillRect(i*80,0,40,400);}x.globalAlpha=1;
+    for(let i=0;i<6;i++){const bx=110+i*90,by=170+(i%2)*60;x.fillStyle='#c8a040';x.beginPath();x.moveTo(bx-28,by+30);x.quadraticCurveTo(bx-26,by-20,bx,by-26);x.quadraticCurveTo(bx+26,by-20,bx+28,by+30);x.closePath();x.fill();x.fillStyle='#8a6a20';x.fillRect(bx-30,by+28,60,6);x.strokeStyle='#e8dcc0';x.lineWidth=3;x.beginPath();x.moveTo(bx-20,by+34);x.lineTo(bx-28,by+140);x.stroke();}
+    x.fillStyle='#f2efe6';x.font='bold 14px system-ui';x.fillText('7',300,236);T.forEach(q=>{if(q.id!=='pigeon')return;const p=spotPos(q,t);x.fillStyle='#8a8f9a';x.beginPath();x.ellipse(p[0],p[1],12,8,0,0,6.283);x.fill();x.beginPath();x.arc(p[0]+10,p[1]-6,5,0,6.283);x.fill();x.fillStyle='#e8734a';x.fillRect(p[0]+14,p[1]-6,4,2);x.fillStyle='#5a9a8a';x.fillRect(p[0]+6,p[1]-3,6,3);});};
+  spotOpen({eye:'Bell tower · up in the bell chamber',title:want?'Find what keeps ringing bell seven':'Look around the bell chamber',hint:'The bells hang in two rows. Something small is up here with you.',targets:T,draw,hintAt:14,doneTitle:'Mystery solved!',
+    done:()=>{S.cbd.pigeon=1;if(!S.cbd.bells){S.cbd.bells=1;S.coins+=15;toast('Bell chamber visit · +15 coins',2.2);}}});}
+function cbdTargets(T){if(zoneOf(player.x)==='sp'&&unlocked('bus'))T.push({x:SPX-1.6,z:-8.2,r:1.3,label:'Ferry to Perth CBD (Barrack St)'+(hasPass()?'':' \u00b7 \u{1F512} Perth Pass'),act:()=>ferryCross('cbd')});if(zoneOf(player.x)!=='cbd')return;const B=BUS_STOPS.cbd;T.push({x:B.x,z:B.z+.5,r:1.4,label:'City Loop bus · South Perth, Heirisson Island, Victoria Park',act:()=>openBusStop('cbd')});
+  T.push({x:669.5,z:18.6,r:1.4,label:'Ferry to South Perth (Mends St)',act:()=>ferryCross('sp')});
+  CBD.npcs.forEach(n=>T.push({x:n.x,z:n.z,r:1.4,label:'Talk to '+n.name,act:()=>say(n.lines())}));
+  T.push({x:678,z:11.6,r:1.4,label:'Climb up to the bell chamber',act:()=>{if(overlay)return;bellView();}});
+  T.push({x:630,z:-15.2,r:1.4,label:'Read the City Museum plaque',act:()=>say([{who:'City Museum',text:'Inside: a giant blue whale skeleton the staff call Bones, minerals from the goldfields, and shells from Rottnest.'},{who:'City Museum',text:'Fossils you dig up on the island are welcome here too.'}])});
+  T.push({x:694,z:-4.4,r:1.4,label:'Watch the gold pour',act:()=>{const h=Math.floor(S.time/60);if([10,12,14].includes(h))say(['A worker tips a crucible and liquid gold pours into a mould, glowing orange like a tiny sunset.','Kip: Whoa. I’m putting a gold leaf on a latte one day. Just one.']);else say([{who:'Gold Exchange',text:'Gold pours at 10:00, 12:00 and 14:00. Come back then!'}]);}});
+  const open=S.time>=1080||S.time<120;CBD.trucks.forEach(tk=>T.push({x:tk.x,z:tk.z,r:1.3,label:open?tk.dish+' · '+tk.p+' coins':tk.name+' truck · opens at 6pm',act:()=>{if(!open){toast('The food trucks open at 6pm',2);return;}if(S.coins<tk.p){toast('Not enough coins',2);return;}S.coins-=tk.p;eat(tk.st,tk.dish);save();}}));
+  T.push({x:661,z:-13.5,r:1.3,label:'Flat white from the coffee cart · 5 coins',act:()=>{if(S.coins<5){toast('Not enough coins',2);return;}S.coins-=5;eat(15,'Flat white');S.cbd=S.cbd||{};S.cbd.coffees=(S.cbd.coffees||0)+1;save();}});}
+// the ferry across Perth Water, between Mends Street Jetty and Barrack Street Jetty
+function ferryCross(dest){if(transit||VISIT)return;if(dest==='cbd'&&needPass('cbd'))return;if(!pay(FARE_RIDE))return;transit=true;fadeTarget=.95;toast(dest==='cbd'?'Ferry to Perth CBD · Barrack St Jetty…':'Ferry to South Perth · Mends St Jetty…',2.2);
+  setTimeout(()=>{S.time+=10;player.bike=false;player.carry=null;if(dest==='cbd'){player.x=669.5;player.z=11.6;}else{const B=BUS_STOPS.sp;const L=SAFE_SPOTS.sp[0];player.x=L[0];player.z=L[1];}updateCamera(0,true);fadeTarget=0;transit=false;cbdArrive(dest);},900);}
+function cbdArrive(dest){if(dest!=='cbd')return;S.seenZ=S.seenZ||{};S.seenZ.cbd=1;S.fq=S.fq||{};if(!S.fq.visitCBD){S.fq.visitCBD=1;save();say(['Kip: The city! Towers, a glass bell tower, a whole park on a hill… and somewhere, the best coffee in Perth.','Kip: Postcards everywhere. Let’s explore.']);}}
+const CBD_SPOT=k=>()=>CBD.P[k]?[[CBD.P[k].x,CBD.P[k].z]]:[];
+[['belltower','The bell tower','place',4],['eqquay','Elizabeth Quay','place',4.5],['jettycbd','Barrack St Jetty','place',3.6,()=>[[669.5,13]]],['kingspark','Kings Park','place',5],['glassbridge','Glass bridge walk','place',3.6],['kplookout','Kings Park lookout','place',3.4],
+ ['haymall','Hay St Mall','place',5],['tudor','Tudor Lane','place',3],['goldex','Gold Exchange','place',3.6],['citymuseum','City Museum','place',3.6],['perthstn','Perth Station','place',4],['foodtrucks','Food trucks','food',3.6],['devtower','Riverview Tower','place',3.4],
+ ['agnes','Agnes the bell ringer','people',2.4],['jack','Prospector Jack','people',2.4],['tilly','Ranger Tilly','people',2.4],['mai','Mai the street-food chef','people',2.4],['dev','Dev the office worker','people',2.4],['pete','Pete the busker','people',2.4],['iris','Iris the night guard','people',2.4]]
+ .forEach(([id,name,cat,r,pos])=>PCS.push({id,name,zone:'cbd',cat,pos:pos||CBD_SPOT(id),r}));
+PC_TOTAL=PCS.filter(p=>!isSpecial(p.cat)).length;
+Object.assign(PC_HINTS,{belltower:'The bell tower · the glass spire by the river in Perth CBD',eqquay:'Elizabeth Quay · the plaza with the tall white ribbon sculpture',jettycbd:'Barrack St Jetty · where the ferry from South Perth lands',kingspark:'Kings Park · the big park on the west side of the city',glassbridge:'Glass bridge walk · through the treetops in Kings Park',kplookout:'Kings Park lookout · over the river',
+ haymall:'Hay St Mall · the shopping street in the middle of the city',tudor:'Tudor Lane · the old arcade with the clock',goldex:'Gold Exchange · the old limestone building on the east side',citymuseum:'City Museum · on the west end of Hay St Mall',perthstn:'Perth Station · on Wellington Street',foodtrucks:'Food trucks · east end of Hay St Mall, from 6pm',devtower:'Riverview Tower · the tallest office tower on St Georges Tce',
+ agnes:'Agnes · rings the bells at the bell tower',jack:'Prospector Jack · outside the Gold Exchange',tilly:'Ranger Tilly · in Kings Park',mai:'Mai · at the food trucks',dev:'Dev · outside Riverview Tower, usually running late',pete:'Pete · busking in Hay St Mall',iris:'Iris · at the City Museum'});
+SIDEQ.push(
+ {id:'twelvebells',zone:'cbd',mood:'funny',title:'Twelve Bells',giver:'Agnes the bell ringer',coins:45,desc:'Bell seven keeps ringing on its own, at random times, off the beat. Agnes is taking it personally.',
+  steps:[{l:'Talk to Agnes by the bell tower',at:'pc:agnes',say:[{who:'Agnes',text:'Bell seven. Ding. At 3:17. At 4:42. Never on the hour! Someone is playing games with my bells.'},{who:'Agnes',text:'Climb up and have a look, would you? My knees and those stairs are not friends.'}]},
+   {l:'Climb up to the bell chamber and find the culprit',at:'pc:belltower',chk:()=>!!(S.cbd&&S.cbd.pigeon),say:['Kip: Found it! A pigeon, bouncing on bell seven’s rope like a trampoline.']},
+   {l:'Tell Agnes',at:'pc:agnes',say:[{who:'Agnes',text:'A pigeon. Of course it’s a pigeon.'},{who:'Agnes',text:'Well. If it wants to ring that badly, it can be our honorary ringer. On the hour, mind.'}]}],
+  outro:'The pigeon now rings bell seven exactly on the hour. Agnes is very proud. She won’t say so.'},
+ {id:'nugget',zone:'cbd',mood:'heart',title:'Jack’s Nugget',giver:'Prospector Jack',coins:55,desc:'Jack’s famous “giant nugget” story gets bigger every year. The real nugget is small, and it was a gift for someone special.',
+  steps:[{l:'Talk to Prospector Jack at the Gold Exchange',at:'pc:jack',say:[{who:'Prospector Jack',text:'Truth is, the nugget’s no bigger than a jellybean. I gave it to my June on our wedding day. She wore it on a chain for fifty years.'},{who:'Prospector Jack',text:'The Gold Exchange said they’d put it in the window, if I find the old photo of her wearing it. It’s at the City Museum, in their family album box.'}]},
+   {l:'Find the photo at the City Museum',at:'pc:citymuseum',say:['Iris helps Kip find it: a young June laughing on the jetty, the little nugget shining at her neck.']},
+   {l:'Bring the photo to Jack',at:'pc:jack',say:[{who:'Prospector Jack',text:'That’s her. That’s my June.'},{who:'Prospector Jack',text:'Smallest nugget in the window, and the best story. Thanks, Kip.'}]}],
+  outro:'June’s nugget now sits in the Gold Exchange window, next to her photo. Jack visits it every morning.'},
+ {id:'lunchrush',zone:'cbd',mood:'funny',title:'Lunch Rush',giver:'Dev the office worker',coins:40,desc:'Dev has a big meeting at 1pm and promised the whole team coffee. He has not bought any coffee.',
+  steps:[{l:'Talk to Dev outside Riverview Tower',at:'pc:dev',say:[{who:'Dev',text:'Meeting at one. I promised eight coffees. I have zero coffees and one panic.'},{who:'Dev',text:'The coffee cart in Hay St Mall is the best. Can you grab some? I’ll pay you back. Probably.'}]},
+   {l:'Buy coffees from the cart in Hay St Mall (3 or more)',at:'pc:haymall',chk:()=>!!(S.cbd&&S.cbd.coffees>=3),say:['Kip balances a tray of flat whites. Not a drop spilled. Okay, one drop.']},
+   {l:'Rush the coffees back to Dev',at:'pc:dev',say:[{who:'Dev',text:'You legend. The boss smiled. The boss never smiles.'}]}],
+  outro:'Dev now orders the team’s coffee at 12:30 sharp. He sets three alarms.'},
+ {id:'glassbridge',zone:'cbd',mood:'heart',title:'Glass Bridge Brave',giver:'Ranger Tilly',coins:50,desc:'A young quokka visiting the city wants to see the view from the glass bridge, but it’s scared of heights.',
+  steps:[{l:'Talk to Ranger Tilly in Kings Park',at:'pc:tilly',say:[{who:'Ranger Tilly',text:'This little one has walked to the bridge three times and turned back three times. Heights are scary.'},{who:'Ranger Tilly',text:'Maybe if a friend walks with them?'}]},
+   {l:'Walk across the glass bridge together',at:'pc:glassbridge',say:['Step by step. The quokka holds Kip’s paw so tight. Halfway across, it finally looks up: treetops, the river, the whole city.','The quokka does a tiny happy hop.']},
+   {l:'Tell Ranger Tilly',at:'pc:tilly',say:[{who:'Ranger Tilly',text:'They did it! Brave little thing. And brave you, too.'}]}],
+  outro:'The young quokka now walks the glass bridge every day. It even does a hop in the middle.'});
 // last check on the real-shaped island: every action spot and fishing spot must be reachable on foot
 islandLate(()=>{const fix=o=>{if(o&&typeof o.x==='number'&&o.x<99.5&&blocked(o.x,o.z)){const p=freeNear(o.x,o.z);o.x=p[0];o.z=p[1];}};
   [WB.acts,WC.acts,LK.acts,P8.acts,WA.plaques||[],WA.npcs||[]].forEach(L=>L.forEach(fix));FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});['golf','armyjetty','airport'].forEach(k=>fix(WA[k]));});
@@ -5265,8 +5327,8 @@ if(hot&&hot.data&&hot.data.S&&hot.data.running){const oldL=hot.data.S.isv!==2,v1
 // The clock follows Perth time, the café never closes, rain tracks bring rain, the camera drifts between café shots,
 // customers keep arriving and Kip takes each order, makes it at the counter and carries it to the table.
 const LIVEM=(()=>{if(!LIVE)return null;
-  const Q=new URLSearchParams(location.search);const ST=['crystal','beats'].includes(Q.get('st'))?Q.get('st'):'lofi';
-  const FREQ={lofi:'92.1',crystal:'96.9',beats:'99.5'};
+  const Q=new URLSearchParams(location.search);const ST=Q.get('st')==='crystal'?'crystal':'lofi';
+  const FREQ={lofi:'92.1',crystal:'96.9'};
   const perthMin=()=>{const d=new Date();return (d.getUTCHours()*60+d.getUTCMinutes()+480+d.getUTCSeconds()/60)%1440;};
   // ---- overlay: brand, live badge, now playing, Perth clock ----
   const css=document.createElement('style');css.textContent=`
@@ -5300,16 +5362,14 @@ const LIVEM=(()=>{if(!LIVE)return null;
     // weather follows the music: rain tracks bring showers, the rest are clear or a few clouds
     const key=t?RADIO.st+':'+RADIO.trk:null;if(key!==lastTrk){lastTrk=key;const wx=isRain(t)?3:(Math.random()<.7?0:1);if(S.wx!==wx){S.wx=wx;const w=WEATHERS[wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}}}
   // ---- Kip works the counter ----
-  // the island warp moves the café after load, so work from where the counter stations actually are
-  const CAFE={x:0,z:0};function cafeAt(){const s=STATIONS.find(q=>q.key==='lam');CAFE.x=s?s.x:0;CAFE.z=s&&s.z!=null?s.z+1.65:0;}
   const HOME={x:0,z:-1.35};let job=null,moving=false,spawnT=4;
-  function station(k){const s=STATIONS.find(q=>q.key===k)||STATIONS[1];return {x:s.x,z:s.z!=null?s.z:CAFE.z-1.65};}
+  function stationX(k){const s=STATIONS.find(q=>q.key===k);return s?s.x:0;}
   function kipTick(dt){moving=false;
     if(job&&job.c&&(job.c.state!=='wait'||!customers.includes(job.c))){if(player.carry===job.c.order)player.carry=null;job=null;}
     if(!job){const c=customers.filter(q=>q.state==='wait'&&!q.claimed).sort((a,b)=>a.patience-b.patience)[0];
       if(c){c.claimed='kip';job={c,step:'toStation'};}else{moving=!stepWalker(player,HOME.x,HOME.z,2.6,dt);if(!moving)player.face=1;return;}}
     const c=job.c;
-    if(job.step==='toStation'){const P=station(c.order);moving=!stepWalker(player,P.x,P.z,3,dt);if(!moving){for(const k in S.stock)S.stock[k]=Math.max(S.stock[k],20);if(canMake(c.order))useStock(c.order);const b=ITEMS[c.order].brew*(S.wish.machine?.5:1);if(b>0){player.brewing=b;player.brewMax=b;player.brewKey=c.order;player.carry=null;}else player.carry=c.order;job.step='brew';}}
+    if(job.step==='toStation'){moving=!stepWalker(player,stationX(c.order),-1.65,3,dt);if(!moving){for(const k in S.stock)S.stock[k]=Math.max(S.stock[k],20);if(canMake(c.order))useStock(c.order);const b=ITEMS[c.order].brew*(S.wish.machine?.5:1);if(b>0){player.brewing=b;player.brewMax=b;player.brewKey=c.order;player.carry=null;}else player.carry=c.order;job.step='brew';}}
     else if(job.step==='brew'){if(player.carry===c.order)job.step='deliver';}
     else if(job.step==='deliver'){moving=!stepWalker(player,c.x+(c.x>0?-.6:.6),c.z+.55,3,dt);if(!moving){serve(c);job=null;}}}
   // run Kip before the normal player update (which handles brewing, the carried cup and the sprite)
@@ -5326,11 +5386,11 @@ const LIVEM=(()=>{if(!LIVE)return null;
   const SHOTS=[[0,1.1,.35,1.05],[-1.3,1.5,-.32,.95],[1.4,.9,.18,.98]];const SHOT_S=70;
   const _uc=updateCamera;updateCamera=function(dt,snap){if(!running||overlay)return _uc(dt,snap);
     const tt=performance.now()/1000/SHOT_S,i=Math.floor(tt)%SHOTS.length,f=tt%1,A=SHOTS[i],B=SHOTS[(i+1)%SHOTS.length],e=f<.8?0:(f-.8)/.2,k=e*e*(3-2*e);
-    tmpV.set(CAFE.x+lerp(A[0],B[0],k)+Math.sin(tt*6.283)*.25,.6,CAFE.z+lerp(A[1],B[1],k));yawT=lerp(A[2],B[2],k)+Math.sin(tt*6.283)*.05;zm=lerp(A[3],B[3],k);
+    tmpV.set(lerp(A[0],B[0],k)+Math.sin(tt*6.283)*.25,.6,lerp(A[1],B[1],k));yawT=lerp(A[2],B[2],k)+Math.sin(tt*6.283)*.05;zm=lerp(A[3],B[3],k);
     camTarget.lerp(tmpV,snap?1:1-Math.exp(-dt*1.5));yaw+=(yawT-yaw)*(snap?1:1-Math.exp(-dt*2));camOff.set(Math.sin(yaw)*CAM_DIR.z,CAM_DIR.y,Math.cos(yaw)*CAM_DIR.z);camera.position.copy(camTarget).addScaledVector(camOff,Math.min(52,camDist*zm));
     for(let j=0;j<BB.length;j++)BB[j].rotation.y=yaw;dir4Tick();camera.lookAt(camTarget);tmpV.set(camTarget.x,.8,camTarget.z).project(camera);post.uniforms.focus.value=clamp((tmpV.y+1)/2,.25,.75);};
   // ---- start: fresh café, studio view (no menus), radio on ----
-  function begin(){startGame({day:1});cafeAt();HOME.x=CAFE.x;HOME.z=CAFE.z-1.35;STUDIO=true;document.body.classList.add('studio');player.x=HOME.x;player.z=HOME.z;S.stock={beans:99,milk:99,mango:99,mix:99,tea:99};updateCamera(0,true);
+  function begin(){startGame({day:1});STUDIO=true;document.body.classList.add('studio');player.x=HOME.x;player.z=HOME.z;S.stock={beans:99,milk:99,mango:99,mix:99,tea:99};updateCamera(0,true);
     RADIO.vol=Math.max(0,Math.min(100,+(Q.get('vol')||70)))/100;radioPlay(ST);
     if(!RADIO.ctx||RADIO.ctx.state!=='running'){const b=document.createElement('button');b.id='liveGo';b.type='button';b.innerHTML='▶ Tune in<span>Click to start the music</span>';b.onclick=()=>{b.remove();radioPlay(ST);};document.body.appendChild(b);}}
   setTimeout(begin,900);

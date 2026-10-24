@@ -8,6 +8,8 @@ body.studio{cursor:none}
 .kjCh.cur{border-color:var(--gold)}.kjCh.done summary b{color:#86d06a}.kjCh.later{opacity:.62}.kjLore{margin:0 12px 6px;font-size:12.5px;font-style:italic;color:#d8cfb6;line-height:1.45}
 .kjCh ul{list-style:none;margin:0;padding:0 12px 10px;display:grid;gap:5px}.kjCh li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center}.kjCh li>i{width:16px;height:16px;border:1.5px solid var(--gold-dim);border-radius:3px;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;color:#0f1424}.kjCh li.ok>i{background:#86b86e;border-color:#86b86e}
 .kjCh li span{display:grid;min-width:0}.kjCh li b{font-size:13px;font-weight:700}.kjCh li.ok b{color:var(--muted);text-decoration:line-through}.kjCh li small{font-size:11px;color:var(--muted)}.kjCh li .btn{padding:4px 10px;font-size:11px}
+.langRow{display:flex;gap:8px;justify-content:center;margin:10px 0 4px}.langBtn{padding:6px 14px;font-size:13px}.langBtn.on{background:var(--gold,#e8c070);color:#1a1a1a;border-color:transparent}
+body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
 </style>
 
 <div id="app">
@@ -71,6 +73,7 @@ body.studio{cursor:none}
       <div class="title">Quokka Cafe</div>
       <div class="subtitle">and Friends</div>
       <p>Fresh out of university, Kip the quokka has left his little home in Victoria Park to open a tiny café by the jetty on Rottnest. Serve the morning ferry crowd, explore the island after closing time, and save for everything on the wishlist so Mum and Dad can move in.</p>
+      <div class="langRow" data-notr><button class="btn ghost langBtn" data-l="en" type="button">English</button><button class="btn ghost langBtn" data-l="th" type="button">ภาษาไทย</button></div>
       <div class="btns" id="titleBtns"></div>
       <div class="keys">
         <b>Move</b><span>Drag on the left of the screen · WASD / arrows</span>
@@ -310,7 +313,7 @@ body.studio{cursor:none}
     <div class="card panel">
       <div class="eyebrow">Perth Pass</div>
       <h2 id="psTitle">Unlock Fremantle &amp; Victoria Park</h2>
-      <p class="bgE" id="psSub">Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass opens the last two towns for good.</p>
+      <p class="bgE" id="psSub">Rottnest Island, South Perth and Heirisson Island are free to play. The Perth Pass opens Fremantle, Victoria Park and Perth CBD for good.</p>
       <ul class="psList">
         <li><b>Fremantle</b> · the Cappuccino Strip, markets, the round house and a harbour-side café branch</li>
         <li><b>Victoria Park</b> · Albany Hwy shops, new friends, seeds and furniture you can’t get elsewhere</li>
@@ -370,6 +373,7 @@ body.studio{cursor:none}
       <h2>Paused</h2>
       <p class="bgE" id="pzInfo">Time is stopped. Kip, customers and the clock wait for you.</p>
       <div class="btns" style="justify-content:center;flex-wrap:wrap"><button class="btn" id="pzResume" type="button">▶ Resume</button><button class="btn ghost" id="pzSave" type="button">Save</button><button class="btn ghost" id="pzGuide" type="button">Guide</button></div>
+      <div class="langRow" data-notr><button class="btn ghost langBtn" data-l="en" type="button">English</button><button class="btn ghost langBtn" data-l="th" type="button">ภาษาไทย</button></div>
     </div>
   </div>
 

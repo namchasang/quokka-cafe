@@ -82,7 +82,7 @@ const GUIDE_SYS=[
  ['Saving','The game saves automatically to one of 6 slots. Load another slot from the title screen.'],
  ['Island Code (visit friends online)','\u2630 \u2192 Island Code \u2192 Get my island code. You get a code like QK-4821 and your game backs up to the cloud by itself. Friends type your code to visit the newest version of your island, even when you are offline. While visiting you can \u2661 like the caf\u00e9, \u270e sign the guestbook and \U0001F381 leave a gift. Gifts and notes arrive in Island Code \u2192 Mailbox. Keep your recovery key secret: with it you can restore the island on a new phone. No internet? The Offline code tab still makes a Dream Code to paste.'],
  ['Caf\u00e9 chain','Buy Quokka Cafe branches at Geordie Bay (900), South Perth (1,500), Victoria Park (1,800) and Fremantle (2,500). Each earns every hour 7:00\u201316:00. Open \u2630 \u2192 Caf\u00e9 HQ from anywhere to collect tills, upgrade to Level 4, change style or hire a manager who banks the till at midnight.'],
- ['Radio','\u2630 \u2192 Radio: five stations of original music made for the café (Seaside Piano, Island Lo-fi, Lo-fi Beats, Crystal Harbour, Asian Breeze). Island Lo-fi, Lo-fi Beats and Crystal Harbour play named tracks you can skip; set the volume or turn it off.'],
+ ['Radio','\u2630 \u2192 Radio: three stations of gentle background music (Seaside Piano, Island Lo-fi, Asian Breeze), volume control, or turn it off.'],
  ['Caf\u00e9 upgrades and styles','Use the Caf\u00e9 plans sign beside the deck (or \u2630 \u2192 Caf\u00e9). Four levels: Kiosk, Caf\u00e9 (450), Bistro (900) and Destination caf\u00e9 (1,500), each adding a table and bonuses. Five styles: Classic Rotto, English Cottage, French Riviera, Japanese Ryokan and Seaside Mykonos (250 coins each to unlock, then switch for free).'],
  ['Seasons and calendar','Four Australian seasons of 28 days: Summer, Autumn, Winter, Spring. Weather follows the season (wetter winters). Tap the day in the clock card, or press C.'],
  ['Mail','Check the mailbox beside the caf\u00e9. Letters from Mum, friends and the notice board, sometimes with coins.'],
@@ -99,7 +99,7 @@ const GUIDE_TRAVEL=[
  ['Sleep away from home','Sleep in a South Perth home and you wake up on the 7:00 ferry back to Rottnest.'],
  ['Maps','Tap the minimap (M) for the local map. In the map, press Perth map to see all districts and routes. The red line always points to your tracked quest.']];
 const GUIDE_KEYS=[['Move','Drag left side · WASD / arrows'],['Act','Round button · Space or E'],['Camera','Right-drag · ⟲ ⟳ · Q / R'],['Zoom','+ − · pinch · wheel'],['Ride','V'],['Photo','P'],['Album','O'],['Bag','G'],['Quests','J'],['Map','M'],['Wishlist','I'],['Guide','H'],['Friend','F'],['Calendar','C']];
-const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle'};
+const ZN={island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',vp:'Victoria Park',freo:'Fremantle',cbd:'Perth CBD'};
 let guideTab='start',guideZone='all';
 function openGuide(){if(!running||overlay)return;renderGuide();showOverlay('guide');}
 function renderGuide(){const T=$('#gdTabs');T.innerHTML='';[['start','How to play'],['places','Places'],['quests','Quests'],['people','People'],['acts','Activities'],['sys','Systems'],['travel','Travel & maps']].forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(guideTab===k?' on':'');b.id='gdt-'+k;b.textContent=l;b.onclick=()=>{guideTab=k;renderGuide();$('#gdBody').scrollTop=0;};T.appendChild(b);});

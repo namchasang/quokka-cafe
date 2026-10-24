@@ -1,8 +1,8 @@
 // ---------- bus between South Perth, Heirisson Island and Victoria Park ----------
-function busTo(dest){if(transit||VISIT)return;if(dest==='vp'&&needPass('vp'))return;const D=BUS_STOPS[dest];transit=true;fadeTarget=.95;toast('Bus to '+D.name+'…',2);
+function busTo(dest){if(transit||VISIT)return;if(PASS_ZONES.includes(dest)&&needPass(dest))return;const D=BUS_STOPS[dest];transit=true;fadeTarget=.95;toast('Bus to '+D.name+'…',2);
   setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;player.x=D.land[0];player.z=D.land[1];updateCamera(0,true);fadeTarget=0;transit=false;S.fq=S.fq||{};
     if(dest==='hi'&&!S.fq.visitHI){S.fq.visitHI=1;save();say(['Kip: Heirisson Island! There’s a kangaroo sanctuary in the middle of the river.','Kip: Perfect for postcards. Press the camera button when something new is nearby.']);}
-    if(dest==='vp'&&!S.fq.visitVP){S.fq.visitVP=1;save();say(['Kip: Albany Highway! Pho, ramen, dumplings, Thai, bubble tea… I could eat my way down this whole street.'],()=>openQuest('vpfood',true));}},900);}
+    if(dest==='vp'&&!S.fq.visitVP){S.fq.visitVP=1;save();say(['Kip: Albany Highway! Pho, ramen, dumplings, Thai, bubble tea… I could eat my way down this whole street.'],()=>openQuest('vpfood',true));}if(dest==='cbd')cbdArrive('cbd');},900);}
 // ---------- Victoria Park shops ----------
 VP_SHOPS.forEach(sh=>{const v={skin:pick(SKINS),hair:pick(HAIRS),shirt:sh.col,pants:pick(PANTS),hat:null};sh.npc={x:sh.x+1.4,z:-1.7};const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(sh.npc.x,0,sh.npc.z);scene.add(m);blob(.85).position.set(sh.npc.x,.03,sh.npc.z);
   const items=[];if(sh.dish)items.push({id:'vp_'+sh.id,name:sh.dish,price:sh.price,desc:sh.cui+' \u00b7 +40 stamina and Kip walks 20% faster today.',buy:()=>{S.fq=S.fq||{};S.fq['vp_'+sh.id]=1;S.refreshed=true;eat(40,sh.dish);}});
@@ -12,7 +12,7 @@ VP_SHOPS.forEach(sh=>{const v={skin:pick(SKINS),hair:pick(HAIRS),shirt:sh.col,pa
   SHOPS['vp_'+sh.id]={name:sh.name,who:sh.cui,desc:sh.dish?'One of Albany Highway’s '+sh.cui+' favourites.':sh.cui+' on Albany Highway.',items};});
 const VP_BUSKER={x:510,z:3.2};(()=>{const m=spriteMesh(humanFrames({hair:'#9b3b22',skin:'#f1c7a0',shirt:'#9478d4',pants:'#2f3b5c',hat:'#2a2a30'}),.95,1.58);m.position.set(VP_BUSKER.x,0,VP_BUSKER.z);scene.add(m);blob(.85).position.set(VP_BUSKER.x,.03,VP_BUSKER.z);})();
 let rollKey='';
-function zoneTick(dt,t){const z=zoneOf(player.x);
+function zoneTick(dt,t){const z=zoneOf(player.x);if(z==='cbd'&&typeof CBD!=='undefined'){const k=Math.min(1,dt*6);for(const e of CBD.cut){const behind=player.z<e.z1+.6&&player.z>e.z1-18&&player.x>e.x1-2.5&&player.x<e.x2+2.5;const tg=behind?Math.max(.06,1.3/e.h):1;if(Math.abs(e.g.scale.y-tg)>.002)e.g.scale.y+=(tg-e.g.scale.y)*k;}}
   if(running&&!VISIT&&rollKey!==SLOT+'|'+S.day){rollKey=SLOT+'|'+S.day;if(!S.dt||S.dt.day!==S.day)setupDay();makeMail();syncDayVisuals();{const fe=festToday();if(fe)setTimeout(()=>toast('Festival today: '+fe.name+'!',4),1500);if((S.mail||[]).some(m=>!m.read))setTimeout(()=>toast('You\u2019ve got mail! Check the mailbox by the caf\u00e9.',3.5),4000);}stranded.forEach(p=>{scene.remove(p.m);scene.remove(p.b);});stranded=[];strandRolled=false;rollStar();}
   if(running&&!VISIT&&!strandRolled&&S.time>=1050&&S.time<1290){strandRolled=true;spawnStranded();}
   if(z==='hi'){roos.forEach(r=>{r.wait-=dt;let mv=false;if(r.wait<=0){const dx=r.tx-r.x,dz=r.tz-r.z,d=Math.hypot(dx,dz);if(d<.1){r.wait=1.5+Math.random()*4;r.tx=411+Math.random()*18;r.tz=-6+Math.random()*8;}else{const s=Math.min(d,2.4*dt);r.x+=dx/d*s;r.z+=dz/d*s;r.face=dx>0?1:-1;r.hop+=dt;mv=true;}}

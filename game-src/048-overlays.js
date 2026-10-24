@@ -6,7 +6,7 @@ function openWish(){if(!running||(overlay&&overlay!=='cafe'))return;S.qg=S.qg||{
 function hqTpSpot(x,z){const off=[[0,2.6],[0,3.4],[2.4,2.4],[-2.4,2.4],[0,-2.6],[2.8,0],[-2.8,0],[0,4.4]];for(const [dx,dz] of off){if(!blocked(x+dx,z+dz))return[x+dx,z+dz];}return[x,z+2.6];}
 function hqTpTarget(){if(hqTab==='main')return{...IW(0,2.9),name:'Quokka Cafe, Rottnest',zone:'island',exact:true};if(hqTab==='wish')return null;const b=BRANCHES.find(q=>q.id===hqTab);if(!b||!brState(b.id).own)return null;return{x:b.x,z:b.z,name:'Quokka Cafe '+b.name,zone:b.zone};}
 function hqTpButton(){const t=hqTpTarget(),btn=$('#cfTp');btn.hidden=!t||!!VISIT;if(t){const here=zoneOf(player.x)===t.zone&&Math.hypot(player.x-t.x,player.z-t.z)<6;btn.disabled=here;btn.textContent=here?'You are here':'Teleport to '+t.name+' \u00b7 free';}}
-function hqTeleport(){const t=hqTpTarget();if(!t||transit||VISIT)return;if((t.zone==='freo'||t.zone==='vp')&&!hasPass()){hideOverlays();needPass(t.zone);return;}hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2728 Teleporting to '+t.name+'\u2026',2);
+function hqTeleport(){const t=hqTpTarget();if(!t||transit||VISIT)return;if(PASS_ZONES.includes(t.zone)&&!hasPass()){hideOverlays();needPass(t.zone);return;}hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2728 Teleporting to '+t.name+'\u2026',2);
   setTimeout(()=>{const sp=freeNear(...(t.exact?[t.x,t.z]:hqTpSpot(t.x,t.z)));player.bike=false;player.carry=null;player.x=sp[0];player.z=sp[1];updateCamera(0,true);fadeTarget=0;transit=false;},800);}
 // ---------- Kip's Journey: the main RPG path, in five chapters ----------
 function jHas(fn){try{return!!fn();}catch(e){return false;}}

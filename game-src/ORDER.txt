@@ -57,7 +57,8 @@
 056-snorkelling-out-to-old-wreck-at-henrie.js
 057-island-scale-phase-6-six-island-lookou.js
 058-phase-8-east-cape-and-south-point-get.js
-059-island-loop-bus-a-19-stop-loop-bus-lik.js
-060-live-mode-live-1-kip-runs-caf-on-his-o.js
-061-look-lab-landscape-layers-of-each-real.js
-062-part.js
+059-perth-cbd-city-across-river-from-south.js
+060-island-loop-bus-a-19-stop-loop-bus-lik.js
+061-live-mode-live-1-kip-runs-caf-on-his-o.js
+062-look-lab-landscape-layers-of-each-real.js
+063-part.js

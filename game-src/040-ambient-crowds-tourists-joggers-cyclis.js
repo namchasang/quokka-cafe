@@ -5,6 +5,7 @@ const WALK_ROUTES={
  freo:[[[279,-2.2],[320,-2.2]],[[302.4,-1.5],[302.4,21]],[[305.6,-1.5],[305.6,21]],[[281,4.6],[303,4.6]],[[283,8],[298,8],[298,12.6],[283,12.6],[283,8]],[[306,20.6],[332,20.6]],[[307,-8.8],[316,-8.8]],[[293,13.6],[279,13.6]]]};
 WALK_ROUTES.hi=[[[407,5.2],[433,5.2]],[[433,5],[433,-8]],[[408,-8.6],[428,-8.6]]];WALK_ROUTES.vp=[[[490,-1.6],[560,-1.6]],[[490,1.6],[560,1.6]],[[500,4.6],[550,4.6]],[[500,9.4],[550,9.4]],[[492,-1.6],[492,-9.6],[556,-9.6]]];
 const WALK_N={island:16,sp:10,freo:20,hi:6,vp:26};
+WALK_ROUTES.cbd=[[[624,-13.5],[698,-13.5]],[[626,7.4],[700,7.4]],[[624,-1.5],[698,-1.5]],[[667.3,-20],[667.3,4]],[[640,-20],[640,4]],[[605,-11],[618,-11],[618,3]]];WALK_N.cbd=24;
 const walkers=[];
 (()=>{const r=mulberry32(4242);const looks=()=>({skin:SKINS[r()*SKINS.length|0],hair:HAIRS[r()*HAIRS.length|0],shirt:SHIRTS[r()*SHIRTS.length|0],pants:PANTS[r()*PANTS.length|0],hat:HATS[r()*HATS.length|0]});
   Object.keys(WALK_ROUTES).forEach(zone=>{const R=WALK_ROUTES[zone];for(let i=0;i<WALK_N[zone];i++){const route=R[i%R.length];const bike=zone==='island'&&i%4===3;
@@ -20,12 +21,12 @@ function updateWalkers(dt){const zone=walkerZone(),rain=wxC.rain>.5,night=NIGHT>
     const gy=groundY(w.x,w.z);w.m.position.set(w.x,gy+(w.bike?Math.abs(Math.sin(w.walkT*14))*.03:0),w.z);w.m.scale.x=w.face;w.sh.position.set(w.x,gy+.03,w.z);});}
 
 // ---------- zones ----------
-function zoneOf(x){return x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
+function zoneOf(x){return x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
 function hiWalk(x,z){return x>404.5&&x<435.5&&z>-9.6&&z<9.8;}
 function vpWalk(x,z){return x>489&&x<561&&z>-10.2&&z<12;}
 const HIB={x1:388,x2:452,z1:-12.75,z2:12.75},VPB={x1:488,x2:562,z1:-14.75,z2:14.75};
 const ZONE_DEF={
- hi:{B:HIB,title:'Heirisson Island',eb:'Matagarup · Swan River',bg:'#2f78a8',rects:[[404,-10,436,10,'#f6f1e3'],[405,-9,435,9,'#7aa356'],[410,-7,430,3,'#a9c46d'],[392,-12.8,448,-10.2,'#8a8f99'],[407,4.6,433,5.8,'#ddd3bd'],[432.4,-9,433.6,5,'#ddd3bd']],labels:[['Heirisson Island',420,8.4,1],['Kangaroo sanctuary',420,-2,1],['Kangaroo sculpture',412,9.6,0],['The Causeway',420,-11.5,1],['Swan River',398,4,0],['Bus stop',432,-7.2,0]]},
+ hi:{B:HIB,title:'Heirisson Island',eb:'Swan River',bg:'#2f78a8',rects:[[404,-10,436,10,'#f6f1e3'],[405,-9,435,9,'#7aa356'],[410,-7,430,3,'#a9c46d'],[392,-12.8,448,-10.2,'#8a8f99'],[407,4.6,433,5.8,'#ddd3bd'],[432.4,-9,433.6,5,'#ddd3bd']],labels:[['Heirisson Island',420,8.4,1],['Kangaroo sanctuary',420,-2,1],['Kangaroo sculpture',412,9.6,0],['The Causeway',420,-11.5,1],['Swan River',398,4,0],['Bus stop',432,-7.2,0]]},
  vp:{B:VPB,title:'Victoria Park',eb:'Albany Highway · Asian food town',bg:'#d8ccb4',rects:[[488,-1.2,562,1.2,'#4a4d55'],[488,-2,562,-1.2,'#ddd3bd'],[488,1.2,562,2,'#ddd3bd'],[498,3.1,552,10.1,'#b98552'],[491,4,497,10,'#7aa356'],[553,4,559,10,'#7aa356'],[488,-11.4,562,-10.6,'#6a5a4a'],[555.9,-9.2,561.3,-6.8,'#dfe6ec']],shops:true,labels:[['Albany Highway',525,.1,1],['Night market',525,10.8,1],['Victoria Park Station',558.6,-12.6,1],['Street mural',491,2.8,0]]}};
 function renderZoneBase(id,W,H,s,all){const Z=ZONE_DEF[id],c=mk(W,H),x=c.getContext('2d'),m=mapper(W,H,Z.B);x.fillStyle=Z.bg;x.fillRect(0,0,W,H);
   const rect=(x1,z1,x2,z2,col)=>{x.fillStyle=col;x.fillRect(m.X(x1),m.Z(z1),m.X(x2)-m.X(x1),m.Z(z2)-m.Z(z1));};Z.rects.forEach(r=>rect(...r));
@@ -51,4 +52,4 @@ function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCach
   if(z==='island')return draw();const snap=zoneSnap(ZONE_B(z),W,H);
   if(snap){const lab=labelsOnly(draw);const x=snap.getContext('2d');x.drawImage(lab,0,0);c=snap;}else c=draw();
   zoneCache[k]=c;return c;}
-const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB})[z];
+const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB})[z];
