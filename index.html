@@ -7015,6 +7015,34 @@ if(FDET.on&&FREO2_ON&&FDET.city&&FDET.vic)(()=>{const G=FDET.city;
   CBD.cityFillTick=function(){if(!G.visible)return;const t=performance.now()/1000;for(const j of JETS){const p=(t*.9+j.ph)%1;const rr=j.r1*p;j.m.position.set(j.x+Math.cos(j.a)*rr,j.y0+Math.sin(p*Math.PI)*.45-p*p*.35,j.z+Math.sin(j.a)*rr);}if(FDET.night3)FDET.night3();};
 })();
 if(typeof CBD!=='undefined'&&CBD.cityFillTick){const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);if(zoneOf(player.x)==='cbd'||(typeof LAB!=='undefined'&&LAB.on))CBD.cityFillTick();};}
+// ---------- Perth CBD: busy footpaths (same Look Lab layer: ?lab, ?freo or ?city) ----------
+// Concrete footpaths with kerbs along every road where people walk, and a much bigger lunchtime crowd:
+// office workers, shoppers and tourists on St Georges Tce, Wellington St, Barrack and William streets,
+// the Hay St Mall, the riverside walk and the Kings Park path. Half of them go home after dark.
+if(FDET.on&&FREO2_ON&&FDET.city)(()=>{const G=FDET.city;
+  const tex=(W,H,draw,rep)=>{const c=mk(W,H),x=c.getContext('2d');draw(x,W,H);return ctex(c,rep?{rep}:{});};
+  const r=mulberry32(2026);
+  const footM=(w,d)=>new THREE.MeshLambertMaterial({map:tex(8,8,(x)=>{x.fillStyle='#cfcac0';x.fillRect(0,0,8,8);x.fillStyle='#bdb8ae';x.fillRect(0,0,8,1);x.fillRect(0,0,1,8);x.fillStyle='#d8d4ca';for(let i=0;i<6;i++)x.fillRect(r()*8|0,r()*8|0,1,1);},[Math.max(1,w/1.2),Math.max(1,d/1.2)])});
+  const kerbM=new THREE.MeshLambertMaterial({color:0x9a968e});
+  const flat=(w,d,m,x,z,y)=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(w,d),m);p.rotation.x=-Math.PI/2;p.position.set(x,y,z);p.receiveShadow=true;G.add(p);};
+  // x1,z1,x2,z2 and which side has the kerb (the road side)
+  const foot=(x1,z1,x2,z2,kerb)=>{const w=x2-x1,d=z2-z1;flat(w,d,footM(w,d),(x1+x2)/2,(z1+z2)/2,.0235);
+    const k=.09;if(kerb==='s')flat(w,k,kerbM,(x1+x2)/2,z2-k/2,.026);if(kerb==='n')flat(w,k,kerbM,(x1+x2)/2,z1+k/2,.026);if(kerb==='e')flat(k,d,kerbM,x2-k/2,(z1+z2)/2,.026);if(kerb==='w')flat(k,d,kerbM,x1+k/2,(z1+z2)/2,.026);};
+  // St Georges Tce (road z -4.2..-2), Riverside Dr (z 3.9..6.15), Wellington St (z -22.5..-21)
+  const EW=[[622,638],[640.2,666.2],[668.4,700]];
+  EW.forEach(([a,b])=>{foot(a,-5.35,b,-4.22,'s');foot(a,-1.98,b,-.72,'n');foot(a,3.0,b,3.88,'s');foot(a,-20.95,b,-19.95,'n');foot(a,-23.4,b,-22.52,'s');});
+  // Barrack St (x 666.2..668.4) and William St (x 638..640.2), broken at the cross streets and the mall
+  [[-20.95,-14.75],[-12.25,-4.22],[-1.98,3.0]].forEach(([a,b])=>{foot(665.2,a,666.18,b,'e');foot(668.42,a,669.4,b,'w');foot(637,a,637.98,b,'e');foot(640.22,a,641.2,b,'w');});
+  // ===== the crowd =====
+  if(typeof walkers!=='undefined'){const looks=()=>({skin:SKINS[r()*SKINS.length|0],hair:HAIRS[r()*HAIRS.length|0],shirt:SHIRTS[r()*SHIRTS.length|0],pants:PANTS[r()*PANTS.length|0],hat:r()<.7?null:HATS[r()*HATS.length|0]});
+    const R=[[[622,-4.75],[700,-4.75]],[[622,-1.3],[700,-1.3]],[[622,3.45],[700,3.45]],[[622,-20.45],[700,-20.45]],[[622,-22.95],[700,-22.95]],
+      [[668.9,-20.5],[668.9,-14.9],[668.9,-12.1],[668.9,2.6]],[[665.7,-20.5],[665.7,2.6]],[[637.5,-20.5],[637.5,2.6]],[[640.7,-20.5],[640.7,2.6]],
+      [[624,-13.0],[698,-13.0]],[[624,-14.1],[698,-14.1]],[[624,-13.55],[698,-13.55]],[[623,10.3],[700,10.3]],[[617.5,-23],[617.5,9]],[[605,-10.5],[617,-10.5]]];
+    const WT={4:1,10:1,11:1,12:1};let n=0;
+    R.forEach((route,ri)=>{const cnt=ri>=9&&ri<=11?6:ri===12?5:ri>=5&&ri<=8?3:4;for(let i=0;i<cnt;i++){const m=spriteMesh(humanFrames(looks()),.95,1.58);m.visible=false;scene.add(m);const sh=blob(.8);sh.visible=false;
+      const seg=r()*(route.length-1)|0,t=r();const a=route[seg],b=route[seg+1];walkers.push({zone:'cbd',m,sh,route,seg,dir:r()<.5?1:-1,x:a[0]+(b[0]-a[0])*t,z:a[1]+(b[1]-a[1])*t,sp:1.1+r()*.9,off:(r()-.5)*(WT[ri]?.9:.35),walkT:r()*5,face:1,bike:false,pause:0});n++;}});
+    FDET.cityCrowd=n;}
+})();
 // keep the layer hidden away from Fremantle (and on the title screen), like the city layer
 if(FDET.on&&FDET.g){FDET.g.visible=false;}
 

@@ -82,11 +82,12 @@ Find code: `grep -n 'name' game-src/*`.
 | 074-st-george-s-cathedral-on-st-georges-te.js | 6650-6697 | 5 |  |
 | 075-fremantle-from-paul-s-street-photos-sa.js | 6698-6837 | 19 | FREO2_LIVE |
 | 076-fremantle-town-plan-same-look-lab-laye.js | 6838-6959 | 15 |  |
-| 077-perth-cbd-fill-empty-corners-same-look.js | 6960-7060 | 12 |  |
-| 078-island-loop-bus-a-19-stop-loop-bus-lik.js | 7061-7106 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 079-tidy-island-after-it-grows-nothing-on.js | 7107-7216 | 13 | flipIslandSigns, hot |
-| 080-live-mode-live-1-kip-runs-caf-on-his-o.js | 7217-7291 | 8 | LIVEM |
-| 081-look-lab-landscape-layers-of-each-real.js | 7292-7477 | 25 | LAB |
-| 082-hd-plants-every-tree-bush-flower-and-g.js | 7478-7545 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 083-layered-pixel-trees-2-5d-look-lab-laye.js | 7546-7586 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 084-part.js | 7587-7589 | 0 |  |
+| 077-perth-cbd-fill-empty-corners-same-look.js | 6960-7017 | 7 |  |
+| 078-perth-cbd-busy-footpaths-same-look-lab.js | 7018-7088 | 8 |  |
+| 079-island-loop-bus-a-19-stop-loop-bus-lik.js | 7089-7134 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 080-tidy-island-after-it-grows-nothing-on.js | 7135-7244 | 13 | flipIslandSigns, hot |
+| 081-live-mode-live-1-kip-runs-caf-on-his-o.js | 7245-7319 | 8 | LIVEM |
+| 082-look-lab-landscape-layers-of-each-real.js | 7320-7505 | 25 | LAB |
+| 083-hd-plants-every-tree-bush-flower-and-g.js | 7506-7573 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 084-layered-pixel-trees-2-5d-look-lab-laye.js | 7574-7614 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 085-part.js | 7615-7617 | 0 |  |
