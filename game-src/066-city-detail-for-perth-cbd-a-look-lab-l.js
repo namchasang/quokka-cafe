@@ -135,22 +135,27 @@ if(CDET.on)(()=>{
   function sprMat(c){const t=ctex(c);return{m:new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.12,.12,.1),emissiveMap:t}),d:new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.5})};}
   function bb(v,x,z,w,h,y){const g=new THREE.PlaneGeometry(w,h);g.translate(0,h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,y||0,z);G.add(m);BB.push(m);return m;}
   const SPR={};{const rr=mulberry32(4242);
-    const bushB=k=>{const b=[];for(let i=0;i<6;i++)b.push([16+(rr()-.5)*16,12+(rr()-.5)*4,6+rr()*4]);return b;};
-    SPR.bush=[0,1,2].map(k=>sprMat(canopyHD(32,20,bushB(k),TREE_PAL[k],rr,null)));
-    SPR.flower=[['#ef7d9a','#f6f2e8'],['#d8323a','#e8c040']].map(([a,b2],k)=>{const c=canopyHD(32,20,bushB(k),TREE_PAL[1],rr,null),x=c.getContext('2d');for(let i=0;i<14;i++){const fx=3+rr()*26|0,fy=2+rr()*12|0;const d=x.getImageData(fx,fy,1,1).data;if(!d[3])continue;x.fillStyle=i%3?a:b2;x.fillRect(fx,fy,2,2);x.fillStyle='#fff8e6';x.fillRect(fx,fy,1,1);}return sprMat(c);});
-    const gb=()=>{const b=[];for(let i=0;i<9;i++)b.push([24+(rr()-.5)*30,20+(rr()-.5)*22,6+rr()*6]);return b;};
-    SPR.gum=[0,1].map(()=>sprMat(canopyHD(48,96,gb(),['#283a22','#344a2a','#435c33','#56713d','#6c8748','#879e58','#aebd7a'],rr,[21,40,6,['#8a8478','#b8b0a0','#d8d2c4','#efe9dc']])));
-    {const b=[[12,16,7],[24,12,8],[36,16,7],[18,8,5],[30,8,5]];SPR.boab=sprMat(canopyHD(48,64,b,TREE_PAL[1],rr,[17,22,14,['#6e5e50','#9a8674','#bca690','#d8c4ac'],7]));}
-    {const b=[[16,13,9],[11,16,6],[21,17,6],[16,8,6]];SPR.small=sprMat(canopyHD(32,48,b,TREE_PAL[0],rr,[14,26,4]));}
-    // a Canary Island date palm: ringed trunk and a crown of drooping fronds
-    {const W=48,H=96,c=mk(W,H),x=c.getContext('2d');for(let y=30;y<H;y++){const w=6+(y>H-8?(y-(H-8))/2:0);for(let i=0;i<w;i++){x.fillStyle=(y%4===0)?'#5a4a38':i<1?'#5e503c':i>w-2?'#6e604c':'#8a7a62';x.fillRect(24-w/2+i,y,1,1);}}
-      x.fillStyle='#6a5a40';x.beginPath();x.ellipse(24,30,6,5,0,0,7);x.fill();const FR=['#2f5a2a','#3e7232','#4f8a3c','#68a24a'];
-      for(let k=0;k<16;k++){const a=-Math.PI+k/15*Math.PI,len=17+rr()*5;for(let t=0;t<=1;t+=.03){const px=24+Math.cos(a)*len*t,py=29+Math.sin(a)*len*t*.55+t*t*13*Math.abs(Math.cos(a))+(Math.abs(Math.cos(a))<.3?-t*6:0);const wd=Math.max(1,3*(1-t));
-        x.fillStyle=FR[t<.15?0:k%4];x.fillRect(px-wd/2,py,wd,1.4);if(t>.2&&(t*33|0)%2)x.fillStyle=FR[3],x.fillRect(px,py+1,1,1);}}
+    // same pixel size and 4-shade style as the game's own trees (canopy + TREE_COLS), so every plant matches
+    const bark=(c,tx,ty,w,cols,bulge)=>{const x=c.getContext('2d');x.globalCompositeOperation='destination-over';const H=c.height;
+      for(let y=ty;y<H;y++){const b=Math.round((bulge||0)*Math.sin(Math.PI*Math.min(1,(y-ty)/(H-ty)*1.15)));const L=tx-b,W2=w+2*b;x.fillStyle=cols[0];x.fillRect(L,y,W2,1);x.fillStyle=cols[1];x.fillRect(L+1,y,Math.max(1,W2-2),1);x.fillStyle=cols[2];x.fillRect(L+1,y,1,1);}
+      x.globalCompositeOperation='source-over';return c;};
+    const bushB=()=>{const b=[];for(let i=0;i<4;i++)b.push([8+(rr()-.5)*8,6+(rr()-.5)*2,3.5+rr()*2]);return b;};
+    SPR.bush=[0,1,2].map(k=>sprMat(canopy(16,10,bushB(),TREE_COLS[k],rr,null)));
+    SPR.flower=[['#ef7d9a','#f9c6dd'],['#d8323a','#f4d23a']].map(([a,b2],k)=>{const c=canopy(16,10,bushB(),TREE_COLS[1],rr,null),x=c.getContext('2d');for(let i=0;i<7;i++){const fx=2+rr()*12|0,fy=1+rr()*6|0;if(!x.getImageData(fx,fy,1,1).data[3])continue;x.fillStyle=i%3?a:b2;x.fillRect(fx,fy,1,1);}return sprMat(c);});
+    const GUM=['#3c4f2c','#55693a','#73884a','#9cae6a'];
+    SPR.gum=[0,1].map(()=>{const b=[];for(let i=0;i<6;i++)b.push([12+(rr()-.5)*15,10+(rr()-.5)*11,3+rr()*3]);const c=canopy(24,48,b,GUM,rr,null);
+      const x=c.getContext('2d');x.globalCompositeOperation='destination-over';x.fillStyle='#c8c0b0';x.fillRect(8,9,1,8);x.fillRect(15,8,1,9);x.globalCompositeOperation='source-over';
+      return sprMat(bark(c,10,18,4,['#8a8478','#e2dccc','#f4f0e6']));});
+    {const c=canopy(24,32,[[6,8,3.5],[12,6,4],[18,8,3.5],[9,4,2.5],[15,4,2.5]],TREE_COLS[1],rr,null);SPR.boab=sprMat(bark(c,9,11,6,['#7a6656','#bca690','#d8c4ac'],3));}
+    {const c=canopy(16,24,[[8,7,4.5],[5,8,3],[11,9,3],[8,4,3]],TREE_COLS[0],rr,[6,13]);SPR.small=sprMat(c);}
+    {const W=24,H=48,c=mk(W,H),x=c.getContext('2d');for(let y=15;y<H;y++){const w=3+(y>H-4?1:0);for(let i=0;i<w;i++){x.fillStyle=(y%3===0)?'#5a4a38':i===0?'#5e503c':i===w-1?'#6e604c':'#8a7a62';x.fillRect(12-(w>>1)+i,y,1,1);}}
+      x.fillStyle='#6a5a40';x.fillRect(10,13,4,3);const FR=TREE_COLS[1];
+      for(let k=0;k<12;k++){const a=-Math.PI+k/11*Math.PI,len=8+rr()*3;for(let t=0;t<=1;t+=.06){const px=12+Math.cos(a)*len*t,py=14+Math.sin(a)*len*t*.55+t*t*7*Math.abs(Math.cos(a))+(Math.abs(Math.cos(a))<.3?-t*3:0);
+        x.fillStyle=FR[t<.2?0:t>.7?3:1+(k%2)];x.fillRect(Math.round(px),Math.round(py),1,1);if(t>.25&&t<.8){x.fillStyle=FR[0];x.fillRect(Math.round(px),Math.round(py)+1,1,1);}}}
       SPR.palm=sprMat(c);}}
   function bushes(x,z,w,d,n,flowers,y0){for(let i=0;i<n;i++){const s=.8+r()*.4;bb(flowers?SPR.flower[i%2]:SPR.bush[i%3],x+(r()-.5)*w,z+(r()-.5)*d,1.0*s,.62*s,y0||0);}}
   function planter(x,z,w,fl){put(bx(w,.35,.6),M('#b8b2a6'),x,.175,z);put(bx(w-.1,.02,.5),M('#5a4232'),x,.355,z,{nc:1});bushes(x,z,w-.5,.15,Math.max(2,Math.round(w*1.4)),fl,.3);col(x-w/2,z-.3,x+w/2,z+.3);}
-  function treePlanter(x,z){put(cy(.42,.38,.4,10),M('#b8b2a6'),x,.2,z);bb(SPR.small,x,z+.05,1.5,2.25,.32);col(x-.42,z-.42,x+.42,z+.42);}
+  function treePlanter(x,z){put(cy(.42,.38,.4,10),M('#b8b2a6'),x,.2,z);bb(SPR.small,x,z+.05,1.4,2.1,.32);col(x-.42,z-.42,x+.42,z+.42);}
   function hedge(x1,z1,x2,z2){const L=Math.hypot(x2-x1,z2-z1),n=Math.ceil(L/.6);for(let i=0;i<=n;i++){const t=i/n;bb(SPR.bush[i%3],x1+(x2-x1)*t,z1+(z2-z1)*t,1.05,.66);}col(Math.min(x1,x2)-.3,Math.min(z1,z2)-.3,Math.max(x1,x2)+.3,Math.max(z1,z2)+.3);}
   function bistro(x,z,c){put(cy(.24,.24,.04,10),M('#f6f6f0'),x,.56,z);put(cy(.03,.05,.56,6),M(DARK),x,.28,z);[-1,1].forEach(s=>{put(bx(.24,.04,.24),M(DARK),x+s*.42,.34,z);put(bx(.24,.3,.03),M(DARK),x+s*.42,.5,z-.11);});
     put(cy(.02,.02,1.4,5),M('#d8d4c0'),x,1.12,z);put(new THREE.ConeGeometry(.72,.3,8),M(c),x,1.75,z);col(x-.55,z-.25,x+.55,z+.25);}
@@ -382,7 +387,7 @@ if(CDET.on)(()=>{
   // ===== Kings Park: a hedge along the city edge, paths, gums, a boab, flower beds, a lily pond, picnics and a kiosk =====
   [[-25.5,-22.9],[-20.5,-11.9],[-10.1,-4.5],[-1.6,3.6],[7.2,11.4]].forEach(([a,b])=>hedge(621.4,a,621.4,b));
   {const gm=lmat(pathC,[1,10]);paint(1.1,35,gm,618,-6.5,.022);paint(17,1.1,lmat(pathC,[8,1]),612.5,-11,.023);paint(5.2,1,lmat(pathC,[3,1]),615.2,8.6,.023);}
-  function gum(x,z,h){bb(SPR.gum[(x*3|0)%2],x,z,2.7*h/4,5.4*h/4);col(x-.25,z-.25,x+.25,z+.25);}
+  function gum(x,z,h){bb(SPR.gum[(x*3|0)%2],x,z,2.4*h/4,4.8*h/4);col(x-.25,z-.25,x+.25,z+.25);}
   gum(613.2,-19.2,4.2);gum(601.6,-17.4,3.8);gum(608.6,-1.2,4);gum(620.3,-9.4,3.6);
   bb(SPR.boab,615.6,-3.4,3,4);col(615.6-.7,-3.4-.7,615.6+.7,-3.4+.7);
   function bed(x,z,a,b,kind){const m=new THREE.Mesh(new THREE.CircleGeometry(1,18),M('#6a4a32'));m.rotation.x=-Math.PI/2;m.scale.set(a,b,1);m.position.set(x,.025,z);m.receiveShadow=true;G.add(m);
