@@ -7,7 +7,7 @@ const $=s=>document.querySelector(s);
 // The game is written in English. In Thai mode a watcher swaps any English text shown in the page for its Thai line
 // from TH (exact line first, then the same line with its numbers as #, then each part between " · ").
 // Elements marked data-notr (codes, names people type) are never touched.
-const THAI_READY=false||/[?&#]th\b/.test(location.search+location.hash);// the Thai lines are still being finished: until then the game stays in English and the switch is hidden
+const THAI_READY=true;// the Thai lines are still being finished: until then the game stays in English and the switch is hidden
 let LANG='en';try{if(THAI_READY)LANG=localStorage.getItem('qc-lang')||(/[?&#]th\b/.test(location.search+location.hash)?'th':0)||((navigator.language||'').toLowerCase().startsWith('th')?'th':'en');}catch(e){}
 const TH={},TH_W=[];function thLoad(o){for(const k in o){const v=o[k];if(v==null)continue;{const m=/^([A-Z][\w’' ]{0,24}):\s(.+)$/.exec(k),mv=/^[^:]{1,30}:\s(.+)$/.exec(v);if(m&&mv&&TH[m[2]]==null)TH[m[2]]=mv[1];}if(k.includes('*')){const re=new RegExp('^'+k.replace(/[.?+^$()[\]{}|\\]/g,'\\$&').replace(/\*/g,'(.+?)')+'$');TH_W.push([re,v]);}else TH[k]=v;}}
 const TH_CAP=window.__trCap?(window.__trCapSet=new Set()):null;

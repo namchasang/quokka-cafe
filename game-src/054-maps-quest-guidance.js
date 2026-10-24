@@ -81,7 +81,13 @@ function updateQuestUI(dt,t){curQuest=running?questTarget():null;
 function openMap(){if(!running||overlay)return;mapMode='zone';ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;$('#mapOv .legend').hidden=false;$('#mapQuest').hidden=false;if($('#mapPerth'))$('#mapPerth').textContent='Perth map';const c=$('#bigMap'),x=c.getContext('2d');const zq=zoneOf(player.x);if(zq==='island'){if(!bigBase)bigBase=renderMapBase(c.width,c.height,2.6,true);x.drawImage(bigBase,0,0);}else x.drawImage(zoneBase(zq,true),0,0);drawMapDynamic(x,c.width,c.height,2.6,performance.now()/1000,questTarget(),ZONE_B(zq));const ZN={island:['Island map','Rottnest Island \u00b7 Western Australia'],sp:['South Perth','Mends Street Jetty \u00b7 Swan River'],freo:['Fremantle','Port city \u00b7 Fremantle'],hi:[ZONE_DEF.hi.title,ZONE_DEF.hi.eb],vp:[ZONE_DEF.vp.title,ZONE_DEF.vp.eb],cbd:[ZONE_DEF.cbd.title,ZONE_DEF.cbd.eb]}[zq];$('#mapOv h2').textContent=ZN[0];$('#mapOv .eyebrow').textContent=ZN[1];
   document.querySelectorAll('#mapOv .lg-sp').forEach(e=>e.hidden=zq!=='sp');
   const q=questTarget();$('#mapQuest').textContent=q?'Current goal: '+q.label:'All quests done. Explore freely.';showOverlay('map');}
-$('#mm').addEventListener('click',openMap);$('#mapClose').addEventListener('click',hideOverlays);
+$('#mm').addEventListener('click',openMap);
+// fit the big map canvas inside the full-screen map, keeping its shape (clicks still map correctly because the canvas itself is sized)
+function mapFit(){const w=$('#mapFit'),c=$('#bigMap');if(!w||!c||$('#mapOv').hidden)return;const W=w.clientWidth,H=w.clientHeight;if(!W||!H)return;const k=Math.min(W/c.width,H/c.height);c.style.width=Math.floor(c.width*k)+'px';c.style.height=Math.floor(c.height*k)+'px';}
+addEventListener('resize',()=>setTimeout(mapFit,50));
+new MutationObserver(()=>requestAnimationFrame(mapFit)).observe($('#mapOv'),{attributes:true,attributeFilter:['hidden']});$('#mapPerth').addEventListener('click',()=>requestAnimationFrame(mapFit));
+new MutationObserver(()=>requestAnimationFrame(mapFit)).observe($('#bigMap'),{attributes:true,attributeFilter:['width','height']});
+$('#mapBack').addEventListener('click',()=>$('#mapClose').click());$('#mapClose').addEventListener('click',hideOverlays);
 
 // the island's shape, sand, paths, water and surf, re-made for the bigger island
 let ISL_OX=null,ISL_OZ=null,ISL_PD=null;
