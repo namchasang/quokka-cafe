@@ -167,7 +167,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
   const _lc=LAB.cam;LAB.cam=function(dt){_lc(dt);if(CDET.on&&CDET.g){CDET.g.visible=CDET.userShow!==false;CDET.tick(dt);}};
   const KC={'Flat white':['A flat white on Hay Street. Perth does coffee properly.','Smooth. I should ask what beans they use for the café.'],'Long black':['A long black by the quay. Strong enough to row back to the island.','Black, hot, and the river right there. Lovely.'],'Iced latte':['An iced latte in the park. Kings Park on a warm day is the best.','Cold coffee, warm gums, good view.']};
   const _ct=cbdTargets;cbdTargets=function(T){_ct(T);if(!CDET.on||zoneOf(player.x)!=='cbd')return;
-    CDET.kiosks.forEach(k=>T.push({x:k.x,z:k.z+.95,r:1.2,label:k.name+' · '+k.drink.toLowerCase()+' ('+k.price+' coins)',act:()=>{if(S.coins<k.price){toast('A '+k.drink.toLowerCase()+' is '+k.price+' coins');return;}S.coins-=k.price;eat(12);say(['Kip: '+pick(KC[k.drink])+' (+12 stamina)']);}}));};}
+    CDET.kiosks.forEach(k=>T.push({x:k.x,z:k.z+.95,r:1.2,label:k.name+' · '+k.drink.toLowerCase()+' ('+k.price+' coins)',act:()=>{if(S.coins<k.price){toast('A '+k.drink.toLowerCase()+' is '+k.price+' coins');return;}S.coins-=k.price;S.qg=S.qg||{};S.qg.cityCoffee=1;eat(12);say(['Kip: '+pick(KC[k.drink])+' (+12 stamina)']);}}));};}
 // city detail: join the static pieces into a few meshes per material (far fewer draw calls on phones)
 CDET.merge=function(){if(!CDET.on||CDET.merged||!CDET.g)return;CDET.merged=true;const G=CDET.g;scene.updateMatrixWorld(true);
   const skip=new Set();CDET.veh.forEach(v=>v.g.traverse(o=>skip.add(o)));CBD.cut.forEach(e=>e.g.traverse(o=>skip.add(o)));const bb=new Set(BB);

@@ -31,9 +31,14 @@ function STORY_DEF(){if(_story)return _story;const g=()=>S.qg||{};const vpDish=(
   {title:'Welcome to Albany Highway',giver:'Albany Hwy busker',intro:'Hey hey, look who’s back! Albany Highway missed you. Food from all over Asia, street art and the train to the city. Have a look around.',outro:'Now you’re hungry, right? Go eat!',coins:60,
    steps:[['Photograph Albany Highway','albany'],['Take a photo of the busker','busker'],['Find the street mural','mural'],['Visit Victoria Park Station','station']]},
   {title:'Food street',giver:'Kip’s appetite',intro:'Kip: Pho, BBQ, ramen, bubble tea… the street I grew up on. Time to try them all again, one by one.',outro:'Kip: Still the best food street in Perth. Next time I’ll bring Mum and Dad back here for dinner!',coins:80,
-   steps:()=>vpDish().map(sh=>['Eat '+sh.dish+' at '+sh.name,{check:()=>!!(S.fq&&S.fq['vp_'+sh.id]),at:()=>({x:sh.npc.x,z:sh.npc.z,label:sh.dish+' at '+sh.name})}]).concat([['Night market after 5:30pm','nightmkt']])}]}};
+   steps:()=>vpDish().map(sh=>['Eat '+sh.dish+' at '+sh.name,{check:()=>!!(S.fq&&S.fq['vp_'+sh.id]),at:()=>({x:sh.npc.x,z:sh.npc.z,label:sh.dish+' at '+sh.name})}]).concat([['Night market after 5:30pm','nightmkt']])}]},
+ cbd:{name:'Perth CBD',short:'City',chapters:[
+  {title:'Across to the city',giver:'Agnes the bell ringer',intro:'Welcome to the city, love! Ferry in at Barrack Street, bells on the quay, shops up on Hay Street. Have a proper look around before the twelve o’clock peal.',outro:'There. Now you know the city as well as the pigeons do. Ranger Tilly in Kings Park has a few secrets for you next.',coins:90,
+   steps:[['Photograph Barrack St Jetty','jettycbd'],['Photograph the bell tower','belltower'],['Photograph Elizabeth Quay','eqquay'],['Walk down Hay St Mall','haymall'],['Find the old arcade on St Georges Tce','tudor']]},
+  {title:'Hidden corners',giver:'Ranger Tilly',intro:'The city has its quiet places if you know where to look. A park bigger than the city itself, a bridge through the treetops, and an old building that still pours real gold.',outro:'Not bad for an island quokka! The river, the hills, the whole city at your feet. Come back when the wildflowers are out.',coins:120,
+   steps:[['Visit Kings Park','kingspark'],['Cross the glass bridge','glassbridge'],['Look over the river from the lookout','kplookout'],['Watch them pour gold at the Gold Exchange','goldex'],['Visit the City Museum','citymuseum'],['Catch a train at Perth Station','perthstn']]}]}};
  return _story;}
-const STORY_ORDER=['island','sp','hi','freo','vp'];
+const STORY_ORDER=['island','sp','hi','freo','vp','cbd'];
 function storyChap(a){const D=STORY_DEF()[a];if(!D)return null;const n=(S.story&&S.story[a])||0;return n<D.chapters.length?D.chapters[n]:null;}
 function chapSteps(c){return typeof c.steps==='function'?c.steps():c.steps;}
 function stepDone(st){const t=st[1];if(typeof t==='string')return !!(S.pc&&S.pc[t]);try{return !!t.check();}catch(e){return false;}}
