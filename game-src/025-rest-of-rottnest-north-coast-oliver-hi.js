@@ -16,7 +16,7 @@ const WEST={};
   const RAIL=[[15.8,-3.6],[24,-3.4],[36,1.6],[48,2.8],[53,1.8]];const tieM=M('#5a3a22'),railM=M('#9aa0a8');
   const buildRail=RAIL=>{const n0=scene.children.length;for(let i=0;i<RAIL.length-1;i++){const [ax,az]=RAIL[i],[bx,bz]=RAIL[i+1];const len=Math.hypot(bx-ax,bz-az),ang=Math.atan2(bz-az,bx-ax);
     for(let s=0;s<len;s+=.7){const t=new THREE.Mesh(new THREE.BoxGeometry(.18,.05,1),tieM);t.position.set(ax+Math.cos(ang)*s,.03,az+Math.sin(ang)*s);t.rotation.y=-ang;scene.add(t);}
-    [-.32,.32].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(len,.06,.06),railM);r.position.set((ax+bx)/2-Math.sin(ang)*o,.07,(az+bz)/2+Math.cos(ang)*o);r.rotation.y=-ang;scene.add(r);});}return scene.children.slice(n0);};
+    [-.32,.32].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(len+.12,.06,.06),railM);r.position.set((ax+bx)/2-Math.sin(ang)*o,.07,(az+bz)/2+Math.cos(ang)*o);r.rotation.y=-ang;scene.add(r);});}return scene.children.slice(n0);};
   {const ms=buildRail(RAIL);ms.forEach(m=>m.__noWarp=true);ISL.rail={pts:RAIL.map(p=>p.slice()),meshes:ms,build:buildRail};}
   WEST.rail=RAIL;const tr=new THREE.Group();[0,1,2].forEach(i=>{const c=new THREE.Mesh(new THREE.BoxGeometry(1.7,.9,.9),M(i?'#f1c64a':'#1f5a3a'));c.position.set(-i*1.85,.6,0);c.castShadow=true;tr.add(c);const rf=new THREE.Mesh(new THREE.BoxGeometry(1.8,.1,1),M('#c8344a'));rf.position.set(-i*1.85,1.1,0);tr.add(rf);if(!i){const ch=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.4,8),M('#2a2a30'));ch.position.set(.5,1.3,0);tr.add(ch);}});scene.add(tr);WEST.train=tr;
   // Parker Point, Little Salmon Bay, Strickland Bay

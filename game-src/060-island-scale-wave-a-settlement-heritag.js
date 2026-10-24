@@ -113,19 +113,47 @@ islandLate(()=>{const R=(a,b)=>a+Math.random()*0;const placed=[];const put=(k,x,
     const deck=box(ux?L:w,.14,ux?w:L,lmat(deckC,ux?[6,1]:[1,6]),cx,.06,cz,{noCast:true});deck.__wa=1;for(let i=0;i<7;i++)[-.55,.55].forEach(o=>{const pl=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1.2,6),legMat);pl.position.set(jx+ux*i*1.5+(uz?o:0),-.35,jz+uz*i*1.5+(ux?o:0));scene.add(pl);pl.__wa=1;});
     {const e1x=jx-ux*1.5,e1z=jz-uz*1.5,e2x=jx+ux*(L-1.3),e2z=jz+uz*(L-1.3),hw=w/2-.08;ISL_WALK.push({x1:Math.min(e1x,e2x)-(uz?hw:0),x2:Math.max(e1x,e2x)+(uz?hw:0),z1:Math.min(e1z,e2z)-(ux?hw:0),z2:Math.max(e1z,e2z)+(ux?hw:0)});}
     WA.armyjetty={x:jx+ux*(L-2.4),z:jz+uz*(L-2.4)};const sgn=1,sg=1;waSign(jx-ux*1.6-(uz?1.2:0),jz-uz*1.6-(ux?1.2:0),['ARMY JETTY'],'#1d3a6e','#f5ecd8',1.2);}}
-  // Island Links Golf Course and the airstrip
+  // Island Links Golf Course and the airstrip (the strip is sited first so no fairway is painted over it)
+  const AP0=islFindSite(-118,1,13,1.8,{land:1.8,path:.5},12);
   {const c=put('golfhouse',-150,13,2,1.4,{},8);if(c){bld(c[0],c[1],4,2.6,2.2,'#f6f0e2',{win:true,roof:'#3e7d5c',roofH:.9,sign:'ISLAND LINKS · 9 HOLES',signBg:'#2f5a3a',noCol:true}).traverse(o=>o.__wa=1);col(c[0]-2,c[1]-1.3,c[0]+2,c[1]+1.3);WA.col={x:c[0]+2.4,z:c[1]+2.2};
     waNPC('col','Col',{hair:'#d8d4cc',skin:'#f1c7a0',shirt:'#3e7d5c',pants:'#f6f2e8',hat:'#f6f2e8',cap:true},WA.col.x,WA.col.z,()=>[{who:'Col',text:pick(['Nine holes, one lake, four hundred quokkas. Par is whatever the quokkas allow.','Mind the bunkers. The quokkas think they’re sandpits. They are not wrong.','Best view on the island from the seventh tee. Don’t tell the lighthouse.'])}]);islLinkPath(c[0],c[1]+1.8);}
    const gx=c?c[0]+14:WAV1(-154,13.5)[0],gz=c?c[1]+4:WAV1(-154,13.5)[1];const F=[[gx-4,gz,9,3.2,.08],[gx+8,gz+2.2,7,2.6,-.1],[gx+17,gz-.5,6,2.4,.15]];let okF=0;
-   F.forEach(([x,z,rx,rz,a],i)=>{let ok=true;for(let t=0;t<6.28;t+=.5)if(landD(x+Math.cos(t)*rx,z+Math.sin(t)*rz)<1.6)ok=false;if(landD(x,z)<2||!ok)return;okF++;islClear(x-rx,z-rz,x+rx,z+rz);islAddGround({t:'fairway',x,z,rx,rz,a});const gxp=x+rx*.8*Math.cos(a),gzp=z+rx*.8*Math.sin(a);islAddGround({t:'green',x:gxp,z:gzp,rx:1.7,rz:1.4});
+   F.forEach(([x,z,rx,rz,a],i)=>{if(AP0&&x+rx+2>AP0[0]-15&&x-rx-2<AP0[0]+15&&z+rz+2>AP0[1]-3&&z-rz-2<AP0[1]+3)return;let ok=true;for(let t=0;t<6.28;t+=.5)if(landD(x+Math.cos(t)*rx,z+Math.sin(t)*rz)<1.6)ok=false;if(landD(x,z)<2||!ok)return;okF++;islClear(x-rx,z-rz,x+rx,z+rz);islAddGround({t:'fairway',x,z,rx,rz,a});const gxp=x+rx*.8*Math.cos(a),gzp=z+rx*.8*Math.sin(a);islAddGround({t:'green',x:gxp,z:gzp,rx:1.7,rz:1.4});
      const pole=box(.04,1.6,.04,waM('#f6f6f0'),gxp,.8,gzp);pole.__wa=1;const fl=new THREE.Mesh(new THREE.PlaneGeometry(.5,.32),new THREE.MeshLambertMaterial({color:i===1?0xf1c64a:0xd8342a,side:THREE.DoubleSide}));fl.position.set(gxp+.25,1.45,gzp);scene.add(fl);fl.__wa=1;
      islAddGround({t:'bunker',x:x-rx*.35,z:z+rz*.75,rx:1.5,rz:.75,a:.2});});
    if(okF)WA.golf={x:gx,z:gz+3.6};
-   const ax=-118,az=1;const ap=islFindSite(ax,az,13,1.8,{land:1.8,path:.5},12);if(ap){islClear(ap[0]-14,ap[1]-2.5,ap[0]+14,ap[1]+2.5);islAddGround({t:'tarmac',x:ap[0],z:ap[1],rx:13,rz:1.4,box:true});
+   const ap=AP0;if(ap){islClear(ap[0]-14,ap[1]-2.5,ap[0]+14,ap[1]+2.5);islAddGround({t:'tarmac',x:ap[0],z:ap[1],rx:13,rz:1.4,box:true});
      const hp=put('hangar',ap[0]-9,ap[1]-4.4,2.4,1.6,{},5);if(hp){bld(hp[0],hp[1],4.8,3,2.6,'#c8ced6',{win:false,roof:'#8a9098',roofH:.8,sign:'ISLAND AIRSTRIP',signBg:'#1d3a6e',noCol:true}).traverse(o=>o.__wa=1);col(hp[0]-2.4,hp[1]-1.5,hp[0]+2.4,hp[1]+1.5);WA.jo={x:hp[0]+3,z:hp[1]+2};
        waNPC('jo','Pilot Jo',{hair:'#2a1d16',skin:'#8d5a3b',shirt:'#f6f6f0',pants:'#1d3a6e',hat:'#1d3a6e',cap:true},WA.jo.x,WA.jo.z,()=>[{who:'Pilot Jo',text:pick(['Twelve minutes from Jandakot to here. Best commute in Australia.','From up there the salt lakes look like someone spilled a strawberry milkshake.','I once had to taxi around a quokka for ten minutes. It would not move. Absolute legend.'])}]);islLinkPath(hp[0],hp[1]+1.8);}
      const ws=box(.06,2.4,.06,waM('#d8d8d0'),ap[0]+10,1.2,ap[1]-2.8);ws.__wa=1;const sock=new THREE.Mesh(new THREE.ConeGeometry(.2,1,8,1,true),new THREE.MeshLambertMaterial({color:0xf08a2a,side:THREE.DoubleSide}));sock.rotation.z=Math.PI/2;sock.position.set(ap[0]+10.5,2.3,ap[1]-2.8);scene.add(sock);sock.__wa=1;WA.sock=sock;
-     const pl=new THREE.Group();const fu=new THREE.Mesh(new THREE.BoxGeometry(2.6,.5,.55),waM('#f6f6f0'));fu.position.y=.6;pl.add(fu);const wi=new THREE.Mesh(new THREE.BoxGeometry(.6,.08,3.4),waM('#c8344a'));wi.position.set(.2,.85,0);pl.add(wi);const ta=new THREE.Mesh(new THREE.BoxGeometry(.4,.6,.08),waM('#c8344a'));ta.position.set(-1.2,.95,0);pl.add(ta);const ta2=new THREE.Mesh(new THREE.BoxGeometry(.35,.06,1.2),waM('#c8344a'));ta2.position.set(-1.2,.7,0);pl.add(ta2);
-     pl.traverse(o=>{if(o.isMesh)o.castShadow=true;});pl.position.set(ap[0]-4,0,ap[1]);scene.add(waMark(pl));col(ap[0]-5.4,ap[1]-.5,ap[0]-2.6,ap[1]+.5);WA.airport={x:ap[0],z:ap[1]+2.6};}}
+     // runway paint and edge lights, then a little plane that waits, takes off east, flies a circuit and lands back from the east
+     {const X0=ap[0]-13,X1=ap[0]+13,Z=ap[1];WA.rw={x1:X0-1.5,x2:X1+1.5,z1:Z-2.9,z2:Z+2.9};const paint=waM('#f6f6f0'),lit=new THREE.MeshLambertMaterial({color:0xffe9a8,emissive:0x8a6a20});
+      for(let x=X0+3;x<X1-3;x+=1.6){const d=new THREE.Mesh(new THREE.PlaneGeometry(.8,.08),paint);d.rotation.x=-Math.PI/2;d.position.set(x,.032,Z);scene.add(d);d.__wa=1;}
+      [X0+.6,X1-.6].forEach(x=>{for(let k=-3;k<=3;k++){if(!k)continue;const d=new THREE.Mesh(new THREE.PlaneGeometry(.9,.12),paint);d.rotation.x=-Math.PI/2;d.position.set(x,.032,Z+k*.34);scene.add(d);d.__wa=1;}});
+      for(let x=X0;x<=X1+.01;x+=2.6)[-1.45,1.45].forEach(o=>{const b=box(.12,.1,.12,lit,x,.05,Z+o);b.__wa=1;});
+      const W=c=>waM(c),pl=new THREE.Group(),body=new THREE.Group();pl.add(body);
+      const fu=new THREE.Mesh(new THREE.CylinderGeometry(.24,.13,2.5,10),W('#f6f6f0'));fu.rotation.z=Math.PI/2;fu.position.set(-.15,.62,0);body.add(fu);
+      const nose=new THREE.Mesh(new THREE.SphereGeometry(.24,10,8),W('#f6f6f0'));nose.scale.set(1.1,1,1);nose.position.set(1.1,.62,0);body.add(nose);
+      const stripe=new THREE.Mesh(new THREE.CylinderGeometry(.245,.2,1.2,10,1,true),W('#c8344a'));stripe.rotation.z=Math.PI/2;stripe.position.set(-.3,.6,0);stripe.scale.set(1,1,1);body.add(stripe);
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.5,.16,.42),new THREE.MeshLambertMaterial({color:0x2c4a6a,emissive:0x0d1a26}));win.position.set(.55,.8,0);body.add(win);
+      const wing=new THREE.Mesh(new THREE.BoxGeometry(.62,.06,3.6),W('#c8344a'));wing.position.set(.35,.9,0);body.add(wing);
+      [-1,1].forEach(sd=>{const st=new THREE.Mesh(new THREE.BoxGeometry(.05,.34,.05),W('#d8d8d0'));st.position.set(.35,.72,sd*.7);st.rotation.x=sd*.5;body.add(st);});
+      const fin=new THREE.Mesh(new THREE.BoxGeometry(.42,.55,.06),W('#c8344a'));fin.position.set(-1.25,.95,0);body.add(fin);
+      const tp=new THREE.Mesh(new THREE.BoxGeometry(.36,.05,1.3),W('#f6f6f0'));tp.position.set(-1.25,.7,0);body.add(tp);
+      [[.75,0],[-.05,.45],[-.05,-.45]].forEach(([x,z])=>{const wh=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.07,10),W('#22252a'));wh.rotation.x=Math.PI/2;wh.position.set(x,.11,z);body.add(wh);const lg=new THREE.Mesh(new THREE.BoxGeometry(.04,.3,.04),W('#d8d8d0'));lg.position.set(x,.3,z);body.add(lg);});
+      const prop=new THREE.Group();prop.position.set(1.37,.62,0);const bl=new THREE.Mesh(new THREE.BoxGeometry(.03,.9,.08),W('#2a2a30'));prop.add(bl);const bl2=bl.clone();bl2.rotation.x=Math.PI/2;prop.add(bl2);const sp=new THREE.Mesh(new THREE.ConeGeometry(.08,.16,8),W('#c8344a'));sp.rotation.z=-Math.PI/2;sp.position.x=.06;prop.add(sp);body.add(prop);
+      pl.traverse(o=>{if(o.isMesh)o.castShadow=true;});pl.position.set(X0+2.5,0,Z);scene.add(waMark(pl));
+      // the flight: a fixed 100 s loop, so every player sees the same sky
+      const ease=e=>e*e*(3-2*e),HX=X0+2.5;
+      WA.fly=t=>{const k=t%100;let x=HX,y=0,z=Z,yaw=0,pitch=0,roll=0,spin=.6,vis=true;
+        if(k<30){spin=k>24?2:.6;}
+        else if(k<40){const e=(k-30)/10;x=HX+(X1-1-HX)*e*e;spin=3;pitch=e>.75?(e-.75)*.6:0;y=e>.8?(e-.8)*4:0;}
+        else if(k<52){const e=(k-40)/12;x=X1-1+e*70;y=.8+e*e*24;pitch=.15;spin=3;}
+        else if(k<64){vis=false;}
+        else if(k<78){const e=(k-64)/14;x=X1+70-(X1+70-(X1-3))*e;y=22*(1-e)*(1-e)+(e<1?0:0);yaw=Math.PI;pitch=e<.85?-.05:.08;spin=3;roll=Math.sin(e*3)*.05;}
+        else if(k<90){const e=(k-78)/12;x=X1-3-(X1-3-(HX+3))*(1-(1-e)*(1-e));yaw=Math.PI;spin=1.2;}
+        else{const e=(k-90)/10;x=HX+3-3*ease(e);yaw=Math.PI*(1-ease(e));spin=.8;}
+        pl.visible=vis;pl.position.set(x,y,z+(k>=90?Math.sin(ease((k-90)/10)*Math.PI)*.8:0));pl.rotation.set(0,yaw,0);body.rotation.set(roll,0,pitch);prop.rotation.x+=spin;};
+      col(HX-1.4,Z-.4,HX+1.4,Z+.4);}WA.airport={x:ap[0],z:ap[1]+2.6};}}
   // salt lakes and golf greens are painted into the ground; lakes block walking
   WA.ready=true;WA.placed=placed;});

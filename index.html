@@ -1720,16 +1720,21 @@ function applyBiz(){BIZ.forEach(b=>{const own=!!(S.biz&&S.biz[b.id]&&S.biz[b.id]
 const riders=[];const riderCv=['#e45a5a','#3f86d6','#f1c64a','#5bb48a'].map((sh,i)=>{const c=mk(24,27),x=c.getContext('2d');x.drawImage(bikeCanvas(['#2f7fd0','#e2584f','#f1c64a','#5bb48a'][i]),0,13);
   const top=pix(HU_HEAD.concat(HU_REST.slice(0,9)),{o:'#2a1d1a',h:['#2a1d16','#d9b25a','#6b4226','#1b1b2b'][i],s:['#f1c7a0','#c68a5e','#e2b48a','#8d5a3b'][i],e:'#1a1010',t:sh});x.drawImage(top,6,1);return c;});
 // ---- bike lane in front of the café: cyclists ride here, never across the deck ----
-const BIKE_LANE=[[-12.5,4.6],[9.6,4.6],[13,1.2],[18,.9]];const BLANES=[];let laneStrip=()=>{};
+// bends out round the café front (the Lv4 terrace and benches sit on z 3.6-5.5)
+const BIKE_LANE=[[-12.5,4.6],[-6.6,4.6],[-5,6.5],[5,6.5],[6.4,4.6],[9.6,4.6],[13,1.2],[18,.9]];const BLANES=[];let laneStrip=()=>{};
 (()=>{const c=mk(64,32),x=c.getContext('2d');x.fillStyle='#b5523b';x.fillRect(0,0,64,32);const r=mulberry32(55);for(let i=0;i<120;i++){x.fillStyle=r()<.5?'#a8472f':'#c25f46';x.fillRect(r()*64|0,r()*32|0,2,2);}
   x.fillStyle='#f6efe0';x.fillRect(0,1,64,2);x.fillRect(0,29,64,2);for(let i=0;i<64;i+=16)x.fillRect(i,15,9,2);
   const tex=new THREE.CanvasTexture(c);tex.magFilter=THREE.NearestFilter;tex.wrapS=THREE.RepeatWrapping;
   const ic=mk(32,32),ix=ic.getContext('2d');ix.fillStyle='#f6efe0';const ring=(cx,cy)=>{ix.fillRect(cx-4,cy-1,8,2);ix.fillRect(cx-1,cy-4,2,8);ix.fillRect(cx-3,cy-3,2,2);ix.fillRect(cx+1,cy-3,2,2);ix.fillRect(cx-3,cy+1,2,2);ix.fillRect(cx+1,cy+1,2,2);};
   ring(8,20);ring(24,20);ix.fillRect(8,12,10,2);ix.fillRect(16,12,2,8);ix.fillRect(12,10,8,2);ix.fillRect(20,10,2,10);ix.fillRect(22,9,4,2);
   const itex=new THREE.CanvasTexture(ic);itex.magFilter=THREE.NearestFilter;const imat=new THREE.MeshLambertMaterial({map:itex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
+  const capMs={};const capM=thin=>capMs[thin]||(capMs[thin]=new THREE.MeshLambertMaterial({color:thin?0xc4573e:0xb5523b,polygonOffset:true,polygonOffsetFactor:thin?-2:-1,polygonOffsetUnits:thin?-2:-1}));
   laneStrip=(a,b,w,icons,y)=>{const n0=scene.children.length,w0=w,y0=y;w=w||1.15;y=y||.021;const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const t=tex.clone();t.needsUpdate=true;t.repeat.set(len/2,1);
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t}));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);if(w<.9)for(let d=2;d<len-1;d+=6){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.scale.setScalar(Math.min(1,w/.5));q.position.set(a[0]+(b[0]-a[0])*k,y+.004,a[1]+(b[1]-a[1])*k);scene.add(q);}BLANES.push([a,b,w]);
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);
+    // round caps so lanes meet at corners without a gap
+    [a,b].forEach(e=>{const cap=new THREE.Mesh(new THREE.CircleGeometry(w/2,14),capM(w<.9));cap.rotation.x=-Math.PI/2;cap.position.set(e[0],y-.001,e[1]);cap.receiveShadow=true;scene.add(cap);});if(w<.9)for(let d=2;d<len-1;d+=6){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.scale.setScalar(Math.min(1,w/.5));q.position.set(a[0]+(b[0]-a[0])*k,y+.004,a[1]+(b[1]-a[1])*k);scene.add(q);}BLANES.push([a,b,w]);
     if(icons!==false&&w>.9&&len>8)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.position.set(a[0]+(b[0]-a[0])*k,y+.005,a[1]+(b[1]-a[1])*k);scene.add(q);}
+    scene.children.slice(n0).forEach(m=>m.userData.lane=1);
     if(!ISL.done&&a[0]<99.5){const ms=scene.children.slice(n0);ms.forEach(m=>m.__noWarp=true);(ISL.strips=ISL.strips||[]).push({a:a.slice(),b:b.slice(),w:w0,icons,y:y0,meshes:ms});BLANES[BLANES.length-1].__isl=1;}};
   const run=(pts,w,icons,y)=>{for(let i=0;i<pts.length-1;i++)laneStrip(pts[i],pts[i+1],w,icons,y);};
   run(BIKE_LANE);
@@ -2155,9 +2160,9 @@ const VILLAGE={x:24,z:5};
   // Spanish colonial cottages, like old Fremantle
   const arch=()=>{const c=mk(16,24),x=c.getContext('2d');x.fillStyle='#5a3a22';x.beginPath();x.moveTo(1,24);x.lineTo(1,8);x.arc(8,8,7,Math.PI,0);x.lineTo(15,24);x.fill();x.fillStyle='#7a5032';x.fillRect(3,10,10,13);x.fillStyle='#ffd34d';x.fillRect(11,16,1,1);return ctex(c);};
   [[3.6,-1.6],[0,-3],[-0.2,3.4]].forEach(([dx,dz],i)=>{const x=V.x+dx,z=V.z+dz,gy=groundY(x,z);const g=bld(x,z,2.1,1.6,1.5,'#f6f0e2',{win:false,roof:'#c2603a',roofH:.65,noCol:true});g.position.y=gy;
-    const d=new THREE.Mesh(new THREE.PlaneGeometry(.55,.85),new THREE.MeshLambertMaterial({map:arch(),transparent:true,alphaTest:.5}));d.position.set(x,gy+.43,z+.81);scene.add(d);
-    [-.65,.65].forEach(o=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.32,.42),new THREE.MeshLambertMaterial({color:0x2f78a8}));w.position.set(x+o,gy+.85,z+.81);scene.add(w);const s=new THREE.Mesh(new THREE.PlaneGeometry(.12,.44),new THREE.MeshLambertMaterial({color:0x3e7d5c}));s.position.set(x+o-.24,gy+.85,z+.812);scene.add(s);});
-    const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.22,8),new THREE.MeshLambertMaterial({color:0xc2603a}));pot.position.set(x+.42,gy+.11,z+.98);scene.add(pot);col(x-1.05,z-.8,x+1.05,z+.8);});
+    const d=new THREE.Mesh(new THREE.PlaneGeometry(.55,.85),new THREE.MeshLambertMaterial({map:arch(),transparent:true,alphaTest:.5}));d.position.set(0,.43,.81);g.add(d);// door, windows and pot ride with the cottage (the island warp moved them apart)
+    [-.65,.65].forEach(o=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.32,.42),new THREE.MeshLambertMaterial({color:0x2f78a8}));w.position.set(o,.85,.81);g.add(w);const s=new THREE.Mesh(new THREE.PlaneGeometry(.12,.44),new THREE.MeshLambertMaterial({color:0x3e7d5c}));s.position.set(o-.24,.85,.812);g.add(s);});
+    const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.22,8),new THREE.MeshLambertMaterial({color:0xc2603a}));pot.position.set(.42,.11,.98);g.add(pot);col(x-1.05,z-.8,x+1.05,z+.8);});
   signPost(V.x-1.4,V.z+4.4,makeSign(['QUOKKA','VILLAGE'],48,20,'#5a3a22','#f5ecd8'),1.1,.5);})();
 const VILLAGE_ELDER={x:VILLAGE.x+1.5,z:VILLAGE.z+.6};
 
@@ -2286,7 +2291,7 @@ const WEST={};
   const RAIL=[[15.8,-3.6],[24,-3.4],[36,1.6],[48,2.8],[53,1.8]];const tieM=M('#5a3a22'),railM=M('#9aa0a8');
   const buildRail=RAIL=>{const n0=scene.children.length;for(let i=0;i<RAIL.length-1;i++){const [ax,az]=RAIL[i],[bx,bz]=RAIL[i+1];const len=Math.hypot(bx-ax,bz-az),ang=Math.atan2(bz-az,bx-ax);
     for(let s=0;s<len;s+=.7){const t=new THREE.Mesh(new THREE.BoxGeometry(.18,.05,1),tieM);t.position.set(ax+Math.cos(ang)*s,.03,az+Math.sin(ang)*s);t.rotation.y=-ang;scene.add(t);}
-    [-.32,.32].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(len,.06,.06),railM);r.position.set((ax+bx)/2-Math.sin(ang)*o,.07,(az+bz)/2+Math.cos(ang)*o);r.rotation.y=-ang;scene.add(r);});}return scene.children.slice(n0);};
+    [-.32,.32].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(len+.12,.06,.06),railM);r.position.set((ax+bx)/2-Math.sin(ang)*o,.07,(az+bz)/2+Math.cos(ang)*o);r.rotation.y=-ang;scene.add(r);});}return scene.children.slice(n0);};
   {const ms=buildRail(RAIL);ms.forEach(m=>m.__noWarp=true);ISL.rail={pts:RAIL.map(p=>p.slice()),meshes:ms,build:buildRail};}
   WEST.rail=RAIL;const tr=new THREE.Group();[0,1,2].forEach(i=>{const c=new THREE.Mesh(new THREE.BoxGeometry(1.7,.9,.9),M(i?'#f1c64a':'#1f5a3a'));c.position.set(-i*1.85,.6,0);c.castShadow=true;tr.add(c);const rf=new THREE.Mesh(new THREE.BoxGeometry(1.8,.1,1),M('#c8344a'));rf.position.set(-i*1.85,1.1,0);tr.add(rf);if(!i){const ch=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.4,8),M('#2a2a30'));ch.position.set(.5,1.3,0);tr.add(ch);}});scene.add(tr);WEST.train=tr;
   // Parker Point, Little Salmon Bay, Strickland Bay
@@ -4057,7 +4062,7 @@ const LAMPS=[];
     g.position.set(x,0,z);scene.add(g);col(x-.1,z-.1,x+.1,z+.1);
     const gm=new THREE.MeshBasicMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});const gl=new THREE.Mesh(new THREE.PlaneGeometry(3.4,3.4),gm);gl.rotation.x=-Math.PI/2;gl.position.set(x,.05,z+.3);scene.add(gl);
     const halo=new THREE.Mesh(new THREE.PlaneGeometry(.9,.9),new THREE.MeshBasicMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));halo.position.set(x,2.08,z+.42);scene.add(halo);
-    LAMPS.push({x,z,bulbM,gm,halo});}
+    LAMPS.push({x,z,bulbM,gm,halo,g,gl});}
   lamp(9.4,2.3,true); // beside the café bike rack
   // island: every few metres along the paths, set back from the path edge (laid out after the island grows)
   ISL.lamp=lamp;if(false)for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];const L=Math.hypot(bx-ax,bz-az);const nx=-(bz-az)/L,nz=(bx-ax)/L;
@@ -4818,7 +4823,7 @@ function updateCamera(dt,snap){updateMirror();tmpV.set(player.x,.6,player.z);if(
   if(CINE&&RIDE){const f=CINE.focus;if(f){tmpV.x=lerp(player.x,f.x,.7);tmpV.z=lerp(player.z,f.z,.7);}yawT+=dt*.06*(MIR?-1:1);zm+=((f?2.1:1.6)-zm)*(1-Math.exp(-dt*1.2));}
   camTarget.lerp(tmpV,snap?1:1-Math.exp(-dt*(CINE?2:5)));yaw+=(yawT-yaw)*(snap?1:1-Math.exp(-dt*8));camOff.set(Math.sin(yaw)*CAM_DIR.z,CAM_DIR.y,Math.cos(yaw)*CAM_DIR.z);camera.position.copy(camTarget).addScaledVector(camOff,Math.min(52,camDist*zm));for(let i=0;i<BB.length;i++)BB[i].rotation.y=yaw;dir4Tick();if(MIR){camera.position.x=-camera.position.x;camera.lookAt(-camTarget.x,camTarget.y,camTarget.z);}else camera.lookAt(camTarget);
   tmpV.set(MIR?-camTarget.x:camTarget.x,.8,camTarget.z).project(camera);post.uniforms.focus.value=clamp((tmpV.y+1)/2,.25,.75);{const zq=zoneOf(player.x);const bk={island:.45,sp:.3,hi:.45,vp:.55,freo:.45,cbd:.5}[zq]||.5;post.uniforms.bloomK.value+=(bk-post.uniforms.bloomK.value)*.1;post.uniforms.blurK.value+=((zq==='sp'?.75:1)-post.uniforms.blurK.value)*.1;}}
-function ambient(dt,t){weatherTick(dt,t);water.material.map.offset.x=(t*.012)%1;water.material.map.offset.y=(Math.sin(t*.4)*.02);
+function ambient(dt,t){weatherTick(dt,t);if(typeof WA!=='undefined'&&WA.fly)WA.fly(t);water.material.map.offset.x=(t*.012)%1;water.material.map.offset.y=(Math.sin(t*.4)*.02);
   {const nb=Math.min(4,1+(S.jetty||0)),nx=FERRY_ARR.find(a=>S.time<a+14);ferries.forEach((f,i)=>{if(i>=nb){f.visible=false;return;}const D=DOCKS[i];let fx=D[0],fz=D[1],vis=true;const ox=D[0]-14,oz=D[1]+(D[1]>5?3.2:-3.2);
     if(running&&player.x<100){if(nx===undefined||S.wx===3){}else{const k=S.time-nx+i*1.2;if(k<-10)vis=false;else if(k<0){const e=1-(-k/10);fx=lerp(ox,D[0],e*e*(3-2*e));fz=lerp(oz,D[1],e);}else if(k<8){}else{const e=Math.min(1,(k-8)/6);fx=lerp(D[0],ox,e*e);fz=lerp(D[1],oz,e);if(e>=1)vis=false;}}}
     f.visible=vis;f.position.set(fx,-.15+Math.sin(t*1.3+i)*.05,fz);f.rotation.set(0,D[2],Math.sin(t*1.1+i)*.02);});
@@ -5009,20 +5014,48 @@ islandLate(()=>{const R=(a,b)=>a+Math.random()*0;const placed=[];const put=(k,x,
     const deck=box(ux?L:w,.14,ux?w:L,lmat(deckC,ux?[6,1]:[1,6]),cx,.06,cz,{noCast:true});deck.__wa=1;for(let i=0;i<7;i++)[-.55,.55].forEach(o=>{const pl=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1.2,6),legMat);pl.position.set(jx+ux*i*1.5+(uz?o:0),-.35,jz+uz*i*1.5+(ux?o:0));scene.add(pl);pl.__wa=1;});
     {const e1x=jx-ux*1.5,e1z=jz-uz*1.5,e2x=jx+ux*(L-1.3),e2z=jz+uz*(L-1.3),hw=w/2-.08;ISL_WALK.push({x1:Math.min(e1x,e2x)-(uz?hw:0),x2:Math.max(e1x,e2x)+(uz?hw:0),z1:Math.min(e1z,e2z)-(ux?hw:0),z2:Math.max(e1z,e2z)+(ux?hw:0)});}
     WA.armyjetty={x:jx+ux*(L-2.4),z:jz+uz*(L-2.4)};const sgn=1,sg=1;waSign(jx-ux*1.6-(uz?1.2:0),jz-uz*1.6-(ux?1.2:0),['ARMY JETTY'],'#1d3a6e','#f5ecd8',1.2);}}
-  // Island Links Golf Course and the airstrip
+  // Island Links Golf Course and the airstrip (the strip is sited first so no fairway is painted over it)
+  const AP0=islFindSite(-118,1,13,1.8,{land:1.8,path:.5},12);
   {const c=put('golfhouse',-150,13,2,1.4,{},8);if(c){bld(c[0],c[1],4,2.6,2.2,'#f6f0e2',{win:true,roof:'#3e7d5c',roofH:.9,sign:'ISLAND LINKS · 9 HOLES',signBg:'#2f5a3a',noCol:true}).traverse(o=>o.__wa=1);col(c[0]-2,c[1]-1.3,c[0]+2,c[1]+1.3);WA.col={x:c[0]+2.4,z:c[1]+2.2};
     waNPC('col','Col',{hair:'#d8d4cc',skin:'#f1c7a0',shirt:'#3e7d5c',pants:'#f6f2e8',hat:'#f6f2e8',cap:true},WA.col.x,WA.col.z,()=>[{who:'Col',text:pick(['Nine holes, one lake, four hundred quokkas. Par is whatever the quokkas allow.','Mind the bunkers. The quokkas think they’re sandpits. They are not wrong.','Best view on the island from the seventh tee. Don’t tell the lighthouse.'])}]);islLinkPath(c[0],c[1]+1.8);}
    const gx=c?c[0]+14:WAV1(-154,13.5)[0],gz=c?c[1]+4:WAV1(-154,13.5)[1];const F=[[gx-4,gz,9,3.2,.08],[gx+8,gz+2.2,7,2.6,-.1],[gx+17,gz-.5,6,2.4,.15]];let okF=0;
-   F.forEach(([x,z,rx,rz,a],i)=>{let ok=true;for(let t=0;t<6.28;t+=.5)if(landD(x+Math.cos(t)*rx,z+Math.sin(t)*rz)<1.6)ok=false;if(landD(x,z)<2||!ok)return;okF++;islClear(x-rx,z-rz,x+rx,z+rz);islAddGround({t:'fairway',x,z,rx,rz,a});const gxp=x+rx*.8*Math.cos(a),gzp=z+rx*.8*Math.sin(a);islAddGround({t:'green',x:gxp,z:gzp,rx:1.7,rz:1.4});
+   F.forEach(([x,z,rx,rz,a],i)=>{if(AP0&&x+rx+2>AP0[0]-15&&x-rx-2<AP0[0]+15&&z+rz+2>AP0[1]-3&&z-rz-2<AP0[1]+3)return;let ok=true;for(let t=0;t<6.28;t+=.5)if(landD(x+Math.cos(t)*rx,z+Math.sin(t)*rz)<1.6)ok=false;if(landD(x,z)<2||!ok)return;okF++;islClear(x-rx,z-rz,x+rx,z+rz);islAddGround({t:'fairway',x,z,rx,rz,a});const gxp=x+rx*.8*Math.cos(a),gzp=z+rx*.8*Math.sin(a);islAddGround({t:'green',x:gxp,z:gzp,rx:1.7,rz:1.4});
      const pole=box(.04,1.6,.04,waM('#f6f6f0'),gxp,.8,gzp);pole.__wa=1;const fl=new THREE.Mesh(new THREE.PlaneGeometry(.5,.32),new THREE.MeshLambertMaterial({color:i===1?0xf1c64a:0xd8342a,side:THREE.DoubleSide}));fl.position.set(gxp+.25,1.45,gzp);scene.add(fl);fl.__wa=1;
      islAddGround({t:'bunker',x:x-rx*.35,z:z+rz*.75,rx:1.5,rz:.75,a:.2});});
    if(okF)WA.golf={x:gx,z:gz+3.6};
-   const ax=-118,az=1;const ap=islFindSite(ax,az,13,1.8,{land:1.8,path:.5},12);if(ap){islClear(ap[0]-14,ap[1]-2.5,ap[0]+14,ap[1]+2.5);islAddGround({t:'tarmac',x:ap[0],z:ap[1],rx:13,rz:1.4,box:true});
+   const ap=AP0;if(ap){islClear(ap[0]-14,ap[1]-2.5,ap[0]+14,ap[1]+2.5);islAddGround({t:'tarmac',x:ap[0],z:ap[1],rx:13,rz:1.4,box:true});
      const hp=put('hangar',ap[0]-9,ap[1]-4.4,2.4,1.6,{},5);if(hp){bld(hp[0],hp[1],4.8,3,2.6,'#c8ced6',{win:false,roof:'#8a9098',roofH:.8,sign:'ISLAND AIRSTRIP',signBg:'#1d3a6e',noCol:true}).traverse(o=>o.__wa=1);col(hp[0]-2.4,hp[1]-1.5,hp[0]+2.4,hp[1]+1.5);WA.jo={x:hp[0]+3,z:hp[1]+2};
        waNPC('jo','Pilot Jo',{hair:'#2a1d16',skin:'#8d5a3b',shirt:'#f6f6f0',pants:'#1d3a6e',hat:'#1d3a6e',cap:true},WA.jo.x,WA.jo.z,()=>[{who:'Pilot Jo',text:pick(['Twelve minutes from Jandakot to here. Best commute in Australia.','From up there the salt lakes look like someone spilled a strawberry milkshake.','I once had to taxi around a quokka for ten minutes. It would not move. Absolute legend.'])}]);islLinkPath(hp[0],hp[1]+1.8);}
      const ws=box(.06,2.4,.06,waM('#d8d8d0'),ap[0]+10,1.2,ap[1]-2.8);ws.__wa=1;const sock=new THREE.Mesh(new THREE.ConeGeometry(.2,1,8,1,true),new THREE.MeshLambertMaterial({color:0xf08a2a,side:THREE.DoubleSide}));sock.rotation.z=Math.PI/2;sock.position.set(ap[0]+10.5,2.3,ap[1]-2.8);scene.add(sock);sock.__wa=1;WA.sock=sock;
-     const pl=new THREE.Group();const fu=new THREE.Mesh(new THREE.BoxGeometry(2.6,.5,.55),waM('#f6f6f0'));fu.position.y=.6;pl.add(fu);const wi=new THREE.Mesh(new THREE.BoxGeometry(.6,.08,3.4),waM('#c8344a'));wi.position.set(.2,.85,0);pl.add(wi);const ta=new THREE.Mesh(new THREE.BoxGeometry(.4,.6,.08),waM('#c8344a'));ta.position.set(-1.2,.95,0);pl.add(ta);const ta2=new THREE.Mesh(new THREE.BoxGeometry(.35,.06,1.2),waM('#c8344a'));ta2.position.set(-1.2,.7,0);pl.add(ta2);
-     pl.traverse(o=>{if(o.isMesh)o.castShadow=true;});pl.position.set(ap[0]-4,0,ap[1]);scene.add(waMark(pl));col(ap[0]-5.4,ap[1]-.5,ap[0]-2.6,ap[1]+.5);WA.airport={x:ap[0],z:ap[1]+2.6};}}
+     // runway paint and edge lights, then a little plane that waits, takes off east, flies a circuit and lands back from the east
+     {const X0=ap[0]-13,X1=ap[0]+13,Z=ap[1];WA.rw={x1:X0-1.5,x2:X1+1.5,z1:Z-2.9,z2:Z+2.9};const paint=waM('#f6f6f0'),lit=new THREE.MeshLambertMaterial({color:0xffe9a8,emissive:0x8a6a20});
+      for(let x=X0+3;x<X1-3;x+=1.6){const d=new THREE.Mesh(new THREE.PlaneGeometry(.8,.08),paint);d.rotation.x=-Math.PI/2;d.position.set(x,.032,Z);scene.add(d);d.__wa=1;}
+      [X0+.6,X1-.6].forEach(x=>{for(let k=-3;k<=3;k++){if(!k)continue;const d=new THREE.Mesh(new THREE.PlaneGeometry(.9,.12),paint);d.rotation.x=-Math.PI/2;d.position.set(x,.032,Z+k*.34);scene.add(d);d.__wa=1;}});
+      for(let x=X0;x<=X1+.01;x+=2.6)[-1.45,1.45].forEach(o=>{const b=box(.12,.1,.12,lit,x,.05,Z+o);b.__wa=1;});
+      const W=c=>waM(c),pl=new THREE.Group(),body=new THREE.Group();pl.add(body);
+      const fu=new THREE.Mesh(new THREE.CylinderGeometry(.24,.13,2.5,10),W('#f6f6f0'));fu.rotation.z=Math.PI/2;fu.position.set(-.15,.62,0);body.add(fu);
+      const nose=new THREE.Mesh(new THREE.SphereGeometry(.24,10,8),W('#f6f6f0'));nose.scale.set(1.1,1,1);nose.position.set(1.1,.62,0);body.add(nose);
+      const stripe=new THREE.Mesh(new THREE.CylinderGeometry(.245,.2,1.2,10,1,true),W('#c8344a'));stripe.rotation.z=Math.PI/2;stripe.position.set(-.3,.6,0);stripe.scale.set(1,1,1);body.add(stripe);
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.5,.16,.42),new THREE.MeshLambertMaterial({color:0x2c4a6a,emissive:0x0d1a26}));win.position.set(.55,.8,0);body.add(win);
+      const wing=new THREE.Mesh(new THREE.BoxGeometry(.62,.06,3.6),W('#c8344a'));wing.position.set(.35,.9,0);body.add(wing);
+      [-1,1].forEach(sd=>{const st=new THREE.Mesh(new THREE.BoxGeometry(.05,.34,.05),W('#d8d8d0'));st.position.set(.35,.72,sd*.7);st.rotation.x=sd*.5;body.add(st);});
+      const fin=new THREE.Mesh(new THREE.BoxGeometry(.42,.55,.06),W('#c8344a'));fin.position.set(-1.25,.95,0);body.add(fin);
+      const tp=new THREE.Mesh(new THREE.BoxGeometry(.36,.05,1.3),W('#f6f6f0'));tp.position.set(-1.25,.7,0);body.add(tp);
+      [[.75,0],[-.05,.45],[-.05,-.45]].forEach(([x,z])=>{const wh=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.07,10),W('#22252a'));wh.rotation.x=Math.PI/2;wh.position.set(x,.11,z);body.add(wh);const lg=new THREE.Mesh(new THREE.BoxGeometry(.04,.3,.04),W('#d8d8d0'));lg.position.set(x,.3,z);body.add(lg);});
+      const prop=new THREE.Group();prop.position.set(1.37,.62,0);const bl=new THREE.Mesh(new THREE.BoxGeometry(.03,.9,.08),W('#2a2a30'));prop.add(bl);const bl2=bl.clone();bl2.rotation.x=Math.PI/2;prop.add(bl2);const sp=new THREE.Mesh(new THREE.ConeGeometry(.08,.16,8),W('#c8344a'));sp.rotation.z=-Math.PI/2;sp.position.x=.06;prop.add(sp);body.add(prop);
+      pl.traverse(o=>{if(o.isMesh)o.castShadow=true;});pl.position.set(X0+2.5,0,Z);scene.add(waMark(pl));
+      // the flight: a fixed 100 s loop, so every player sees the same sky
+      const ease=e=>e*e*(3-2*e),HX=X0+2.5;
+      WA.fly=t=>{const k=t%100;let x=HX,y=0,z=Z,yaw=0,pitch=0,roll=0,spin=.6,vis=true;
+        if(k<30){spin=k>24?2:.6;}
+        else if(k<40){const e=(k-30)/10;x=HX+(X1-1-HX)*e*e;spin=3;pitch=e>.75?(e-.75)*.6:0;y=e>.8?(e-.8)*4:0;}
+        else if(k<52){const e=(k-40)/12;x=X1-1+e*70;y=.8+e*e*24;pitch=.15;spin=3;}
+        else if(k<64){vis=false;}
+        else if(k<78){const e=(k-64)/14;x=X1+70-(X1+70-(X1-3))*e;y=22*(1-e)*(1-e)+(e<1?0:0);yaw=Math.PI;pitch=e<.85?-.05:.08;spin=3;roll=Math.sin(e*3)*.05;}
+        else if(k<90){const e=(k-78)/12;x=X1-3-(X1-3-(HX+3))*(1-(1-e)*(1-e));yaw=Math.PI;spin=1.2;}
+        else{const e=(k-90)/10;x=HX+3-3*ease(e);yaw=Math.PI*(1-ease(e));spin=.8;}
+        pl.visible=vis;pl.position.set(x,y,z+(k>=90?Math.sin(ease((k-90)/10)*Math.PI)*.8:0));pl.rotation.set(0,yaw,0);body.rotation.set(roll,0,pitch);prop.rotation.x+=spin;};
+      col(HX-1.4,Z-.4,HX+1.4,Z+.4);}WA.airport={x:ap[0],z:ap[1]+2.6};}}
   // salt lakes and golf greens are painted into the ground; lakes block walking
   WA.ready=true;WA.placed=placed;});
 // ---------- Island Scale Wave B: north coast bays, snorkelling, Oliver Hill tunnels and the train stations ----------
@@ -6082,7 +6115,13 @@ ISL.late.push(()=>{
   wilds.forEach(q=>{if(q.hx<99.5&&blocked(q.hx,q.hz)){const f=freeNear(q.hx,q.hz),dx=f[0]-q.hx,dz=f[1]-q.hz;q.hx+=dx;q.hz+=dz;q.x+=dx;q.z+=dz;q.tx=q.hx;q.tz=q.hz;}});
   for(let i=BLANES.length-1;i>=0;i--)if(BLANES[i][0][0]<99.5&&BLANES[i].__isl)BLANES.splice(i,1);
   (ISL.strips||[]).forEach(r=>{r.meshes.forEach(m=>{scene.remove(m);m.geometry.dispose();});const a=IW(r.a[0],r.a[1]),b=IW(r.b[0],r.b[1]);laneStrip([a.x,a.z],[b.x,b.z],r.w,r.icons,r.y);});
-  if(ISL.rail){ISL.rail.meshes.forEach(m=>{scene.remove(m);m.geometry.dispose();});const R=ISL.rail.pts.map(([x,z])=>{const w=IW(x,z);return[w.x,w.z];});ISL.rail.build(R);WEST.rail=R;}
+  if(ISL.rail){ISL.rail.meshes.forEach(m=>{scene.remove(m);m.geometry.dispose();});const R0=ISL.rail.pts.map(([x,z])=>{const w=IW(x,z);return[w.x,w.z];});
+    // the warp can swing the straight track through buildings (it ran through the lighthouse): lay it in short steps and bend it round them
+    let R=[];for(let i=0;i<R0.length-1;i++){const[ax,az]=R0[i],[bx,bz]=R0[i+1],n=Math.max(1,Math.ceil(Math.hypot(bx-ax,bz-az)/1.5));for(let k=0;k<n;k++)R.push([ax+(bx-ax)*k/n,az+(bz-az)*k/n]);}R.push(R0[R0.length-1].slice());
+    const ends=[R[0],R[R.length-1]],obs=colliders.filter(c=>{const w=c.x2-c.x1,d=c.z2-c.z1;return w>.6&&d>.6&&w<9&&d<9&&!ends.some(([x,z])=>x>c.x1-1.5&&x<c.x2+1.5&&z>c.z1-1.5&&z<c.z2+1.5);}).map(c=>({x:(c.x1+c.x2)/2,z:(c.z1+c.z2)/2,r:Math.hypot(c.x2-c.x1,c.z2-c.z1)/2+1.1}));
+    const push=()=>{for(let i=1;i<R.length-1;i++)for(const o of obs){const dx=R[i][0]-o.x,dz=R[i][1]-o.z,d=Math.hypot(dx,dz);if(d<o.r){const k=d>1e-3?o.r/d:1;R[i]=[o.x+(d>1e-3?dx:1)*k,o.z+(d>1e-3?dz:0)*k];}}};
+    for(let it=0;it<14;it++){push();const Q=R.map(p=>p.slice());for(let i=1;i<R.length-1;i++)Q[i]=[(R[i-1][0]+R[i][0]*2+R[i+1][0])/4,(R[i-1][1]+R[i][1]*2+R[i+1][1])/4];R=Q;}push();for(let it=0;it<3;it++){const Q=R.map(p=>p.slice());for(let i=1;i<R.length-1;i++)Q[i]=[(R[i-1][0]+R[i][0]*2+R[i+1][0])/4,(R[i-1][1]+R[i][1]*2+R[i+1][1])/4];R=Q;}
+    ISL.rail.meshes=ISL.rail.build(R);WEST.rail=R;}
   // more street lights along the longer paths
   if(ISL.lamp)for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];if(ax>=99.5)continue;const L=Math.hypot(bx-ax,bz-az);if(L<.1)continue;const nx=-(bz-az)/L,nz=(bx-ax)/L;
     for(let d=1.5;d<L;d+=7){const t=d/L,px=ax+(bx-ax)*t,pz=az+(bz-az)*t;for(const s of [1,-1]){const x=px+nx*1.15*s,z=pz+nz*1.15*s;if(landD(x,z)>.9&&pathD(x,z)>.9){ISL.lamp(x,z);break;}}}}
@@ -6119,8 +6158,10 @@ ISL.data.push(()=>{if(!ISL.done)return;
   COACH.length=0;XPL.stops.forEach(s=>COACH.push(s));COACH_ROUTE.length=0;XPL.route.forEach(p=>COACH_ROUTE.push(p));Object.keys(COACH_IDX).forEach(k=>delete COACH_IDX[k]);Object.assign(COACH_IDX,XPL.idx);});
 ISL.late.push(()=>{(window.__coachMeshes||[]).forEach(m=>{scene.remove(m);});
   const poleM=new THREE.MeshLambertMaterial({color:0x1f5fae}),busT=makeSign(['BUS'],24,24,'#1f5fae','#ffffff');
-  XPL.stops.forEach((b,i)=>{const sx=b.x+.9,sz=b.z-.9;const p=box(.1,2.2,.1,poleM,sx,1.1,sz);const s=new THREE.Mesh(new THREE.PlaneGeometry(.75,.75),new THREE.MeshBasicMaterial({map:busT,side:THREE.DoubleSide}));s.position.set(sx,2,sz+.06);scene.add(s);
-    const nt=makeSign(['STOP '+(i+1),b.name.toUpperCase()],64,20,'#f5ecd8','#1f5fae');const n=new THREE.Mesh(new THREE.PlaneGeometry(1.25,.4),new THREE.MeshLambertMaterial({map:nt,side:THREE.DoubleSide,emissive:0x222222,emissiveMap:nt}));n.position.set(sx,1.45,sz+.07);scene.add(n);col(sx-.1,sz-.1,sx+.1,sz+.1);XPL.meshes.push(p,s,n);});
+  // stops close together share ONE sign (the stops themselves stay separate for riding)
+  let grp=[];XPL.stops.forEach((b,i)=>{const hit=grp.filter(g=>g.some(o=>Math.hypot(o.b.x-b.x,o.b.z-b.z)<10));grp=grp.filter(g=>!hit.includes(g));grp.push([].concat(...hit,[{b,i}]).sort((p,q)=>p.i-q.i));});
+  grp.forEach(g=>{const b=g[0].b,i=g[0].i,many=g.length>1;const sx=b.x+.9,sz=b.z-.9;const p=box(.1,2.2,.1,poleM,sx,1.1,sz);const s=new THREE.Mesh(new THREE.PlaneGeometry(.75,.75),new THREE.MeshBasicMaterial({map:busT,side:THREE.DoubleSide}));s.position.set(sx,2,sz+.06);scene.add(s);
+    const nt=many?makeSign(['STOP '+g.map(o=>o.i+1).join(' · ')].concat(g.map(o=>o.b.name.toUpperCase())),112,10*(g.length+1),'#f5ecd8','#1f5fae'):makeSign(['STOP '+(i+1),b.name.toUpperCase()],64,20,'#f5ecd8','#1f5fae');const n=new THREE.Mesh(new THREE.PlaneGeometry(many?2.1:1.25,many?.19*(g.length+1):.4),new THREE.MeshLambertMaterial({map:nt,side:THREE.DoubleSide,emissive:0x222222,emissiveMap:nt}));n.position.set(sx,many?1.62-.095*(g.length+1):1.45,sz+.07);scene.add(n);col(sx-.1,sz-.1,sx+.1,sz+.1);XPL.meshes.push(p,s,n);});
   // keep the new loop road clear of trees and grass
   for(let i=trees.length-1;i>=0;i--){const t=trees[i];if(t.x<99.5&&pathD(t.x,t.z)<1.4){scene.remove(t.m);const bi=BB.indexOf(t.m);if(bi>=0)BB.splice(bi,1);for(let c=colliders.length-1;c>=0;c--){const C=colliders[c];if(Math.abs((C.x1+C.x2)/2-t.x)<.05&&Math.abs((C.z1+C.z2)/2-t.z)<.05){colliders.splice(c,1);break;}}trees.splice(i,1);}}
   for(let i=BB.length-1;i>=0;i--){const m=BB[i];if(m.parent!==scene||m.userData.frames||m.position.x>=99.5||!DECOR_MATS.has(m.material))continue;if(pathD(m.position.x,m.position.z)<1)scene.remove(m),BB.splice(i,1);}});
@@ -6131,6 +6172,106 @@ function coachRide(from,to){const a=COACH_IDX[from],b=COACH_IDX[to];if(a==null||
   if(!coachMesh){coachMesh=window.__busProto.clone();coachMesh.traverse(o=>{if(o.isMesh&&o.material&&o.material.color&&o.material.color.getHex()===0x2f9a5a){o.material=o.material.clone();o.material.color.set('#1f5fae');}});scene.add(coachMesh);}
   coachMesh.visible=true;toast('All aboard the Island Loop bus! · '+FARE_RIDE+' coins',2.2);startCine();rideAlong(pts,coachMesh,11,()=>{coachMesh.visible=false;const B=COACH.find(q=>q.id===to);player.x=B.x;player.z=B.z+.8;S.qg=S.qg||{};S.qg['coach_'+to]=1;save();toast('Arrived: '+B.name,2);},.12);}
 function coachMinutes(from,to){const a=COACH_IDX[from],b=COACH_IDX[to],R=COACH_ROUTE,n=R.length-1;if(a==null||b==null)return 0;let f=0,i=a;while(i!==b){const j=(i+1)%n;f+=Math.hypot(R[j][0]-R[i][0],R[j][1]-R[i][1]);i=j;}let L=0;for(let k=0;k<n;k++)L+=Math.hypot(R[k+1][0]-R[k][0],R[k+1][1]-R[k][1]);return Math.max(2,Math.round(Math.min(f,L-f)*.12));}
+// ---------- tidy the island after it grows: nothing on the bike lanes or the railway, props apart, beach things on the sand ----------
+ISL.late.push(()=>{
+  const lanes=BLANES.filter(L=>L[0][0]<99.5),R=WEST.rail||[],C0=IW(0,0),ST=ISL.tidy={moved:0,dropped:0,stuck:[],lots:[],beach:0};
+  const laneNear=(x,z)=>{let m=1e9,best=null;for(const L of lanes){const d=segD(x,z,L[0][0],L[0][1],L[1][0],L[1][1])-(L[2]||1.15)/2;if(d<m){m=d;best=L;}}return[m,best];};
+  const railNear=(x,z)=>{let m=1e9,best=null;for(let i=0;i<R.length-1;i++){const d=segD(x,z,R[i][0],R[i][1],R[i+1][0],R[i+1][1])-.55;if(d<m){m=d;best=[R[i],R[i+1],1.1];}}return[m,best];};
+  const clear=(x,z,r)=>laneNear(x,z)[0]>=r+.1&&railNear(x,z)[0]>=r+.1;
+  const B=new THREE.Box3(),SZ=new THREE.Vector3();scene.updateMatrixWorld(true);
+  const skip=new Set([...(ISL.rail?ISL.rail.meshes:[]),...Object.values(brMeshes),...LAMPS.flatMap(L=>[L.g,L.gl,L.halo]).filter(Boolean)]);
+  const treeOf=new Map();trees.forEach(t=>{if(t.x<99.5)treeOf.set(t.m,t);});
+  const T0=performance.now(),tm=n=>{ST['t'+n]=Math.round(performance.now()-T0);};
+  // 1. island café lots must not sit on a road, a path or a bike lane
+  BRANCHES.forEach(b=>{if(b.zone!=='island'||b.kiosk)return;
+    const bad=(x,z)=>{for(let a=-2.9;a<=2.9;a+=.58)for(let c=-1.8;c<=3.1;c+=.49){if(laneNear(x+a,z+c)[0]<.3||railNear(x+a,z+c)[0]<.3||pathD(x+a,z+c)<.3)return true;}return false;};
+    if(!bad(b.x,b.z))return;
+    const own=colliders.findIndex(c=>Math.abs((c.x1+c.x2)/2-b.x)<1.5&&Math.abs((c.z1+c.z2)/2-(b.z-.7))<1.5&&c.x2-c.x1>4);const old=own>=0?colliders.splice(own,1)[0]:null;
+    const tk=new Set(trees.map(t=>Math.round(t.x*10)+','+Math.round(t.z*10))),isTree=c=>tk.has(Math.round((c.x1+c.x2)*5)+','+Math.round((c.z1+c.z2)*5));
+    const fits=(x,z)=>{if(COACH.some(q=>Math.abs(q.x+.9-x)<4&&Math.abs(q.z-.9-z)<3.6))return false;if(colliders.some(c=>c.x2>x-3.1&&c.x1<x+3.1&&c.z2>z-2&&c.z1<z+3.3&&c.x1<1e8&&!isTree(c)))return false;
+      for(let a=-2.9;a<=2.9;a+=.58)for(let c=-1.8;c<=3.1;c+=.49)if(landD(x+a,z+c)<.5)return false;return !bad(x,z);};
+    let at=null;for(let r=1;r<=22&&!at;r+=.6){const n=Math.max(8,Math.round(r*6));for(let i=0;i<n;i++){const t=i/n*6.283,px=b.x+Math.cos(t)*r,pz=b.z+Math.sin(t)*r;if(fits(px,pz)){at=[px,pz];break;}}}
+    if(at)for(let i=trees.length-1;i>=0;i--){const t=trees[i];if(t.x>at[0]-3.2&&t.x<at[0]+3.2&&t.z>at[1]-2.1&&t.z<at[1]+3.4){scene.remove(t.m);const bi=BB.indexOf(t.m);if(bi>=0)BB.splice(bi,1);for(let c=colliders.length-1;c>=0;c--){const C=colliders[c];if(Math.abs((C.x1+C.x2)/2-t.x)<.05&&Math.abs((C.z1+C.z2)/2-t.z)<.05){colliders.splice(c,1);break;}}trees.splice(i,1);}}
+    if(!at){if(old)colliders.push(old);ST.lots.push(b.id+':nospot');return;}ST.lots.push(b.id);
+    const dx=at[0]-b.x,dz=at[1]-b.z;b.x+=dx;b.z+=dz;if(b.tp){b.tp.x+=dx;b.tp.z+=dz;}col(b.x-2.7,b.z-2.4,b.x+2.7,b.z+1);buildBranch(b);});
+  // the airstrip stays clear for take-off
+  if(WA.rw){const w=WA.rw;for(let i=trees.length-1;i>=0;i--){const t=trees[i];if(t.x>w.x1&&t.x<w.x2&&t.z>w.z1&&t.z<w.z2){scene.remove(t.m);const bi=BB.indexOf(t.m);if(bi>=0)BB.splice(bi,1);for(let c=colliders.length-1;c>=0;c--){const C=colliders[c];if(Math.abs((C.x1+C.x2)/2-t.x)<.05&&Math.abs((C.z1+C.z2)/2-t.z)<.05){colliders.splice(c,1);break;}}trees.splice(i,1);ST.rw=(ST.rw||0)+1;}}}
+  tm(1);
+  // 2. the West End boardwalk and the cape deck: drop pieces that lie on a path or a lane
+  const deck=(g,w,h,d)=>g&&g.type==='BoxGeometry'&&Math.abs(g.parameters.width-w)<.02&&Math.abs(g.parameters.height-h)<.02&&Math.abs(g.parameters.depth-d)<.02;
+  const gone=[];scene.children.slice().forEach(o=>{if(!o.isMesh||o.position.x>=99.5)return;const g=o.geometry;if(!(deck(g,1.62,.12,1.3)||deck(g,5.4,.14,1.2)||deck(g,3,.14,3)))return;
+    const x=o.position.x,z=o.position.z;if(Math.min(pathD(x,z),laneNear(x,z)[0]+.6)<.9){scene.remove(o);gone.push([x,z]);}});
+  if(gone.length)scene.children.slice().forEach(o=>{if(!o.isMesh||!o.__wa)return;const g=o.geometry;if(!(deck(g,.06,.6,.06)||deck(g,1.6,.05,.05)))return;if(gone.some(([x,z])=>Math.hypot(o.position.x-x,o.position.z-z)<1.1))scene.remove(o);});
+  tm(2);
+  // 3. gather small standing things into units (a sign = pole + board, an umbrella = pole + shade, a lamp, a tree)
+  const items=[],flat=[],high=[];
+  scene.children.forEach(o=>{if(o.userData.lane||skip.has(o)||o.isLight||o.isCamera)return;const p=o.position;if(p.x>=99.5)return;
+    if(o.userData.frames&&!treeOf.has(o))return;// people and animals walk about
+    B.setFromObject(o);if(B.isEmpty()){return;}B.getSize(SZ);const cx=(B.min.x+B.max.x)/2,cz=(B.min.z+B.max.z)/2;
+    if(Math.hypot(cx-C0.x,cz-C0.z)<8)return;// the café front is laid out by hand
+    const t=treeOf.get(o);if(!t&&(SZ.x>3.6||SZ.z>3.6||(landD(cx,cz)<0&&!XPL.meshes.includes(o))))return;const it={o,x:t?t.x:cx,z:t?t.z:cz,r:t?.35:Math.max(.08,Math.max(SZ.x,SZ.z)/2),y0:B.min.y,y1:B.max.y,t};
+    if(B.max.y<.12){if(SZ.x<3.6&&SZ.z<3.6)flat.push(Object.assign(it,{big:SZ.x>1.6||SZ.z>1.6}));return;}if(!t&&(SZ.x>3.2||SZ.z>3.2))return;if(B.min.y>1.2&&!t){high.push(it);return;}items.push(it);});
+  const units=[];const G=new Map(),key=(x,z)=>Math.floor(x/2)*100000+Math.floor(z/2);
+  LAMPS.forEach(L=>{if(!L.g||L.x>=99.5)return;units.push({m:[L.g,L.gl,L.halo].filter(Boolean).map(o=>({o,x:o.position.x,z:o.position.z,r:.1,y0:0})),x:L.x,z:L.z,r:.4,k:'lamp',L});});
+  items.forEach(it=>{if(it.t){units.push({m:[it],x:it.x,z:it.z,r:.5,k:'tree'});return;}
+    let u=null;for(let i=-1;i<=1&&!u;i++)for(let j=-1;j<=1&&!u;j++){const A=G.get(key(it.x+i*2,it.z+j*2));if(A)u=A.find(u=>u.k!=='tree'&&u.m.some(m=>Math.hypot(m.x-it.x,m.z-it.z)<.45));}
+    if(!u){u={m:[],x:it.x,z:it.z,r:0};units.push(u);const k=key(it.x,it.z);if(!G.has(k))G.set(k,[]);G.get(k).push(u);}u.m.push(it);});
+  const nearest=f=>{let best=null,bd=1e9;for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)(G.get(key(f.x+i*2,f.z+j*2))||[]).forEach(u=>{const c=u.m[0];const d=Math.hypot(c.x-f.x,c.z-f.z);if(d<bd){bd=d;best=u;}});return[best,bd];};
+  // shades, lamp heads and boards up high go with the post right under them
+  high.forEach(f=>{const[u,d]=nearest(f);if(u&&d<.35)u.m.push(Object.assign(f,{follow:1}));});
+  const xpl=new Set(XPL.meshes);
+  units.forEach(u=>{if(u.k)return;u.x=u.m.reduce((s,m)=>s+m.x,0)/u.m.length;u.z=u.m.reduce((s,m)=>s+m.z,0)/u.m.length;u.r=Math.max(...u.m.map(m=>Math.hypot(m.x-u.x,m.z-u.z)+(m.y0<1?Math.min(m.r,1.2):Math.min(m.r*.8,.8))));
+    const has=f=>u.m.some(m=>f(m.o));
+    u.k=has(o=>xpl.has(o))?'bus':has(o=>o.geometry&&o.geometry.type==='ConeGeometry'&&o.geometry.parameters.radius>.6)&&has(o=>o.geometry&&o.geometry.type==='BoxGeometry'&&o.geometry.parameters.width<.1&&o.geometry.parameters.height>1.2)?'umbrella':has(o=>o.isMesh&&o.geometry&&o.geometry.type==='PlaneGeometry'&&o.material&&o.material.map&&o.position.y>.9)&&has(o=>o.geometry&&o.geometry.type==='BoxGeometry'&&o.geometry.parameters.height>1.1&&o.geometry.parameters.width<.16)?'sign':'prop';});
+  flat.forEach(f=>{let best=null,bd=1e9;for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++)(G.get(key(f.x+i*2,f.z+j*2))||[]).forEach(u=>{const d=Math.hypot(u.x-f.x,u.z-f.z);if(d<bd){bd=d;best=u;}});if(best&&bd<Math.max(.5,best.r+.15)&&best.k!=='prop'&&(!f.big||best.k==='lamp'))best.m.push(Object.assign(f,{follow:1}));});
+  const move=(u,dx,dz)=>{const ox=u.x,oz=u.z;ST.moved++;u.m.forEach(m=>{m.o.position.x+=dx;m.o.position.z+=dz;m.x+=dx;m.z+=dz;if(m.t){m.t.x+=dx;m.t.z+=dz;}});u.x+=dx;u.z+=dz;
+    colliders.forEach(c=>{const w=c.x2-c.x1,d=c.z2-c.z1;if(w<1.3&&d<1.3&&Math.hypot((c.x1+c.x2)/2-ox,(c.z1+c.z2)/2-oz)<u.r+.05){c.x1+=dx;c.x2+=dx;c.z1+=dz;c.z2+=dz;}});
+    if(u.L){u.L.x+=dx;u.L.z+=dz;}};
+  const drop=u=>{ST.dropped++;u.m.forEach(m=>{scene.remove(m.o);if(m.t){const i=trees.indexOf(m.t);if(i>=0)trees.splice(i,1);const b=BB.indexOf(m.o);if(b>=0)BB.splice(b,1);}});
+    for(let c=colliders.length-1;c>=0;c--){const C=colliders[c];if(C.x2-C.x1<.6&&C.z2-C.z1<.6&&Math.hypot((C.x1+C.x2)/2-u.x,(C.z1+C.z2)/2-u.z)<.3)colliders.splice(c,1);}u.dead=1;};
+  // landD() is a field ratio and can read far too high inland, so measure the real walk to the water
+  const sea=(x,z,max)=>{for(let r=.25;r<(max||30);r+=.25)for(let i=0;i<32;i++){const t=i/32*6.283,px=x+Math.cos(t)*r,pz=z+Math.sin(t)*r;if(landD(px,pz)<0)return[r,px,pz];}return null;};
+  const okAt=(u,x,z)=>clear(x,z,Math.min(u.r,1))&&landD(x,z)>.4&&!sea(x,z,.9)&&(u.k==='tree'||pathD(x,z)>(u.k==='prop'||u.k==='umbrella'?.35:.15));
+  tm(3);
+  // off the lanes and the track
+  units.forEach(u=>{if(u.r>1.7)return;const rr=Math.min(u.r,1);if(clear(u.x,u.z,rr))return;
+    const [ld,L]=laneNear(u.x,u.z),[rd,T]=railNear(u.x,u.z),S=ld<rd?L:T;const a=S[0],b=S[1],hw=(S[2]||1.15)/2;
+    const vx=b[0]-a[0],vz=b[1]-a[1],l2=vx*vx+vz*vz||1,t=clamp(((u.x-a[0])*vx+(u.z-a[1])*vz)/l2,0,1),px=a[0]+vx*t,pz=a[1]+vz*t;
+    let nx=u.x-px,nz=u.z-pz,n=Math.hypot(nx,nz);if(n<1e-3){nx=-vz;nz=vx;n=Math.hypot(nx,nz)||1;}nx/=n;nz/=n;
+    for(const s of [1,-1]){for(const extra of [.15,.6,1.2,2,3]){const tx=px+nx*s*(hw+rr+extra),tz=pz+nz*s*(hw+rr+extra);if(okAt(u,tx,tz)){move(u,tx-u.x,tz-u.z);return;}}}
+    if(u.k==='tree'||u.k==='prop'&&u.r<.6)drop(u);else ST.stuck.push([u.k,+u.x.toFixed(1),+u.z.toFixed(1)]);});
+  tm(4);
+  // ...and not inside a building (a bus stop sign was stuck in the lighthouse wall)
+  const bigC=colliders.filter(c=>{const w=c.x2-c.x1,d=c.z2-c.z1;return c.x1<99.5&&c.x1<1e8&&(w>1.2||d>1.2)&&w<14&&d<14;});
+  units.forEach(u=>{if(u.dead||u.r>1.7||u.k==='prop')return;const rr=u.k==='tree'?.3:Math.min(u.r,1)*.8;
+    for(const c of bigC){if(u.x<c.x1-rr||u.x>c.x2+rr||u.z<c.z1-rr||u.z>c.z2+rr)continue;
+      const opts=[[c.x1-rr-.1,u.z],[c.x2+rr+.1,u.z],[u.x,c.z1-rr-.1],[u.x,c.z2+rr+.1]].sort((a,b)=>Math.hypot(a[0]-u.x,a[1]-u.z)-Math.hypot(b[0]-u.x,b[1]-u.z));
+      const o=opts.find(([x,z])=>okAt(u,x,z)&&!bigC.some(k=>k!==c&&x>k.x1-rr&&x<k.x2+rr&&z>k.z1-rr&&z<k.z2+rr));if(o)move(u,o[0]-u.x,o[1]-u.z);else if(u.k==='tree')drop(u);break;}});
+  // ...and not standing in the sea
+  units.forEach(u=>{if(u.dead||u.r>1.7||u.k==='prop'||u.k==='tree'||!sea(u.x,u.z,.5))return;
+    for(let r=.6;r<=9;r+=.4){const n=Math.max(8,Math.round(r*6));for(let i=0;i<n;i++){const t=i/n*6.283,x=u.x+Math.cos(t)*r,z=u.z+Math.sin(t)*r;if(okAt(u,x,z)){move(u,x-u.x,z-u.z);return;}}}});
+  tm(5);
+  // 4. trees, umbrellas, bus stops, lamps and signs: never inside each other
+  const rank={bus:5,lamp:4,sign:3,umbrella:2,tree:1};const live=units.filter(u=>!u.dead&&rank[u.k]&&u.r<=1.7);
+  for(let pass=0;pass<3;pass++){live.sort((a,b)=>a.x-b.x);for(let i=0;i<live.length;i++)for(let j=i+1;j<live.length&&live[j].x-live[i].x<2.3;j++){const A=live[i],Bu=live[j];if(A.dead||Bu.dead)continue;
+    const need=(A.k==='tree'?.45:Math.min(A.r,1))+(Bu.k==='tree'?.45:Math.min(Bu.r,1))+.1,d=Math.hypot(A.x-Bu.x,A.z-Bu.z);if(d>=need)continue;
+    const lo=rank[A.k]<rank[Bu.k]?A:Bu,hi=lo===A?Bu:A;let ux=lo.x-hi.x,uz=lo.z-hi.z,n=Math.hypot(ux,uz);if(n<1e-3){ux=1;uz=0;n=1;}ux/=n;uz/=n;
+    let done=false;for(const ang of [0,.7,-.7,1.5,-1.5,2.4,-2.4]){const c=Math.cos(ang),s=Math.sin(ang),vx=ux*c-uz*s,vz=ux*s+uz*c,tx=hi.x+vx*need,tz=hi.z+vz*need;
+      if(okAt(lo,tx,tz)&&!live.some(o=>o!==lo&&o!==hi&&!o.dead&&Math.hypot(o.x-tx,o.z-tz)<need*.8)){move(lo,tx-lo.x,tz-lo.z);done=true;break;}}
+    if(!done&&lo.k==='tree')drop(lo);}}
+  tm(6);
+  // 5. beach umbrellas and the juice hammock belong on the sand by the water
+  const toSand=(x,z,hw,hd)=>{const s=sea(x,z);if(!s)return null;const[r,sx,sz]=s,ux=(x-sx)/r,uz=(z-sz)/r;
+    for(const lat of [0,1,-1,2,-2,3,-3,4.5,-4.5,6,-6])for(const off of [1.4,1.8,2.2,1.1,2.6]){const px=sx+ux*off-uz*lat,pz=sz+uz*off+ux*lat;const q=sea(px,pz,3.2);
+      if(!q||q[0]<Math.max(.9,hd+.5))continue;if(clear(px,pz,Math.max(hw,hd))&&pathD(px,pz)>.6&&islSiteOK(px,pz,hw,hd,{land:.2,path:.6,pad:.15}))return[px,pz];}return null;};
+  units.forEach(u=>{if(u.dead||u.k!=='umbrella'||(sea(u.x,u.z,3.5)))return;const p=toSand(u.x,u.z,.9,.9);if(p)move(u,p[0]-u.x,p[1]-u.z);});
+  {const bx=BEACH.x+.3,bz=BEACH.z;if(!sea(bx,bz,2.4)){const p=toSand(bx,bz,2.1,.6);if(p){const dx=p[0]-bx,dz=p[1]-bz;
+    const near=scene.children.filter(o=>!o.userData.lane&&!skip.has(o)&&!(o.userData.frames&&!treeOf.has(o))&&Math.abs(o.position.x-bx)<2.5&&Math.abs(o.position.z-bz)<.8&&(B.setFromObject(o),!B.isEmpty()&&B.getSize(SZ).x<3&&SZ.z<3));
+    near.forEach(o=>{o.position.x+=dx;o.position.z+=dz;const t=treeOf.get(o);if(t){t.x+=dx;t.z+=dz;}});
+    colliders.forEach(c=>{if(c.x2-c.x1<1&&c.z2-c.z1<1&&Math.abs((c.x1+c.x2)/2-bx)<2.5&&Math.abs((c.z1+c.z2)/2-bz)<.8){c.x1+=dx;c.x2+=dx;c.z1+=dz;c.z2+=dz;}});
+    BEACH.x+=dx;BEACH.z+=dz;ST.beach=near.length;}else ST.beach=-1;}}
+  tm(7);
+});
 try{islandWarp();}catch(e){console.error('islandWarp',e);}
 updateCamera(0,true);
 function flipIslandSigns(){const v=new THREE.Vector3();scene.updateMatrixWorld();const mx=scene.scale.x<0?-1:1;scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map)return;const t=o.material.map;if(FLIPPED.has(t)||!(SIGN_TEX.has(t)||t===signTex))return;o.getWorldPosition(v);if(v.x*mx>100)return;FLIPPED.add(t);t.repeat.x=-1;t.offset.x=1;});}

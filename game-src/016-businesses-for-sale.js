@@ -37,16 +37,21 @@ function applyBiz(){BIZ.forEach(b=>{const own=!!(S.biz&&S.biz[b.id]&&S.biz[b.id]
 const riders=[];const riderCv=['#e45a5a','#3f86d6','#f1c64a','#5bb48a'].map((sh,i)=>{const c=mk(24,27),x=c.getContext('2d');x.drawImage(bikeCanvas(['#2f7fd0','#e2584f','#f1c64a','#5bb48a'][i]),0,13);
   const top=pix(HU_HEAD.concat(HU_REST.slice(0,9)),{o:'#2a1d1a',h:['#2a1d16','#d9b25a','#6b4226','#1b1b2b'][i],s:['#f1c7a0','#c68a5e','#e2b48a','#8d5a3b'][i],e:'#1a1010',t:sh});x.drawImage(top,6,1);return c;});
 // ---- bike lane in front of the café: cyclists ride here, never across the deck ----
-const BIKE_LANE=[[-12.5,4.6],[9.6,4.6],[13,1.2],[18,.9]];const BLANES=[];let laneStrip=()=>{};
+// bends out round the café front (the Lv4 terrace and benches sit on z 3.6-5.5)
+const BIKE_LANE=[[-12.5,4.6],[-6.6,4.6],[-5,6.5],[5,6.5],[6.4,4.6],[9.6,4.6],[13,1.2],[18,.9]];const BLANES=[];let laneStrip=()=>{};
 (()=>{const c=mk(64,32),x=c.getContext('2d');x.fillStyle='#b5523b';x.fillRect(0,0,64,32);const r=mulberry32(55);for(let i=0;i<120;i++){x.fillStyle=r()<.5?'#a8472f':'#c25f46';x.fillRect(r()*64|0,r()*32|0,2,2);}
   x.fillStyle='#f6efe0';x.fillRect(0,1,64,2);x.fillRect(0,29,64,2);for(let i=0;i<64;i+=16)x.fillRect(i,15,9,2);
   const tex=new THREE.CanvasTexture(c);tex.magFilter=THREE.NearestFilter;tex.wrapS=THREE.RepeatWrapping;
   const ic=mk(32,32),ix=ic.getContext('2d');ix.fillStyle='#f6efe0';const ring=(cx,cy)=>{ix.fillRect(cx-4,cy-1,8,2);ix.fillRect(cx-1,cy-4,2,8);ix.fillRect(cx-3,cy-3,2,2);ix.fillRect(cx+1,cy-3,2,2);ix.fillRect(cx-3,cy+1,2,2);ix.fillRect(cx+1,cy+1,2,2);};
   ring(8,20);ring(24,20);ix.fillRect(8,12,10,2);ix.fillRect(16,12,2,8);ix.fillRect(12,10,8,2);ix.fillRect(20,10,2,10);ix.fillRect(22,9,4,2);
   const itex=new THREE.CanvasTexture(ic);itex.magFilter=THREE.NearestFilter;const imat=new THREE.MeshLambertMaterial({map:itex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
+  const capMs={};const capM=thin=>capMs[thin]||(capMs[thin]=new THREE.MeshLambertMaterial({color:thin?0xc4573e:0xb5523b,polygonOffset:true,polygonOffsetFactor:thin?-2:-1,polygonOffsetUnits:thin?-2:-1}));
   laneStrip=(a,b,w,icons,y)=>{const n0=scene.children.length,w0=w,y0=y;w=w||1.15;y=y||.021;const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const t=tex.clone();t.needsUpdate=true;t.repeat.set(len/2,1);
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t}));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);if(w<.9)for(let d=2;d<len-1;d+=6){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.scale.setScalar(Math.min(1,w/.5));q.position.set(a[0]+(b[0]-a[0])*k,y+.004,a[1]+(b[1]-a[1])*k);scene.add(q);}BLANES.push([a,b,w]);
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);
+    // round caps so lanes meet at corners without a gap
+    [a,b].forEach(e=>{const cap=new THREE.Mesh(new THREE.CircleGeometry(w/2,14),capM(w<.9));cap.rotation.x=-Math.PI/2;cap.position.set(e[0],y-.001,e[1]);cap.receiveShadow=true;scene.add(cap);});if(w<.9)for(let d=2;d<len-1;d+=6){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.scale.setScalar(Math.min(1,w/.5));q.position.set(a[0]+(b[0]-a[0])*k,y+.004,a[1]+(b[1]-a[1])*k);scene.add(q);}BLANES.push([a,b,w]);
     if(icons!==false&&w>.9&&len>8)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.position.set(a[0]+(b[0]-a[0])*k,y+.005,a[1]+(b[1]-a[1])*k);scene.add(q);}
+    scene.children.slice(n0).forEach(m=>m.userData.lane=1);
     if(!ISL.done&&a[0]<99.5){const ms=scene.children.slice(n0);ms.forEach(m=>m.__noWarp=true);(ISL.strips=ISL.strips||[]).push({a:a.slice(),b:b.slice(),w:w0,icons,y:y0,meshes:ms});BLANES[BLANES.length-1].__isl=1;}};
   const run=(pts,w,icons,y)=>{for(let i=0;i<pts.length-1;i++)laneStrip(pts[i],pts[i+1],w,icons,y);};
   run(BIKE_LANE);

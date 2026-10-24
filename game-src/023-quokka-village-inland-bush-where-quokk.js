@@ -15,9 +15,9 @@ const VILLAGE={x:24,z:5};
   // Spanish colonial cottages, like old Fremantle
   const arch=()=>{const c=mk(16,24),x=c.getContext('2d');x.fillStyle='#5a3a22';x.beginPath();x.moveTo(1,24);x.lineTo(1,8);x.arc(8,8,7,Math.PI,0);x.lineTo(15,24);x.fill();x.fillStyle='#7a5032';x.fillRect(3,10,10,13);x.fillStyle='#ffd34d';x.fillRect(11,16,1,1);return ctex(c);};
   [[3.6,-1.6],[0,-3],[-0.2,3.4]].forEach(([dx,dz],i)=>{const x=V.x+dx,z=V.z+dz,gy=groundY(x,z);const g=bld(x,z,2.1,1.6,1.5,'#f6f0e2',{win:false,roof:'#c2603a',roofH:.65,noCol:true});g.position.y=gy;
-    const d=new THREE.Mesh(new THREE.PlaneGeometry(.55,.85),new THREE.MeshLambertMaterial({map:arch(),transparent:true,alphaTest:.5}));d.position.set(x,gy+.43,z+.81);scene.add(d);
-    [-.65,.65].forEach(o=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.32,.42),new THREE.MeshLambertMaterial({color:0x2f78a8}));w.position.set(x+o,gy+.85,z+.81);scene.add(w);const s=new THREE.Mesh(new THREE.PlaneGeometry(.12,.44),new THREE.MeshLambertMaterial({color:0x3e7d5c}));s.position.set(x+o-.24,gy+.85,z+.812);scene.add(s);});
-    const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.22,8),new THREE.MeshLambertMaterial({color:0xc2603a}));pot.position.set(x+.42,gy+.11,z+.98);scene.add(pot);col(x-1.05,z-.8,x+1.05,z+.8);});
+    const d=new THREE.Mesh(new THREE.PlaneGeometry(.55,.85),new THREE.MeshLambertMaterial({map:arch(),transparent:true,alphaTest:.5}));d.position.set(0,.43,.81);g.add(d);// door, windows and pot ride with the cottage (the island warp moved them apart)
+    [-.65,.65].forEach(o=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.32,.42),new THREE.MeshLambertMaterial({color:0x2f78a8}));w.position.set(o,.85,.81);g.add(w);const s=new THREE.Mesh(new THREE.PlaneGeometry(.12,.44),new THREE.MeshLambertMaterial({color:0x3e7d5c}));s.position.set(o-.24,.85,.812);g.add(s);});
+    const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.22,8),new THREE.MeshLambertMaterial({color:0xc2603a}));pot.position.set(.42,.11,.98);g.add(pot);col(x-1.05,z-.8,x+1.05,z+.8);});
   signPost(V.x-1.4,V.z+4.4,makeSign(['QUOKKA','VILLAGE'],48,20,'#5a3a22','#f5ecd8'),1.1,.5);})();
 const VILLAGE_ELDER={x:VILLAGE.x+1.5,z:VILLAGE.z+.6};
 

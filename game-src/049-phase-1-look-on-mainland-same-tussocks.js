@@ -25,7 +25,7 @@ const LAMPS=[];
     g.position.set(x,0,z);scene.add(g);col(x-.1,z-.1,x+.1,z+.1);
     const gm=new THREE.MeshBasicMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});const gl=new THREE.Mesh(new THREE.PlaneGeometry(3.4,3.4),gm);gl.rotation.x=-Math.PI/2;gl.position.set(x,.05,z+.3);scene.add(gl);
     const halo=new THREE.Mesh(new THREE.PlaneGeometry(.9,.9),new THREE.MeshBasicMaterial({map:glowT,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));halo.position.set(x,2.08,z+.42);scene.add(halo);
-    LAMPS.push({x,z,bulbM,gm,halo});}
+    LAMPS.push({x,z,bulbM,gm,halo,g,gl});}
   lamp(9.4,2.3,true); // beside the café bike rack
   // island: every few metres along the paths, set back from the path edge (laid out after the island grows)
   ISL.lamp=lamp;if(false)for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];const L=Math.hypot(bx-ax,bz-az);const nx=-(bz-az)/L,nz=(bx-ax)/L;
