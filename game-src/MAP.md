@@ -93,5 +93,5 @@ Find code: `grep -n 'name' game-src/*`.
 | 085-world-map-engine-shared-with-mockup.js | 7616-7689 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
 | 086-sprites.js | 7690-7738 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
 | 087-loop.js | 7739-7784 | 5 | last, frame, label, perth, aus |
-| 088-city-walls-and-world-map-look-lab-lab.js | 7785-7876 | 11 | WORLD_LIVE, WORLD, _wmHide, _wmClose |
-| 089-part.js | 7877-7879 | 0 |  |
+| 088-city-walls-and-world-map-look-lab-lab.js | 7785-7906 | 17 | WORLD_LIVE, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF, _wmHide, _wmClose |
+| 089-part.js | 7907-7909 | 0 |  |

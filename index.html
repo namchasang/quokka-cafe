@@ -7789,6 +7789,15 @@ return{get open(){return open;},
 // Rottnest has no wall: drive to the jetty on the map and ride into Thomson Bay. The old ferries and buses still work.
 var WORLD_LIVE=true;
 const WORLD={on:WORLD_LIVE||/[?&#](lab|world)\b/.test(location.search+location.hash),walls:{},g:null};
+// freeway signs instead of gate towers (Look Lab ?lab or ?signs until SIGNS_LIVE): the way out is where the main road leaves town
+var SIGNS_LIVE=false;const SIGNS_ON=SIGNS_LIVE||/[?&#](lab|signs)\b/.test(location.search+location.hash);
+const ROAD_Z={sp:{w:22.2,e:22.2},freo:{w:-2,e:20.4},hi:{w:5.2,e:5.2},vp:{w:0,e:0},cbd:{w:5,e:-3.1},air:{w:.9,e:.9}};
+const SIGN_DEF={spw:{route:'5',road:'MILL POINT RD',to:[['Fremantle',18],['Rottnest Ferry',19],['Perth Airport',16]]},spe:{route:'5',road:'MILL POINT RD',to:[['Heirisson Is',3],['Victoria Park',5],['Perth Airport',14]]},
+  freow:{route:'7',road:'HIGH ST',to:[['B-Shed Ferry',1],['Rottnest Island',19],['Bathers Beach',1]]},freoe:{route:'7',road:'CANNING HWY',to:[['South Perth',17],['Perth CBD',19],['Perth Airport',30]]},
+  hiw:{route:'6',road:'THE CAUSEWAY',to:[['Perth CBD',2],['South Perth',3],['Fremantle',20]]},hie:{route:'6',road:'THE CAUSEWAY',to:[['Victoria Park',3],['Perth Airport',12],['Melbourne',3400]]},
+  vpw:{route:'30',road:'ALBANY HWY',to:[['Perth CBD',5],['South Perth',5],['Fremantle',22]]},vpe:{route:'30',road:'ALBANY HWY',to:[['Perth Airport',10],['Armadale',26],['Albany',405]]},
+  cbdw:{route:'5',road:'MOUNTS BAY RD',to:[['Kings Park',1],['Fremantle',19],['Rottnest Ferry',19]]},cbde:{route:'94',road:'ST GEORGES TCE',to:[['Victoria Park',5],['Perth Airport',12],['Kalgoorlie',595]]},
+  airw:{route:'94',road:'AIRPORT DR',to:[['Perth CBD',12],['Victoria Park',10],['Fremantle',30]]},aire:{route:'4',road:'AIRPORT DR',to:[['Midland',8],['Swan Valley',18],['Sydney',3930]]}};
 // the overlay exists in every build (hideOverlays looks for it); it only opens when the world layer is on
 (()=>{const ov=document.createElement('div');ov.id='wmOv';ov.className='overlay';ov.hidden=true;
   ov.innerHTML='<div id="wmBox"><div id="wmTop"><b id="wmTitle">World map</b><span id="wmTabs"><button type="button" id="wmTabP" aria-pressed="true">Perth</button><button type="button" id="wmTabA" aria-pressed="false">Australia</button></span><button type="button" id="wmBack">Back to town</button></div>'+
@@ -7819,6 +7828,16 @@ if(WORLD.on)(()=>{
     put(new THREE.BoxGeometry(hz?L:.5,h,hz?.5:L),limeM(L/1.6,h/1.6),(x1+x2)/2,h/2,(z1+z2)/2);put(new THREE.BoxGeometry(hz?L+.04:.6,.1,hz?.6:L+.04),capM,(x1+x2)/2,h+.05,(z1+z2)/2);
     for(let s=.35;s<L;s+=.9){const t=s/L;merPos.push([x1+(x2-x1)*t,h+.27,z1+(z2-z1)*t,hz?0:Math.PI/2]);}}
   // a gate: two round towers with tiled caps, an arch over the opening, a sign
+  // a green freeway sign where the road leaves town (from Paul's photo): route shield, road name, towns and km, and a world map strip
+  function roadSign(x,z,side,zone){const D=SIGN_DEF[zone+side];if(!D)return gate(x,z,side,zone);
+    const c=mk(128,84),g=c.getContext('2d');g.fillStyle='#16673a';g.fillRect(0,0,128,84);g.strokeStyle='#f6f6f0';g.lineWidth=2;g.strokeRect(2,2,124,80);
+    g.fillStyle='#f6f6f0';g.beginPath();g.moveTo(9,8);g.lineTo(25,8);g.lineTo(25,17);g.quadraticCurveTo(17,24,9,17);g.closePath();g.fill();g.fillStyle='#1d4e9a';g.beginPath();g.moveTo(10,9);g.lineTo(24,9);g.lineTo(24,16.5);g.quadraticCurveTo(17,22.5,10,16.5);g.closePath();g.fill();
+    g.fillStyle='#f6f6f0';g.font='bold 8px monospace';g.textAlign='center';g.fillText(D.route,17,17);g.fillRect(30,9,90,11);g.fillStyle='#16673a';g.font='bold 8px monospace';g.fillText(D.road,75,17.5);
+    g.textAlign='left';g.fillStyle='#f6f6f0';g.font='bold 9px monospace';D.to.forEach(([n,km],i)=>{g.fillText(n,10,34+i*11);g.textAlign='right';g.fillText(String(km),119,34+i*11);g.textAlign='left';});
+    g.fillStyle='#ffd34d';g.fillRect(8,68,112,11);g.fillStyle='#141a2e';g.font='bold 8px monospace';g.textAlign='center';g.fillText(side==='w'?'← WORLD MAP':'WORLD MAP →',64,76.5);
+    const tx=ctex(c);const grp=new THREE.Group();grp.position.set(x+(side==='w'?1.0:-1.0),0,z-1.6);G.add(grp);
+    const panel=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.7,.08),[capM,capM,capM,capM,new THREE.MeshBasicMaterial({map:tx}),new THREE.MeshLambertMaterial({color:0x16673a})]);panel.position.y=2.15;panel.castShadow=true;grp.add(panel);
+    const postM=new THREE.MeshLambertMaterial({color:0x9aa0a6});[-.85,.85].forEach(o=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.1,2.2,.1),postM);p.position.set(o,1.1,-.08);p.castShadow=true;grp.add(p);col(grp.position.x+o-.08,grp.position.z-.16,grp.position.x+o+.08,grp.position.z);});}
   function gate(x,z,side,zone){const g=new THREE.Group();g.position.set(x,0,z);G.add(g);const L=limeM(1.4,1.6);
     [-1.25,1.25].forEach(o=>{const t=new THREE.Mesh(new THREE.CylinderGeometry(.55,.62,2.6,10),L);t.position.set(0,1.3,o);t.castShadow=true;g.add(t);const c=new THREE.Mesh(new THREE.ConeGeometry(.72,.9,10),roofM);c.position.set(0,3.05,o);c.castShadow=true;g.add(c);
       const b=new THREE.Mesh(new THREE.CylinderGeometry(.66,.66,.12,10),capM);b.position.set(0,2.62,o);g.add(b);const w=new THREE.Mesh(new THREE.PlaneGeometry(.14,.4),darkM);w.position.set(0,1.8,o+.6);g.add(w);
@@ -7830,6 +7849,14 @@ if(WORLD.on)(()=>{
   // work out each area's walkable land, then wall it in
   const ZS=['sp','freo','hi','vp','cbd'].concat(typeof AIR!=='undefined'&&AIR.on?['air']:[]);
   const GS=.5;
+  // Kings Park: Riverside Drive carries on west along the bottom of the park as Mounts Bay Road; plants on it move aside
+  if(SIGNS_ON){const asM=new THREE.MeshLambertMaterial({map:ctex(asphC,{rep:[11,1]})});const rd=new THREE.Mesh(new THREE.PlaneGeometry(22.4,2.2),asM);rd.rotation.x=-Math.PI/2;rd.position.set(611,.021,5);rd.receiveShadow=true;G.add(rd);
+    for(let x=601;x<622;x+=2.4){const d=new THREE.Mesh(new THREE.PlaneGeometry(1,.08),new THREE.MeshLambertMaterial({color:0xf3f3ea}));d.rotation.x=-Math.PI/2;d.position.set(x,.026,5);G.add(d);}
+    {const wp=new THREE.Vector3(),bx=new THREE.Box3(),sz=new THREE.Vector3(),mv=[];const ssx=scene.scale.x;scene.scale.x=1;scene.updateMatrixWorld(true);
+      const LAY=[scene,G,typeof CDET!=='undefined'&&CDET.g,typeof FDET!=='undefined'&&FDET.city,typeof FDET!=='undefined'&&FDET.g].filter(Boolean),seen=new Set();
+      scene.traverse(o=>{if(!(o.isMesh||o.isSprite)||o===rd||o.parent===G)return;let c=o;while(c.parent&&!LAY.includes(c.parent))c=c.parent;if(seen.has(c))return;seen.add(c);o=c;
+        bx.setFromObject(o);if(bx.isEmpty())return;bx.getSize(sz);if(sz.x>5||sz.z>5)return;if(bx.max.x<599.5||bx.min.x>622||bx.max.z<3.85||bx.min.z>6.15)return;mv.push([o,bx.getCenter(wp).z]);});
+      mv.forEach(([o,cz])=>{const dz=cz<5?(3.7-bx.setFromObject(o).max.z):(6.3-bx.setFromObject(o).min.z);o.position.z+=dz;o.updateMatrixWorld(true);const t=trees.find(t=>t.m===o);if(t)t.z+=dz;});scene.scale.x=ssx;scene.updateMatrixWorld(true);}for(let i=colliders.length-1;i>=0;i--){const c=colliders[i];if(c.x1>599&&c.x2<622&&c.z2>3.8&&c.z1<6.2&&c.x2-c.x1<3)colliders.splice(i,1);}}
   ZS.forEach(zone=>{const B=ZONE_B(zone);if(!B)return;const W=Math.ceil((B.x2-B.x1)/GS),H=Math.ceil((B.z2-B.z1)/GS);const ok=new Uint8Array(W*H),seen=new Uint8Array(W*H);
     const cx=i=>B.x1+(i+.5)*GS,cz=j=>B.z1+(j+.5)*GS;const walk=(i,j)=>{const x=cx(i),z=cz(j);return zoneOf(x)===zone&&!blocked(x,z);};
     const S0=(SAFE_SPOTS[zone]||[])[0]||(BUS_STOPS[zone]&&BUS_STOPS[zone].land);if(!S0)return;let si=Math.floor((S0[0]-B.x1)/GS),sj=Math.floor((S0[1]-B.z1)/GS);
@@ -7838,8 +7865,8 @@ if(WORLD.on)(()=>{
     let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9,zs=[];for(let j=0;j<H;j++)for(let i=0;i<W;i++)if(ok[j*W+i]){const x=cx(i),z=cz(j);x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z);zs.push(z);}
     if(!zs.length)return;zs.sort((a,b)=>a-b);const zmid=zs[zs.length>>1];
     // gates: the reachable cell furthest west (east), as close to the middle of the town as possible
-    const pickGate=dir=>{let best=null;const edge=dir<0?x0:x1;for(let j=0;j<H;j++)for(let i=0;i<W;i++){if(!ok[j*W+i])continue;const x=cx(i),z=cz(j);if(Math.abs(x-edge)>2.6)continue;
-        let room=0;for(let k=-3;k<=3;k++){const jj=j+k;if(jj>=0&&jj<H&&ok[jj*W+i])room++;}if(room<5)continue;const sc=Math.abs(x-edge)*3+Math.abs(z-zmid)*.4;if(!best||sc<best.sc)best={x,z,sc};}return best;};
+    const RZ=SIGNS_ON?(ROAD_Z[zone]||{}):{};const pickGate=dir=>{let best=null;const edge=dir<0?x0:x1;const rz=RZ[dir<0?'w':'e'];for(let j=0;j<H;j++)for(let i=0;i<W;i++){if(!ok[j*W+i])continue;const x=cx(i),z=cz(j);if(Math.abs(x-edge)>2.6)continue;
+        let room=0;for(let k=-3;k<=3;k++){const jj=j+k;if(jj>=0&&jj<H&&ok[jj*W+i])room++;}if(room<5)continue;const sc=rz!=null?Math.abs(x-edge)*3+Math.abs(z-rz)*6:Math.abs(x-edge)*3+Math.abs(z-zmid)*.4;if(!best||sc<best.sc)best={x,z,sc};}return best;};
     const gw=pickGate(-1),ge=pickGate(1);const WZ={x0:x0-.25,x1:x1+.25,z0:z0-.25,z1:z1+.25,w:null,e:null};
     const pad=.55,wx0=x0-.25-pad,wx1=x1+.25+pad,wz0=z0-.25-pad,wz1=z1+.25+pad;
     // only wall the stretches where the town actually reaches the edge (land, not open water far away)
@@ -7847,11 +7874,14 @@ if(WORLD.on)(()=>{
     const side=(ax,az,bx,bz,nx,nz,h,gap)=>{const L=Math.hypot(bx-ax,bz-az),n=Math.ceil(L/.5);let s0=null;
       for(let k=0;k<=n;k++){const t=k/n,x=ax+(bx-ax)*t,z=az+(bz-az)*t;const inGap=gap&&Math.abs(z-gap.z)<1.85;const on=k<n&&!inGap&&inside(x,z,nx,nz);
         if(on&&s0==null)s0=[x,z];if(!on&&s0!=null){if(Math.hypot(x-s0[0],z-s0[1])>1.6)run(s0[0],s0[1],x,z,h);s0=null;}}};
-    if(gw){gw.x=wx0;WZ.w=gw;}if(ge){ge.x=wx1;WZ.e=ge;}
+    // on a road: the gate goes at the end of the road itself, even where the town reaches further out elsewhere
+    const roadEnd=dir=>{const rz=RZ[dir<0?'w':'e'];if(rz==null)return null;let b=null;for(let j=0;j<H;j++){const z=cz(j);if(Math.abs(z-rz)>.5)continue;for(let i=0;i<W;i++){if(!ok[j*W+i])continue;const x=cx(i);if(!b||(dir<0?x<b.x:x>b.x))b={x,z};}}return b;};
+    {const rw=roadEnd(-1),re=roadEnd(1);if(rw&&gw&&rw.x>x0+1.5){gw.z=rw.z;gw.x=rw.x-.8;gw.road=1;}if(re&&ge&&re.x<x1-1.5){ge.z=re.z;ge.x=re.x+.8;ge.road=1;}}
+    if(gw){if(!gw.road)gw.x=wx0;WZ.w=gw;}if(ge){if(!ge.road)ge.x=wx1;WZ.e=ge;}
     side(wx0,wz0,wx1,wz0,0,1,1.7);// north
     side(wx0,wz1,wx1,wz1,0,-1,.95);// south: low, so it never hides Kip from the camera
     side(wx0,wz0,wx0,wz1,1,0,1.7,gw);side(wx1,wz0,wx1,wz1,-1,0,1.7,ge);
-    if(gw)gate(gw.x,gw.z,'w',zone);if(ge)gate(ge.x,ge.z,'e',zone);
+    if(gw)(SIGNS_ON?roadSign:gate)(gw.x,gw.z,'w',zone);if(ge)(SIGNS_ON?roadSign:gate)(ge.x,ge.z,'e',zone);
     WORLD.walls[zone]=WZ;});
   if(merPos.length){const im=new THREE.InstancedMesh(mer,capM,merPos.length);const o=new THREE.Object3D();merPos.forEach(([x,y,z,ry],i)=>{o.position.set(x,y,z);o.rotation.set(0,ry,0);o.updateMatrix();im.setMatrixAt(i,o.matrix);});im.castShadow=true;G.add(im);}
   // ---- gate actions and the trip ----
