@@ -3,7 +3,7 @@
 // Walking out through a gate opens the world map: Kip drives his little two-tone retro car between the towns, the car
 // rides the ferries across the water, and driving into a town enters it by the gate on the side he arrives from.
 // Rottnest has no wall: drive to the jetty on the map and ride into Thomson Bay. The old ferries and buses still work.
-var WORLD_LIVE=false;
+var WORLD_LIVE=true;
 const WORLD={on:WORLD_LIVE||/[?&#](lab|world)\b/.test(location.search+location.hash),walls:{},g:null};
 // the overlay exists in every build (hideOverlays looks for it); it only opens when the world layer is on
 (()=>{const ov=document.createElement('div');ov.id='wmOv';ov.className='overlay';ov.hidden=true;
@@ -76,13 +76,13 @@ if(WORLD.on)(()=>{
     ['w','e'].forEach(sd=>{const g=W[sd];if(!g)return;const ix=sd==='w'?g.x+1.15:g.x-1.15;T.push({x:ix,z:g.z,r:1.5,label:(sd==='w'?'West':'East')+' gate · out to the world map',act:()=>openWorld(z,sd)});});
     if(z==='island')return;};
   // Rottnest has no wall: the jetty takes you out to the map
-  const _t2=cbdTargets;cbdTargets=function(T){_t2(T);if(zoneOf(player.x)!=='island')return;const L=SAFE_SPOTS.island[0];T.push({x:L[0],z:L[1],r:1.4,label:'World map · drive off the ferry',act:()=>openWorld('island','e')});};
+  const _t2=cbdTargets;cbdTargets=function(T){_t2(T);if(zoneOf(player.x)!=='island')return;const J=IW(-16,4.4),L=[J.x+1.7,J.z];const ok=typeof freoUnlocked!=='function'||freoUnlocked();T.push({x:L[0],z:L[1],r:1.1,label:ok?'World map · drive off the ferry':'World map: locked (see Quests)',disabled:!ok,act:()=>{if(ok)openWorld('island','e');}});};
   window.openWorld=function(from,side){if(transit||VISIT||(overlay&&overlay!=='wm'))return;transit=true;fadeTarget=.95;
     setTimeout(()=>{transit=false;fadeTarget=0;overlay='wm';ui.hud.hidden=true;ui.act.hidden=true;$('#wmOv').hidden=false;WORLD.map.start(from,side);},500);};
   function enter(id,side){if(id!=='island'&&id!=='sp'&&id!=='hi'){if(needPass(id==='air'?'cbd':id))return;}
     WORLD.map.stop();$('#wmOv').hidden=true;overlay=null;transit=true;fadeTarget=.95;toast('Driving into '+ZN[id]+'…',1.6);
     setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;const W=WORLD.walls[id];let x,z;
-      if(id==='island'){[x,z]=SAFE_SPOTS.island[0];}else if(W&&W[side]){const g=W[side];x=side==='w'?g.x+1.4:g.x-1.4;z=g.z;}else{[x,z]=SAFE_SPOTS[id][0];}
+      if(id==='island'){const J=IW(-16,4.4);x=J.x+1.7;z=J.z+.8;}else if(W&&W[side]){const g=W[side];x=side==='w'?g.x+1.4:g.x-1.4;z=g.z;}else{[x,z]=SAFE_SPOTS[id][0];}
       player.x=x;player.z=z;updateCamera(0,true);hideOverlays();fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[id]=1;if(id==='cbd'&&typeof cbdArrive==='function')cbdArrive('cbd');save();},700);}
   WORLD.map=wmBuild($('#wmCv'),{air:typeof AIR!=='undefined'&&AIR.on,el:{name:$('#wmName'),note:$('#wmNote'),act:$('#wmAct'),tabP:$('#wmTabP'),tabA:$('#wmTabA')},
     side:(id,pref)=>{if(id==='island')return 'w';const W=WORLD.walls[id];if(!W)return pref;return W[pref]?pref:(W.w?'w':'e');},enter});
