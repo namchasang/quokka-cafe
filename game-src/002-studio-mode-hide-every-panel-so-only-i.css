@@ -1,5 +1,5 @@
 /* studio mode: hide every panel so only the island is on screen, for recording music videos */
-body.studio #app > *:not(#stage), body.studio > *:not(#app):not(#studioTip):not(script):not(style){visibility:hidden!important}
+body.studio #app > *:not(#stage), body.studio > *:not(#app):not(#studioTip):not(#liveHud):not(script):not(style){visibility:hidden!important}
 body.studio{cursor:none}
 #studioTip{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99;background:rgba(15,20,38,.86);color:#f3e7c8;font:13px/1.4 system-ui,sans-serif;padding:8px 14px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .4s}
 #studioTip.on{opacity:1}

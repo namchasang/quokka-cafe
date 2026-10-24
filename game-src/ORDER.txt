@@ -49,5 +49,6 @@
 048-overlays.js
 049-maps-quest-guidance.js
 050-camera-render.js
+051-live-mode.js
 051-look-lab-landscape-layers.js
 051-part.js

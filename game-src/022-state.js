@@ -4,12 +4,14 @@ try{if(localStorage.getItem(LEGACY_KEY)&&!localStorage.getItem(slotKey(1))){loca
 function readSlot(n){try{const r=localStorage.getItem(slotKey(n));return r?JSON.parse(r):null;}catch(e){return null;}}
 function fresh(){return{stamina:100,pc:{},stock:{beans:20,milk:20,mango:10,mix:12,tea:0},menu:{},fq:{},parentsDay:null,freoNotice:false,jetty:0,props:{},wakeSP:false,buffs:{},unlock:{},ownBike:null,rentals:0,fert:false,juice:true,refreshed:false,biz:{},bizToday:0,waves:{},qg:{},servedTotal:0,track:'main',staff:0,plots:[null,null,null,null,null,null],inv:{},metMei:false,wx:0,temp:25,day:1,coins:0,wish:{},lore:{},quest:0,shells:{},served:0,earned:0,time:420,metGus:false,closed:false,afterNoonTalk:false};}
 let S=fresh();
-function save(){if(VISIT)return;try{const o=Object.assign({},S);['time','served','earned','closed','waves'].forEach(k=>delete o[k]);o.savedAt=Date.now();localStorage.setItem(slotKey(SLOT),JSON.stringify(o));}catch(e){}qcSyncSoon();}
+function save(){if(VISIT||LIVE)return;try{const o=Object.assign({},S);['time','served','earned','closed','waves'].forEach(k=>delete o[k]);o.savedAt=Date.now();localStorage.setItem(slotKey(SLOT),JSON.stringify(o));}catch(e){}qcSyncSoon();}
 function loadSave(){return readSlot(SLOT);}
 const FERRY_ARR=[450,510,570,630,690,750,840,900];let arrivals=[];
 let transit=false,running=false,overlay='title',spawnT=3;
 const CLOSE=960,DAY_END=1320;
-const OPEN=420;const phase=()=>S.time>=OPEN&&S.time<CLOSE&&S.wx!==3?'cafe':'explore';
+const OPEN=420;// Live mode (?live=1): the café stays open around the clock for 24/7 streams, nothing is saved
+const LIVE=/[?&#]live\b/.test(location.search+location.hash);
+const phase=()=>LIVE||(S.time>=OPEN&&S.time<CLOSE&&S.wx!==3)?'cafe':'explore';
 
 // ---------- UI ----------
 const ui={hud:$('#hud'),day:$('#dayLbl'),time:$('#timeLbl'),phase:$('#phaseLbl'),obj:$('#objLbl'),carry:$('#carryLbl'),coins:$('#coinLbl'),act:$('#act'),actLbl:$('#actLbl'),actKey:$('#actKey'),joy:$('#joy'),knob:$('#knob'),joyHint:$('#joyHint'),toast:$('#toast'),dlg:$('#dlg'),dlgWho:$('#dlgWho'),dlgTxt:$('#dlgTxt')};
