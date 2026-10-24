@@ -69,7 +69,8 @@
 068-city-detail-for-perth-cbd-a-look-lab-l.js
 069-part.js
 070-island-loop-bus-a-19-stop-loop-bus-lik.js
-071-live-mode-live-1-kip-runs-caf-on-his-o.js
-072-look-lab-landscape-layers-of-each-real.js
-073-hd-plants-every-tree-bush-flower-and-g.js
-074-part.js
+071-tidy-island-after-it-grows-nothing-on.js
+072-live-mode-live-1-kip-runs-caf-on-his-o.js
+073-look-lab-landscape-layers-of-each-real.js
+074-hd-plants-every-tree-bush-flower-and-g.js
+075-part.js

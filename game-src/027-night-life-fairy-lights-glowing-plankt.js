@@ -22,7 +22,7 @@ function nightTick(dt,t){const h=S.time/60;NIGHT=h<7?clamp((6.6-h)/1.2,0,1):clam
   nightLights.forEach(L=>L.intensity=L.userData.max*NIGHT*(1-wxC.rain*.3));
   plankton.material.uniforms.time.value=t;plankton.material.uniforms.night.value=NIGHT*(1-wxC.rain*.6);plankton.visible=NIGHT>.01;
   const day=(1-NIGHT)*(1-wxC.rain)*(player.x<100?1:0);butterflies.forEach((b,i)=>{b.m.visible=day>.3;if(!b.m.visible)return;const a=t*b.sp+b.ph;const cx=camTarget.x+b.ox+Math.sin(a*.7)*2.4,cz=camTarget.z+b.oz+Math.cos(a*.5)*1.6;
-    b.m.position.set(cx,.6+Math.abs(Math.sin(t*2.2+b.ph))*.9,cz);setFrame(b.m,Math.floor(t*10+b.ph)%2);b.m.scale.x=Math.cos(a*.7)>0?1:-1;});
+    b.m.position.set(cx,.6+Math.abs(Math.sin(t*2.2+b.ph))*.9,cz);setFrame(b.m,Math.floor(t*10+b.ph)%2);b.m.scale.x=Math.cos(a*.7)>0?1:-1;if(cx>DECK.x1-1.5&&cx<DECK.x2+1.5&&cz>DECK.z1-1.5&&cz<DECK.z2+1.5)b.m.visible=false;});
   motes.material.color.setRGB(lerp(1,.75,NIGHT),lerp(.95,1,NIGHT),lerp(.77,.45,NIGHT));motes.material.size=.09+NIGHT*.07;}
 
 // motes

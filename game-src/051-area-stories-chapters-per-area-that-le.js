@@ -34,7 +34,7 @@ function STORY_DEF(){if(_story)return _story;const g=()=>S.qg||{};const vpDish=(
    steps:()=>vpDish().map(sh=>['Eat '+sh.dish+' at '+sh.name,{check:()=>!!(S.fq&&S.fq['vp_'+sh.id]),at:()=>({x:sh.npc.x,z:sh.npc.z,label:sh.dish+' at '+sh.name})}]).concat([['Night market after 5:30pm','nightmkt']])}]}};
  return _story;}
 const STORY_ORDER=['island','sp','hi','freo','vp'];
-function storyChap(a){const D=STORY_DEF()[a];const n=(S.story&&S.story[a])||0;return n<D.chapters.length?D.chapters[n]:null;}
+function storyChap(a){const D=STORY_DEF()[a];if(!D)return null;const n=(S.story&&S.story[a])||0;return n<D.chapters.length?D.chapters[n]:null;}
 function chapSteps(c){return typeof c.steps==='function'?c.steps():c.steps;}
 function stepDone(st){const t=st[1];if(typeof t==='string')return !!(S.pc&&S.pc[t]);try{return !!t.check();}catch(e){return false;}}
 function stepTarget(st){const t=st[1];if(typeof t==='string'){const p=PCS.find(q=>q.id===t);if(!p)return null;let l=[];try{l=p.pos();}catch(e){}if(!l.length)return null;let b=l[0],bd=1e9;l.forEach(q=>{const d=Math.hypot(q[0]-player.x,q[1]-player.z);if(d<bd){bd=d;b=q;}});return{x:b[0],z:b[1],label:'\u{1F4F7} '+p.name};}try{return t.at();}catch(e){return null;}}

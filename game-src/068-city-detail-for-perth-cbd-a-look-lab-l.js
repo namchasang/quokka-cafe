@@ -408,5 +408,5 @@ if(CDET.on)(()=>{
 
   CDET.routes=ROUTES;CDET.spawn=spawn;
   // crowds keep to the footpaths now that cars use the side streets
-  try{const W=WALK_ROUTES.cbd;W[3][0][0]=W[3][1][0]=669.1;W[4][0][0]=W[4][1][0]=637.2;W[3][1][1]=W[4][1][1]=3.4;W[1][0][1]=W[1][1][1]=7.95;}catch(e){}
+  try{const W=WALK_ROUTES.cbd;W[3][0][0]=W[3][1][0]=669.1;W[4][0][0]=W[4][1][0]=637.2;W[3][1][1]=W[4][1][1]=2.9;W[1][0][1]=W[1][1][1]=7.95;}catch(e){}
   try{const R=ZONE_DEF.cbd.rects;R[3]=[622,3.9,700,6.15,'#4a4d55'];R.push([622,3.9,700,4.6,'#3f9a5a']);}catch(e){}

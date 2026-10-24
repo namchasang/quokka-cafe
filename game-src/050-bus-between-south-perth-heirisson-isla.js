@@ -12,7 +12,15 @@ VP_SHOPS.forEach(sh=>{const v={skin:pick(SKINS),hair:pick(HAIRS),shirt:sh.col,pa
   SHOPS['vp_'+sh.id]={name:sh.name,who:sh.cui,desc:sh.dish?'One of Albany Highway’s '+sh.cui+' favourites.':sh.cui+' on Albany Highway.',items};});
 const VP_BUSKER={x:510,z:3.2};(()=>{const m=spriteMesh(humanFrames({hair:'#9b3b22',skin:'#f1c7a0',shirt:'#9478d4',pants:'#2f3b5c',hat:'#2a2a30'}),.95,1.58);m.position.set(VP_BUSKER.x,0,VP_BUSKER.z);scene.add(m);blob(.85).position.set(VP_BUSKER.x,.03,VP_BUSKER.z);})();
 let rollKey='';
-function zoneTick(dt,t){const z=zoneOf(player.x);if(z==='cbd'&&typeof CBD!=='undefined'){const k=Math.min(1,dt*6);for(const e of CBD.cut){const behind=player.z<e.z1+.6&&player.z>e.z1-18&&player.x>e.x1-2.5&&player.x<e.x2+2.5;const tg=behind?Math.max(.06,1.3/e.h):1;if(Math.abs(e.g.scale.y-tg)>.002)e.g.scale.y+=(tg-e.g.scale.y)*k;}}
+// city buildings that stand between the camera and Kip turn see-through (they used to squash down to the ground)
+const _cbdBox=new THREE.Box3(),_cbdRay=new THREE.Ray(),_cbdV=new THREE.Vector3(),_cbdT=new THREE.Vector3();
+function cbdSeeThrough(dt){const k=Math.min(1,dt*6);const mx=scene.scale.x<0?-1:1;
+  for(const e of CBD.cut){if(!e.ready){e.g.scale.y=1;e.g.updateMatrixWorld(true);e.box=new THREE.Box3().setFromObject(e.g);e.mats=[];e.g.traverse(o=>{if(!o.isMesh||!o.material||Array.isArray(o.material))return;o.material=o.material.clone();o.material.userData.op0=o.material.opacity;o.material.userData.tr0=o.material.transparent;e.mats.push(o.material);});e.a=1;e.ready=true;}
+    let hit=false;if(e.g.visible!==false){for(const hy of[.35,1.05]){_cbdT.set(player.x*mx,hy,player.z);_cbdRay.origin.copy(camera.position);_cbdRay.direction.copy(_cbdT).sub(camera.position);const L=_cbdRay.direction.length();_cbdRay.direction.normalize();
+      const p=_cbdRay.intersectBox(e.box,_cbdV);if(p&&camera.position.distanceTo(p)<L-.3){hit=true;break;}}}
+    const tg=hit?.22:1;if(Math.abs(e.a-tg)<.005)continue;e.a+=(tg-e.a)*k;if(Math.abs(e.a-tg)<.01)e.a=tg;
+    for(const m of e.mats){const solid=e.a>.995;m.transparent=solid?m.userData.tr0:true;m.opacity=solid?m.userData.op0:Math.min(m.userData.op0,e.a);m.depthWrite=solid;m.needsUpdate=m.needsUpdate||solid!==m.userData.wasSolid;m.userData.wasSolid=solid;}}}
+function zoneTick(dt,t){const z=zoneOf(player.x);if(z==='cbd'&&typeof CBD!=='undefined')cbdSeeThrough(dt);
   if(running&&!VISIT&&rollKey!==SLOT+'|'+S.day){rollKey=SLOT+'|'+S.day;if(!S.dt||S.dt.day!==S.day)setupDay();makeMail();syncDayVisuals();{const fe=festToday();if(fe)setTimeout(()=>toast('Festival today: '+fe.name+'!',4),1500);if((S.mail||[]).some(m=>!m.read))setTimeout(()=>toast('You\u2019ve got mail! Check the mailbox by the caf\u00e9.',3.5),4000);}stranded.forEach(p=>{scene.remove(p.m);scene.remove(p.b);});stranded=[];strandRolled=false;rollStar();}
   if(running&&!VISIT&&!strandRolled&&S.time>=1050&&S.time<1290){strandRolled=true;spawnStranded();}
   if(z==='hi'){roos.forEach(r=>{r.wait-=dt;let mv=false;if(r.wait<=0){const dx=r.tx-r.x,dz=r.tz-r.z,d=Math.hypot(dx,dz);if(d<.1){r.wait=1.5+Math.random()*4;r.tx=411+Math.random()*18;r.tz=-6+Math.random()*8;}else{const s=Math.min(d,2.4*dt);r.x+=dx/d*s;r.z+=dz/d*s;r.face=dx>0?1:-1;r.hop+=dt;mv=true;}}

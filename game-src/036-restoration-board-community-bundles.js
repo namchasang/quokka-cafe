@@ -58,9 +58,9 @@ function applyCafe(){const st=cafeStyle(),L=cafeLv(),C=CAFE_STYLES[st];
   Object.keys(STYLE_DECOR).forEach(k=>STYLE_DECOR[k].forEach(o=>o.visible=k===st));Object.keys(LV_DECOR).forEach(n=>LV_DECOR[n].forEach(o=>o.visible=L>=+n));
   [...lvCols,stairCol].forEach(c=>{if(L>=c.lvl){[c.x1,c.z1,c.x2,c.z2]=c.real;}else{c.x1=c.z1=c.x2=c.z2=1e9;}});
   SEATS.forEach(s=>{if(s.lvl&&s.lvl>L)s.busy=true;else if(s.lvl&&s.lvl<=L&&s.busy&&!customers.some(c=>c.seat===s))s.busy=false;});
-  upper.visible=L>=4;upRoofMat.color.set(UP_ROOF[st]);upTrimMat.color.set(UP_WIN[st]);upRoof.visible=st!=='mykonos';upFlat.visible=st==='mykonos';
-  (STYLE_DECOR.mykonos||[]).forEach(o=>{if(o.geometry&&o.geometry.type!=='SphereGeometry'&&o.geometry.type!=='CylinderGeometry')return;if(o.position&&o.position.z===-4.4)o.position.y=(o.geometry.type==='SphereGeometry'?3.25:3.1)+(L>=4?2.45:0);});
-  LV_DECOR[4].forEach(o=>{if(o.isGroup&&o.children.length===10){if(st==='mykonos')o.position.set(0,2.1,0);else o.position.set(0,-.12,1.95);}});
+  upper.visible=false;/* Paul: level 4 keeps the level 3 building */upRoofMat.color.set(UP_ROOF[st]);upTrimMat.color.set(UP_WIN[st]);upRoof.visible=st!=='mykonos';upFlat.visible=st==='mykonos';
+  (STYLE_DECOR.mykonos||[]).forEach(o=>{if(o.geometry&&o.geometry.type!=='SphereGeometry'&&o.geometry.type!=='CylinderGeometry')return;if(o.position&&o.position.z===-4.4)o.position.y=(o.geometry.type==='SphereGeometry'?3.25:3.1);});
+  LV_DECOR[4].forEach(o=>{if(o.isGroup&&o.children.length===10){o.position.set(0,-.12,1.95);}});
   sign.scale.setScalar(1);const x=signC.getContext('2d');x.fillStyle=C.sign[0];x.fillRect(0,0,96,20);x.fillStyle='#e2c27c';x.fillRect(0,0,96,1);x.fillRect(0,19,96,1);x.fillRect(0,0,1,20);x.fillRect(95,0,1,20);x.fillStyle=C.sign[1];x.font='bold 12px "Pixelify Sans", monospace';x.textAlign='center';x.textBaseline='middle';x.fillText('QUOKKA CAFE',48,11);signTex.needsUpdate=true;}
 function openCafe(){if(!running||overlay)return;S.qg=S.qg||{};if(!S.qg.hqOpen){S.qg.hqOpen=1;save();}if(hqTab==='wish')hqTab='main';renderCafe();showOverlay('cafe');}
 function hqQuestCheck(){const g=S.qg=S.qg||{};if(!g.wishSeen&&overlay==='cafe'&&hqTab==='main'){const h=$('#cfWishH');if(h&&typeof IntersectionObserver!=='undefined'&&!hqQuestCheck.io){hqQuestCheck.io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)&&overlay==='cafe'){S.qg.wishSeen=1;save();hqQuestCheck.io.disconnect();hqQuestCheck.io=null;hqQuestCheck();}});hqQuestCheck.io.observe(h);}}

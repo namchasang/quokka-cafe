@@ -8,15 +8,15 @@ CDET.tick=function(dt){if(!CDET.on||!CDET.g||!CDET.g.visible)return;const now=pe
   const V=CDET.veh,people=[player];if(typeof walkers!=='undefined')for(const w of walkers)if(w.m.visible)people.push(w);
   // who is in front of whom (crossing cars use their length as width); two cars that block each other: the older one goes
   for(const c of V){c.blk=[];if(c.id==null)c.id=CDET.nid=(CDET.nid||0)+1;for(const o of V){if(o===c)continue;const dot=o.dx*c.dx+o.dz*c.dz;if(dot<-.7)continue;const ex=o.x-c.x,ez=o.z-c.z;const al=ex*c.dx+ez*c.dz;if(al<=0||al>4)continue;
-      const la=Math.abs(-ex*c.dz+ez*c.dx),pp=Math.abs(dot)<.6;if(la<c.wid/2+(pp?o.len:o.wid)/2+.08){const need=c.len/2+(pp?o.wid:o.len)/2+.35;c.blk.push({o,lim:Math.max(0,(al-need)*2.2)});}}}
+      const la=Math.abs(-ex*c.dz+ez*c.dx),pp=Math.abs(dot)<.6;if(la<c.wid/2+(pp?o.len:o.wid)/2+.08){const need=c.len/2+(pp?o.wid:o.len)/2+(c.kind==='bike'?.9:.35);c.blk.push({o,lim:Math.max(0,(al-need)*2.2)});}}}
   for(const c of V){let tg=c.vmax;const front=c.s+c.len/2;
     for(const st of c.R.stops){const d=st.s-front;if(d>-.05&&d<2.4){const g=st.axis==='EW'?EWg:NSg,a=st.axis==='EW'?EWa:NSa;if(!g&&!(a&&d<.7))tg=Math.min(tg,Math.max(0,(d-.12)*2.2));}}
     if(c.kind==='bus'&&c.R.busS!=null&&!c.served){const d=c.R.busS-c.s;if(d<2.5&&d>-.2){tg=Math.min(tg,Math.max(0,d*1.4));if(d<.25&&c.v<.2){c.served=true;c.dwell=3.5;}}}
     if(c.dwell>0){c.dwell-=dt;tg=0;}
     let carBlock=false;
     if(c.ghost>0)c.ghost-=dt;else for(const b of c.blk){if(b.o.blk.some(q=>q.o===c)&&c.id<b.o.id)continue;if(b.lim<tg){tg=b.lim;carBlock=b.o.dx*c.dx+b.o.dz*c.dz<.7;}}
-    for(const p of people){const ex=p.x-c.x,ez=p.z-c.z;const al=ex*c.dx+ez*c.dz;if(al<=0||al>c.len/2+1.7)continue;if(Math.abs(-ex*c.dz+ez*c.dx)<c.wid/2+.4)tg=Math.min(tg,Math.max(0,(al-c.len/2-.45)*2.4));}
-    c.wait=(carBlock&&c.v<.05)?c.wait+dt:0;if(c.wait>8){c.ghost=1.2;c.wait=0;}
+    for(const p of people){const ex=p.x-c.x,ez=p.z-c.z;const al=ex*c.dx+ez*c.dz;if(al<=0||al>c.len/2+1.7)continue;if(Math.abs(-ex*c.dz+ez*c.dx)<c.wid/2+(c.kind==='bike'?.22:.4))tg=Math.min(tg,Math.max(0,(al-c.len/2-.45)*2.4));}
+    c.wait=(carBlock&&c.v<.05)?c.wait+dt:0;if(c.wait>8&&c.kind!=='bike'){c.ghost=1.2;c.wait=0;}
     c.v+=Math.max(-7*dt,Math.min(2.2*dt,tg-c.v));c.s+=c.v*dt;}
   for(let i=V.length-1;i>=0;i--){const c=V[i];if(c.s>=c.R.L-.05){c.g.parent&&c.g.parent.remove(c.g);V.splice(i,1);continue;}
     let i2=1;const R=c.R;while(i2<R.S.length-1&&R.S[i2]<c.s)i2++;const a=R.P[i2-1],b=R.P[i2],u=(c.s-R.S[i2-1])/Math.max(1e-6,R.S[i2]-R.S[i2-1]);let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1;

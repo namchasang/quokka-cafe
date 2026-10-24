@@ -62,7 +62,7 @@ const upper=new THREE.Group();const upRoof=new THREE.Group();const upFlat=new TH
   upper.visible=false;scene.add(upper);})();
 const UP_ROOF={classic:'#e2584f',cottage:'#c8a058',riviera:'#c2603a',ryokan:'#3a3e48',mykonos:'#f8f8f4'},UP_WIN={classic:'#f6f2e8',cottage:'#2f5a46',riviera:'#2f78a8',ryokan:'#4a3426',mykonos:'#1f5fae'};
 // stairs collider (level 4)
-const stairCol={x1:1e9,z1:1e9,x2:1e9,z2:1e9,real:[5.25,-4.6,6.25,-1],lvl:4};
+const stairCol={x1:1e9,z1:1e9,x2:1e9,z2:1e9,real:[5.25,-4.6,6.25,-1],lvl:99};
 // extra tables for levels 2-4
 const LV_TABLES=[[2,-2,2.75],[3,2,2.75],[4,0,4.55]];const lvCols=[];
 colliders.push(stairCol);
