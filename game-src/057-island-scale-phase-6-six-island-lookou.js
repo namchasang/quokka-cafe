@@ -34,7 +34,7 @@ const LOOKOUTS=[
   T:[{id:'train',art:'train',name:'Quokka Express',x:210,y:318,r:36,land:1,pos:t=>[210+Math.sin(t*.25)*50,318],fact:'Quokka Express · the little train climbing up to the battery.'},{id:'gun',art:'gunpit',name:'Gun pit',x:450,y:320,r:30,land:1,fact:'Gun pit · from up here you can see how the guns pointed out to sea.'},{id:'boats',art:'boats',name:'Boats at Geordie Bay',x:470,y:190,r:34,fact:'Geordie Bay · holiday boats bobbing on their moorings.'}]},
  {id:'bathurst',name:'Bathurst Point',near:()=>{const p=PCS.find(q=>q.id==='bathurst').pos()[0];return[p[0]-5,p[1]+3];},land:300,seed:103,
   T:[{id:'light',art:'lighthouse',name:'Bathurst Lighthouse',x:470,y:285,r:30,land:1,fact:'Bathurst Lighthouse · small but mighty, guiding boats into Thomson Bay since 1900.'},{id:'sail',art:'sailboat',name:'Yacht',x:190,y:200,r:28,pos:t=>[190+Math.sin(t*.18)*50,200],fact:'Yacht · the sea breeze here is called the Fremantle Doctor. Sailors love it.'},{id:'swim',art:'swimmers',name:'Swimmers',x:320,y:252,r:32,fact:'Swimmers · Pinky Beach is calm and shallow. Perfect for a morning dip.'}]},
- {id:'salmonpt',name:'Salmon Point',near:()=>{const b=WB.bigsalmon;return b?[b.x-9,b.z-1.5]:[26,10];},land:300,seed:104,
+ {id:'salmonpt',name:'Salmon Point',near:()=>{const b=WB.bigsalmon;return b?[b.x-9,b.z-1.5]:[26,10];},near2:()=>{const b=WB.bigsalmon;return b?[b.x+8,b.z-2]:[40,20];},land:300,seed:104,
   T:[{id:'surf',art:'surfer',name:'Surfer',x:230,y:230,r:32,pos:t=>[230+Math.sin(t*.3)*40,230],fact:'Surfer · the south coast catches the big ocean swell.'},{id:'isle',art:'isle',name:'Green Island',x:450,y:205,r:36,fact:'Green Island · a tiny rocky island where sea birds nest.'},{id:'flag',art:'flag',name:'Snorkel flag',x:330,y:270,r:28,fact:'Snorkel flag · red with a white stripe means someone is diving below. Boats go slow!'}]},
  {id:'herschel',name:'Mt Herschel',near:()=>{const l=MAP_LABELS.find(q=>q[0]==='Lake Herschel');return l?[l[1]+2,l[2]-7]:[4,0];},land:220,seed:105,
   T:[{id:'lake',art:'lake',name:'Lake Herschel',x:300,y:310,r:40,land:1,fact:'Lake Herschel · a salt lake where banded stilts wade and feed.'},{id:'wl',art:'lighthouse2',name:'Wadjemup Lighthouse',x:150,y:238,r:26,land:1,fact:'Wadjemup Lighthouse · the tall limestone tower in the middle of the island.'},{id:'osprey',art:'osprey',name:'Osprey',x:430,y:110,r:30,pos:t=>[430+Math.sin(t*.3)*70,110+Math.sin(t*.8)*12],fact:'Osprey · hunting over the lake. Look for the white chest.'}]},
@@ -69,7 +69,7 @@ function lkYacht(x,z,c,ry){const g=new THREE.Group();const h=new THREE.Mesh(new 
   g.position.set(x,-.12,z);g.rotation.y=ry;g.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(waMark(g));}
 islandLate(()=>{const R=srand(606);
   LOOKOUTS.forEach(L=>{if(L.cape){const lk=IW(97.4,.4);L.at=[lk.x,lk.z];lkTrail(lk.x-2.5,lk.z+1,R);return;}
-    const n=L.near();const p=islFindSite(n[0],n[1],2,1.9,{land:1.6,path:.9,noLake:1},12);if(!p){console.warn('no lookout site',L.id);return;}islClear(p[0]-2.2,p[1]-2.2,p[0]+2.2,p[1]+2.2);
+    const n=L.near();const n2=L.near2?L.near2():n;const p=islFindSite(n[0],n[1],2,1.9,{land:1.6,path:.9,noLake:1},12)||islFindSite(n2[0],n2[1],2,1.9,{land:1.2,path:.7,noLake:1},14)||islFindSite(n[0],n[1],1.8,1.7,{land:1,path:.6,noLake:1},22);if(!p){console.warn('no lookout site',L.id);return;}islClear(p[0]-2.2,p[1]-2.2,p[0]+2.2,p[1]+2.2);
     lkPlatform(p[0],p[1],L.name);L.at=[p[0],p[1]+2.2];lkTrail(p[0],p[1]+1.9,R);
     // a few shrubs along the top
     const v=treeVariants[2]||treeVariants[0];[[-2.8,-1.2],[2.9,-.8]].forEach(([dx,dz])=>{if(islSiteOK(p[0]+dx,p[1]+dz,.4,.3,{path:.6,land:1}))waTree(p[0]+dx,p[1]+dz,v,.7);});
@@ -80,6 +80,9 @@ islandLate(()=>{const R=srand(606);
   if(SB)[[-3,1],[4,1]].forEach(([dx])=>spots.push([SB.x+dx,SB.cz+4.5+R()]));
   spots.forEach(([x,z],i)=>{if(landD(x,z)>-1.8||landD(x,z)<-9)return;if(WEST.boats&&WEST.boats.some(b=>Math.hypot(b.g.position.x-x,b.g.position.z-z)<2.5))return;lkYacht(x,z,['#2f78a8','#c8344a','#3f9a6a','#f1c64a','#1d3a6e','#e8734a','#2f9a8a'][i%7],R()*1.2-.6);});
   LK.ready=true;});
+// last check on the real-shaped island: every action spot and fishing spot must be reachable on foot
+islandLate(()=>{const fix=o=>{if(o&&typeof o.x==='number'&&o.x<99.5&&blocked(o.x,o.z)){const p=freeNear(o.x,o.z);o.x=p[0];o.z=p[1];}};
+  [WB.acts,WC.acts,LK.acts,WA.plaques||[],WA.npcs||[]].forEach(L=>L.forEach(fix));FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});['golf','armyjetty','airport'].forEach(k=>fix(WA[k]));});
 // one repaint at the end, after every wave has changed the ground
 islandLate(()=>{islRepaint();});
 
@@ -101,7 +104,8 @@ ISL.data=[()=>{
 }];
 // bike lanes and the railway are re-laid on the bigger island
 ISL.late.push(()=>{
-  MM.x1=TB.x1+4;MM.x2=TB.x2-1;const zc=(TB.z1+TB.z2)/2,zh=(MM.x2-MM.x1)*mmH/mmW/2;MM.z1=zc-zh;MM.z2=zc+zh;
+  {// fit the whole real island: width or height, whichever needs more room
+  const x1=TB.x1+4,x2=TB.x2-2,z1=TB.z1+6,z2=TB.z2-6,xc=(x1+x2)/2,zc=(z1+z2)/2;let hw=(x2-x1)/2,hh=hw*mmH/mmW;if(hh<(z2-z1)/2){hh=(z2-z1)/2;hw=hh*mmW/mmH;}MM.x1=xc-hw;MM.x2=xc+hw;MM.z1=zc-hh;MM.z2=zc+hh;}
   wilds.forEach(q=>{if(q.hx<99.5&&blocked(q.hx,q.hz)){const f=freeNear(q.hx,q.hz),dx=f[0]-q.hx,dz=f[1]-q.hz;q.hx+=dx;q.hz+=dz;q.x+=dx;q.z+=dz;q.tx=q.hx;q.tz=q.hz;}});
   for(let i=BLANES.length-1;i>=0;i--)if(BLANES[i][0][0]<99.5&&BLANES[i].__isl)BLANES.splice(i,1);
   (ISL.strips||[]).forEach(r=>{r.meshes.forEach(m=>{scene.remove(m);m.geometry.dispose();});const a=IW(r.a[0],r.a[1]),b=IW(r.b[0],r.b[1]);laneStrip([a.x,a.z],[b.x,b.z],r.w,r.icons,r.y);});

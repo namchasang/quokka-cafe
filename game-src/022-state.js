@@ -2,7 +2,7 @@
 const LEGACY_KEY='quokka-cafe-v1',SLOTS=6;let SLOT=1;const slotKey=n=>'quokka-cafe-slot-'+n;
 try{if(localStorage.getItem(LEGACY_KEY)&&!localStorage.getItem(slotKey(1))){localStorage.setItem(slotKey(1),localStorage.getItem(LEGACY_KEY));localStorage.removeItem(LEGACY_KEY);}}catch(e){}
 function readSlot(n){try{const r=localStorage.getItem(slotKey(n));return r?JSON.parse(r):null;}catch(e){return null;}}
-function fresh(){return{isv:1,stamina:100,pc:{},stock:{beans:20,milk:20,mango:10,mix:12,tea:0},menu:{},fq:{},parentsDay:null,freoNotice:false,jetty:0,props:{},wakeSP:false,buffs:{},unlock:{},ownBike:null,rentals:0,fert:false,juice:true,refreshed:false,biz:{},bizToday:0,waves:{},qg:{},servedTotal:0,track:'main',staff:0,plots:[null,null,null,null,null,null],inv:{},metMei:false,wx:0,temp:25,day:1,coins:0,wish:{},lore:{},quest:0,shells:{},served:0,earned:0,time:420,metGus:false,closed:false,afterNoonTalk:false};}
+function fresh(){return{isv:2,stamina:100,pc:{},stock:{beans:20,milk:20,mango:10,mix:12,tea:0},menu:{},fq:{},parentsDay:null,freoNotice:false,jetty:0,props:{},wakeSP:false,buffs:{},unlock:{},ownBike:null,rentals:0,fert:false,juice:true,refreshed:false,biz:{},bizToday:0,waves:{},qg:{},servedTotal:0,track:'main',staff:0,plots:[null,null,null,null,null,null],inv:{},metMei:false,wx:0,temp:25,day:1,coins:0,wish:{},lore:{},quest:0,shells:{},served:0,earned:0,time:420,metGus:false,closed:false,afterNoonTalk:false};}
 let S=fresh();
 function save(){if(VISIT||LIVE)return;try{const o=Object.assign({},S);['time','served','earned','closed','waves'].forEach(k=>delete o[k]);o.savedAt=Date.now();localStorage.setItem(slotKey(SLOT),JSON.stringify(o));}catch(e){}qcSyncSoon();}
 function loadSave(){return readSlot(SLOT);}

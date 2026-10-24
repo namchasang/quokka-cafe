@@ -19,7 +19,7 @@ function islandWarp(){if(ISL.done)return;const t0=performance.now();
     par[rb]=ra;G[ra]={x1,x2,z1,z2};}}
   const groups=new Map();box.forEach((b,i)=>{const r=find(i);let g=groups.get(r);if(!g){g={b:G[r],m:[]};groups.set(r,g);}g.m.push(b);});
   ISL.cl=[];
-  groups.forEach(g=>{const b=g.b,cx=(b.x1+b.x2)/2,cz=(b.z1+b.z2)/2;const w=isW(cx,cz),dx=w[0]-cx,dz=w[1]-cz;
+  groups.forEach(g=>{const b=g.b,cx=(b.x1+b.x2)/2,cz=(b.z1+b.z2)/2;const w=islNudge(cx,cz,isW(cx,cz)),dx=w[0]-cx,dz=w[1]-cz;
     g.m.forEach(it=>{const o=it.o,par=o.parent;if(par===scene)o.position.set(o.position.x+dx,o.position.y,o.position.z+dz);else{const v=new THREE.Vector3(dx,0,dz);const pq=new THREE.Quaternion();par.getWorldQuaternion(pq);v.applyQuaternion(pq.invert());const ps=new THREE.Vector3();par.getWorldScale(ps);v.divide(ps);o.position.add(v);}});
     ISL.cl.push({x1:b.x1-.9,x2:b.x2+.9,z1:b.z1-.9,z2:b.z2+.9,dx,dz});});
   // long things (beach mats, light strings, plankton): bend every vertex

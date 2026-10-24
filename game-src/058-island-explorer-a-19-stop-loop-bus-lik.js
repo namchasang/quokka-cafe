@@ -44,4 +44,4 @@ requestAnimationFrame(loop);
 // keep progress across live updates of the page
 const hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot)hot.snapshot(()=>({S,running,px:player.x,pz:player.z}));
-if(hot&&hot.data&&hot.data.S&&hot.data.running){const oldL=!hot.data.S.isv;startGame(hot.data.S);player.x=hot.data.px;player.z=hot.data.pz;if(oldL){const w=IW(player.x,player.z);player.x=w.x;player.z=w.z;}S.time=hot.data.S.time||420;S.closed=hot.data.S.closed;S.served=hot.data.S.served||0;S.earned=hot.data.S.earned||0;dlgQ=[];ui.dlg.hidden=true;updateCamera(0,true);}
+if(hot&&hot.data&&hot.data.S&&hot.data.running){const oldL=hot.data.S.isv!==2,v1=hot.data.S.isv===1;startGame(hot.data.S);player.x=hot.data.px;player.z=hot.data.pz;if(oldL&&player.x<99.5){const w=v1?isFromV1(player.x,player.z):IW(player.x,player.z);player.x=w.x;player.z=w.z;}S.time=hot.data.S.time||420;S.closed=hot.data.S.closed;S.served=hot.data.S.served||0;S.earned=hot.data.S.earned||0;dlgQ=[];ui.dlg.hidden=true;updateCamera(0,true);}

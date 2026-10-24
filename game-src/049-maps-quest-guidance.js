@@ -90,13 +90,17 @@ function islOld(x,z){const u=(x-TB.x1)*GR,v=(z-TB.z1)*GR;let i=Math.floor(u),j=M
 function islPD(x,z){const u=(x-TB.x1)*GR,v=(z-TB.z1)*GR;const i=Math.floor(u),j=Math.floor(v);if(i<0||j<0||i>=GW-1||j>=GH-1)return 9;const a=u-i,b=v-j,k=j*GW+i,A=ISL_PD;return(A[k]*(1-a)+A[k+1]*a)*(1-b)+(A[k+GW]*(1-a)+A[k+GW+1]*a)*b;}
 function islandGround(){ISL.tg0=performance.now();
   // new bounds: the old bounds, warped
-  let x1=1e9,x2=-1e9,z1=1e9,z2=-1e9;const O={x1:-24,x2:99,z1:-16,z2:20};for(let t=0;t<=1;t+=1/80){[[O.x1+(O.x2-O.x1)*t,O.z1],[O.x1+(O.x2-O.x1)*t,O.z2],[O.x1,O.z1+(O.z2-O.z1)*t],[O.x2,O.z1+(O.z2-O.z1)*t]].forEach(([x,z])=>{const w=isW(x,z);x1=Math.min(x1,w[0]);x2=Math.max(x2,w[0]);z1=Math.min(z1,w[1]);z2=Math.max(z2,w[1]);});}
-  TB.x1=Math.floor(x1);TB.x2=Math.min(100,Math.ceil(x2));TB.z1=Math.floor(z1);TB.z2=Math.ceil(z2);GW=(TB.x2-TB.x1)*GR+1;GH=(TB.z2-TB.z1)*GR+1;
+  // the real island's bounds with a strip of sea round it
+  TB.x1=-180;TB.x2=100;TB.z1=-66;TB.z2=64;GW=(TB.x2-TB.x1)*GR+1;GH=(TB.z2-TB.z1)*GR+1;
   const F0=Fg,W0=(99+24)*GR+1,H0=(20+16)*GR+1,f0=(x,z)=>{const u=(x+24)*GR,v=(z+16)*GR;if(u<0||v<0||u>=W0-1||v>=H0-1)return islandF(x,z);const i=u|0,j=v|0,a=u-i,b=v-j,k=j*W0+i;return(F0[k]*(1-a)+F0[k+1]*a)*(1-b)+(F0[k+W0]*(1-a)+F0[k+W0+1]*a)*b;};
+  const PL=ISL.plat[0],PD=islPlatD(PL),PC=[PL.x+PD[0],PL.z+PD[1]];
   Fg=new Float32Array(GW*GH);Dg=new Float32Array(GW*GH);ISL_OX=new Float32Array(GW*GH);ISL_OZ=new Float32Array(GW*GH);ISL_PD=new Float32Array(GW*GH).fill(9);
-  {const CW=TB.x2-TB.x1+1,CH=TB.z2-TB.z1+1,CX=new Float32Array(CW*CH),CZ=new Float32Array(CW*CH);for(let j=0;j<CH;j++)for(let i=0;i<CW;i++){const o=isWinv(TB.x1+i,TB.z1+j);CX[j*CW+i]=o[0];CZ[j*CW+i]=o[1];}
-   for(let j=0;j<GH;j++){const v=j/GR,j0=Math.min(CH-2,Math.floor(v)),b=v-j0;for(let i=0;i<GW;i++){const u=i/GR,i0=Math.min(CW-2,Math.floor(u)),a=u-i0,c=j0*CW+i0,k=j*GW+i;
-     const ox=(CX[c]*(1-a)+CX[c+1]*a)*(1-b)+(CX[c+CW]*(1-a)+CX[c+CW+1]*a)*b,oz=(CZ[c]*(1-a)+CZ[c+1]*a)*(1-b)+(CZ[c+CW]*(1-a)+CZ[c+CW+1]*a)*b;ISL_OX[k]=ox;ISL_OZ[k]=oz;Fg[k]=f0(ox,oz);}}}
+  {const CS=2,CW=Math.ceil((TB.x2-TB.x1)/CS)+2,CH=Math.ceil((TB.z2-TB.z1)/CS)+2,CX=new Float32Array(CW*CH),CZ=new Float32Array(CW*CH);for(let j=0;j<CH;j++)for(let i=0;i<CW;i++){const X=TB.x1+i*CS,Z=TB.z1+j*CS,o=isWinv(X,Z,rislD(X,Z)<-8);CX[j*CW+i]=o[0];CZ[j*CW+i]=o[1];}
+   for(let j=0;j<GH;j++){const v=j/GR/CS,j0=Math.min(CH-2,Math.floor(v)),b=v-j0;for(let i=0;i<GW;i++){const u=i/GR/CS,i0=Math.min(CW-2,Math.floor(u)),a=u-i0,c=j0*CW+i0,k=j*GW+i;
+     const ox=(CX[c]*(1-a)+CX[c+1]*a)*(1-b)+(CX[c+CW]*(1-a)+CX[c+CW+1]*a)*b,oz=(CZ[c]*(1-a)+CZ[c+1]*a)*(1-b)+(CZ[c+CW]*(1-a)+CZ[c+CW+1]*a)*b;ISL_OX[k]=ox;ISL_OZ[k]=oz;
+     // ground: the real coast, the Settlement's own coast inside its plateau, and the old bays cut into the real coast
+     const X=TB.x1+i/GR,Z=TB.z1+j/GR;let f=rislD(X,Z);for(const [bx,bz,br] of BAYS){if(Math.hypot(bx-PL.x,bz-PL.z)<PL.R)continue;const d=Math.hypot(ox-bx,oz-bz);if(d<br+6)f=Math.min(f,(d-br)*2.4);}
+     const ph=isPhi(PL,Math.hypot(X-PC[0],Z-PC[1]));if(ph>0){const g=Math.hypot(f0(ox+.2,oz)-f0(ox-.2,oz),f0(ox,oz+.2)-f0(ox,oz-.2))/.4;const fd=f0(ox,oz)/Math.max(.01,g),fo=fd>0?fd:Math.max(fd,Math.min(f,-1.5));f=f*(1-ph)+fo*ph;}Fg[k]=f;}}}
   for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const k=j*GW+i;const i0=i>0?k-1:k,i1=i<GW-1?k+1:k,j0=j>0?k-GW:k,j1=j<GH-1?k+GW:k;
     const fx=(Fg[i1]-Fg[i0])*GR/((i1-i0)||1),fz=(Fg[j1]-Fg[j0])*GR/(((j1-j0)/GW)||1);Dg[k]=Fg[k]/Math.max(.004,Math.hypot(fx,fz));}
   // path distance field, stamped segment by segment
