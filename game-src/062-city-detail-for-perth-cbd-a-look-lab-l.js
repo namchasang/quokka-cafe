@@ -2,7 +2,7 @@
 // Traffic that keeps left and stops at the lights, a two-way bike lane on Riverside Drive, parked cars, bus shelters,
 // coffee kiosks, bins, benches, lamps, planters, shopfronts, a heritage row on Wellington St, a car park,
 // a timber-framed Tudor Lane, and more of Kings Park (lemon-scented gums, a boab, flower beds, a lily pond).
-const CITY_DETAIL_LIVE=false;
+const CITY_DETAIL_LIVE=true;
 const CDET={on:CITY_DETAIL_LIVE||/[?&#](lab|city)\b/.test(location.search+location.hash),g:null,veh:[],glow:[],em:[],halos:[],extra:[],sig:{t:0,m:null},last:0,kiosks:[],
   show(v){if(this.g)this.g.visible=v;(this.hid||[]).forEach(o=>o.visible=!v);this.extra.forEach(o=>o.visible=v);this.veh.forEach(c=>c.g.visible=v);}};
 if(CDET.on)(()=>{
@@ -159,7 +159,7 @@ if(CDET.on)(()=>{
   // St Georges Terrace: lamps, bins, planters, a bus shelter, café tables, a post box
   [625,633,651.5,660,672.5,680.5,697].forEach(x=>lamp(x,-4.7,1));
   [626.4,657.8,664.6,672.8,680.3,687.8,695.3].forEach(x=>planter(x,-.55,1.4,['#ef7d9a','#f6f2e8','#e8c840']));
-  [[633.3,-.4],[676.5,-.45],[697.6,-.45],[629.2,-4.75],[658.3,-4.75],[687.4,-4.75]].forEach(([x,z])=>binPair(x,z));
+  [[633.3,-.4],[676.5,-.45],[697.6,-.45],[629.2,-4.75],[664.2,-4.75],[687.4,-4.75]].forEach(([x,z])=>binPair(x,z));
   busStop(684.5,-5.45,1);bench(635.6,-.3,Math.PI);{put(cy(.035,.035,1.9,6),M(DARK),634.6,.95,-.45);signPlane('BUS STOP','#2e9a52','#ffffff',.5,.36,634.6,1.75,-.43,0);}
   bistro(644.2,-5.0,'#2f5a3a');bistro(647.8,-5.0,'#2f5a3a');
   {const x=637.2,z=-.2;put(cy(.17,.17,.72,10),M('#c8202a'),x,.36,z);put(sp(.17,10),M('#c8202a'),x,.72,z,{s:[1,.55,1]});put(bx(.18,.03,.02),M('#2a1414'),x,.58,z+.17,{nc:1});col(x-.18,z-.18,x+.18,z+.18);}

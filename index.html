@@ -3474,12 +3474,13 @@ const BRANCHES=[
  {id:'geordie',name:'Geordie Bay',zone:'island',x:71.6,z:-3.4,ry:0,price:900,base:5,lock:()=>unlocked('coach'),lockTxt:'Ride the Island Loop bus (from day 3)',blurb:'A seaside kiosk for cyclists and holiday-house families on the north coast.'},
  {id:'sp',name:'South Perth',zone:'sp',x:127,z:4.6,ry:0,price:1500,base:8,lock:()=>true,lockTxt:'',blurb:'A riverside café on the foreshore with views of the city skyline.'},
  {id:'vp',name:'Victoria Park',zone:'vp',x:556,z:5.4,ry:Math.PI,price:1800,base:9,lock:()=>unlocked('bus'),lockTxt:'Sell produce to Mei to unlock the bus',blurb:'A busy corner café at the end of the Albany Highway food strip.'},
- {id:'freo',name:'Fremantle',zone:'freo',x:320.5,z:-7.2,ry:0,price:2500,base:12,lock:()=>freoUnlocked(),lockTxt:'Unlock Fremantle (harbour Lv3 + Kip’s Ferry Co.)',blurb:'A heritage café near the old town, packed with weekend market crowds.'}];
+ {id:'freo',name:'Fremantle',zone:'freo',x:320.5,z:-7.2,ry:0,price:2500,base:12,lock:()=>freoUnlocked(),lockTxt:'Unlock Fremantle (harbour Lv3 + Kip’s Ferry Co.)',blurb:'A heritage café near the old town, packed with weekend market crowds.'},
+ {id:'cbd',name:'Perth CBD',zone:'cbd',kiosk:true,x:657.5,z:-7.6,tp:{x:657.5,z:-4.9},ry:0,price:4000,base:16,lock:()=>['geordie','sp','vp','freo'].every(id=>brState(id).own),lockTxt:'Own all four other branches first (Geordie Bay, South Perth, Victoria Park and Fremantle)',blurb:'Kip’s coffee window in the old Tudor arcade on St Georges Terrace: office workers, shoppers and tourists all day, right in the heart of the city.'}];
 const BR_UP=[0,500,1000,1600],BR_MULT=[0,1,1.6,2.4,3.4];
 const BR_COL={classic:['#7fb3ad','#e2584f','#f6ead2'],cottage:['#efe6d2','#c8a058','#e0bc70'],riviera:['#f0c4a0','#1d3a6e','#ffffff'],ryokan:['#4a3426','#3a3e48','#d8342a'],mykonos:['#f8f8f4','#1f5fae','#ffffff']};
 const brMeshes={};
 function brState(id){S.chain=S.chain||{};if(!S.chain[id])S.chain[id]={own:false,lv:1,style:'classic',till:0,total:0,mgr:false};return S.chain[id];}
-function buildBranch(b){if(brMeshes[b.id]){scene.remove(brMeshes[b.id]);}const st=brState(b.id),g=new THREE.Group(),M=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c)});const C=BR_COL[st.style]||BR_COL.classic;
+function buildBranch(b){if(brMeshes[b.id]){scene.remove(brMeshes[b.id]);}if(b.kiosk){buildKiosk(b);return;}const st=brState(b.id),g=new THREE.Group(),M=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c)});const C=BR_COL[st.style]||BR_COL.classic;
   if(!st.own){const post=new THREE.Mesh(new THREE.BoxGeometry(.1,1.5,.1),legMat);post.position.set(0,.75,1.6);g.add(post);const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.6),new THREE.MeshLambertMaterial({map:makeSign(['CAFE LOT',b.price+' COINS'],56,22,'#3e7d5c','#f5ecd8'),side:THREE.DoubleSide}));sg.position.set(0,1.4,1.66);g.add(sg);
     const pad=new THREE.Mesh(new THREE.BoxGeometry(4,.08,2.8),M('#cbbd9e'));pad.position.y=.04;g.add(pad);}
   else{const L=st.lv,w=L>=3?5:4,d=2.6,h=2.5;const wall=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(C[0]));wall.position.set(0,h/2,-.4);wall.castShadow=wall.receiveShadow=true;g.add(wall);
@@ -3494,8 +3495,29 @@ function buildBranch(b){if(brMeshes[b.id]){scene.remove(brMeshes[b.id]);}const s
     const n=Math.min(4,L+1);g.userData.guests=[];for(let i=0;i<n;i++){const v={skin:pick(SKINS),hair:pick(HAIRS),shirt:pick(['#e45a5a','#3f86d6','#5bb48a','#e8a33a','#9478d4']),pants:pick(PANTS),hat:null};const m=spriteMesh(humanFrames(v),.85,1.4);m.position.set(-w/2+.9+i*((w-1.8)/Math.max(1,n-1))+.45,.07,2.55);g.add(m);BB.push(m);g.userData.guests.push(m);}}
   g.traverse(o=>{if(o.isMesh)o.castShadow=true;});g.position.set(b.x,0,b.z);g.rotation.y=b.ry;scene.add(g);brMeshes[b.id]=g;
   if(b.zone==='island'&&MIR)flipIslandSigns();}
-BRANCHES.forEach(b=>{const hw=2.7;if(b.ry)col(b.x-hw,b.z-1,b.x+hw,b.z+2.4);else col(b.x-hw,b.z-2.4,b.x+hw,b.z+1);});
+BRANCHES.forEach(b=>{const hw=2.7;if(b.kiosk)return;if(b.ry)col(b.x-hw,b.z-1,b.x+hw,b.z+2.4);else col(b.x-hw,b.z-2.4,b.x+hw,b.z+1);});
 
+
+// Kip's coffee window in the Tudor arcade shopfront facing St Georges Terrace (the last and dearest branch)
+function buildKiosk(b){const st=brState(b.id),g=new THREE.Group(),M=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c)});const C=BR_COL[st.style]||BR_COL.classic;const add=(geo,m,x,y,z,o)=>{const e=new THREE.Mesh(geo,m);e.position.set(x,y,z);if(o){if(o.rx)e.rotation.x=o.rx;if(o.ry)e.rotation.y=o.ry;}e.castShadow=true;e.receiveShadow=true;g.add(e);return e;};
+  if(!st.own){const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.2,.5),new THREE.MeshLambertMaterial({map:makeSign(['FOR LEASE',b.price+' COINS'],56,22,'#3e7d5c','#f5ecd8'),emissive:0x222222}));sg.material.emissiveMap=sg.material.map;sg.position.set(-.1,.95,.04);g.add(sg);}
+  else{const L=st.lv;
+    // a lit serving window with a timber frame, a counter, an espresso machine and cups
+    const win=new THREE.Mesh(new THREE.PlaneGeometry(1.25,.85),new THREE.MeshLambertMaterial({color:0x5a3a22,emissive:0x6a4020}));win.position.set(-.1,1.05,.03);g.add(win);g.userData.win=win;
+    [[-.1,1.5,1.4,.08],[-.1,.6,1.4,.08],[-.76,1.05,.08,.95],[.56,1.05,.08,.95]].forEach(([x,y,w,h])=>add(new THREE.BoxGeometry(w,h,.06),M('#3a2a22'),x,y,.06));
+    add(new THREE.BoxGeometry(1.45,.07,.36),M('#a8743a'),-.1,.62,.2);add(new THREE.BoxGeometry(.38,.28,.22),M('#c8ccd0'),-.45,.79,.12);add(new THREE.BoxGeometry(.06,.06,.06),M('#2a2a30'),-.45,.68,.24);
+    for(let i=0;i<Math.min(4,L+1);i++)add(new THREE.CylinderGeometry(.045,.04,.1,8),M('#f6f6f0'),.05+i*.13,.71,.26);
+    // the name board and a hanging cup sign
+    const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.24),new THREE.MeshLambertMaterial({map:makeSign(['QUOKKA CAFE · CBD'],112,12,C[1]==='#ffffff'?'#1d3a6e':C[1],'#fff8e6'),emissive:0x333333}));sg.material.emissiveMap=sg.material.map;sg.position.set(0,2.18,.04);g.add(sg);
+    add(new THREE.BoxGeometry(.04,.04,.55),M('#1a1a1a'),.72,2.05,.28);const cup=add(new THREE.CylinderGeometry(.16,.12,.26,10),M('#f6f6f0'),.72,1.82,.5);add(new THREE.CylinderGeometry(.165,.165,.05,10),M(C[1]==='#ffffff'?'#1d3a6e':C[1]),.72,1.97,.5);
+    // stools at the window, then a table, planters, a menu board and string lights as it grows
+    [-.45,.25].forEach(x=>{add(new THREE.CylinderGeometry(.13,.13,.05,10),M(C[1]==='#ffffff'?'#1d3a6e':C[1]),x,.5,.62);add(new THREE.CylinderGeometry(.025,.035,.5,6),M('#2a2a30'),x,.25,.62);});
+    if(L>=2){add(new THREE.CylinderGeometry(.24,.24,.04,12),M('#f6f6f0'),-1.25,.56,1.05);add(new THREE.CylinderGeometry(.03,.05,.56,6),M('#2a2a30'),-1.25,.28,1.05);}
+    if(L>=3)[-1.5,.95].forEach(x=>{add(new THREE.BoxGeometry(.36,.34,.36),M('#c46a3c'),x,.17,.32);add(new THREE.SphereGeometry(.26,8,6),M(st.style==='mykonos'?'#d8308a':'#4f8f40'),x,.55,.32);});
+    if(L>=4){const mb=add(new THREE.PlaneGeometry(.4,.52),new THREE.MeshLambertMaterial({map:makeSign(['FLAT WHITE','LONG BLACK','ICED LATTE'],48,30,'#2c3b38','#f5ecd8'),side:THREE.DoubleSide}),1.05,.38,.95);mb.rotation.x=-.15;
+      for(let i=0;i<7;i++){const bl=new THREE.Mesh(new THREE.SphereGeometry(.035,6,4),new THREE.MeshBasicMaterial({color:0xffe6a8}));bl.position.set(-.8+i*.27,2.0-Math.sin(i/6*Math.PI)*.12,.62);g.add(bl);}}
+    const n=Math.min(3,L);g.userData.guests=[];for(let i=0;i<n;i++){const v={skin:pick(SKINS),hair:pick(HAIRS),shirt:pick(['#2a3a5a','#f6f2e8','#5a5a68','#e8a33a','#3f86d6']),pants:pick(PANTS),hat:null};const m=spriteMesh(humanFrames(v),.85,1.4);m.position.set(-.9+i*.75,.02,.95+(i%2)*.25);g.add(m);BB.push(m);g.userData.guests.push(m);}}
+  g.position.set(b.x,0,-5.98);scene.add(g);brMeshes[b.id]=g;}
 function applyBranches(){BRANCHES.forEach(buildBranch);}
 function branchIncomeTick(gameMin){if(VISIT||!running||S.wx===3)return;if(S.time<OPEN||S.time>=CLOSE)return;BRANCHES.forEach(b=>{const st=brState(b.id);if(!st.own)return;const sty=st.style==='classic'?1:1.15;const per=b.base*BR_MULT[st.lv]*sty*(festToday()&&festToday().where===b.zone?1.5:1)/60*gameMin;st.acc=(st.acc||0)+per;if(st.acc>=1){const c=Math.floor(st.acc);st.acc-=c;
   const cap=st.mgr?1e9:100+st.lv*80;st.till=Math.min(cap,st.till+c);st.total+=c;}});}
@@ -3512,7 +3534,7 @@ function renderBranch(b){const st=brState(b.id),body=$('#cfBranch');body.innerHT
   const sty=st.style==='classic'?1:1.15,rate=Math.round(b.base*BR_MULT[st.lv]*sty);
   const g=document.createElement('div');g.className='stats';[['Level',st.lv+' · '+CAFE_LV[st.lv-1].n],['Style',CAFE_STYLES[st.style].name],['Earns about',rate+' coins an hour (7:00–16:00)'],['In the till',st.till+' coins'+(st.mgr?'':' (max '+(100+st.lv*80)+')')],['Earned so far',st.total+' coins'],['Manager',st.mgr?'Hired · banks the till at midnight (10 coin wage)':'None']].forEach(([a,v])=>{const x=document.createElement('span');x.textContent=a;const y=document.createElement('span');y.textContent=v;g.append(x,y);});body.appendChild(g);
   const r1=row();r1.appendChild(btn('brCollect',st.till?'Collect '+st.till+' coins':'Till is empty',!st.till,()=>{S.coins+=st.till;st.till=0;save();renderCafe();}));if(!st.mgr)r1.appendChild(btn('brMgr','Hire a manager · 120 coins',S.coins<120,()=>{S.coins-=120;st.mgr=true;save();renderCafe();},true));
-  const h=document.createElement('h3');h.className='bgH';h.textContent='Upgrade';body.appendChild(h);if(st.lv<4){const nx=CAFE_LV[st.lv];P('Next: '+nx.n+(st.lv+1===4?' (two storeys)':'')+'. Income ×'+BR_MULT[st.lv+1]+' of base.');row().appendChild(btn('brUp','Upgrade to Level '+(st.lv+1)+' · '+BR_UP[st.lv]+' coins',S.coins<BR_UP[st.lv],()=>{S.coins-=BR_UP[st.lv];st.lv++;save();buildBranch(b);renderCafe();toast(b.name+' is now a '+CAFE_LV[st.lv-1].n+'!',3);}));}else P('Fully upgraded.');
+  const h=document.createElement('h3');h.className='bgH';h.textContent='Upgrade';body.appendChild(h);if(st.lv<4){const nx=CAFE_LV[st.lv];P('Next: '+nx.n+(st.lv+1===4&&!b.kiosk?' (two storeys)':'')+'. Income ×'+BR_MULT[st.lv+1]+' of base.');row().appendChild(btn('brUp','Upgrade to Level '+(st.lv+1)+' · '+BR_UP[st.lv]+' coins',S.coins<BR_UP[st.lv],()=>{S.coins-=BR_UP[st.lv];st.lv++;save();buildBranch(b);renderCafe();toast(b.name+' is now a '+CAFE_LV[st.lv-1].n+'!',3);}));}else P('Fully upgraded.');
   const h2=document.createElement('h3');h2.className='bgH';h2.textContent='Style';body.appendChild(h2);const sr=document.createElement('div');sr.className='qtabs';S.cafeStyles=S.cafeStyles||{classic:1};
   Object.keys(CAFE_STYLES).forEach(k=>{const own=!!S.cafeStyles[k];const e=document.createElement('button');e.type='button';e.className='qtab'+(st.style===k?' on':'');e.id='brs-'+k;e.textContent=CAFE_STYLES[k].name+(own?'':' · '+CAFE_STYLES[k].price);e.disabled=!own&&S.coins<CAFE_STYLES[k].price;e.onclick=()=>{if(!own){S.coins-=CAFE_STYLES[k].price;S.cafeStyles[k]=1;}st.style=k;save();buildBranch(b);renderCafe();};sr.appendChild(e);});body.appendChild(sr);P('Styles you unlock are shared by every café in the chain. Non-classic styles earn 15% more.');}
 
@@ -4278,7 +4300,7 @@ function hideOverlays(){overlay=null;['title','wish','day','end','map','plant','
 function closeOverlays(){if(['wish','map','plant','quest','biz','shop','album','home','bag','guide','cal','friend','fish','museum','board','mail','cafe','radio','coach','visit','pause','pass','vact','gm'].includes(overlay))hideOverlays();}
 function openWish(){if(!running||(overlay&&overlay!=='cafe'))return;S.qg=S.qg||{};S.qg.hqOpen=1;S.qg.wishSeen=1;save();hqTab='main';renderCafe();showOverlay('cafe');setTimeout(()=>{const h=$('#cfWishH');if(h&&h.scrollIntoView)h.scrollIntoView({block:'start',behavior:'smooth'});},60);}
 function hqTpSpot(x,z){const off=[[0,2.6],[0,3.4],[2.4,2.4],[-2.4,2.4],[0,-2.6],[2.8,0],[-2.8,0],[0,4.4]];for(const [dx,dz] of off){if(!blocked(x+dx,z+dz))return[x+dx,z+dz];}return[x,z+2.6];}
-function hqTpTarget(){if(hqTab==='main')return{...IW(0,2.9),name:'Quokka Cafe, Rottnest',zone:'island',exact:true};if(hqTab==='wish')return null;const b=BRANCHES.find(q=>q.id===hqTab);if(!b||!brState(b.id).own)return null;return{x:b.x,z:b.z,name:'Quokka Cafe '+b.name,zone:b.zone};}
+function hqTpTarget(){if(hqTab==='main')return{...IW(0,2.9),name:'Quokka Cafe, Rottnest',zone:'island',exact:true};if(hqTab==='wish')return null;const b=BRANCHES.find(q=>q.id===hqTab);if(!b||!brState(b.id).own)return null;if(b.tp)return{x:b.tp.x,z:b.tp.z,name:'Quokka Cafe '+b.name,zone:b.zone,exact:true};return{x:b.x,z:b.z,name:'Quokka Cafe '+b.name,zone:b.zone};}
 function hqTpButton(){const t=hqTpTarget(),btn=$('#cfTp');btn.hidden=!t||!!VISIT;if(t){const here=zoneOf(player.x)===t.zone&&Math.hypot(player.x-t.x,player.z-t.z)<6;btn.disabled=here;btn.textContent=here?'You are here':'Teleport to '+t.name+' \u00b7 free';}}
 function hqTeleport(){const t=hqTpTarget();if(!t||transit||VISIT)return;if(PASS_ZONES.includes(t.zone)&&!hasPass()){hideOverlays();needPass(t.zone);return;}hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2728 Teleporting to '+t.name+'\u2026',2);
   setTimeout(()=>{const sp=freeNear(...(t.exact?[t.x,t.z]:hqTpSpot(t.x,t.z)));player.bike=false;player.carry=null;player.x=sp[0];player.z=sp[1];updateCamera(0,true);fadeTarget=0;transit=false;},800);}
@@ -5333,7 +5355,7 @@ SIDEQ.push(
 // Traffic that keeps left and stops at the lights, a two-way bike lane on Riverside Drive, parked cars, bus shelters,
 // coffee kiosks, bins, benches, lamps, planters, shopfronts, a heritage row on Wellington St, a car park,
 // a timber-framed Tudor Lane, and more of Kings Park (lemon-scented gums, a boab, flower beds, a lily pond).
-const CITY_DETAIL_LIVE=false;
+const CITY_DETAIL_LIVE=true;
 const CDET={on:CITY_DETAIL_LIVE||/[?&#](lab|city)\b/.test(location.search+location.hash),g:null,veh:[],glow:[],em:[],halos:[],extra:[],sig:{t:0,m:null},last:0,kiosks:[],
   show(v){if(this.g)this.g.visible=v;(this.hid||[]).forEach(o=>o.visible=!v);this.extra.forEach(o=>o.visible=v);this.veh.forEach(c=>c.g.visible=v);}};
 if(CDET.on)(()=>{
@@ -5490,7 +5512,7 @@ if(CDET.on)(()=>{
   // St Georges Terrace: lamps, bins, planters, a bus shelter, café tables, a post box
   [625,633,651.5,660,672.5,680.5,697].forEach(x=>lamp(x,-4.7,1));
   [626.4,657.8,664.6,672.8,680.3,687.8,695.3].forEach(x=>planter(x,-.55,1.4,['#ef7d9a','#f6f2e8','#e8c840']));
-  [[633.3,-.4],[676.5,-.45],[697.6,-.45],[629.2,-4.75],[658.3,-4.75],[687.4,-4.75]].forEach(([x,z])=>binPair(x,z));
+  [[633.3,-.4],[676.5,-.45],[697.6,-.45],[629.2,-4.75],[664.2,-4.75],[687.4,-4.75]].forEach(([x,z])=>binPair(x,z));
   busStop(684.5,-5.45,1);bench(635.6,-.3,Math.PI);{put(cy(.035,.035,1.9,6),M(DARK),634.6,.95,-.45);signPlane('BUS STOP','#2e9a52','#ffffff',.5,.36,634.6,1.75,-.43,0);}
   bistro(644.2,-5.0,'#2f5a3a');bistro(647.8,-5.0,'#2f5a3a');
   {const x=637.2,z=-.2;put(cy(.17,.17,.72,10),M('#c8202a'),x,.36,z);put(sp(.17,10),M('#c8202a'),x,.72,z,{s:[1,.55,1]});put(bx(.18,.03,.02),M('#2a1414'),x,.58,z+.17,{nc:1});col(x-.18,z-.18,x+.18,z+.18);}
