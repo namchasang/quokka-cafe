@@ -1,6 +1,6 @@
 # Quokka Cafe and Friends
 
-A cozy pixel-art café sim set on Rottnest Island (Wadjemup), Perth. Run a seaside café, grow a garden, befriend quokkas and locals, and travel by ferry and bus to South Perth, Heirisson Island, Fremantle and Victoria Park.
+A cozy pixel-art café sim set on Rottnest Island, Perth. Run a seaside café, grow a garden, befriend quokkas and locals, and travel by ferry and bus to South Perth, Heirisson Island, Fremantle and Victoria Park.
 
 **Play:** https://namchasang.github.io/quokka-cafe/
 

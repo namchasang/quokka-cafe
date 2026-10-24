@@ -1,6 +1,6 @@
 # Quokka Cafe and Friends: notes for Claude
 
-Cozy café sim RPG on Rottnest Island (Wadjemup) and Perth. Live (free soft opening): https://namchasang.github.io/quokka-cafe/
+Cozy café sim RPG on Rottnest Island and Perth. Live (free soft opening): https://namchasang.github.io/quokka-cafe/
 Owner: Paul (Paul Perth AI Lab). Replies to Paul in Thai unless he writes English.
 
 ## Save tokens: never read index.html whole
@@ -19,6 +19,7 @@ Owner: Paul (Paul Perth AI Lab). Replies to Paul in Thai unless he writes Englis
 
 ## Standing rules (Paul's decisions)
 - No third-party trade names anywhere: game, README, comments, posts (no Stardew, Animal Crossing, Nook, HD-2D, Octopath, Eftpos...).
+- Names to avoid (Paul, Oct 2026, before any App Store sale): no "Wadjemup", no Aboriginal history sites or memorials (the Quod, burial ground, Yagan Memorial), no Rottnest Island Authority name/logo/slogan, and no real island operators or businesses (the real bus is "Island Explorer", so ours is the "Island Loop bus"). Use plain place names (Rottnest Island, Thomson Bay, Parker Point...) and fictional names for everything else.
 - Kip's story: just graduated from university, dreamed since childhood of owning a business, leaves his little home in Victoria Park for a café by the jetty on Rottnest. Ending: Mum and Dad move to the island.
 - Music is original and generated in code (WebAudio). Crystal Harbour + Island Lo-fi stations; Studio mode (K) hides UI for recording; `node tools/studio-timestamps.js` prints YouTube timestamps.
 - Island Codes use Supabase (tables `qc_*`, RPCs `qc_register`, `qc_sync`, `qc_visit`...). The anon key in the game is public by design. Never scrape or list other players' codes.
