@@ -3,7 +3,7 @@
 // verandahs and a churro café on Cappuccino Strip, a covered walk with a secondhand bookshop, a blue fish-and-chip shed
 // with three gables on the harbour, a classic car meet, trawlers and a marina breakwater, Bathers Beach with coastal
 // scrub, rope fences and a beach shack, ivy-covered brick cottages, and a modern lane with a Thai kitchen and a gallery.
-const FREO_DETAIL_LIVE=false;
+const FREO_DETAIL_LIVE=true;
 const FDET={on:FREO_DETAIL_LIVE||/[?&#](lab|freo)\b/.test(location.search+location.hash),g:null,hid:[],glow:[],halos:[],
   show(v){this.userShow=v;if(this.g)this.g.visible=v;this.hid.forEach(o=>o.visible=!v);if(this.cab)this.cab.forEach(([m,a,b])=>m.material=v?b:a);(this.people||[]).forEach(p=>p.visible=v);(this.cityParts||[]).forEach(p=>p.visible=v);if(this.city)this.city.visible=v;}};
 if(FDET.on)(()=>{

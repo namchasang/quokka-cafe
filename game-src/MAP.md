@@ -73,15 +73,16 @@ Find code: `grep -n 'name' game-src/*`.
 | 065-island-scale-phase-6-six-island-lookou.js | 5394-5475 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
 | 066-phase-8-east-cape-and-south-point-get.js | 5476-5535 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
 | 067-perth-cbd-city-across-river-from-south.js | 5536-5665 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
-| 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5666-6077 | 50 | CITY_DETAIL_LIVE, CDET |
-| 069-part.js | 6078-6105 | 3 |  |
-| 070-fremantle-detail-look-lab-layer-lab-or.js | 6106-6302 | 26 | FREO_DETAIL_LIVE, FDET |
-| 071-more-from-paul-s-perth-photos-same-loo.js | 6303-6371 | 8 |  |
-| 072-fremantle-map-closer-to-real-town-same.js | 6372-6490 | 15 | FREO_LAND |
-| 073-island-loop-bus-a-19-stop-loop-bus-lik.js | 6491-6536 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 074-tidy-island-after-it-grows-nothing-on.js | 6537-6646 | 13 | flipIslandSigns, hot |
-| 075-live-mode-live-1-kip-runs-caf-on-his-o.js | 6647-6721 | 8 | LIVEM |
-| 076-look-lab-landscape-layers-of-each-real.js | 6722-6907 | 24 | LAB |
-| 077-hd-plants-every-tree-bush-flower-and-g.js | 6908-6975 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 078-layered-pixel-trees-2-5d-look-lab-laye.js | 6976-7016 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 079-part.js | 7017-7019 | 0 |  |
+| 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5666-6088 | 51 | CITY_DETAIL_LIVE, CDET |
+| 069-part.js | 6089-6116 | 3 |  |
+| 070-fremantle-detail-look-lab-layer-lab-or.js | 6117-6313 | 26 | FREO_DETAIL_LIVE, FDET |
+| 071-more-from-paul-s-perth-photos-same-loo.js | 6314-6382 | 8 |  |
+| 072-fremantle-map-closer-to-real-town-same.js | 6383-6458 | 11 | FREO_LAND |
+| 073-st-george-s-cathedral-on-st-georges-te.js | 6459-6549 | 9 |  |
+| 074-island-loop-bus-a-19-stop-loop-bus-lik.js | 6550-6595 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 075-tidy-island-after-it-grows-nothing-on.js | 6596-6705 | 13 | flipIslandSigns, hot |
+| 076-live-mode-live-1-kip-runs-caf-on-his-o.js | 6706-6780 | 8 | LIVEM |
+| 077-look-lab-landscape-layers-of-each-real.js | 6781-6966 | 24 | LAB |
+| 078-hd-plants-every-tree-bush-flower-and-g.js | 6967-7034 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 079-layered-pixel-trees-2-5d-look-lab-laye.js | 7035-7075 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 080-part.js | 7076-7078 | 0 |  |

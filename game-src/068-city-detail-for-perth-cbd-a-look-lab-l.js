@@ -75,13 +75,24 @@ if(CDET.on)(()=>{
       [.372,-.372].forEach((z,i)=>signPlane('DELIVERIES','#2f6fb0','#ffffff',.8,.16,-.2,.5,z,i?Math.PI:0,g));wheels(g,len,wid,.15);}
     else if(kind==='ute'){put(bx(1.5,.3,.7),B,0,.3,0,null,g);put(bx(.58,.26,.62),glass,.24,.57,0,null,g);put(bx(.56,.05,.64),B,.24,.72,0,null,g);
       [.33,-.33].forEach(z=>put(bx(.7,.12,.04),B,-.38,.5,z,null,g));put(bx(.04,.12,.66),B,-.74,.5,0,null,g);wheels(g,len,wid,.15);}
+    else if(kind==='retro'){len=1.18;wid=.66;const blk=M('#1c1c1e'),roof=M(RETRO_ROOF[c]||'#f6f6f0'),chrome=M('#d8dce0');// small retro hatch from Paul's photo: two-tone roof, round lamps, bonnet scoop
+      put(bx(len,.3,wid),B,0,.31,0,null,g);put(bx(len+.03,.09,wid+.03),blk,0,.18,0,null,g);put(bx(.36,.06,wid-.04),B,.38,.48,0,{rz:-.1},g);
+      put(bx(.66,.25,wid-.07),glass,-.12,.585,0,null,g);[.2,-.44].forEach(x=>put(bx(.05,.25,wid-.05),blk,x,.585,0,null,g));put(bx(.76,.06,wid-.01),roof,-.12,.735,0,null,g);
+      put(bx(.16,.04,.2),blk,.36,.52,0,null,g);put(bx(.03,.09,.3),blk,len/2+.004,.3,0,{nc:1},g);put(bx(.03,.03,wid-.06),chrome,len/2+.006,.4,0,{nc:1},g);
+      [-1,1].forEach(sd=>{put(cy(.085,.085,.035,12),headM,len/2+.006,.4,sd*.2,{rz:Math.PI/2,nc:1},g);put(cy(.098,.098,.02,12),chrome,len/2,.4,sd*.2,{rz:Math.PI/2,nc:1},g);
+        put(cy(.045,.045,.03,8),headM,len/2+.01,.24,sd*.12,{rz:Math.PI/2,nc:1},g);put(bx(.03,.1,.07),tailM,-len/2-.005,.38,sd*.26,{nc:1},g);put(bx(.12,.04,.04),blk,.36,.5,sd*(wid/2+.01),null,g);});
+      wheels(g,len,wid,.15);return{g,len,wid};}
     else{const hb=kind==='hatch';len=hb?1.25:1.45;put(bx(len,.3,wid),B,0,.29,0,null,g);
       const cl=hb?.74:.8,cx=hb?-.1:-.06;put(bx(cl,.24,wid-.08),glass,cx,.56,0,null,g);put(bx(cl-.04,.05,wid-.06),B,cx,.705,0,null,g);
       if(kind==='taxi'){put(bx(.28,.1,.18),M('#fff3c0'),cx,.78,0,null,g);put(bx(len+.01,.05,wid+.01),M('#2a2a30'),0,.36,0,{nc:1},g);}wheels(g,len,wid,.14);}
     put(bx(.03,.08,wid-.18),headM,len/2+.005,.34,0,{nc:1},g);put(bx(.03,.08,wid-.18),tailM,-len/2-.005,.34,0,{nc:1},g);
     return{g,len,wid};}
   const CARCOL=['#c8344a','#2f6fb0','#f6f6f0','#2a2a30','#9aa4ac','#3e7d5c','#e8a33a','#7a4a8a','#d8d2c4','#5cc6d8','#b8b8bc','#8a2a2a'];
-  function randomCar(){const k=r();const kind=k<.34?'sedan':k<.54?'hatch':k<.64?'taxi':k<.8?'ute':'van';return makeCar(kind,kind==='taxi'?'#f1c64a':kind==='van'?pick2(['#f6f6f0','#f6f6f0','#d8d2c4']):pick2(CARCOL));}
+  const RETRO_ROOF={'#efe6cc':'#1c1c1e','#c8202a':'#f6f6f0','#1e4a32':'#f6f6f0','#8ec8e0':'#f6f6f0','#1c1c1e':'#f6f6f0','#f2c428':'#1c1c1e','#d8dce0':'#1c1c1e'};
+  const RETRO_LAB=/[?&#](lab|freo|air|retro)\b/.test(location.search+location.hash);
+  function retroCar(){return makeCar('retro',pick2(['#efe6cc','#efe6cc','#c8202a','#1e4a32','#8ec8e0','#1c1c1e','#f2c428','#d8dce0']));}
+  CDET.makeCar=makeCar;CDET.retroCar=retroCar;
+  function randomCar(){if(RETRO_LAB&&r()<.22)return retroCar();const k=r();const kind=k<.34?'sedan':k<.54?'hatch':k<.64?'taxi':k<.8?'ute':'van';return makeCar(kind,kind==='taxi'?'#f1c64a':kind==='van'?pick2(['#f6f6f0','#f6f6f0','#d8d2c4']):pick2(CARCOL));}
   const SKIN=['#f1c7a0','#c8865a','#e8b892','#8a5a3a','#f6d8b8'];
   function makeBike(c,rider){const g=new THREE.Group();const fr=M(c);
     [-.3,.3].forEach(x=>put(tor(.19,.025),tyre,x,.21,0,null,g));

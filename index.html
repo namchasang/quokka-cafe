@@ -5740,13 +5740,24 @@ if(CDET.on)(()=>{
       [.372,-.372].forEach((z,i)=>signPlane('DELIVERIES','#2f6fb0','#ffffff',.8,.16,-.2,.5,z,i?Math.PI:0,g));wheels(g,len,wid,.15);}
     else if(kind==='ute'){put(bx(1.5,.3,.7),B,0,.3,0,null,g);put(bx(.58,.26,.62),glass,.24,.57,0,null,g);put(bx(.56,.05,.64),B,.24,.72,0,null,g);
       [.33,-.33].forEach(z=>put(bx(.7,.12,.04),B,-.38,.5,z,null,g));put(bx(.04,.12,.66),B,-.74,.5,0,null,g);wheels(g,len,wid,.15);}
+    else if(kind==='retro'){len=1.18;wid=.66;const blk=M('#1c1c1e'),roof=M(RETRO_ROOF[c]||'#f6f6f0'),chrome=M('#d8dce0');// small retro hatch from Paul's photo: two-tone roof, round lamps, bonnet scoop
+      put(bx(len,.3,wid),B,0,.31,0,null,g);put(bx(len+.03,.09,wid+.03),blk,0,.18,0,null,g);put(bx(.36,.06,wid-.04),B,.38,.48,0,{rz:-.1},g);
+      put(bx(.66,.25,wid-.07),glass,-.12,.585,0,null,g);[.2,-.44].forEach(x=>put(bx(.05,.25,wid-.05),blk,x,.585,0,null,g));put(bx(.76,.06,wid-.01),roof,-.12,.735,0,null,g);
+      put(bx(.16,.04,.2),blk,.36,.52,0,null,g);put(bx(.03,.09,.3),blk,len/2+.004,.3,0,{nc:1},g);put(bx(.03,.03,wid-.06),chrome,len/2+.006,.4,0,{nc:1},g);
+      [-1,1].forEach(sd=>{put(cy(.085,.085,.035,12),headM,len/2+.006,.4,sd*.2,{rz:Math.PI/2,nc:1},g);put(cy(.098,.098,.02,12),chrome,len/2,.4,sd*.2,{rz:Math.PI/2,nc:1},g);
+        put(cy(.045,.045,.03,8),headM,len/2+.01,.24,sd*.12,{rz:Math.PI/2,nc:1},g);put(bx(.03,.1,.07),tailM,-len/2-.005,.38,sd*.26,{nc:1},g);put(bx(.12,.04,.04),blk,.36,.5,sd*(wid/2+.01),null,g);});
+      wheels(g,len,wid,.15);return{g,len,wid};}
     else{const hb=kind==='hatch';len=hb?1.25:1.45;put(bx(len,.3,wid),B,0,.29,0,null,g);
       const cl=hb?.74:.8,cx=hb?-.1:-.06;put(bx(cl,.24,wid-.08),glass,cx,.56,0,null,g);put(bx(cl-.04,.05,wid-.06),B,cx,.705,0,null,g);
       if(kind==='taxi'){put(bx(.28,.1,.18),M('#fff3c0'),cx,.78,0,null,g);put(bx(len+.01,.05,wid+.01),M('#2a2a30'),0,.36,0,{nc:1},g);}wheels(g,len,wid,.14);}
     put(bx(.03,.08,wid-.18),headM,len/2+.005,.34,0,{nc:1},g);put(bx(.03,.08,wid-.18),tailM,-len/2-.005,.34,0,{nc:1},g);
     return{g,len,wid};}
   const CARCOL=['#c8344a','#2f6fb0','#f6f6f0','#2a2a30','#9aa4ac','#3e7d5c','#e8a33a','#7a4a8a','#d8d2c4','#5cc6d8','#b8b8bc','#8a2a2a'];
-  function randomCar(){const k=r();const kind=k<.34?'sedan':k<.54?'hatch':k<.64?'taxi':k<.8?'ute':'van';return makeCar(kind,kind==='taxi'?'#f1c64a':kind==='van'?pick2(['#f6f6f0','#f6f6f0','#d8d2c4']):pick2(CARCOL));}
+  const RETRO_ROOF={'#efe6cc':'#1c1c1e','#c8202a':'#f6f6f0','#1e4a32':'#f6f6f0','#8ec8e0':'#f6f6f0','#1c1c1e':'#f6f6f0','#f2c428':'#1c1c1e','#d8dce0':'#1c1c1e'};
+  const RETRO_LAB=/[?&#](lab|freo|air|retro)\b/.test(location.search+location.hash);
+  function retroCar(){return makeCar('retro',pick2(['#efe6cc','#efe6cc','#c8202a','#1e4a32','#8ec8e0','#1c1c1e','#f2c428','#d8dce0']));}
+  CDET.makeCar=makeCar;CDET.retroCar=retroCar;
+  function randomCar(){if(RETRO_LAB&&r()<.22)return retroCar();const k=r();const kind=k<.34?'sedan':k<.54?'hatch':k<.64?'taxi':k<.8?'ute':'van';return makeCar(kind,kind==='taxi'?'#f1c64a':kind==='van'?pick2(['#f6f6f0','#f6f6f0','#d8d2c4']):pick2(CARCOL));}
   const SKIN=['#f1c7a0','#c8865a','#e8b892','#8a5a3a','#f6d8b8'];
   function makeBike(c,rider){const g=new THREE.Group();const fr=M(c);
     [-.3,.3].forEach(x=>put(tor(.19,.025),tyre,x,.21,0,null,g));
@@ -6108,7 +6119,7 @@ CDET.tick=function(dt){if(!CDET.on||!CDET.g||!CDET.g.visible)return;const now=pe
 // verandahs and a churro café on Cappuccino Strip, a covered walk with a secondhand bookshop, a blue fish-and-chip shed
 // with three gables on the harbour, a classic car meet, trawlers and a marina breakwater, Bathers Beach with coastal
 // scrub, rope fences and a beach shack, ivy-covered brick cottages, and a modern lane with a Thai kitchen and a gallery.
-const FREO_DETAIL_LIVE=false;
+const FREO_DETAIL_LIVE=true;
 const FDET={on:FREO_DETAIL_LIVE||/[?&#](lab|freo)\b/.test(location.search+location.hash),g:null,hid:[],glow:[],halos:[],
   show(v){this.userShow=v;if(this.g)this.g.visible=v;this.hid.forEach(o=>o.visible=!v);if(this.cab)this.cab.forEach(([m,a,b])=>m.material=v?b:a);(this.people||[]).forEach(p=>p.visible=v);(this.cityParts||[]).forEach(p=>p.visible=v);if(this.city)this.city.visible=v;}};
 if(FDET.on)(()=>{
@@ -6445,6 +6456,54 @@ if(FDET.on)(()=>{const G=FDET.g;
 })();
 // the town is bigger now: Monument Hill and the streets east of the prison are walkable
 if(FDET.on){const _fw=freoWalk;freoWalk=function(x,z){if(_fw(x,z))return true;if(x>=333.5&&x<FREO_LAND.x2&&z>-6&&z<21.6){const H=FREO_LAND.hill;return true;}return false;};}
+// ---------- St George's Cathedral on St Georges Terrace (Look Lab city layer, ?lab or ?freo) ----------
+// Replaces the small office tower east of Barrack St (and its noodle bar) with a red-brick Gothic cathedral:
+// a long nave with a steep slate roof, cream stone bands, tall pointed windows, a square bell tower with
+// corner pinnacles at the west end, a porch facing the terrace and a big pointed east window.
+if(FDET.on&&FDET.city)(()=>{const G=FDET.city;
+  const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
+  const put=(geo,mat,x,y,z,o,to)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(o){if(o.ry)m.rotation.y=o.ry;if(o.rz)m.rotation.z=o.rz;}m.castShadow=!(o&&o.nc);m.receiveShadow=true;(to||G).add(m);return m;};
+  const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+  const X=685,Z=-8.5;
+  {const i=CBD.cut.findIndex(e=>Math.abs(e.g.position.x-X)<.05&&Math.abs(e.g.position.z-Z)<.05);if(i>=0){const e=CBD.cut[i];e.g.visible=false;FDET.hid.push(e.g);CBD.cut.splice(i,1);}}
+  // red brick with cream stone bands every few courses
+  const brick=(rx,ry)=>{const c=mk(32,32),x=c.getContext('2d');x.fillStyle='#9c4632';x.fillRect(0,0,32,32);
+    for(let j=0;j<32;j+=2)for(let i=(j%4?2:0);i<32;i+=4){x.fillStyle=['#a84e38','#8e3e2c','#b05a42','#96442f'][(i*3+j)%4];x.fillRect(i,j,3,1);}
+    x.fillStyle='#e8dcc0';x.fillRect(0,14,32,2);x.fillRect(0,30,32,2);return new THREE.MeshLambertMaterial({map:ctex(c,{rep:[rx,ry]})});};
+  const slate=M('#55595f'),stone=M('#e6dabd'),glass=M('#2c3546'),door=M('#5a3420');
+  const g=new THREE.Group();g.position.set(X,0,Z);G.add(g);
+  // nave: x -1.2..3, a steep pitched roof running east-west
+  const nb=brick(3,2);put(B(4.2,4.2,3.6),nb,.9,2.1,0,null,g);
+  {const sh=new THREE.Shape();sh.moveTo(-1.95,0);sh.lineTo(1.95,0);sh.lineTo(0,2.4);sh.lineTo(-1.95,0);
+    const r=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:4.5,bevelEnabled:false}),slate);r.rotation.y=Math.PI/2;r.position.set(-1.35,4.2,0);r.castShadow=true;g.add(r);
+    const gab=new THREE.Mesh(new THREE.ShapeGeometry(sh),nb);gab.rotation.y=Math.PI/2;gab.position.set(3.02,4.2,0);g.add(gab);}
+  put(B(.3,.5,.3),stone,3.05,6.7,0,null,g);put(B(.08,.5,.08),stone,3.05,7.1,0,null,g);put(B(.08,.08,.34),stone,3.05,7.15,0,null,g);
+  // buttresses and tall pointed windows down the south side
+  for(let k=0;k<4;k++){const x=-.9+k*1.15;put(B(.28,3.4,.35),stone,x,1.7,1.9,null,g);
+    if(k<3){const wx=x+.58;put(B(.42,1.9,.05),glass,wx,2.4,1.81,{nc:1},g);put(new THREE.ConeGeometry(.3,.5,4,1),glass,wx,3.55,1.81,{nc:1,ry:Math.PI/4},g);put(B(.6,.08,.08),stone,wx,1.42,1.83,{nc:1},g);}}
+  // the east end: a big pointed window with stone tracery
+  put(B(.05,2.6,1.5),glass,3.03,2.6,0,{nc:1},g);put(new THREE.ConeGeometry(1.06,1.1,4,1),glass,3.03,4.2,0,{nc:1,ry:Math.PI/4},g);
+  [-.36,0,.36].forEach(z=>put(B(.06,2.6,.07),stone,3.06,2.6,z,{nc:1},g));put(B(.06,.07,1.5),stone,3.06,3.2,0,{nc:1},g);
+  // west tower: square, cream bands, louvred belfry, parapet with four pinnacles
+  const tb=brick(2,5),T=-2.05;put(B(1.9,8.6,1.9),tb,T,4.3,.6,null,g);
+  put(B(2.1,.25,2.1),stone,T,8.7,.6,null,g);
+  [[-1,1],[1,1],[-1,-1],[1,-1]].forEach(([a,b])=>{const px=T+a*.88,pz=.6+b*.88;put(B(.34,1.1,.34),stone,px,9.3,pz,null,g);put(new THREE.ConeGeometry(.22,.9,4),stone,px,10.3,pz,{ry:Math.PI/4},g);});
+  for(let k=-1;k<=1;k+=2){put(B(.22,.3,.22),stone,T+k*.4,9.0,1.6,{nc:1},g);}
+  [-.35,.35].forEach(dx=>{put(B(.32,1.3,.05),M('#3a3a40'),T+dx,7.3,1.56,{nc:1},g);put(new THREE.ConeGeometry(.23,.36,4),M('#3a3a40'),T+dx,8.1,1.56,{nc:1,ry:Math.PI/4},g);});
+  put(B(.05,1.3,.32),M('#3a3a40'),T-.96,7.3,.6,{nc:1},g);
+  // the clock face and a tall lancet on the tower's south side
+  {const c=mk(24,24),x=c.getContext('2d');x.fillStyle='#e6dabd';x.beginPath();x.arc(12,12,11,0,7);x.fill();x.fillStyle='#2a2a30';x.beginPath();x.arc(12,12,9,0,7);x.fill();x.fillStyle='#f0e6c8';x.beginPath();x.arc(12,12,8,0,7);x.fill();
+    x.fillStyle='#2a2a30';for(let i=0;i<12;i++){const a=i/12*6.283;x.fillRect(12+Math.cos(a)*6.5-.5,12+Math.sin(a)*6.5-.5,1,1);}x.fillRect(11.5,6,1,6.5);x.fillRect(12,11.5,4,1);
+    const f=new THREE.Mesh(new THREE.CircleGeometry(.42,18),new THREE.MeshLambertMaterial({map:ctex(c)}));f.position.set(T,5.9,1.56);g.add(f);}
+  put(B(.36,1.7,.05),glass,T,3.9,1.56,{nc:1},g);put(new THREE.ConeGeometry(.26,.4,4),glass,T,4.95,1.56,{nc:1,ry:Math.PI/4},g);
+  // porch on the terrace side: a gabled stone doorway with a pointed timber door
+  {const pg=new THREE.Group();pg.position.set(T,0,1.85);g.add(pg);put(B(1.5,1.9,.7),stone,0,.95,0,null,pg);
+    const sh=new THREE.Shape();sh.moveTo(-.85,0);sh.lineTo(.85,0);sh.lineTo(0,.75);sh.lineTo(-.85,0);const r=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.8,bevelEnabled:false}),slate);r.position.set(0,1.9,-.4);r.castShadow=true;pg.add(r);
+    put(B(.7,1.2,.05),door,0,.6,.36,{nc:1},pg);put(new THREE.ConeGeometry(.5,.5,4),door,0,1.42,.36,{nc:1,ry:Math.PI/4},pg);put(B(.04,1.3,.06),M('#2a1a12'),0,.65,.39,{nc:1},pg);}
+  g.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+  CBD.cut.push({g,x1:X-3.05,x2:X+3.05,z1:Z-2,h:10.7});
+  CBD.P.cathedral={x:X-2,z:Z+3.4};
+})();
 // keep the layer hidden away from Fremantle (and on the title screen), like the city layer
 if(FDET.on&&FDET.g){FDET.g.visible=false;}
 
