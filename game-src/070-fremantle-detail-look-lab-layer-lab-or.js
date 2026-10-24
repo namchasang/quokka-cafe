@@ -135,9 +135,8 @@ if(FDET.on)(()=>{
     function trawler(x,z,ry,hull){const g=new THREE.Group();g.position.set(x,-.12,z);g.rotation.y=ry;G.add(g);put(B(3.4,.7,1.2),M(hull),0,.35,0,null,g);put(B(3.4,.12,1.24),M('#f6f6f0'),0,.72,0,null,g);put(B(1.1,.8,.9),M('#f6f6f0'),.5,1.2,0,null,g);put(B(1.1,.12,.94),M('#2a3a58'),.5,1.4,0,null,g);
       put(C(.04,.04,2.2,5),M('#e8e8ec'),-.3,1.8,0,null,g);put(B(1.6,.04,.04),M('#e8e8ec'),-.6,2.4,0,{rz:.5},g);put(B(.5,.3,.4),M('#e8582a'),-1.2,.95,0,null,g);}
     trawler(281,17.8,.1,'#2f6fb0');trawler(286.2,19.4,-.15,'#1b2a4a');trawler(290.4,20.6,.25,'#f6f6f0');
-    // the marina: a curved rock breakwater with yachts inside
-    const rockM=M('#8a8478'),rockM2=M('#a8a094');for(let i=0;i<46;i++){const t=i/45,a=Math.PI*(.25+t*.6);const rx=287+Math.cos(a)*15,rz=14+Math.sin(a)*14;put(new THREE.DodecahedronGeometry(.5+r()*.25,0),i%2?rockM:rockM2,rx,.02,rz,{ry:r()*6,s:[1.2,.6,1]});}
-    for(let i=0;i<14;i++){const t=i/13,a=Math.PI*(.3+t*.5);const yx=287+Math.cos(a)*12,yz=14+Math.sin(a)*11;if(yz<22.4)continue;put(B(1,.3,.36),M('#f6f6f0'),yx,.05,yz,{ry:a});put(C(.02,.02,2.6,4),M('#e8e8ec'),yx,1.4,yz,{nc:1});}}
+    // (the harbour breakwater is built with the map changes below)
+  }
 
   // ===== 6. the ferris wheel gets white frames and glass cabins; more Norfolk pines and a gravel walk =====
   {if(typeof wheel!=='undefined'&&wheel.userData.W){const W=wheel.userData.W;const glass=new THREE.MeshLambertMaterial({color:0xe8f2f6,transparent:true,opacity:.85});FDET.cab=W.userData.cabins.map(cb=>[cb,cb.material,glass]);FDET.cab.forEach(([cb,a,b])=>{cb.material=b;cb.scale.set(1,1.25,1);});

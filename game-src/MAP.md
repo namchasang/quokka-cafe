@@ -75,12 +75,13 @@ Find code: `grep -n 'name' game-src/*`.
 | 067-perth-cbd-city-across-river-from-south.js | 5536-5665 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
 | 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5666-6077 | 50 | CITY_DETAIL_LIVE, CDET |
 | 069-part.js | 6078-6105 | 3 |  |
-| 070-fremantle-detail-look-lab-layer-lab-or.js | 6106-6303 | 27 | FREO_DETAIL_LIVE, FDET |
-| 071-more-from-paul-s-perth-photos-same-loo.js | 6304-6415 | 13 |  |
-| 072-island-loop-bus-a-19-stop-loop-bus-lik.js | 6416-6461 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 073-tidy-island-after-it-grows-nothing-on.js | 6462-6571 | 13 | flipIslandSigns, hot |
-| 074-live-mode-live-1-kip-runs-caf-on-his-o.js | 6572-6646 | 8 | LIVEM |
-| 075-look-lab-landscape-layers-of-each-real.js | 6647-6832 | 24 | LAB |
-| 076-hd-plants-every-tree-bush-flower-and-g.js | 6833-6900 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 077-layered-pixel-trees-2-5d-look-lab-laye.js | 6901-6941 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 078-part.js | 6942-6944 | 0 |  |
+| 070-fremantle-detail-look-lab-layer-lab-or.js | 6106-6302 | 26 | FREO_DETAIL_LIVE, FDET |
+| 071-more-from-paul-s-perth-photos-same-loo.js | 6303-6371 | 8 |  |
+| 072-fremantle-map-closer-to-real-town-same.js | 6372-6490 | 15 | FREO_LAND |
+| 073-island-loop-bus-a-19-stop-loop-bus-lik.js | 6491-6536 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 074-tidy-island-after-it-grows-nothing-on.js | 6537-6646 | 13 | flipIslandSigns, hot |
+| 075-live-mode-live-1-kip-runs-caf-on-his-o.js | 6647-6721 | 8 | LIVEM |
+| 076-look-lab-landscape-layers-of-each-real.js | 6722-6907 | 24 | LAB |
+| 077-hd-plants-every-tree-bush-flower-and-g.js | 6908-6975 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 078-layered-pixel-trees-2-5d-look-lab-laye.js | 6976-7016 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 079-part.js | 7017-7019 | 0 |  |
