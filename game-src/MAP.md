@@ -75,17 +75,17 @@ Find code: `grep -n 'name' game-src/*`.
 | 067-perth-cbd-city-across-river-from-south.js | 5537-5666 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
 | 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5667-6089 | 51 | CITY_DETAIL_LIVE, CDET |
 | 069-part.js | 6090-6117 | 3 |  |
-| 070-perth-airport-look-lab-area-lab-or-air.js | 6118-6242 | 17 | AIR_LIVE, AIR, AIRB, airWalk |
-| 071-hooks-zone-travel-map-story.js | 6243-6478 | 33 | FREO_DETAIL_LIVE, FDET |
-| 072-more-from-paul-s-perth-photos-same-loo.js | 6479-6547 | 8 |  |
-| 073-fremantle-map-closer-to-real-town-same.js | 6548-6623 | 11 | FREO_LAND |
-| 074-st-george-s-cathedral-on-st-georges-te.js | 6624-6671 | 5 |  |
-| 075-fremantle-from-paul-s-street-photos-sa.js | 6672-6811 | 19 | FREO2_LIVE |
-| 076-fremantle-town-plan-same-look-lab-laye.js | 6812-6974 | 19 |  |
-| 077-island-loop-bus-a-19-stop-loop-bus-lik.js | 6975-7020 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 078-tidy-island-after-it-grows-nothing-on.js | 7021-7130 | 13 | flipIslandSigns, hot |
-| 079-live-mode-live-1-kip-runs-caf-on-his-o.js | 7131-7205 | 8 | LIVEM |
-| 080-look-lab-landscape-layers-of-each-real.js | 7206-7391 | 25 | LAB |
-| 081-hd-plants-every-tree-bush-flower-and-g.js | 7392-7459 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 082-layered-pixel-trees-2-5d-look-lab-laye.js | 7460-7500 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 083-part.js | 7501-7503 | 0 |  |
+| 070-perth-airport-look-lab-area-lab-or-air.js | 6118-6268 | 21 | AIR_LIVE, AIR, AIRB, airWalk |
+| 071-hooks-zone-travel-map-story.js | 6269-6504 | 33 | FREO_DETAIL_LIVE, FDET |
+| 072-more-from-paul-s-perth-photos-same-loo.js | 6505-6573 | 8 |  |
+| 073-fremantle-map-closer-to-real-town-same.js | 6574-6649 | 11 | FREO_LAND |
+| 074-st-george-s-cathedral-on-st-georges-te.js | 6650-6697 | 5 |  |
+| 075-fremantle-from-paul-s-street-photos-sa.js | 6698-6837 | 19 | FREO2_LIVE |
+| 076-fremantle-town-plan-same-look-lab-laye.js | 6838-7000 | 19 |  |
+| 077-island-loop-bus-a-19-stop-loop-bus-lik.js | 7001-7046 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 078-tidy-island-after-it-grows-nothing-on.js | 7047-7156 | 13 | flipIslandSigns, hot |
+| 079-live-mode-live-1-kip-runs-caf-on-his-o.js | 7157-7231 | 8 | LIVEM |
+| 080-look-lab-landscape-layers-of-each-real.js | 7232-7417 | 25 | LAB |
+| 081-hd-plants-every-tree-bush-flower-and-g.js | 7418-7485 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 082-layered-pixel-trees-2-5d-look-lab-laye.js | 7486-7526 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 083-part.js | 7527-7529 | 0 |  |

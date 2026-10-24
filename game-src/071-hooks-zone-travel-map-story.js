@@ -32,7 +32,7 @@ if(AIR.on){
   function airTick(dt){dt=Math.min(dt||0,.1);const t=performance.now()/1000;
     for(const p of AIR.planes){p.t+=dt;if(p.kind==='taxi'){const T=40,q=(p.t%T)/T;p.g.position.set(820-q*112,0,-17.9);p.g.visible=q<.98;}
       else{const T=36,q=p.t%T;let x,y=0;if(q<6){x=708;}else{const s=q-6;x=708+.9*s*s;y=Math.max(0,(x-760)*.16);}p.g.position.set(x,y,-24.3);p.g.rotation.z=y>0?.14:0;p.g.visible=x<840;}}
-    if(AIR.beacon)AIR.beacon.visible=Math.sin(t*3)>0;
+    if(AIR.beacon)AIR.beacon.visible=Math.sin(t*3)>0;if(AIR.trafficTick)AIR.trafficTick(dt);
     const under=player.z<-.3&&player.z>-3&&player.x>727&&player.x<795;(AIR.canopy||[]).forEach(b=>{const m=b.material;if(under&&!m.transparent){b.material=m.clone();b.material.transparent=true;b.material.opacity=.3;b.userData.mo=m;}else if(!under&&b.userData.mo){b.material=b.userData.mo;b.userData.mo=null;}});
     const n=typeof NIGHT==='number'?NIGHT:0;if(AIR._n!==n){AIR._n=n;AIR.glow.forEach(([m,d,k])=>m.color.copy(d).lerp(k,n));AIR.halos.forEach(h=>h.material.opacity=n*.85);AIR.em.forEach(m=>m.emissive.setRGB(n*1.1,n*.95,n*.7));}
     if(S.qg&&S.qg.suitcase&&AIR.case)AIR.case.visible=false;}
