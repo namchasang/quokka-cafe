@@ -178,5 +178,3 @@ CDET.merge=function(){if(!CDET.on||CDET.merged||!CDET.g)return;CDET.merged=true;
     const m=new THREE.Mesh(geo,b.mat);m.castShadow=b.cast;m.receiveShadow=true;m.userData.labHint=b.cat;G.add(m);b.list.forEach(o=>o.parent.remove(o));joined+=b.list.length;}
   CDET.joined=joined;};
 if(CDET.on){CDET.merge();CDET.g.visible=false;}
-if(LAB.start)setTimeout(()=>LAB.toggle(true),600);
-})();

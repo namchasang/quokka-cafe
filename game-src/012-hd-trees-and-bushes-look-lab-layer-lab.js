@@ -1,7 +1,7 @@
 // ---------- HD trees and bushes (Look Lab layer: ?lab or ?trees until TREES_HD_LIVE is true) ----------
 // Twice the pixels, seven shades per tree with ordered dithering, leaf clumps, sky gaps, a sunlit rim, bark with branches, and a gentle sway in the wind.
 const TREES_HD_LIVE=false;
-const TREES_HD={on:TREES_HD_LIVE||/[?&#](lab|trees)\b/.test(location.search+location.hash),live:false,t:{value:0},sets:[]};
+const TREES_HD={on:false,live:false,t:{value:0},sets:[]};
 function canopyHD(W,H,blobs,pal,r,trunk){const c=mk(W,H),x=c.getContext('2d');const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   const hash=(a,b)=>{let h=(a*374761393+b*668265263+77)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
   const vnoise=(px,py,s)=>{const gx=Math.floor(px/s),gy=Math.floor(py/s),fx=px/s-gx,fy=py/s-gy;const a=hash(gx,gy),b=hash(gx+1,gy),c2=hash(gx,gy+1),d=hash(gx+1,gy+1);const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c2-a)*v+(a-b-c2+d)*u*v;};

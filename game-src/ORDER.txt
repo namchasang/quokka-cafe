@@ -69,4 +69,5 @@
 068-island-loop-bus-a-19-stop-loop-bus-lik.js
 069-live-mode-live-1-kip-runs-caf-on-his-o.js
 070-look-lab-landscape-layers-of-each-real.js
-071-part.js
+071-hd-plants-every-tree-bush-flower-and-g.js
+072-part.js

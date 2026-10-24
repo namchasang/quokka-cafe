@@ -75,5 +75,6 @@ Find code: `grep -n 'name' game-src/*`.
 | 067-part.js | 5830-5891 | 6 |  |
 | 068-island-loop-bus-a-19-stop-loop-bus-lik.js | 5892-5945 | 7 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes, flipIslandSigns, hot |
 | 069-live-mode-live-1-kip-runs-caf-on-his-o.js | 5946-6020 | 8 | LIVEM |
-| 070-look-lab-landscape-layers-of-each-real.js | 6021-6202 | 21 | LAB |
-| 071-part.js | 6203-6205 | 0 |  |
+| 070-look-lab-landscape-layers-of-each-real.js | 6021-6200 | 21 | LAB |
+| 071-hd-plants-every-tree-bush-flower-and-g.js | 6201-6269 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 072-part.js | 6270-6272 | 0 |  |
