@@ -76,7 +76,8 @@ function engCull(){const cx=camTarget.x,cz=camTarget.z,R=ENG.R*Math.max(1,zm||1)
 // map snapshots render the whole zone from above: switch everything on and let the frame matrices follow while they render
 function engSuspend(){if(!ENG.init)return;ENG.sus++;ENG.cells.forEach(c=>{c.on=true;for(const e of c.objs)for(const n of e.d)n.layers.enable(0);});ENG.list.forEach(o=>{if(o)o.matrixAutoUpdate=true;});}
 function engResume(){if(!ENG.init||!ENG.sus)return;ENG.sus--;if(ENG.sus)return;ENG.list.forEach((o,i)=>{if(!o)return;o.updateMatrix();o.matrixAutoUpdate=false;engSnap(i,o);});ENG.cullT=0;}
-function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;const t=now/1000;
+function loop(now){requestAnimationFrame(loop);let dt=(now-last)/1000;dt=dt>0?Math.min(.05,dt):0;last=now;// rAF time can be earlier than `last` after a long first build: a negative dt blew the camera up to NaN
+  if(!isFinite(yaw))yaw=isFinite(yawT)?yawT:0;if(!isFinite(camTarget.x)||!isFinite(camTarget.z))camTarget.set(player.x,.6,player.z);const t=now/1000;
   if(transit&&!RIDE&&fadeTarget<.5){transitT+=dt;if(transitT>6){transit=false;transitT=0;}}else transitT=0;
   if(running&&!overlay&&!PORTRAIT_LOCK)safeRun('update',()=>update(dt));
   safeRun('world',()=>{applyTime();updateWilds(dt,t);if(!overlay||overlay==='title')updateWalkers(dt);});
