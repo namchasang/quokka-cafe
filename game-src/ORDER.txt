@@ -60,7 +60,9 @@
 059-island-scale-phase-6-six-island-lookou.js
 060-phase-8-east-cape-and-south-point-get.js
 061-perth-cbd-city-across-river-from-south.js
-062-island-loop-bus-a-19-stop-loop-bus-lik.js
-063-live-mode-live-1-kip-runs-caf-on-his-o.js
-064-look-lab-landscape-layers-of-each-real.js
-065-part.js
+062-city-detail-for-perth-cbd-a-look-lab-l.js
+063-part.js
+064-island-loop-bus-a-19-stop-loop-bus-lik.js
+065-live-mode-live-1-kip-runs-caf-on-his-o.js
+066-look-lab-landscape-layers-of-each-real.js
+067-part.js

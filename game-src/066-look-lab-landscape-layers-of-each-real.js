@@ -12,7 +12,8 @@ const LAB=(()=>{
     {id:'sp',name:'South Perth',B:SPB,ll:[-31.9745,115.8530],labels:()=>[['South Perth',150,7.6],['Mends St Jetty',spX-3.2,-6.4],['Swan River',128,-7],['Perth CBD',150,-15.4],['Mill Point Road',141,22.2],['Angelo St',178,9.4],['The Old Mill',106,7.6],['Mill Point',107,-1.6],['Coode St Jetty',186,-1],['Narrows Bridge',108,-11.8],['Mends St',150,10]]},
     {id:'freo',name:'Fremantle',B:FB,ll:[-32.0550,115.7460],labels:()=>[['Victoria Quay',284,-16.6],['B-Shed',285,-10.4],['Maritime Museum',277.5,-12],['Round House',278,-3.4],['Bathers Beach',277.2,9.6],['Esplanade Park',290.5,12.4],['Fishing Boat Harbour',284,18.8],['Cappuccino Strip',304,-3.9],['High St',292,-1],['Kings Square',311,-14.6],['Fremantle Prison',325,4]]},
     {id:'hi',name:'Heirisson Island',B:HIB,ll:[-31.9600,115.8790],labels:()=>ZONE_DEF.hi.labels},
-    {id:'vp',name:'Victoria Park',B:VPB,ll:[-31.9760,115.8980],labels:()=>ZONE_DEF.vp.labels}];
+    {id:'vp',name:'Victoria Park',B:VPB,ll:[-31.9760,115.8980],labels:()=>ZONE_DEF.vp.labels},
+    {id:'cbd',name:'Perth CBD',B:CBDB,ll:[-31.9560,115.8590],labels:()=>ZONE_DEF.cbd.labels}];
   const st={on:false,zone:0,tx:0,tz:0,dist:60,yaw:0,pitch:.75,auto:false,show:CATS.map(()=>true),tint:false,tags:true,frame:true,bloom:true,tilt:false,fog:false,time:null,seen:new WeakSet(),count:CATS.map(()=>0),scanT:0,saved:null};
   const BBset=new Set(BB);
   const box=new THREE.Box3(),sz=new THREE.Vector3(),col=new THREE.Color(),hsl={},texAvg=new Map(),tv=new THREE.Vector3();
@@ -21,6 +22,7 @@ const LAB=(()=>{
       for(let i=0;i<d.length;i+=4){if(d[i+3]<80)continue;r+=d[i];g+=d[i+1];b+=d[i+2];n++;}if(n)c=new THREE.Color(r/n/255,g/n/255,b/n/255);}catch(e){}
     texAvg.set(t,c);return c;}
   function classify(o){
+    if(o.userData.labHint)return o.userData.labHint;
     if(o.isLight)return(o.isPointLight||o.isSpotLight)?'light':null;
     if(o.isPoints)return 'fx';
     if(!(o.isMesh||o.isLine||o.isSprite))return null;
@@ -84,6 +86,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
       <div><b>ชั้นภูมิทัศน์</b> <span class="note">(จำนวนชิ้นทั้งเกม)</span><div id="labLayers" style="display:grid;gap:4px;margin-top:4px"></div>
         <div class="row" style="margin-top:6px"><button id="labAll">เปิดทุกชั้น</button><button id="labLand">เฉพาะภูมิประเทศ</button><button id="labTint" aria-pressed="false">แยกสีตามชั้น</button></div></div>
       <div><b>ภาพ</b><div class="row"><button id="labTags2" aria-pressed="true">ป้ายสถานที่จริง</button><button id="labFrame" aria-pressed="true">กรอบพื้นที่</button><button id="labBloom" aria-pressed="true">Bloom</button><button id="labTilt" aria-pressed="false">Tilt-shift</button><button id="labFog" aria-pressed="false">หมอก</button></div></div>
+      ${typeof CDET!=='undefined'&&CDET.on?'<div><b>งานใหม่ · เมือง Perth CBD</b><div class="row"><button id="labCity" aria-pressed="true">เมืองละเอียด (กดดูก่อน/หลัง)</button></div><div class="note">รถวิ่ง ไฟจราจร เลนจักรยาน รถจอด ป้ายรถเมล์ kiosk กาแฟ ร้านค้า Tudor Lane สวน Kings Park · ลองเลื่อนเวลาเป็นกลางคืน</div></div>':''}
       <div><b>เวลา</b> <span id="labTimeL"></span><input type="range" id="labTime" min="300" max="1435" step="15"></div>
       <div><b>อากาศ</b><div class="row" id="labWx">${(typeof WEATHERS!=='undefined'?WEATHERS:[]).map((w,i)=>`<button data-w="${i}">${w.label}</button>`).join('')}</div></div>
       <div class="note">ลากเพื่อหมุน · คลิกขวา/Shift หรือสองนิ้ว เพื่อเลื่อน · ล้อเมาส์/บีบ เพื่อซูม</div>
@@ -98,6 +101,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
     tg('#labAuto','auto');tg('#labTags2','tags');tg('#labFrame','frame',v=>{if(frameLine)frameLine.visible=v;});tg('#labBloom','bloom');tg('#labTilt','tilt');tg('#labFog','fog');
     const tb=panel.querySelector('#labTint');tb.onclick=()=>{setTint(!st.tint);tb.setAttribute('aria-pressed',String(st.tint));};
     panel.querySelector('#labAll').onclick=()=>setShow(()=>true);
+    {const cb=panel.querySelector('#labCity');if(cb)cb.onclick=()=>{const v=!CDET.g.visible;CDET.show(v);cb.setAttribute('aria-pressed',String(v));};}
     panel.querySelector('#labLand').onclick=()=>setShow(i=>['ground','water','path','veg'].includes(CATS[i][0]));
     panel.querySelector('#labX').onclick=()=>toggle(false);
     panel.querySelector('#labMin').onclick=()=>panel.classList.toggle('min');
@@ -130,6 +134,7 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
     L.forEach(([t,x,z])=>{const s=document.createElement('span');s.textContent=t;tags.appendChild(s);tagEls.push({s,x,z});});}
   function cam(dt){
     if(st.auto)st.yaw+=dt*.15;
+    {const want=ZONES[st.zone].id==='island'?-1:1;if(scene.scale.x!==want){scene.scale.x=want;scene.updateMatrixWorld(true);}}
     const mx=scene.scale.x<0?-1:1,c=Math.cos(st.pitch);
     tv.set(st.tx*mx,0,st.tz);
     camera.position.set(tv.x+Math.sin(st.yaw)*c*st.dist,Math.sin(st.pitch)*st.dist,tv.z+Math.cos(st.yaw)*c*st.dist);
@@ -146,12 +151,30 @@ body.lab #app>*:not(#stage),body.lab>*:not(#app):not(#labPanel):not(#labTouch):n
   function toggle(on){if(on===st.on)return;if(!panel)build();st.on=on;
     if(on){st.saved={near:camera.near,far:camera.far,fogN:scene.fog.near,fogF:scene.fog.far};camera.far=1200;camera.updateProjectionMatrix();try{engSuspend();}catch(e){}
       scan();document.body.classList.add('lab');panel.hidden=touch.hidden=false;
-      const z=ZONES.findIndex(Z=>player.x>=Z.B.x1&&player.x<=Z.B.x2);goZone(z<0?0:z,'tilt');}
-    else{document.body.classList.remove('lab');panel.hidden=touch.hidden=tags.hidden=true;if(st.tint)setTint(false);
+      const want=((location.search+location.hash).match(/lab=(\w+)/)||[])[1];let z=want?ZONES.findIndex(Z=>Z.id===want):-1;if(z<0)z=ZONES.findIndex(Z=>player.x>=Z.B.x1&&player.x<=Z.B.x2);goZone(z<0?0:z,'tilt');}
+    else{document.body.classList.remove('lab');scene.scale.x=MIR?-1:1;scene.updateMatrixWorld(true);panel.hidden=touch.hidden=tags.hidden=true;if(st.tint)setTint(false);
       camera.layers.set(0);if(sun.shadow&&sun.shadow.camera)sun.shadow.camera.layers.set(0);camera.near=st.saved.near;camera.far=st.saved.far;camera.updateProjectionMatrix();
       scene.fog.near=st.saved.fogN;scene.fog.far=st.saved.fogF;if(frameLine)frameLine.visible=false;st.time=null;try{engResume();}catch(e){}resize();updateCamera(0,true);}}
-  return {get on(){return st.on;},toggle,cam,start:/[?&#]lab\b/.test(location.search+location.hash)};
+  return {get on(){return st.on;},toggle,cam,classify,start:/[?&#]lab\b/.test(location.search+location.hash)};
 })();
 {const _uc=updateCamera;updateCamera=function(dt,snap){if(LAB.on){LAB.cam(dt||0);return;}_uc(dt,snap);};}
+// city detail: tick the traffic in the city and in the Look Lab, and let Kip buy coffee at the kiosks
+{const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);if(CDET.on&&zoneOf(player.x)==='cbd')CDET.tick(dt);};
+  const _lc=LAB.cam;LAB.cam=function(dt){_lc(dt);if(CDET.on)CDET.tick(dt);};
+  const KC={'Flat white':['A flat white on Hay Street. Perth does coffee properly.','Smooth. I should ask what beans they use for the café.'],'Long black':['A long black by the quay. Strong enough to row back to the island.','Black, hot, and the river right there. Lovely.'],'Iced latte':['An iced latte in the park. Kings Park on a warm day is the best.','Cold coffee, warm gums, good view.']};
+  const _ct=cbdTargets;cbdTargets=function(T){_ct(T);if(!CDET.on||zoneOf(player.x)!=='cbd')return;
+    CDET.kiosks.forEach(k=>T.push({x:k.x,z:k.z+.95,r:1.2,label:k.name+' · '+k.drink.toLowerCase()+' ('+k.price+' coins)',act:()=>{if(S.coins<k.price){toast('A '+k.drink.toLowerCase()+' is '+k.price+' coins');return;}S.coins-=k.price;eat(12);say(['Kip: '+pick(KC[k.drink])+' (+12 stamina)']);}}));};}
+// city detail: join the static pieces into a few meshes per material (far fewer draw calls on phones)
+CDET.merge=function(){if(!CDET.on||CDET.merged||!CDET.g)return;CDET.merged=true;const G=CDET.g;scene.updateMatrixWorld(true);
+  const skip=new Set();CDET.veh.forEach(v=>v.g.traverse(o=>skip.add(o)));CBD.cut.forEach(e=>e.g.traverse(o=>skip.add(o)));const bb=new Set(BB);
+  const inv=new THREE.Matrix4().copy(G.matrixWorld).invert(),mx=new THREE.Matrix4(),wp=new THREE.Vector3(),B=new Map();
+  G.traverse(o=>{if(!o.isMesh||skip.has(o)||bb.has(o)||Array.isArray(o.material))return;o.getWorldPosition(wp);
+    const cat=LAB.classify?LAB.classify(o):'prop';const k=o.material.uuid+'|'+cat+'|'+Math.floor(wp.x/16)+':'+Math.floor(wp.z/16)+'|'+(o.castShadow?1:0);if(!B.has(k))B.set(k,{cat,mat:o.material,cast:o.castShadow,list:[]});B.get(k).list.push(o);});
+  let joined=0;for(const b of B.values()){if(b.list.length<2)continue;let n=0;const parts=b.list.map(o=>{let g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(mx.multiplyMatrices(inv,o.matrixWorld));if(!g.attributes.uv)g.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*2),2));if(!g.attributes.normal)g.computeVertexNormals();n+=g.attributes.position.count;return g;});
+    const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2);let i=0;for(const g of parts){P.set(g.attributes.position.array,i*3);N.set(g.attributes.normal.array,i*3);U.set(g.attributes.uv.array,i*2);i+=g.attributes.position.count;g.dispose();}
+    const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(P,3));geo.setAttribute('normal',new THREE.BufferAttribute(N,3));geo.setAttribute('uv',new THREE.BufferAttribute(U,2));geo.computeBoundingSphere();
+    const m=new THREE.Mesh(geo,b.mat);m.castShadow=b.cast;m.receiveShadow=true;m.userData.labHint=b.cat;G.add(m);b.list.forEach(o=>o.parent.remove(o));joined+=b.list.length;}
+  CDET.joined=joined;};
+if(CDET.on)CDET.merge();
 if(LAB.start)setTimeout(()=>LAB.toggle(true),600);
 })();
