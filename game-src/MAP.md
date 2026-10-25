@@ -76,24 +76,24 @@ Find code: `grep -n 'name' game-src/*`.
 | 068-city-detail-for-perth-cbd-a-look-lab-l.js | 5668-6090 | 51 | CITY_DETAIL_LIVE, CDET |
 | 069-part.js | 6091-6118 | 3 |  |
 | 070-perth-airport-look-lab-area-lab-or-air.js | 6119-6269 | 21 | AIR_LIVE, AIR, AIRB, airWalk |
-| 071-hooks-zone-travel-map-story.js | 6270-6505 | 33 | FREO_DETAIL_LIVE, FDET |
-| 072-more-from-paul-s-perth-photos-same-loo.js | 6506-6574 | 8 |  |
-| 073-fremantle-map-closer-to-real-town-same.js | 6575-6650 | 11 | FREO_LAND |
-| 074-st-george-s-cathedral-on-st-georges-te.js | 6651-6698 | 5 |  |
-| 075-fremantle-from-paul-s-street-photos-sa.js | 6699-6838 | 20 | FREO2_LIVE |
-| 076-fremantle-town-plan-same-look-lab-laye.js | 6839-6960 | 15 |  |
-| 077-perth-cbd-fill-empty-corners-same-look.js | 6961-7018 | 7 |  |
-| 078-perth-cbd-busy-footpaths-same-look-lab.js | 7019-7089 | 8 |  |
-| 079-island-loop-bus-a-19-stop-loop-bus-lik.js | 7090-7135 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 080-tidy-island-after-it-grows-nothing-on.js | 7136-7245 | 13 | flipIslandSigns, hot |
-| 081-live-mode-live-1-kip-runs-caf-on-his-o.js | 7246-7320 | 8 | LIVEM |
-| 082-look-lab-landscape-layers-of-each-real.js | 7321-7506 | 25 | LAB |
-| 083-hd-plants-every-tree-bush-flower-and-g.js | 7507-7574 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 084-layered-pixel-trees-2-5d-look-lab-laye.js | 7575-7615 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 085-roo-road-rescue-cars-3d-shared-with-qu.js | 7616-7776 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
-| 086-car-dealership-on-teddington-rd-victor.js | 7777-7855 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
-| 087-world-map-engine-shared-with-mockup.js | 7856-7929 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
-| 088-sprites.js | 7930-7978 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
-| 089-loop.js | 7979-8024 | 5 | last, frame, label, perth, aus |
-| 090-city-walls-and-world-map-look-lab-lab.js | 8025-8157 | 20 | WORLD_LIVE, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF, _wmHide, _wmClose |
-| 091-part.js | 8158-8160 | 0 |  |
+| 071-hooks-zone-travel-map-story.js | 6270-6506 | 34 | FREO_DETAIL_LIVE, FHOMES_LIVE, FDET |
+| 072-more-from-paul-s-perth-photos-same-loo.js | 6507-6575 | 8 |  |
+| 073-fremantle-map-closer-to-real-town-same.js | 6576-6651 | 11 | FREO_LAND |
+| 074-st-george-s-cathedral-on-st-georges-te.js | 6652-6699 | 5 |  |
+| 075-fremantle-from-paul-s-street-photos-sa.js | 6700-6839 | 20 | FREO2_LIVE |
+| 076-fremantle-town-plan-same-look-lab-laye.js | 6840-6961 | 15 |  |
+| 077-perth-cbd-fill-empty-corners-same-look.js | 6962-7019 | 7 |  |
+| 078-perth-cbd-busy-footpaths-same-look-lab.js | 7020-7144 | 14 |  |
+| 079-island-loop-bus-a-19-stop-loop-bus-lik.js | 7145-7190 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 080-tidy-island-after-it-grows-nothing-on.js | 7191-7300 | 13 | flipIslandSigns, hot |
+| 081-live-mode-live-1-kip-runs-caf-on-his-o.js | 7301-7375 | 8 | LIVEM |
+| 082-look-lab-landscape-layers-of-each-real.js | 7376-7561 | 25 | LAB |
+| 083-hd-plants-every-tree-bush-flower-and-g.js | 7562-7629 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 084-layered-pixel-trees-2-5d-look-lab-laye.js | 7630-7670 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 085-roo-road-rescue-cars-3d-shared-with-qu.js | 7671-7831 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
+| 086-car-dealership-on-teddington-rd-victor.js | 7832-7910 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
+| 087-world-map-engine-shared-with-mockup.js | 7911-7984 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
+| 088-sprites.js | 7985-8033 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
+| 089-loop.js | 8034-8079 | 5 | last, frame, label, perth, aus |
+| 090-city-walls-and-world-map-look-lab-lab.js | 8080-8212 | 20 | WORLD_LIVE, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF, _wmHide, _wmClose |
+| 091-part.js | 8213-8215 | 0 |  |

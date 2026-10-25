@@ -43,6 +43,7 @@ if(AIR.on){
 // with three gables on the harbour, a classic car meet, trawlers and a marina breakwater, Bathers Beach with coastal
 // scrub, rope fences and a beach shack, ivy-covered brick cottages, and a modern lane with a Thai kitchen and a gallery.
 const FREO_DETAIL_LIVE=true;
+var FHOMES_LIVE=false;const FHOMES_ON=FHOMES_LIVE||/[?&#](lab|homes)\b/.test(location.search+location.hash);let FHOME_PLANTS=[];
 const FDET={on:FREO_DETAIL_LIVE||/[?&#](lab|freo)\b/.test(location.search+location.hash),g:null,hid:[],glow:[],halos:[],
   show(v){this.userShow=v;if(this.g)this.g.visible=v;this.hid.forEach(o=>o.visible=!v);if(this.cab)this.cab.forEach(([m,a,b])=>m.material=v?b:a);(this.people||[]).forEach(p=>p.visible=v);(this.cityParts||[]).forEach(p=>p.visible=v);if(this.city)this.city.visible=v;}};
 if(FDET.on)(()=>{
@@ -73,7 +74,7 @@ if(FDET.on)(()=>{
   const SCRUB=[['#3c4a36','#55664a','#73845f','#9aa98a'],['#46553a','#61724c','#80915f','#a8b582'],['#4a5852','#64746a','#86958a','#b0bcae']];
   const scrub=SCRUB.map(p=>sprMat(canopy(16,10,bushB(),p,r,null)));
   const hedgeS=[0,1].map(k=>sprMat(canopy(16,10,bushB(),TREE_COLS[k],r,null)));
-  const geranium=sprMat((()=>{const c=canopy(16,10,bushB(),TREE_COLS[1],r,null),x=c.getContext('2d');for(let i=0;i<9;i++){const fx=2+r()*12|0,fy=1+r()*5|0;if(!x.getImageData(fx,fy,1,1).data[3])continue;x.fillStyle=i%3?'#d8323a':'#f04a5a';x.fillRect(fx,fy,1,1);}return c;})());
+  const geranium=sprMat((()=>{const c=canopy(16,10,bushB(),TREE_COLS[1],r,null),x=c.getContext('2d');for(let i=0;i<9;i++){const fx=2+r()*12|0,fy=1+r()*5|0;if(!x.getImageData(fx,fy,1,1).data[3])continue;x.fillStyle=i%3?'#d8323a':'#f04a5a';x.fillRect(fx,fy,1,1);}return c;})());FHOME_PLANTS=[geranium].concat(hedgeS);
   const ficus=sprMat(canopy(32,44,(()=>{const b=[];for(let i=0;i<8;i++)b.push([16+(r()-.5)*16,13+(r()-.5)*12,6+r()*5]);return b;})(),['#3e6a2a','#5a8a34','#7aac46','#a8d066'],r,[14,24]));
   const ivy=sprMat(canopy(24,14,(()=>{const b=[];for(let i=0;i<7;i++)b.push([12+(r()-.5)*18,5+(r()-.5)*4,3+r()*2.5]);return b;})(),['#25502a','#356a34','#4a8440','#6aa050'],r,null));
   const palmC=(()=>{const W=24,H=48,c=mk(W,H),x=c.getContext('2d');for(let y=15;y<H;y++){const w=3+(y>H-4?1:0);for(let i=0;i<w;i++){x.fillStyle=(y%3===0)?'#5a4a38':i===0?'#5e503c':i===w-1?'#6e604c':'#8a7a62';x.fillRect(12-(w>>1)+i,y,1,1);}}

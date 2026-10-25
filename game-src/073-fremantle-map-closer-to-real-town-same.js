@@ -14,9 +14,9 @@ if(FDET.on)(()=>{const G=FDET.g;
   ground(26,40,346,2,lmat(paveC,[13,20]));ground(64,14,321,28.6,lmat(paveC,[32,7]));ground(26,14,346,28.6,lmat(paveC,[13,7]));
   // houses in the suburbs (low, tin roofs, solar panels), seen past the edge of the town
   const roofs=['#a8acb0','#8a8e94','#b8562e','#c8ccd0'];
-  for(let i=0;i<26;i++){const hx=336+(i%5)*3.3+(r()-.5),hz=18.5+Math.floor(i/5)*3.2+(r()-.5);if(hz<20&&hx<346)continue;const w=2+r(),d=2+r();
+  if(!FHOMES_ON)for(let i=0;i<26;i++){const hx=336+(i%5)*3.3+(r()-.5),hz=18.5+Math.floor(i/5)*3.2+(r()-.5);if(hz<20&&hx<346)continue;const w=2+r(),d=2+r();
     put(B(w,1.4,d),M(r()<.5?'#efe3c4':'#e2d2b8'),hx,.7,hz);put(new THREE.ConeGeometry(Math.max(w,d)*.72,.9,4),M(roofs[i%4]),hx,1.85,hz,{ry:Math.PI/4,s:[w/Math.max(w,d),1,d/Math.max(w,d)]});if(i%3===0)put(B(.8,.04,.6),M('#2a3a58'),hx-.2,2,hz+.1,{rx:-.4,nc:1});}
-  for(let i=0;i<18;i++){const hx=296+i*3.2+(r()-.5),hz=27+(i%2)*3;put(B(2.4,1.3,2.2),M(r()<.5?'#efe3c4':'#d8c8b0'),hx,.65,hz);put(new THREE.ConeGeometry(1.75,.8,4),M(roofs[i%4]),hx,1.7,hz,{ry:Math.PI/4});}
+  if(!FHOMES_ON)for(let i=0;i<18;i++){const hx=296+i*3.2+(r()-.5),hz=27+(i%2)*3;put(B(2.4,1.3,2.2),M(r()<.5?'#efe3c4':'#d8c8b0'),hx,.65,hz);put(new THREE.ConeGeometry(1.75,.8,4),M(roofs[i%4]),hx,1.7,hz,{ry:Math.PI/4});}
   // ===== Monument Hill: a grassy rise with a sandstone memorial tower, a curved colonnade, bollards and palms =====
   {const H=FREO_LAND.hill;const hill=new THREE.Mesh(new THREE.CylinderGeometry(6.5,8.5,1.2,24),lmat(grassC,[4,4]));hill.position.set(H.x,.35,H.z);hill.receiveShadow=true;G.add(hill);
     const sand=M('#d8b880'),sand2=M('#e6c898'),stone=M('#8a8478');
