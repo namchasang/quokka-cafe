@@ -83,4 +83,4 @@ function loop(now){requestAnimationFrame(loop);if(overlay==='wm'){last=now;retur
   safeRun('world',()=>{applyTime();updateWilds(dt,t);if(!overlay||overlay==='title')updateWalkers(dt);});
   if(!running||overlay){player.mesh.position.set(player.x,groundY(player.x,player.z),player.z);player.blob.position.set(player.x,.03+groundY(player.x,player.z),player.z);}
   safeRun('ambient',()=>ambient(dt,t));safeRun('camera',()=>updateCamera(dt));safeRun('hud',()=>{updateHud();updateQuestUI(dt,t);updateTrackBar(dt);updateActButton();});
-  safeRun('engine',()=>engTick(dt));safeRun('ground',gtTick);try{if(CINE_ON)safeRun('cine',cineTick);renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}
+  safeRun('engine',()=>engTick(dt));safeRun('ground',gtTick);try{if(TEX3_ON&&!tex3Scene.done&&running)safeRun('tex3',tex3Scene);if(CINE_ON)safeRun('cine',cineTick);renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}

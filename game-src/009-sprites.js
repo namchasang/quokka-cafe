@@ -19,12 +19,18 @@ function setFrame(m,i){m.userData.step=i;showFrame(m);}
 // jacaranda, boab), seasonal leaves and blossom, and leaves or petals blowing in the wind.
 // People: every character frame at twice the pixels with smoothed diagonals, a thin outline, soft volume and eye shine.
 const LOOK2_LIVE=true;
-var LEAF3_LIVE=false;const LEAF3_ON=LEAF3_LIVE||/[?&#](lab|leaf3)\b/.test(location.search+location.hash);// Look Lab: plants painted leaf by leaf
+var LEAF3_LIVE=false;var ROTT3_LIVE=false;const ROTT3_ON=ROTT3_LIVE||/[?&#](lab|r3)\b/.test(location.search+location.hash);// Look Lab: Rottnest's own plants, hand-painted paths, buildings and vehicles
+const LEAF3_ON=LEAF3_LIVE||/[?&#](lab|leaf3|r3)\b/.test(location.search+location.hash);// Look Lab: plants painted leaf by leaf
 const LOOK2={on:LOOK2_LIVE||/[?&#](lab|hd2)\b/.test(location.search+location.hash),plants:true,people:true,tex:[],mats:[],frames:[],season:-1,shadows:null,leaves:null,petals:[]};
 function l2hash(a,b,s){let h=(a*374761393+b*668265263+(s|0)*2246822519)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;}
 function l2noise(x,y,s,seed){const gx=Math.floor(x/s),gy=Math.floor(y/s),fx=x/s-gx,fy=y/s-gy,a=l2hash(gx,gy,seed),b=l2hash(gx+1,gy,seed),c=l2hash(gx,gy+1,seed),d=l2hash(gx+1,gy+1,seed),u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
 function l2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;}return[h,s,l];}
 const L2_BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+// Rottnest's own plants (Look Lab ?r3): island tea tree, Rottnest pine, saltbush, wattle (sprites, leaf by leaf)
+const ROTT_SP={teatree:{n:1.9,L:[3.2,4.6],Wd:[1.1,1.5],droop:.08,round:.6,rib:0},callitris:{n:2.4,L:[2.8,4],Wd:[.7,.95],droop:-.2,round:.35,rib:0},
+  saltbush:{n:2.4,L:[2,3],Wd:[1.2,1.6],droop:.05,round:1,rib:0},wattle:{n:2.1,L:[3,4.6],Wd:[.8,1.1],droop:.2,round:.5,rib:0}};
+let ROTT_RAMP={};function rottRamps(){ROTT_RAMP={teatree:l2ramp([28,50,34],[124,152,86]),callitris:l2ramp([20,44,40],[98,136,100]),saltbush:l2ramp([58,84,62],[170,196,150]),wattle:l2ramp([42,68,40],[150,178,98])};}
+function rottSpecies(P,i){const k=P.kind;if(k==='broad'||k==='gum'||k==='jac'||k==='boab')return 'teatree';if(k==='pine')return 'callitris';if(k==='bush'){rottSpecies.n=(rottSpecies.n||0)+1;return rottSpecies.n%2?'wattle':'saltbush';}return null;}
 // read a plant sprite once: kinds of pixel, leaf colours, bark, trunk rows, species
 function plantParse(src){const W=src.width,H=src.height,sx=src.getContext('2d').getImageData(0,0,W,H).data;
   const T=new Uint8Array(W*H),Lm=new Float32Array(W*H),hb=new Float32Array(12);
@@ -50,7 +56,8 @@ const L2_AUTUMNS=[l2ramp([92,40,22],[244,196,92]),l2ramp([104,36,18],[250,150,64
 // paint one plant (season 0 summer, 1 autumn, 2 winter, 3 spring); returns the picture and a rim-light mask
 function plantPaint(P,season,seed){const{W,H,sx,T}=P,W2=W*2,H2=H*2,kind=P.kind;const rnd=mulberry32(seed|0);const R=()=>rnd();
   let RAMP=l2ramp(P.dk,P.lt);const blend=(A,B,t)=>A.map((c,i)=>c.map((v,k)=>Math.round(v+(B[i][k]-v)*t)));
-  const deciduous=kind==='broad'||kind==='bush';
+  const sp=P.sp||null;if(sp&&ROTT_RAMP[sp])RAMP=ROTT_RAMP[sp];
+  const deciduous=!sp&&(kind==='broad'||kind==='bush');
   if(season===1&&deciduous)RAMP=blend(RAMP,L2_AUTUMNS[Math.abs(seed)%3],kind==='bush'?.35:.86);
   if(season===2&&deciduous)RAMP=blend(RAMP,L2_WINTER,.35);
   let jacMix=0;if(kind==='jac'){jacMix=season===3?0:season===0?.5:1;}// jacaranda: purple in spring, half in summer, green after
@@ -63,7 +70,7 @@ function plantPaint(P,season,seed){const{W,H,sx,T}=P,W2=W*2,H2=H*2,kind=P.kind;c
   for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const fx=(x+.5)/2-.5,fy=(y+.5)/2-.5,x0=Math.floor(fx),y0=Math.floor(fy),tx=fx-x0,ty=fy-y0;
     const a=crownAt(x0,y0)*(1-tx)*(1-ty)+crownAt(x0+1,y0)*tx*(1-ty)+crownAt(x0,y0+1)*(1-tx)*ty+crownAt(x0+1,y0+1)*tx*ty;if(a>=.5){M[y*W2+x]=1;cx0+=x;cy0+=y;cn++;minY=Math.min(minY,y);maxY=Math.max(maxY,y);}}
   if(!cn)return null;cx0/=cn;cy0/=cn;
-  const BK=(()=>{const c=P.barkC;const gum=kind==='gum';return(gum?[.62,.8,.94,1.06]:[.46,.7,.95,1.2]).map(k=>c.map(v=>Math.max(0,Math.min(255,Math.round(v*k)))));})();
+  const BK=(()=>{const c=sp==='teatree'?[104,92,80]:sp==='callitris'?[96,70,52]:P.barkC;const gum=kind==='gum';return(gum?[.62,.8,.94,1.06]:[.46,.7,.95,1.2]).map(k=>c.map(v=>Math.max(0,Math.min(255,Math.round(v*k)))));})();
   const PEEL=[[150,136,116],[176,160,136]];
   // trunk: taper, root flare, bark streaks, knots (palm: rings, gum: peeling patches, boab: a fat bottle)
   let tTop=-1,tCx=W2/2;{const rows=P.rows;let first=-1,last=-1;rows.forEach((r,y)=>{if(r){if(first<0)first=y;last=y;}});
@@ -88,15 +95,17 @@ function plantPaint(P,season,seed){const{W,H,sx,T}=P,W2=W*2,H2=H*2,kind=P.kind;c
   // LEAF3 (Look Lab ?leaf3): the crown is painted leaf by leaf instead of in round clumps. Every leaf has its own shape
   // (oval with a midrib, long drooping gum leaf, needle spray, palm leaflet, grass blade), its own tone from the light,
   // a lit edge on the side facing the sun and a darker midrib; leaves are laid back to front so the crown has depth.
-  if(LEAF3_ON&&kind!=='palm'&&kind!=='pine'){
-    const SP={broad:{n:1.7,L:[5.5,8.5],Wd:[2.3,3.2],droop:.35,round:.9,rib:1},gum:{n:1.15,L:[6,9],Wd:[1.2,1.7],droop:.95,round:.55,rib:0},
+  if(LEAF3_ON&&(sp||(kind!=='palm'&&kind!=='pine'))){
+    const SP=(sp&&ROTT_SP[sp])||{broad:{n:1.7,L:[5.5,8.5],Wd:[2.3,3.2],droop:.35,round:.9,rib:1},gum:{n:1.15,L:[6,9],Wd:[1.2,1.7],droop:.95,round:.55,rib:0},
       jac:{n:2,L:[3,4.5],Wd:[1.1,1.5],droop:.25,round:.8,rib:0},pine:{n:1.5,L:[3.5,5.5],Wd:[.7,.95],droop:.15,round:.3,rib:0},
       bush:{n:1.8,L:[3.2,4.8],Wd:[1.6,2.2],droop:.2,round:1,rib:0},grass:{n:1.4,L:[6,10],Wd:[.7,1],droop:-1,round:.3,rib:0},boab:{n:1.5,L:[4,6],Wd:[1.8,2.4],droop:.3,round:.9,rib:1}}[kind]||{n:1,L:[4.5,7],Wd:[1.9,2.7],droop:.35,round:.9,rib:1};
+    if(kind==='bush'||sp==='saltbush'||sp==='wattle'){const hw=W2*.5,hh=Math.max(1,maxY-minY)*1.08;for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x;if(!M[i])continue;const dx=(x+.5-W2/2)/(hw*.94),dy=(y-maxY)/hh;if(dx*dx+dy*dy>1+(l2hash(x,y,seed+5)-.5)*.25)M[i]=0;}}
     const area=cn,count=Math.round(area/(SP.L[0]*SP.Wd[0]*1.15)*SP.n*(season===2&&deciduous?.7:1));const LV=[];
     const cells=[];for(let i=0;i<W2*H2;i++)if(M[i])cells.push(i);
     for(let k=0;k<count;k++){const i=cells[(R()*cells.length)|0],x=i%W2,y=(i/W2)|0;
       const ox=x-cx0,oy=y-cy0,out=Math.atan2(oy,ox);let a;
       if(kind==='grass'){a=-Math.PI/2+(ox/(W2*.5))*.9+(R()-.5)*.5;}
+      else if(sp==='callitris'){a=-Math.PI/2+(ox/(W2*.5))*.7+(R()-.5)*1.5;}
       else if(kind==='pine'){a=(ox<0?Math.PI:0)+(R()-.5)*.6+SP.droop*(ox<0?-1:1)*.3;}
       else{a=out+(R()-.5)*1.1;const dn=Math.PI/2;let d=dn-a;d=Math.atan2(Math.sin(d),Math.cos(d));a+=d*SP.droop*.5;}
       const L=SP.L[0]+R()*(SP.L[1]-SP.L[0]),Wd=SP.Wd[0]+R()*(SP.Wd[1]-SP.Wd[0]);
@@ -115,11 +124,13 @@ function plantPaint(P,season,seed){const{W,H,sx,T}=P,W2=W*2,H2=H*2,kind=P.kind;c
         // stay within a pixel or two of the crown outline (tips may poke out)
         if(!M[y*W2+x]){let near=false;for(const[a2,b2]of[[1,0],[-1,0],[0,1],[0,-1],[0,-2],[2,0],[-2,0]]){const X=x+a2,Y=y+b2;if(X>=0&&Y>=0&&X<W2&&Y<H2&&M[Y*W2+X]){near=true;break;}}if(!near)continue;}
         const vn=v/Math.max(.5,half);
-        let val=.17+gl*.55+f.d*.3+(vn*side>0?.15:-.09)+(u>.7?.07:0)+(l2hash(x,y,seed+7)-.5)*.08;
+        let val=.17+gl*.55+f.d*.3+(vn*side>0?.15:-.09)+(u>.7?.07:0)+(l2noise(x+seed%7,y,sp?4.5:6,seed)-.5)*(sp?.5:.3)+(l2hash(x,y,seed+7)-.5)*.08;
         if(SP.rib&&Math.abs(v)<.5&&u>.12&&u<.85)val-=.16;// midrib
         if(Math.abs(vn)>.78)val-=.07;// leaf edge
         val=Math.max(0,Math.min(.999,val));let s=Math.floor(val*7+(L2_BAYER[(y&3)*4+(x&3)]/16-.5)*.55);s=Math.max(0,Math.min(6,s));
         put(x,y,ramp[s],2);IDX[y*W2+x]=s;}}
+    if(sp==='wattle'){const dens=season===3?.09:season===2?.06:.018;for(let y=1;y<H2-1;y++)for(let x=1;x<W2-1;x++){const i=y*W2+x;if(KIND[i]!==2)continue;if(l2hash(x,y,seed+51)<dens){const c=l2hash(x,y,seed)>.5?[246,204,58]:[255,232,110];put(x,y,c,4);put(x+1,y,[226,176,40],4);if(KIND[i-W2]===2)put(x,y-1,[255,244,170],4);}}}
+    if(sp==='saltbush'){for(let y=1;y<H2-1;y++)for(let x=1;x<W2-1;x++){const i=y*W2+x;if(KIND[i]===2&&IDX[i]>=4&&l2hash(x,y,seed+61)<.08)put(x,y,[214,222,206],2);}}
     // a few darker gaps between the leaf layers, so the crown reads as many leaves, not one shape
     for(let y=1;y<H2-1;y++)for(let x=1;x<W2-1;x++){const i=y*W2+x;if(KIND[i]!==2||!M[i])continue;if(IDX[i]>=4&&IDX[i+W2]>=0&&IDX[i+W2]<=1&&l2hash(x,y,seed+41)<.5){const s=Math.max(0,IDX[i+W2]-1);put(x,y+1,RAMP[s],2);IDX[i+W2]=s;}}
   }else{

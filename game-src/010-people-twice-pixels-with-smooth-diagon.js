@@ -33,7 +33,10 @@ function plant2Apply(){if(!LOOK2.on)return;const tset=new Set(trees.map(t=>t.m.m
   BB.forEach(o=>{if(o.userData.frames)return;const m=o.material,t=m&&m.map;if(!t||!t.image)return;if(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))return;
     if(!t.__l2){const src=t.__src||t.image;if(!src.getContext||src.width>96||src.width*src.height<100)return;const P=plantParse(src);if(!P){t.__l2={none:true};return;}
       t.__l2={P,seed:(src.width*131+src.height*17+LOOK2.tex.length*7)|0,cache:{},v1:t.image};LOOK2.tex.push(t);}
-    if(t.__l2.none)return;if(!seen.has(t))seen.set(t,[]);seen.get(t).push(o);});
+    if(t.__l2.none)return;let key=t;
+    if(ROTT3_ON){let isl=false;try{isl=zoneOf(o.position.x)==='island';}catch(e){isl=false;}const spc=isl&&rottSpecies(t.__l2.P,(t.__l2.seed>>2)&1);
+      if(spc){if(!rottRamps.done){rottRamps();rottRamps.done=1;}if(!t.__twin){const tI=t.clone();tI.image=t.image;tI.needsUpdate=true;const L0=t.__l2;tI.__l2={P:Object.assign({},L0.P,{sp:spc}),seed:L0.seed+999,cache:{},v1:L0.v1};LOOK2.tex.push(tI);t.__twin=tI;}key=t.__twin;}}
+    if(!seen.has(key))seen.set(key,[]);seen.get(key).push(o);});
   // per texture: two seeds (A/B) x two shades, shared by the trees that use them
   for(const [t,meshes] of seen){const L=t.__l2;const base=meshes[0].material;const variants=[];
     const tB=t.clone();tB.image=t.image;tB.needsUpdate=true;L.tB=tB;
