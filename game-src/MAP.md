@@ -10,7 +10,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 002-phones-and-touch-screens-dialog-sits-i.css | 252-342 | 8 |  |
 | 003-studio-mode-hide-every-panel-so-only-i.css | 343-777 | 27 |  |
 | 004-part.html | 778-804 | 3 | $, THAI_READY, LANG, TH, TH_CAP, trS, trNode, trWalk, trObs, setLang |
-| 005-thload-check-your-mailbox-nbsp-nbsp-lo.js | 805-805 | 476 | embedded data, do not open |
+| 005-thload-check-your-mailbox-nbsp-nbsp-lo.js | 805-805 | 478 | embedded data, do not open |
 | 006-trstart-document-queryselectorall-lang.js | 806-882 | 3 | mulberry32, R, mk, clamp, lerp, QK_TOP, QK_LEGS, HU_HEAD, HU_HAT, HU_REST |
 | 007-renderer-pixel-art-post-processing.js | 883-923 | 2 | stage, renderer, DPR, scene, FOG, camera, CAM_DIR, camDist, camOff, rt |
 | 008-lights.js | 924-966 | 5 | hemi, sun, sc, noiseTile, dither, grassC, sandC, pathC, stoneC, plasterC |
@@ -96,4 +96,10 @@ Find code: `grep -n 'name' game-src/*`.
 | 088-sprites.js | 7985-8033 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
 | 089-loop.js | 8034-8079 | 5 | last, frame, label, perth, aus |
 | 090-city-walls-and-world-map-look-lab-lab.js | 8080-8212 | 20 | WORLD_LIVE, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF, _wmHide, _wmClose |
-| 091-part.js | 8213-8215 | 0 |  |
+| 091-3d-overworld-paul-approved-oct-2026-re.js | 8213-8225 | 5 | WORLD3D_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
+| 092-const-real-w-600-h-400-land-4aaab.js | 8226-8226 | 117 | embedded data, do not open |
+| 093-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 8227-8330 | 14 | G, LAND, ELEV, elevAt, landAt, DL, R, P, fade, noise |
+| 094-low-poly-helpers.js | 8331-8372 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
+| 095-kip-pixel-sprite-and-little-retro-car.js | 8373-8417 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
+| 096-driving-buttons-gas-brake-steer.js | 8418-8480 | 8 | DRV, mm, drawMini, resize, last, frame |
+| 097-part.js | 8481-8483 | 0 |  |

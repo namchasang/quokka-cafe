@@ -120,6 +120,7 @@ if(WORLD.on)(()=>{
   const _t2=cbdTargets;cbdTargets=function(T){_t2(T);if(zoneOf(player.x)!=='island')return;const J=IW(-16,4.4),L=[J.x+1.7,J.z];const ok=typeof freoUnlocked!=='function'||freoUnlocked();T.push({x:L[0],z:L[1],r:1.1,label:ok?'World map · drive off the ferry':'World map: locked (see Quests)',disabled:!ok,act:()=>{if(ok)openWorld('island','e');}});};
   window.openWorld=function(from,side){if(transit||VISIT||(overlay&&overlay!=='wm'))return;transit=true;fadeTarget=.95;
     setTimeout(()=>{transit=false;fadeTarget=0;overlay='wm';ui.hud.hidden=true;ui.act.hidden=true;$('#wmOv').hidden=false;WORLD.map.start(from,side);},500);};
+  WORLD.enter=(id,side)=>enter(id,side);
   function enter(id,side){if(id!=='island'&&id!=='sp'&&id!=='hi'){if(needPass(id==='air'?'cbd':id))return;}
     WORLD.map.stop();$('#wmOv').hidden=true;overlay=null;transit=true;fadeTarget=.95;toast('Driving into '+ZN[id]+'…',1.6);
     setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;const W=WORLD.walls[id];let x,z;
@@ -130,4 +131,3 @@ if(WORLD.on)(()=>{
   $('#wmBack').onclick=()=>hideOverlays();
 })();
 
-})();
