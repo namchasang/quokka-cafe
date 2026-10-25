@@ -9,7 +9,7 @@ const sprite=(draw,w,h,sw,sh)=>{const c=document.createElement('canvas');c.width
 const blobTree=(cols,trunk)=>x=>{x.fillStyle=trunk;x.fillRect(7,10,3,8);for(let k=0;k<26;k++){const a=R()*6.28,rr=R()*5;x.fillStyle=cols[(k*7)%cols.length];x.beginPath();x.arc(8.5+Math.cos(a)*rr,7+Math.sin(a)*rr*.8,2.6,0,7);x.fill();}};
 const TREES=[sprite(blobTree(['#3e6a2a','#5a8a34','#7aac46','#4a7a30'],'#6a4a30'),17,18,3.4,3.6),sprite(blobTree(['#5a7a4a','#7a9a5a','#4a6a3a'],'#d8d0c0'),17,18,3.8,4.2),
   sprite(x=>{x.fillStyle='#6a5a40';x.fillRect(7,6,2,14);const F=['#4a7a30','#6a9a3a','#8ab44a'];for(let k=0;k<9;k++){const a=-Math.PI+k/8*Math.PI;for(let t=0;t<1;t+=.12){x.fillStyle=F[(k+t*3|0)%3];x.fillRect(8+Math.cos(a)*7*t|0,6+Math.sin(a)*3*t+t*t*4|0,1,1);}}},16,20,2.6,4.4)];
-for(let i=0;i<1400;i++){const x=R()*WX,z=R()*WZ;if(!landAt(x,z)||onRoad(x,z,4)||Math.hypot(x-CBDP[0],z-CBDP[1])<16||Math.hypot(x-FRP[0],z-FRP[1])<9||DL[(z|0)*WX+(x|0)]<4)continue;const h=H(x,z);if(h<1)continue;
+if(!LOOK2)for(let i=0;i<1400;i++){const x=R()*WX,z=R()*WZ;if(!landAt(x,z)||onRoad(x,z,4)||Math.hypot(x-CBDP[0],z-CBDP[1])<16||Math.hypot(x-FRP[0],z-FRP[1])<9||DL[(z|0)*WX+(x|0)]<4)continue;const h=H(x,z);if(h<1)continue;
   const kp=Math.hypot(x-KPP[0],z-KPP[1])<20,near=kp||fbm(x*.02,z*.02)>.12;if(!near&&R()<.75)continue;const s=TREES[kp?1:(R()<.12?2:0)]();s.position.set(x,h-.1,z);s.userData.L='plants';const k=.8+R()*.6;s.scale.multiplyScalar(k);scene.add(s);}
 // ---------- towns: small landmark models you walk into ----------
 const TOWNS=[];
