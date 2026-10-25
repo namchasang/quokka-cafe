@@ -7220,6 +7220,15 @@ if(FDET.on&&FHOMES_ON)(()=>{const G=FDET.g;
   {const px=312,pz=23.6;paint(11,2.6,grassM,px,pz,.03);[[309,23.4],[315,23.4]].forEach(([x,z])=>{put(B(1.4,.08,.08),M('#d8323a'),x,1.2,z);[-.6,.6].forEach(o=>put(B(.06,1.2,.06),M('#2f6fb0'),x+o,.6,z));put(B(.4,.04,.2),M('#3a3a3a'),x,.45,z);});
     put(B(1,.5,.7),M('#f2c428'),312,.25,23.8);put(B(.9,.04,.9),M('#e8732a'),312,.7,23.8,{rz:.3});}
 })();
+// ---------- Fremantle opened up (Look Lab ?lab or ?freo4, Paul Oct 2026: as easy to walk as the city) ----------
+// The southern streets, back lane and cross streets become walkable, and thin posts (verandah posts, poles, bollards) stop blocking the footpaths.
+var FREO4_LIVE=false;const FREO4_ON=FREO4_LIVE||/[?&#](lab|freo4)\b/.test(location.search+location.hash);
+if(FREO4_ON&&FDET.on&&FHOMES_ON){
+  const R=[[270,356,21.4,28.1],[270,356,38.7,42.9],[272,355.5,32.8,34.05],[302.6,305.4,21.4,42.9],[318.6,321.4,21.4,42.9],[334.8,337.6,21.4,42.9]];
+  const _fw4=freoWalk;freoWalk=function(x,z){if(_fw4(x,z))return true;return R.some(r=>x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]);};
+  for(let i=colliders.length-1;i>=0;i--){const c=colliders[i];if(c.x2<262||c.x1>362||c.z2<-30||c.z1>50)continue;if(c.x2-c.x1<=.32&&c.z2-c.z1<=.32)colliders.splice(i,1);}
+  if(typeof FB!=='undefined'){FB.z2=Math.max(FB.z2,43.6);FB.x2=Math.max(FB.x2,357);}// the town wall goes round the new streets too
+}
 // keep the layer hidden away from Fremantle (and on the title screen), like the city layer
 if(FDET.on&&FDET.g){FDET.g.visible=false;}
 
