@@ -10,7 +10,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 002-phones-and-touch-screens-dialog-sits-i.css | 252-342 | 8 |  |
 | 003-studio-mode-hide-every-panel-so-only-i.css | 343-777 | 27 |  |
 | 004-part.html | 778-804 | 3 | $, THAI_READY, LANG, TH, TH_CAP, trS, trNode, trWalk, trObs, setLang |
-| 005-thload-check-your-mailbox-nbsp-nbsp-lo.js | 805-805 | 470 | embedded data, do not open |
+| 005-thload-check-your-mailbox-nbsp-nbsp-lo.js | 805-805 | 476 | embedded data, do not open |
 | 006-trstart-document-queryselectorall-lang.js | 806-882 | 3 | mulberry32, R, mk, clamp, lerp, QK_TOP, QK_LEGS, HU_HEAD, HU_HAT, HU_REST |
 | 007-renderer-pixel-art-post-processing.js | 883-923 | 2 | stage, renderer, DPR, scene, FOG, camera, CAM_DIR, camDist, camOff, rt |
 | 008-lights.js | 924-966 | 5 | hemi, sun, sc, noiseTile, dither, grassC, sandC, pathC, stoneC, plasterC |

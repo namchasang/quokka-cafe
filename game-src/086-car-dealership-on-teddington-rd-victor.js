@@ -2,7 +2,7 @@
 // From Paul's street photo: a blue-and-white showroom with a long fascia, a red brick-paver lot, tall palms, white hoop rails
 // along the kerb, light towers, blue shade awnings and rows of cars. The six cars from Roo Road Rescue are for sale
 // (20,000-80,000 coins); the car Kip drives on the world map is the one he picks here. Fictional dealer name.
-var DEALER_LIVE=false;
+var DEALER_LIVE=true;
 const DEALER={on:DEALER_LIVE||/[?&#](lab|dealer)\b/.test(location.search+location.hash),cars:[],P:{}};
 const DEALER_STOCK=[['wren',20000,42],['corella',32000,40],['kestrel',48000,46],['suv',56000,44],['brumby',68000,44],['camper',80000,34]];
 // world map sprites: a little side view of each car (front to the right)
