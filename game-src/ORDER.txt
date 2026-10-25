@@ -97,4 +97,7 @@
 096-driving-buttons-gas-brake-steer.js
 097-look2-look-lab-pixel-art-ground-perth.js
 098-cinematic-look-lab-lab-or-cine-until-c.js
-099-tex3-on-rottnest-soft-shade-at-foot-of.js
+099-stations-and-ports-paul-oct-2026-walk.js
+100-const-tour-page-u003c-doctype-html-u00.js
+101-function-opentours-opentravel-day-tour.js
+102-part.js
