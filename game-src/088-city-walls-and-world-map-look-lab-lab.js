@@ -6,7 +6,7 @@
 var WORLD_LIVE=true;
 const WORLD={on:WORLD_LIVE||/[?&#](lab|world)\b/.test(location.search+location.hash),walls:{},g:null};
 // freeway signs instead of gate towers (Look Lab ?lab or ?signs until SIGNS_LIVE): the way out is where the main road leaves town
-var SIGNS_LIVE=true;const SIGNS_ON=SIGNS_LIVE||/[?&#](lab|signs)\b/.test(location.search+location.hash);
+var SIGNS_LIVE=true;var FENCE_LIVE=false;const FENCE_ON=FENCE_LIVE||/[?&#](lab|fence)\b/.test(location.search+location.hash);const SIGNS_ON=SIGNS_LIVE||/[?&#](lab|signs)\b/.test(location.search+location.hash);
 const ROAD_Z={sp:{w:22.2,e:22.2},freo:{w:-2,e:20.4},hi:{w:5.2,e:5.2},vp:{w:0,e:0},cbd:{w:5,e:-3.1},air:{w:.9,e:.9}};
 const SIGN_DEF={spw:{route:'5',road:'MILL POINT RD',to:[['Fremantle',18],['Rottnest Ferry',19],['Perth Airport',16]]},spe:{route:'5',road:'MILL POINT RD',to:[['Heirisson Is',3],['Victoria Park',5],['Perth Airport',14]]},
   freow:{route:'7',road:'HIGH ST',to:[['B-Shed Ferry',1],['Rottnest Island',19],['Bathers Beach',1]]},freoe:{route:'7',road:'CANNING HWY',to:[['South Perth',17],['Perth CBD',19],['Perth Airport',30]]},
@@ -40,7 +40,16 @@ if(WORLD.on)(()=>{
   const mer=new THREE.BoxGeometry(.42,.34,.56);const merPos=[];
   const put=(geo,mat,x,y,z,ry)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(ry)m.rotation.y=ry;m.castShadow=true;m.receiveShadow=true;G.add(m);return m;};
   // a straight run of wall from (x1,z1) to (x2,z2), h high
-  function run(x1,z1,x2,z2,h){const L=Math.hypot(x2-x1,z2-z1);if(L<.3)return;const hz=Math.abs(z2-z1)<Math.abs(x2-x1);
+  // Paul's photo: a limestone block retaining wall with a white picket fence on top (Look Lab ?fence until FENCE_LIVE)
+  const FENCE=[],POSTS=[],blockT=(()=>{const c=mk(32,16),x=c.getContext('2d');x.fillStyle='#d8c290';x.fillRect(0,0,32,16);for(let j=0;j<2;j++)for(let i=0;i<2;i++){const ox=i*16+(j?8:0);x.fillStyle=['#e0cc9c','#d2b986','#dcc596','#cdb37e'][(i+j*2)%4];x.fillRect(ox%32,j*8,15,7);if(ox+15>32)x.fillRect(0,j*8,ox+15-32,7);
+      for(let k=0;k<6;k++){x.fillStyle='rgba(150,120,70,.35)';x.fillRect((ox+((k*5)%14))%32,j*8+(k%3)*2+1,1,1);}}x.fillStyle='#b8a070';x.fillRect(0,7,32,1);x.fillRect(0,15,32,1);x.fillRect(15,0,1,7);x.fillRect(7,8,1,7);x.fillRect(23,8,1,7);return c;})();
+  const whiteM=new THREE.MeshLambertMaterial({color:0xf6f6f2});
+  function fenceRun(x1,z1,x2,z2,low){const L=Math.hypot(x2-x1,z2-z1);if(L<.3)return;const hz=Math.abs(z2-z1)<Math.abs(x2-x1),bh=low?.32:.5,fh=low?.62:.95,cxm=(x1+x2)/2,czm=(z1+z2)/2;
+    const bm=new THREE.MeshLambertMaterial({map:ctex(blockT,{rep:[L/1.6,1]})});put(new THREE.BoxGeometry(hz?L:.55,bh,hz?.55:L),bm,cxm,bh/2,czm);put(new THREE.BoxGeometry(hz?L+.02:.6,.05,hz?.6:L+.02),new THREE.MeshLambertMaterial({color:0xcdb784}),cxm,bh+.025,czm);
+    [fh*.12,fh*.62,fh*.94].forEach((y,i)=>put(new THREE.BoxGeometry(hz?L:.05,i===2?.07:.05,hz?.05:L),whiteM,cxm,bh+y,czm));
+    const n=Math.max(1,Math.round(L/1.9));for(let k=0;k<=n;k++){const t=k/n;POSTS.push([x1+(x2-x1)*t,bh,z1+(z2-z1)*t,fh]);}
+    for(let s=.07;s<L;s+=.16){const t=s/L;FENCE.push([x1+(x2-x1)*t,bh,z1+(z2-z1)*t,fh*.68,hz]);}}
+  function run(x1,z1,x2,z2,h){if(FENCE_ON)return fenceRun(x1,z1,x2,z2,h<1.2);const L=Math.hypot(x2-x1,z2-z1);if(L<.3)return;const hz=Math.abs(z2-z1)<Math.abs(x2-x1);
     put(new THREE.BoxGeometry(hz?L:.5,h,hz?.5:L),limeM(L/1.6,h/1.6),(x1+x2)/2,h/2,(z1+z2)/2);put(new THREE.BoxGeometry(hz?L+.04:.6,.1,hz?.6:L+.04),capM,(x1+x2)/2,h+.05,(z1+z2)/2);
     for(let s=.35;s<L;s+=.9){const t=s/L;merPos.push([x1+(x2-x1)*t,h+.27,z1+(z2-z1)*t,hz?0:Math.PI/2]);}}
   // a gate: two round towers with tiled caps, an arch over the opening, a sign
@@ -99,6 +108,8 @@ if(WORLD.on)(()=>{
     side(wx0,wz0,wx0,wz1,1,0,1.7,gw);side(wx1,wz0,wx1,wz1,-1,0,1.7,ge);
     if(gw)(SIGNS_ON?roadSign:gate)(gw.x,gw.z,'w',zone);if(ge)(SIGNS_ON?roadSign:gate)(ge.x,ge.z,'e',zone);
     WORLD.walls[zone]=WZ;});
+  if(FENCE.length){const im=new THREE.InstancedMesh(new THREE.BoxGeometry(.045,1,.045),whiteM,FENCE.length);const o=new THREE.Object3D();FENCE.forEach(([x,y,z,h],i)=>{o.position.set(x,y+h*.1+h/2,z);o.scale.set(1,h,1);o.rotation.set(0,0,0);o.updateMatrix();im.setMatrixAt(i,o.matrix);});im.castShadow=true;G.add(im);
+    const ip=new THREE.InstancedMesh(new THREE.BoxGeometry(.13,1,.13),whiteM,POSTS.length);const ic=new THREE.InstancedMesh(new THREE.BoxGeometry(.17,.06,.17),whiteM,POSTS.length);POSTS.forEach(([x,y,z,h],i)=>{o.position.set(x,y+(h+.08)/2,z);o.scale.set(1,h+.08,1);o.updateMatrix();ip.setMatrixAt(i,o.matrix);o.position.set(x,y+h+.1,z);o.scale.set(1,1,1);o.updateMatrix();ic.setMatrixAt(i,o.matrix);});ip.castShadow=true;G.add(ip,ic);}
   if(merPos.length){const im=new THREE.InstancedMesh(mer,capM,merPos.length);const o=new THREE.Object3D();merPos.forEach(([x,y,z,ry],i)=>{o.position.set(x,y,z);o.rotation.set(0,ry,0);o.updateMatrix();im.setMatrixAt(i,o.matrix);});im.castShadow=true;G.add(im);}
   // ---- gate actions and the trip ----
   const ZN={sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport',island:'Rottnest Island'};
