@@ -4,6 +4,13 @@
 // rides the ferries across the water, and driving into a town enters it by the gate on the side he arrives from.
 // Rottnest has no wall: drive to the jetty on the map and ride into Thomson Bay. The old ferries and buses still work.
 var WORLD_LIVE=true;
+// ---------- town links (Paul, Oct 2026): the 3D overworld stays in the Look Lab; out on the road, each sign leads to the next town ----------
+// CBD east -> Heirisson Island -> Victoria Park -> the airport; CBD west -> Fremantle; Fremantle west -> South Perth (Canning Hwy) -> Victoria Park.
+var OW3D_ON=/[?&#](lab|ow3d|ow2)\b/.test(location.search+location.hash);
+var TOWN_LINK={cbd:{w:'freo',e:'hi'},hi:{w:'cbd',e:'vp'},vp:{w:'hi',e:'air'},air:{w:'vp',e:null},freo:{w:'sp',e:'cbd'},sp:{w:'freo',e:'vp'}};
+var TOWN_NAME={sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport',island:'Rottnest Island'};
+function linkTo(zone,side){const L=TOWN_LINK[zone];return L?L[side]:null;}
+function linkSignText(zone,side){if(OW3D_ON)return 'WORLD MAP';const d=linkTo(zone,side);return d?TOWN_NAME[d].toUpperCase():'FLIGHTS EAST · SOON';}
 const WORLD={on:WORLD_LIVE||/[?&#](lab|world)\b/.test(location.search+location.hash),walls:{},g:null};
 // freeway signs instead of gate towers (Look Lab ?lab or ?signs until SIGNS_LIVE): the way out is where the main road leaves town
 var SIGNS_LIVE=true;var FENCE_LIVE=true;const FENCE_ON=FENCE_LIVE||/[?&#](lab|fence)\b/.test(location.search+location.hash);const SIGNS_ON=SIGNS_LIVE||/[?&#](lab|signs)\b/.test(location.search+location.hash);
@@ -59,7 +66,7 @@ if(WORLD.on)(()=>{
     g.fillStyle='#f6f6f0';g.beginPath();g.moveTo(9,8);g.lineTo(25,8);g.lineTo(25,17);g.quadraticCurveTo(17,24,9,17);g.closePath();g.fill();g.fillStyle='#1d4e9a';g.beginPath();g.moveTo(10,9);g.lineTo(24,9);g.lineTo(24,16.5);g.quadraticCurveTo(17,22.5,10,16.5);g.closePath();g.fill();
     g.fillStyle='#f6f6f0';g.font='bold 8px monospace';g.textAlign='center';g.fillText(D.route,17,17);g.fillRect(30,9,90,11);g.fillStyle='#16673a';g.font='bold 8px monospace';g.fillText(D.road,75,17.5);
     g.textAlign='left';g.fillStyle='#f6f6f0';g.font='bold 9px monospace';D.to.forEach(([n,km],i)=>{g.fillText(n,10,34+i*11);g.textAlign='right';g.fillText(String(km),119,34+i*11);g.textAlign='left';});
-    g.fillStyle='#ffd34d';g.fillRect(8,68,112,11);g.fillStyle='#141a2e';g.font='bold 8px monospace';g.textAlign='center';g.fillText(side==='w'?'← WORLD MAP':'WORLD MAP →',64,76.5);
+    g.fillStyle='#ffd34d';g.fillRect(8,68,112,11);g.fillStyle='#141a2e';g.font='bold 8px monospace';g.textAlign='center';g.fillText((side==='w'?'← ':'')+linkSignText(zone,side)+(side==='e'?' →':''),64,76.5);
     const tx=ctex(c);const grp=new THREE.Group();grp.position.set(x+(side==='w'?1.0:-1.0),0,z-1.6);G.add(grp);
     const panel=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.7,.08),[capM,capM,capM,capM,new THREE.MeshBasicMaterial({map:tx}),new THREE.MeshLambertMaterial({color:0x16673a})]);panel.position.y=2.15;panel.castShadow=true;grp.add(panel);
     const postM=new THREE.MeshLambertMaterial({color:0x9aa0a6});[-.85,.85].forEach(o=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.1,2.2,.1),postM);p.position.set(o,1.1,-.08);p.castShadow=true;grp.add(p);col(grp.position.x+o-.08,grp.position.z-.16,grp.position.x+o+.08,grp.position.z);});}
@@ -68,7 +75,7 @@ if(WORLD.on)(()=>{
       const b=new THREE.Mesh(new THREE.CylinderGeometry(.66,.66,.12,10),capM);b.position.set(0,2.62,o);g.add(b);const w=new THREE.Mesh(new THREE.PlaneGeometry(.14,.4),darkM);w.position.set(0,1.8,o+.6);g.add(w);
       col(x-.6,z+o-.6,x+.6,z+o+.6);});
     const lin=new THREE.Mesh(new THREE.BoxGeometry(.6,.5,2),L);lin.position.set(0,2.2,0);lin.castShadow=true;g.add(lin);const ac=new THREE.Mesh(new THREE.TorusGeometry(.7,.09,6,12,Math.PI),capM);ac.rotation.y=Math.PI/2;ac.position.set(0,1.95,0);g.add(ac);
-    const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.7,.4),new THREE.MeshBasicMaterial({map:makeSign([(side==='w'?'← ':'')+'WORLD MAP'+(side==='e'?' →':'')],64,12,'#5a3a22','#ffd34d'),side:THREE.DoubleSide}));sg.position.set(0,2.75,.05);g.add(sg);
+    const sg=new THREE.Mesh(new THREE.PlaneGeometry(1.7,.4),new THREE.MeshBasicMaterial({map:makeSign([(side==='w'?'← ':'')+linkSignText(zone,side)+(side==='e'?' →':'')],64,12,'#5a3a22','#ffd34d'),side:THREE.DoubleSide}));sg.position.set(0,2.75,.05);g.add(sg);
     // a little banner of the town on each tower
     const ZC={sp:'#3e7d5c',freo:'#2a5a9a',hi:'#8a6a40',vp:'#c8344a',cbd:'#1d3a6e',air:'#2a9a8a'}[zone]||'#5a3a22';[-1.25,1.25].forEach(o=>{const f=new THREE.Mesh(new THREE.PlaneGeometry(.36,.7),new THREE.MeshLambertMaterial({color:new THREE.Color(ZC),side:THREE.DoubleSide}));f.position.set(side==='w'?.58:-.58,1.6,o);f.rotation.y=Math.PI/2;g.add(f);});}
   // work out each area's walkable land, then wall it in
@@ -114,10 +121,10 @@ if(WORLD.on)(()=>{
   // ---- gate actions and the trip ----
   const ZN={sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport',island:'Rottnest Island'};
   const _t=cbdTargets;cbdTargets=function(T){_t(T);const z=zoneOf(player.x),W=WORLD.walls[z];if(!W)return;
-    ['w','e'].forEach(sd=>{const g=W[sd];if(!g)return;const ix=sd==='w'?g.x+1.15:g.x-1.15;T.push({x:ix,z:g.z,r:1.5,label:(sd==='w'?'West':'East')+' gate · out to the world map',act:()=>openWorld(z,sd)});});
+    ['w','e'].forEach(sd=>{const g=W[sd];if(!g)return;const ix=sd==='w'?g.x+1.15:g.x-1.15;const to=OW3D_ON?null:linkTo(z,sd);T.push({x:ix,z:g.z,r:1.5,label:OW3D_ON?(sd==='w'?'West':'East')+' gate · out to the world map':to?'Drive to '+TOWN_NAME[to]:'Flights east · coming soon',disabled:!OW3D_ON&&!to,act:()=>{if(OW3D_ON)openWorld(z,sd);else if(to)WORLD.enter(to,sd==='e'?'w':'e');}});});
     if(z==='island')return;};
   // Rottnest has no wall: the jetty takes you out to the map
-  const _t2=cbdTargets;cbdTargets=function(T){_t2(T);if(zoneOf(player.x)!=='island')return;const J=IW(-16,4.4),L=[J.x+1.7,J.z];const ok=typeof freoUnlocked!=='function'||freoUnlocked();T.push({x:L[0],z:L[1],r:1.1,label:ok?'World map · drive off the ferry':'World map: locked (see Quests)',disabled:!ok,act:()=>{if(ok)openWorld('island','e');}});};
+  const _t2=cbdTargets;cbdTargets=function(T){_t2(T);if(zoneOf(player.x)!=='island'||!OW3D_ON)return;const J=IW(-16,4.4),L=[J.x+1.7,J.z];const ok=typeof freoUnlocked!=='function'||freoUnlocked();T.push({x:L[0],z:L[1],r:1.1,label:ok?'World map · drive off the ferry':'World map: locked (see Quests)',disabled:!ok,act:()=>{if(ok)openWorld('island','e');}});};
   window.openWorld=function(from,side){if(transit||VISIT||(overlay&&overlay!=='wm'))return;transit=true;fadeTarget=.95;
     setTimeout(()=>{transit=false;fadeTarget=0;overlay='wm';ui.hud.hidden=true;ui.act.hidden=true;$('#wmOv').hidden=false;WORLD.map.start(from,side);},500);};
   WORLD.enter=(id,side)=>enter(id,side);

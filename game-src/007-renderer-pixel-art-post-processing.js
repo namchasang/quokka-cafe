@@ -13,6 +13,8 @@ const CAM_DIR=new THREE.Vector3(0,.6,.8).normalize();
 let camDist=14,yaw=0,yawT=0,zm=1;
 const camOff=new THREE.Vector3();
 const rt=new THREE.WebGLRenderTarget(2,2,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat});
+var CINE_LIVE=false;const CINE_ON=CINE_LIVE||/[?&#](lab|cine)\b/.test(location.search+location.hash);// Look Lab: Cinematic camera, Rottnest first
+if(CINE_ON){rt.depthTexture=new THREE.DepthTexture(2,2);rt.depthTexture.type=THREE.UnsignedIntType;}
 const post=new THREE.ShaderMaterial({
   uniforms:{tDiffuse:{value:rt.texture},res:{value:new THREE.Vector2(2,2)},tint:{value:new THREE.Vector3(1,1,1)},focus:{value:.45},px:{value:DPR},fade:{value:0},bloomK:{value:1},blurK:{value:1}},
   vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}',
