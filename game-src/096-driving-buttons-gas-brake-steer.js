@@ -25,7 +25,7 @@ function frame(now){if(!OPEN)return;const dt=Math.min(.05,(now-last)/1000);last=
   kip.visible=!ST.inCar;shadow.visible=!ST.inCar;const ky=ST.ride?1.2:groundAt(ST.x,ST.z);kip.position.set(ST.x,ky,ST.z);shadow.position.set(ST.x,ky+.05,ST.z);
   const fr=(ST.step|0)%2;if(kipT.image!==kipFrames[fr]){kipT.image=kipFrames[fr];kipT.needsUpdate=true;}
   // camera: behind and above, like an old overworld
-  const dist=(ST.inCar?15:20)*ZOOM,hgt=(ST.inCar?7.5:14)*ZOOM;const tx=ST.x,tz=ST.z,ty=ky+1.5;
+  const PZ=cam.aspect<1?1.3:1,dist=(ST.inCar?15:20)*ZOOM*PZ,hgt=(ST.inCar?7.5:14)*ZOOM*PZ;const tx=ST.x,tz=ST.z,ty=ky+1.5;
   camP.set(tx+Math.sin(ST.yaw)*dist,Math.max(ty+hgt,H(tx+Math.sin(ST.yaw)*dist,tz+Math.cos(ST.yaw)*dist)+4),tz+Math.cos(ST.yaw)*dist);camL.set(tx,ty,tz);
   if(!camInit){cam.position.copy(camP);camInit=true;}else cam.position.lerp(camP,Math.min(1,dt*4));cam.lookAt(camL);
   sun.position.set(tx-SUNO.x*90,SUNO.y*90,tz-SUNO.z*90);sun.target.position.set(tx,0,tz);
@@ -50,7 +50,6 @@ return{open(from){const t=TOWNS.find(t=>t.id===from);let x,z;if(from==='island'|
   close(){OPEN=false;for(const k in keys)keys[k]=0;}};
 
 }
-
 if(WORLD.on&&WORLD3D_LIVE){let OW=null,root=null;
   const close3=()=>{if(OW)OW.close();if(root)root.hidden=true;};
   const ensure=()=>{if(OW)return;const st=document.createElement('style');st.textContent=OW3D_CSS;document.head.appendChild(st);root=document.createElement('div');root.id='owRoot';root.hidden=true;root.innerHTML=OW3D_HTML;document.body.appendChild(root);

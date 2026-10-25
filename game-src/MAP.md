@@ -96,10 +96,10 @@ Find code: `grep -n 'name' game-src/*`.
 | 088-sprites.js | 7985-8033 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
 | 089-loop.js | 8034-8079 | 5 | last, frame, label, perth, aus |
 | 090-city-walls-and-world-map-look-lab-lab.js | 8080-8212 | 20 | WORLD_LIVE, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF, _wmHide, _wmClose |
-| 091-3d-overworld-paul-approved-oct-2026-re.js | 8213-8225 | 5 | WORLD3D_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
+| 091-3d-overworld-paul-approved-oct-2026-re.js | 8213-8225 | 6 | WORLD3D_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
 | 092-const-real-w-600-h-400-land-4aaab.js | 8226-8226 | 117 | embedded data, do not open |
 | 093-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 8227-8330 | 14 | G, LAND, ELEV, elevAt, landAt, DL, R, P, fade, noise |
 | 094-low-poly-helpers.js | 8331-8372 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
 | 095-kip-pixel-sprite-and-little-retro-car.js | 8373-8417 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
-| 096-driving-buttons-gas-brake-steer.js | 8418-8480 | 8 | DRV, mm, drawMini, resize, last, frame |
-| 097-part.js | 8481-8483 | 0 |  |
+| 096-driving-buttons-gas-brake-steer.js | 8418-8479 | 8 | DRV, mm, drawMini, resize, last, frame |
+| 097-part.js | 8480-8482 | 1 |  |
