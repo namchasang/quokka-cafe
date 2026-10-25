@@ -90,8 +90,10 @@ Find code: `grep -n 'name' game-src/*`.
 | 082-look-lab-landscape-layers-of-each-real.js | 7321-7506 | 25 | LAB |
 | 083-hd-plants-every-tree-bush-flower-and-g.js | 7507-7574 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
 | 084-layered-pixel-trees-2-5d-look-lab-laye.js | 7575-7615 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 085-world-map-engine-shared-with-mockup.js | 7616-7689 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
-| 086-sprites.js | 7690-7738 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
-| 087-loop.js | 7739-7784 | 5 | last, frame, label, perth, aus |
-| 088-city-walls-and-world-map-look-lab-lab.js | 7785-7917 | 19 | WORLD_LIVE, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF, _wmHide, _wmClose |
-| 089-part.js | 7918-7920 | 0 |  |
+| 085-roo-road-rescue-cars-3d-shared-with-qu.js | 7616-7776 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
+| 086-car-dealership-on-teddington-rd-victor.js | 7777-7855 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
+| 087-world-map-engine-shared-with-mockup.js | 7856-7929 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
+| 088-sprites.js | 7930-7978 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
+| 089-loop.js | 7979-8024 | 5 | last, frame, label, perth, aus |
+| 090-city-walls-and-world-map-look-lab-lab.js | 8025-8157 | 20 | WORLD_LIVE, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF, _wmHide, _wmClose |
+| 091-part.js | 8158-8160 | 0 |  |

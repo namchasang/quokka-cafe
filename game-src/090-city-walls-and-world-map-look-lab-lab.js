@@ -125,7 +125,7 @@ if(WORLD.on)(()=>{
     setTimeout(()=>{S.time+=15;player.bike=false;player.carry=null;const W=WORLD.walls[id];let x,z;
       if(id==='island'){const J=IW(-16,4.4);x=J.x+1.7;z=J.z+.8;}else if(W&&W[side]){const g=W[side];x=side==='w'?g.x+1.4:g.x-1.4;z=g.z;}else{[x,z]=SAFE_SPOTS[id][0];}
       player.x=x;player.z=z;updateCamera(0,true);hideOverlays();fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[id]=1;if(id==='cbd'&&typeof cbdArrive==='function')cbdArrive('cbd');save();},700);}
-  WORLD.map=wmBuild($('#wmCv'),{air:typeof AIR!=='undefined'&&AIR.on,el:{name:$('#wmName'),note:$('#wmNote'),act:$('#wmAct'),tabP:$('#wmTabP'),tabA:$('#wmTabA')},
+  WORLD.map=wmBuild($('#wmCv'),{carSprite:()=>{const c=typeof carSel==='function'&&carSel();return c&&typeof CAR_SPR!=='undefined'?CAR_SPR[c]:null;},carSpeed:()=>{const c=typeof carSel==='function'&&carSel();const d=c&&typeof DEALER_STOCK!=='undefined'&&DEALER_STOCK.find(q=>q[0]===c);return d?d[2]:38;},air:typeof AIR!=='undefined'&&AIR.on,el:{name:$('#wmName'),note:$('#wmNote'),act:$('#wmAct'),tabP:$('#wmTabP'),tabA:$('#wmTabA')},
     side:(id,pref)=>{if(id==='island')return 'w';const W=WORLD.walls[id];if(!W)return pref;return W[pref]?pref:(W.w?'w':'e');},enter});
   $('#wmBack').onclick=()=>hideOverlays();
 })();
