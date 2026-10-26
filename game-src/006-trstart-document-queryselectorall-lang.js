@@ -74,4 +74,3 @@ const SPARK_PAL={y:'#ffe9a0',w:'#ffffff'};
 
 function pix(rows,pal){const h=rows.length,w=Math.max.apply(null,rows.map(r=>r.length));const c=mk(w,h),x=c.getContext('2d');rows.forEach((r,y)=>{for(let i=0;i<r.length;i++){const col=pal[r[i]];if(!col)continue;x.fillStyle=col;x.fillRect(i,y,1,1);}});return c;}
 function ctex(c,o){o=o||{};const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;if(o.rep){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(o.rep[0],o.rep[1]);t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;}else if(o.smooth){t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;}else{t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;}return t;}
-
