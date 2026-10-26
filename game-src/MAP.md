@@ -105,7 +105,8 @@ Find code: `grep -n 'name' game-src/*`.
 | 097-driving-buttons-gas-brake-steer.js | 8796-8840 | 6 | DRV, mm, drawMini, resize, last, frame |
 | 098-look2-look-lab-pixel-art-ground-perth.js | 8841-9001 | 18 | L2, L2hash, L2paint, L2objects |
 | 099-cinematic-look-lab-lab-or-cine-until-c.js | 9002-9084 | 9 | CINEMA, cineInit, _cv, cineTick |
-| 100-stations-and-ports-paul-oct-2026-walk.js | 9085-9113 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
-| 101-const-tour-page-u003c-doctype-html-u00.js | 9114-9114 | 51 | embedded data, do not open |
-| 102-function-opentours-opentravel-day-tour.js | 9115-9167 | 8 | openTours, TOUR, startTour, endTour, tex3Scene |
-| 103-part.js | 9168-9170 | 1 |  |
+| 100-ref-look-lab-lab-or-ref-paul-s-photos.js | 9085-9222 | 20 | REF_LIVE |
+| 101-stations-and-ports-paul-oct-2026-walk.js | 9223-9251 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
+| 102-const-tour-page-u003c-doctype-html-u00.js | 9252-9252 | 51 | embedded data, do not open |
+| 103-function-opentours-opentravel-day-tour.js | 9253-9305 | 8 | openTours, TOUR, startTour, endTour, tex3Scene |
+| 104-part.js | 9306-9308 | 1 |  |
