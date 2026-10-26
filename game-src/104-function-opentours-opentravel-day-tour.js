@@ -17,37 +17,30 @@ function endTour(){if(!TOUR)return;const T=TOUR.T;TOUR=null;transit=true;fadeTar
 {const _h4=hideOverlays;hideOverlays=function(){if(TOUR){TOUR=null;const ov=document.getElementById('tourOv');if(ov){ov.hidden=true;document.getElementById('tourFr').srcdoc='';}}_h4();};}
 {const _tt=cbdTargets;cbdTargets=function(T){_tt(T);let zq;try{zq=zoneOf(player.x);}catch(e){return;}if(zq!=='cbd')return;T.push({x:TOUR_DESK.x+.5,z:TOUR_DESK.z,r:1.2,label:'Siam Sydney Services · day tours',act:()=>openTours()});};}
 // ---------- TEX3 on Rottnest: soft shade at the foot of every wall, and painted vehicles ----------
-function tex3Scene(){tex3Scene.done=true;const V3=new THREE.Vector3(),cache=new Map(),vcache=new Map();let walls=0,cars=0;
-  const islandAt=o=>{o.getWorldPosition(V3);scene.worldToLocal(V3);try{return zoneOf(V3.x)==='island';}catch(e){return false;}};
-  // vehicles: a group with three or more wheels; its biggest box is the body, dark boxes are glass
-  const groups=new Set();scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='CylinderGeometry'&&o.parent&&o.parent!==scene){const p=o.parent;p.__wheels=(p.__wheels||0)+1;if(p.__wheels>=3)groups.add(p);}});
-  const paint=(col,kind)=>{const key=col+kind;if(vcache.has(key))return vcache.get(key);const c=mk(32,16),x=c.getContext('2d');const B=T3.hex(col);const sh=k=>`rgb(${B.map(v=>Math.max(0,Math.min(255,Math.round(v*k)))).join(',')})`;
-    if(kind==='glass'){x.fillStyle=sh(1);x.fillRect(0,0,32,16);x.fillStyle='rgba(190,220,250,.45)';for(let i=0;i<3;i++){x.beginPath();x.moveTo(4+i*11,0);x.lineTo(8+i*11,0);x.lineTo(2+i*11,16);x.lineTo(-2+i*11,16);x.fill();}x.fillStyle='rgba(255,255,255,.25)';x.fillRect(0,0,32,1);}
-    else{for(let y=0;y<16;y++){const k=y<2?1.16:y<5?1.06:y>12?.82:1;x.fillStyle=sh(k);x.fillRect(0,y,32,1);}
-      x.fillStyle=sh(.7);x.fillRect(11,3,1,10);x.fillRect(21,3,1,10);x.fillRect(0,9,32,1);x.fillStyle=sh(1.25);x.fillRect(0,2,32,1);
-      x.fillStyle='#d8d8d4';x.fillRect(14,7,2,1);x.fillRect(24,7,2,1);
-      for(let y=11;y<16;y++)for(let xx=0;xx<32;xx++)if(l2hash(xx,y,91)<(y-10)*.12){x.fillStyle=l2hash(xx,y,92)<.5?'rgba(150,92,56,.55)':'rgba(120,80,52,.5)';x.fillRect(xx,y,1,1);}}
-    const t=ctex(c);const m=new THREE.MeshLambertMaterial({map:t});vcache.set(key,m);return m;};
-  groups.forEach(g=>{if(!islandAt(g))return;let body=null,bv=0;g.children.forEach(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='BoxGeometry'||!o.material||o.material.map)return;const p=o.geometry.parameters,v=p.width*p.height*p.depth;
-      const col='#'+o.material.color.getHexString(),l=o.material.color.r+o.material.color.g+o.material.color.b;
-      if(l<.5&&p.height<.6){o.material=paint(col,'glass');return;}if(v>bv){bv=v;body=o;}});
-    if(body){body.material=paint('#'+body.material.color.getHexString(),'body');cars++;}});
-  // walls: darker at the foot, lighter up high, like light bouncing off the ground (soft contact shade)
-  scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.geometry||o.geometry.type!=='BoxGeometry'||!o.material||Array.isArray(o.material))return;const p=o.geometry.parameters;if(p.height<1.1||p.width<.6&&p.depth<.6)return;
-    if(o.parent&&o.parent.__wheels>=3)return;if(!islandAt(o))return;const m=o.material;if(m.vertexColors||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial))return;
-    let mc=cache.get(m);if(!mc){mc=m.clone();mc.vertexColors=true;cache.set(m,mc);}
-    const g=o.geometry.clone(),pos=g.attributes.position,col=new Float32Array(pos.count*3),h=p.height;
-    for(let i=0;i<pos.count;i++){const y=pos.getY(i)+h/2;const k=.7+.3*Math.min(1,y/Math.min(1.4,h*.55));col[i*3]=k;col[i*3+1]=k*.99;col[i*3+2]=k*.97;}
-    g.setAttribute('color',new THREE.BufferAttribute(col,3));o.geometry=g;o.material=mc;walls++;});
-  tex3Scene.stats={walls,cars};}
-
-if(WORLD.on&&(WORLD3D_LIVE||OW3D_ON)){let OW=null,root=null;
-  const close3=()=>{if(OW)OW.close();if(root)root.hidden=true;};
-  const ensure=()=>{if(OW)return;const st=document.createElement('style');st.textContent=OW3D_CSS;document.head.appendChild(st);root=document.createElement('div');root.id='owRoot';root.hidden=true;root.innerHTML=OW3D_HTML;document.body.appendChild(root);
-    OW=OW3DBuild(root,{look2:OW_LOOK2_LIVE||/[?&#](lab|ow2)\b/.test(location.search+location.hash),enter:(id,side)=>{close3();WORLD.enter(id,side);},back:()=>hideOverlays(),
-      carColor:()=>{const c=typeof carSel==='function'&&carSel();return c&&c!=='retro'&&typeof RRR!=='undefined'&&RRR.CARS[c]?RRR.CARS[c].color:null;}});};
-  const _h3=hideOverlays;hideOverlays=function(){_h3();close3();};
-  window.openWorld=function(from,side){if(transit||VISIT||(overlay&&overlay!=='wm'))return;transit=true;fadeTarget=.95;
-    setTimeout(()=>{try{ensure();}catch(e){console.error(e);transit=false;fadeTarget=0;return;}transit=false;fadeTarget=0;overlay='wm';ui.hud.hidden=true;ui.act.hidden=true;root.hidden=false;OW.open(from);},500);};
-}
-})();
+/* ==== PXKIT: pixel-art building parts (3d shapes, pixel skins) · Paul Oct 2026 ====
+   One kit for walls, roofs, windows, doors and trims. Every painter draws at PXK.PPM pixels per metre
+   (32 = the original sprite pixel size), so a wall 3 m wide is 96 px and matches the people and plants.
+   PXK.wall(w,h,{base,kind,win,door,quoins,plinth,cornice,moss,ivy,seed}) -> canvas
+   PXK.roof(w,h,{base,kind:'tile'|'slate'|'tin',seed,across}) -> canvas (rows run along x unless across)
+   PXK.window(lit) / PXK.door(col) -> small canvases for separate panes
+   Colours: give the building's own colour as base; the kit lights the tops and shades the bottoms of every block. */
+var PXK=(function(){
+const PPM=32;
+let S=1;const rnd=()=>(S=(S*16807)%2147483647)/2147483647,seed=s=>{S=(s|0)%2147483646+1;};
+const rgb=c=>{if(Array.isArray(c))return c;if(c[0]==='r')return c.match(/\d+/g).slice(0,3).map(Number);const n=parseInt(c.replace('#',''),16);return[(n>>16)&255,(n>>8)&255,n&255];};
+const sh=(c,f)=>{const a=rgb(c);return`rgb(${Math.min(255,a[0]*f|0)},${Math.min(255,a[1]*f|0)},${Math.min(255,a[2]*f|0)})`;};
+const mix=(a,b,t)=>{a=rgb(a);b=rgb(b);return'#'+[0,1,2].map(i=>Math.round(a[i]+(b[i]-a[i])*t).toString(16).padStart(2,'0')).join('');};
+const lum=c=>{const a=rgb(c);return(a[0]*.3+a[1]*.59+a[2]*.11)/255;};
+function cv(w,h){const c=document.createElement('canvas');c.width=Math.max(2,w|0);c.height=Math.max(2,h|0);const x=c.getContext('2d');x.imageSmoothingEnabled=false;return[c,x];}
+const P=(x,c,X,Y,W=1,H=1)=>{x.fillStyle=c;x.fillRect(X|0,Y|0,W|0,H|0);};
+const INK='#2a2230';
+/* --- surfaces --- */
+function blocks(x,W,H,base,{rowH=7,minW=10,varW=8,mortar=.62,y0=0,h1=H}={}){P(x,sh(base,mortar),0,y0,W,h1-y0);let y=y0,row=0;
+  while(y<h1){const bh=Math.min(rowH+(row%2),h1-y);let X=-((row*5)%9);while(X<W){const bw=minW+(rnd()*varW|0),f=.9+rnd()*.15;P(x,sh(base,f),X+1,y+1,bw-1,bh-1);P(x,sh(base,f*1.1),X+1,y+1,bw-1,1);P(x,sh(base,f*.86),X+1,y+bh-1,bw-1,1);
+    if(rnd()<.22)P(x,sh(base,f*.8),X+2+(rnd()*(bw-4)|0),y+2+(rnd()*Math.max(1,bh-4)|0));X+=bw;}y+=bh;row++;}}
+function plaster(x,W,H,base){P(x,base,0,0,W,H);for(let i=0;i<W*H/9;i++){const f=rnd()<.5?.95:1.04;P(x,sh(base,f),rnd()*W,rnd()*H);}
+  for(let i=0;i<W/18;i++){const X=rnd()*W|0,Y=rnd()*H*.8|0;for(let k=0;k<4;k++)P(x,sh(base,.9),X+k,Y+(k>>1));}}
+function weatherboard(x,W,H,base){for(let y=0;y<H;y+=5){const f=.94+rnd()*.08;P(x,sh(base,f),0,y,W,5);P(x,sh(base,f*1.12),0,y,W,1);P(x,sh(base,f*.72),0,y+4,W,1);}}
+function bricks(x,W,H,base){P(x,sh(base,.6),0,0,W,H);for(let y=0,r=0;y<H;y+=4,r++)for(let X=-(r%2)*4;X<W;X+=8){const f=.86+rnd()*.24;P(x,sh(base,f),X+1,y+1,7,3);P(x,sh(base,f*1.12),X+1,y+1,7,1);}}
+function moss(x,W,H,amt=1){for(let i=0;i<W*1.3*amt;i++){const X=rnd()*W|0,Y=H-1-(Math.pow(rnd(),2.2)*H*.26|0);P(x,rnd()<.5?'#5d7a3a':'#7a9a48',X,Y);}}
+function ivy(x,X0,W,H){const top=H*(.35+rnd()*.35);for(let i=0;i<W*H*.08;i++){const X=X0+rnd()*W|0,Y=H-(Math.pow(rnd(),.8)*(H-top))|0;const c=['#3f7a34','#5a9a40','#2f6a2e','#78b050'][rnd()*4|0];P(x,c,X,Y,2,2);if(rnd()<.3)P(x,'#9ad060',X,Y);}}
