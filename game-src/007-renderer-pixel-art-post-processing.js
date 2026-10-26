@@ -1,7 +1,7 @@
 // ---------- renderer + pixel-art post-processing ----------
 const stage=$('#stage');
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
-const DPR=Math.min(window.devicePixelRatio||1,1.5);
+const DPR=Math.min(window.devicePixelRatio||1,/[?&#]px4\b/.test(location.search+location.hash)?2:1.5);// Look Lab ?px4: sharper screen
 renderer.setPixelRatio(DPR);
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 stage.appendChild(renderer.domElement);

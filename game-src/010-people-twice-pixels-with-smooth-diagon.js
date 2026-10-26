@@ -27,7 +27,13 @@ function charHD(src){const W=src.width,H=src.height,s=src.getContext('2d').getIm
   // eye shine: a small dark spot in a light face area gets a white sparkle
   for(let y=1;y<Math.floor(H*.55);y++)for(let x=1;x<W-1;x++){const k=key(x,y);if(k<0||lum(k)>.25)continue;const nb=[key(x,y-1),key(x-1,y),key(x+1,y),key(x,y+1)];if(nb.some(q=>q<0||lum(q)<.42))continue;res[(y*2)*W2+x*2]=0xffffff;}
   const cv=mk(W2,H2),cx=cv.getContext('2d'),id=cx.createImageData(W2,H2),d=id.data;for(let i=0;i<W2*H2;i++){const k=res[i];if(k<0)continue;d[i*4]=(k>>16)&255;d[i*4+1]=(k>>8)&255;d[i*4+2]=k&255;d[i*4+3]=255;}cx.putImageData(id,0,0);return cv;}
-if(LOOK2.on){const _mk=mkFrame;mkFrame=function(f){const had=!!f.m;const r=_mk(f);if(!had&&f.t&&f.c&&f.c.width<=96&&f.c.width>=16&&f.c.height>=20){f.lo=f.c;f.hi=charHD(f.c);f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};}
+// ?px4: one more clean 2x pass over the HD frame (corner smoothing only, the shading is already done)
+function epx2(src){const W=src.width,H=src.height,s=src.getContext('2d').getImageData(0,0,W,H).data,W2=W*2,H2=H*2;const k=(x,y)=>{if(x<0||y<0||x>=W||y>=H)return -1;const o=(y*W+x)*4;return s[o+3]<128?-1:(s[o]<<16)|(s[o+1]<<8)|s[o+2];};
+  const cv=mk(W2,H2),cx=cv.getContext('2d'),id=cx.createImageData(W2,H2),d=id.data;const put=(x,y,v)=>{if(v<0)return;const i=(y*W2+x)*4;d[i]=(v>>16)&255;d[i+1]=(v>>8)&255;d[i+2]=v&255;d[i+3]=255;};
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const P=k(x,y),A=k(x,y-1),B=k(x+1,y),C=k(x-1,y),D=k(x,y+1);let e0=P,e1=P,e2=P,e3=P;
+    if(C===A&&C!==D&&A!==B&&A>=0&&P>=0)e0=A;if(A===B&&A!==C&&B!==D&&B>=0&&P>=0)e1=B;if(D===C&&D!==B&&C!==A&&C>=0&&P>=0)e2=C;if(B===D&&B!==A&&D!==C&&D>=0&&P>=0)e3=D;
+    put(x*2,y*2,e0);put(x*2+1,y*2,e1);put(x*2,y*2+1,e2);put(x*2+1,y*2+1,e3);}cx.putImageData(id,0,0);return cv;}
+if(LOOK2.on){const _mk=mkFrame;mkFrame=function(f){const had=!!f.m;const r=_mk(f);if(!had&&f.t&&f.c&&f.c.width<=96&&f.c.width>=16&&f.c.height>=20){f.lo=f.c;f.hi=PX4_ON?epx2(charHD(f.c)):charHD(f.c);f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};}
 // ---- apply to every plant: replaces the v1 HD pass when the layer is on ----
 function plant2Apply(){if(!LOOK2.on)return;const tset=new Set(trees.map(t=>t.m.material&&t.m.material.map));const seen=new Map();const season=typeof S!=='undefined'&&S.day?seasonOf(S.day):0;
   BB.forEach(o=>{if(o.userData.frames)return;const m=o.material,t=m&&m.map;if(!t||!t.image)return;if(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))return;

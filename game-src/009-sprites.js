@@ -19,6 +19,7 @@ function setFrame(m,i){m.userData.step=i;showFrame(m);}
 // jacaranda, boab), seasonal leaves and blossom, and leaves or petals blowing in the wind.
 // People: every character frame at twice the pixels with smoothed diagonals, a thin outline, soft volume and eye shine.
 const LOOK2_LIVE=true;
+var PX4_LIVE=false;const PX4_ON=PX4_LIVE||/[?&#]px4\b/.test(location.search+location.hash);// Look Lab: plants and people at four times the pixels
 var LEAF3_LIVE=false;var PLANT3X_LIVE=false;const PLANT3X_ON=PLANT3X_LIVE||/[?&#](lab|r3|fine)\b/.test(location.search+location.hash);// Look Lab: plants at three times the pixels
 var ROTT3_LIVE=false;const ROTT3_ON=ROTT3_LIVE||/[?&#](lab|r3)\b/.test(location.search+location.hash);// Look Lab: Rottnest's own plants, hand-painted paths, buildings and vehicles
 const LEAF3_ON=LEAF3_LIVE||/[?&#](lab|leaf3|r3)\b/.test(location.search+location.hash);// Look Lab: plants painted leaf by leaf
@@ -55,7 +56,7 @@ function plantParse(src){const W=src.width,H=src.height,sx=src.getContext('2d').
 function l2ramp(dk,lt){const mix=(a,b,t)=>a.map((v,k)=>v+(b[k]-v)*t);const R=[];for(let k=0;k<7;k++){const t=k/6;let c=mix(dk.map(v=>v*.74),lt.map(v=>Math.min(255,v*1.1)),t);c=[c[0]+(t-.5)*16,c[1]+(t-.5)*6,c[2]-(t-.5)*18].map(v=>Math.max(0,Math.min(255,Math.round(v))));R.push(c);}return R;}
 const L2_AUTUMNS=[l2ramp([92,40,22],[244,196,92]),l2ramp([104,36,18],[250,150,64]),l2ramp([86,22,22],[232,96,62])],L2_AUTUMN=L2_AUTUMNS[0],L2_GREEN=l2ramp([45,90,44],[160,200,100]),L2_WINTER=l2ramp([40,64,48],[132,160,110]);
 // paint one plant (season 0 summer, 1 autumn, 2 winter, 3 spring); returns the picture and a rim-light mask
-function plantPaint(P,season,seed){const{W,H,sx,T}=P,SC=PLANT3X_ON?3:2,W2=W*SC,H2=H*SC,kind=P.kind;const LS=SC/2;const rnd=mulberry32(seed|0);const R=()=>rnd();
+function plantPaint(P,season,seed){const{W,H,sx,T}=P,SC=PX4_ON?4:PLANT3X_ON?3:2,W2=W*SC,H2=H*SC,kind=P.kind;const LS=SC/2;const rnd=mulberry32(seed|0);const R=()=>rnd();
   let RAMP=l2ramp(P.dk,P.lt);const blend=(A,B,t)=>A.map((c,i)=>c.map((v,k)=>Math.round(v+(B[i][k]-v)*t)));
   const sp=P.sp||null;if(sp&&ROTT_RAMP[sp])RAMP=ROTT_RAMP[sp];
   const deciduous=!sp&&(kind==='broad'||kind==='bush');
