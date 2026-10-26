@@ -9085,7 +9085,7 @@ function cineTick(){if(!rt.depthTexture)return;if(!CINEMA.ready)cineInit();const
 // ---------- REF (Look Lab ?lab or ?ref, Paul's photos, Oct 2026): Perth Station's heritage front, Victoria Park's shop strip,
 // a Thai garden restaurant in an old cottage, a grand old hotel, brick townhouses with balconies, red bike lanes and
 // weeping peppermints in the suburbs, and more detail on Fremantle's prison and station. Names are fictional.
-var REF_LIVE=false;const REF_ON=REF_LIVE||/[?&#](lab|ref)\b/.test(location.search+location.hash);
+var REF_LIVE=true;const REF_ON=REF_LIVE||/[?&#](lab|ref)\b/.test(location.search+location.hash);
 if(REF_ON)(()=>{const G=new THREE.Group();scene.add(G);
   const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
   const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d),C=(a,b,h,s)=>new THREE.CylinderGeometry(a,b,h,s||10);
