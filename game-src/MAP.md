@@ -84,28 +84,28 @@ Find code: `grep -n 'name' game-src/*`.
 | 076-fremantle-town-plan-same-look-lab-laye.js | 6961-7082 | 15 |  |
 | 077-perth-cbd-fill-empty-corners-same-look.js | 7083-7140 | 7 |  |
 | 078-perth-cbd-busy-footpaths-same-look-lab.js | 7141-7222 | 9 |  |
-| 079-fremantle-opened-up-look-lab-lab-or-fr.js | 7223-7428 | 27 | FREO4_LIVE, FREO5_LIVE |
-| 080-island-loop-bus-a-19-stop-loop-bus-lik.js | 7429-7474 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 081-tidy-island-after-it-grows-nothing-on.js | 7475-7584 | 13 | flipIslandSigns, hot |
-| 082-live-mode-live-1-kip-runs-caf-on-his-o.js | 7585-7659 | 8 | LIVEM |
-| 083-look-lab-landscape-layers-of-each-real.js | 7660-7845 | 25 | LAB |
-| 084-hd-plants-every-tree-bush-flower-and-g.js | 7846-7913 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 085-layered-pixel-trees-2-5d-look-lab-laye.js | 7914-7954 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 086-roo-road-rescue-cars-3d-shared-with-qu.js | 7955-8115 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
-| 087-car-dealership-on-teddington-rd-victor.js | 8116-8194 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
-| 088-world-map-engine-shared-with-mockup.js | 8195-8268 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
-| 089-sprites.js | 8269-8317 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
-| 090-loop.js | 8318-8363 | 5 | last, frame, label, perth, aus |
-| 091-city-walls-and-world-map-look-lab-lab.js | 8364-8503 | 21 | WORLD_LIVE, OW3D_ON, TOWN_LINK, TOWN_NAME, linkTo, linkSignText, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF |
-| 092-3d-overworld-paul-approved-oct-2026-re.js | 8504-8517 | 6 | WORLD3D_LIVE, OW_LOOK2_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
-| 093-const-real-w-600-h-400-land-4aaab.js | 8518-8518 | 117 | embedded data, do not open |
-| 094-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 8519-8622 | 14 | G, LAND, ELEV, elevAt, landAt, DL, R, P, fade, noise |
-| 095-low-poly-helpers.js | 8623-8664 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
-| 096-kip-pixel-sprite-and-little-retro-car.js | 8665-8709 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
-| 097-driving-buttons-gas-brake-steer.js | 8710-8754 | 6 | DRV, mm, drawMini, resize, last, frame |
-| 098-look2-look-lab-pixel-art-ground-perth.js | 8755-8915 | 18 | L2, L2hash, L2paint, L2objects |
-| 099-cinematic-look-lab-lab-or-cine-until-c.js | 8916-8998 | 9 | CINEMA, cineInit, _cv, cineTick |
-| 100-stations-and-ports-paul-oct-2026-walk.js | 8999-9027 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
-| 101-const-tour-page-u003c-doctype-html-u00.js | 9028-9028 | 51 | embedded data, do not open |
-| 102-function-opentours-opentravel-day-tour.js | 9029-9081 | 8 | openTours, TOUR, startTour, endTour, tex3Scene |
-| 103-part.js | 9082-9084 | 1 |  |
+| 079-fremantle-opened-up-look-lab-lab-or-fr.js | 7223-7514 | 41 | FREO4_LIVE, FREO5_LIVE |
+| 080-island-loop-bus-a-19-stop-loop-bus-lik.js | 7515-7560 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 081-tidy-island-after-it-grows-nothing-on.js | 7561-7670 | 13 | flipIslandSigns, hot |
+| 082-live-mode-live-1-kip-runs-caf-on-his-o.js | 7671-7745 | 8 | LIVEM |
+| 083-look-lab-landscape-layers-of-each-real.js | 7746-7931 | 25 | LAB |
+| 084-hd-plants-every-tree-bush-flower-and-g.js | 7932-7999 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 085-layered-pixel-trees-2-5d-look-lab-laye.js | 8000-8040 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 086-roo-road-rescue-cars-3d-shared-with-qu.js | 8041-8201 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
+| 087-car-dealership-on-teddington-rd-victor.js | 8202-8280 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
+| 088-world-map-engine-shared-with-mockup.js | 8281-8354 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
+| 089-sprites.js | 8355-8403 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
+| 090-loop.js | 8404-8449 | 5 | last, frame, label, perth, aus |
+| 091-city-walls-and-world-map-look-lab-lab.js | 8450-8589 | 21 | WORLD_LIVE, OW3D_ON, TOWN_LINK, TOWN_NAME, linkTo, linkSignText, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF |
+| 092-3d-overworld-paul-approved-oct-2026-re.js | 8590-8603 | 6 | WORLD3D_LIVE, OW_LOOK2_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
+| 093-const-real-w-600-h-400-land-4aaab.js | 8604-8604 | 117 | embedded data, do not open |
+| 094-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 8605-8708 | 14 | G, LAND, ELEV, elevAt, landAt, DL, R, P, fade, noise |
+| 095-low-poly-helpers.js | 8709-8750 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
+| 096-kip-pixel-sprite-and-little-retro-car.js | 8751-8795 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
+| 097-driving-buttons-gas-brake-steer.js | 8796-8840 | 6 | DRV, mm, drawMini, resize, last, frame |
+| 098-look2-look-lab-pixel-art-ground-perth.js | 8841-9001 | 18 | L2, L2hash, L2paint, L2objects |
+| 099-cinematic-look-lab-lab-or-cine-until-c.js | 9002-9084 | 9 | CINEMA, cineInit, _cv, cineTick |
+| 100-stations-and-ports-paul-oct-2026-walk.js | 9085-9113 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
+| 101-const-tour-page-u003c-doctype-html-u00.js | 9114-9114 | 51 | embedded data, do not open |
+| 102-function-opentours-opentravel-day-tour.js | 9115-9167 | 8 | openTours, TOUR, startTour, endTour, tex3Scene |
+| 103-part.js | 9168-9170 | 1 |  |

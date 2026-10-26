@@ -1,6 +1,6 @@
 // ---------- Fremantle opened up (Look Lab ?lab or ?freo4, Paul Oct 2026: as easy to walk as the city) ----------
 // The southern streets, back lane and cross streets become walkable, and thin posts (verandah posts, poles, bollards) stop blocking the footpaths.
-var FREO4_LIVE=false;const FREO4_ON=FREO4_LIVE||/[?&#](lab|freo4|freo5)\b/.test(location.search+location.hash);
+var FREO4_LIVE=true;const FREO4_ON=FREO4_LIVE||/[?&#](lab|freo4|freo5)\b/.test(location.search+location.hash);
 if(FREO4_ON&&FDET.on&&FHOMES_ON){
   const R=[[270,356,21.4,28.1],[270,356,38.7,42.9],[272,355.5,32.8,34.05],[302.6,305.4,21.4,42.9],[318.6,321.4,21.4,42.9],[334.8,337.6,21.4,42.9]];
   const _fw4=freoWalk;freoWalk=function(x,z){if(_fw4(x,z))return true;return R.some(r=>x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]);};
@@ -12,7 +12,7 @@ if(FREO4_ON&&FDET.on&&FHOMES_ON){
 // Market St, South Terrace (the Cappuccino Strip), William St and Parry St; Kings Square with the Town Hall and St John's,
 // the Esplanade park with the wheel, the prison forecourt and a hilltop park. Wide footpaths (1.6), roads 2.4, plazas.
 // Every shop door, NPC and story spot stays where it was, so the story and quests work unchanged.
-var FREO5_LIVE=false;const FREO5_ON=FREO5_LIVE||/[?&#](lab|freo5)\b/.test(location.search+location.hash);
+var FREO5_LIVE=true;const FREO5_ON=FREO5_LIVE||/[?&#](lab|freo5)\b/.test(location.search+location.hash);
 if(FREO5_ON&&FDET.on)(()=>{
   const RX1=274.4,RX2=357.5,RZ1=-14.6,RZ2=21.45;// the core rectangle that is rebuilt
   const KEEP=[[292.8,302.2,-13.1,-10.1]];// Fremantle station stays as it is
@@ -24,7 +24,7 @@ if(FREO5_ON&&FDET.on)(()=>{
       if(o.isLight&&!o.isDirectionalLight&&!o.isHemisphereLight&&!o.isAmbientLight){o.getWorldPosition(c);if(inR(c.x,c.z)&&!kept(c.x,c.z))hide.push(o);return;}
       if(o.isInstancedMesh){let n=0;for(let i=0;i<o.count;i++){o.getMatrixAt(i,m4);m4.decompose(p,q,s);p.applyMatrix4(o.matrixWorld);if(inR(p.x,p.z)&&!kept(p.x,p.z)){m4.compose(p.set(0,-50,0),q,s.set(0,0,0));o.setMatrixAt(i,m4);n++;}}if(n)o.instanceMatrix.needsUpdate=true;return;}
       if(!(o.isMesh||o.isSprite))return;if(o.userData.frames)return;bx.setFromObject(o);if(bx.isEmpty())return;bx.getCenter(c);bx.getSize(sz);
-      if((sz.x>40||sz.z>40)&&!(Math.min(sz.x,sz.z)<6&&bx.max.y<.2))return;if((sz.x>40||sz.z>40)){if(c.z<RZ1||c.z>RZ2)return;}else if(!inR(c.x,c.z)||kept(c.x,c.z))return;if(bx.max.y<.12&&NPCP.some(([x,z])=>Math.hypot(x-c.x,z-c.z)<.35))return;hide.push(o);});
+      if((sz.x>40||sz.z>40)&&!(Math.min(sz.x,sz.z)<6&&bx.max.y<.2))return;if(!inR(c.x,c.z)||kept(c.x,c.z))return;if((sz.x>40||sz.z>40)&&(bx.min.x<RX1-25||bx.max.x>RX2+25))return;if(bx.max.y<.12&&NPCP.some(([x,z])=>Math.hypot(x-c.x,z-c.z)<.35))return;hide.push(o);});
     hide.forEach(o=>{o.visible=false;o.userData.freo5Hidden=1;});scene.scale.x=sx;scene.updateMatrixWorld(true);FDET.freo5Hidden=hide.length;
     for(let i=trees.length-1;i>=0;i--){const t=trees[i];if(inR(t.x,t.z)&&!t.m.visible)trees.splice(i,1);}}
   for(let i=colliders.length-1;i>=0;i--){const c=colliders[i],cx=(c.x1+c.x2)/2,cz=(c.z1+c.z2)/2;if(inR(cx,cz)&&!kept(cx,cz))colliders.splice(i,1);}
@@ -48,8 +48,8 @@ if(FREO5_ON&&FDET.on)(()=>{
   paint(286.4,292.9,-14.4,-9.8,tile(paveC,6.5,4.6,1.6),.034);// the quay plaza by the ferry gangway
   paint(308.2,315.2,17.0,19.4,tile(pavC,7,2.4,2),.034);paint(320.8,328.2,8.4,13.4,tile(pavC,7.4,5,2),.034);// market and prison forecourts
   paint(275,294.2,4.4,21.4,tile(grassC,19.2,17,2.2),.03);paint(274.6,281,-4.2,4.4,tile(grassC,6.4,8.6,2.2),.03);paint(333.8,357,-5.8,21.4,tile(grassC,23,27,2.2),.03);
-  road(279,333.4,-8.2,-5.8);road(281,295.8,.4,2.8);road(295.8,298.2,-5.8,21.4,1);road(304.2,306.6,8.6,21.4,1);road(316.8,319.2,-14.4,21.4,1);road(329.8,332.2,-5.8,21.4,1);
-  zebra(297,-7,0,2.4);zebra(318,-7,0,2.4);zebra(297,1.6,1,2.4);zebra(305.4,9.6,0,2.4);zebra(318,9,0,2.4);
+  road(279,333.4,-8.2,-5.8);paint(281,295.8,-1.2,4.4,tile(paveC,14.8,5.6,1.6),.037);road(295.8,298.2,-5.8,21.4,1);road(304.2,306.6,8.6,21.4,1);road(316.8,319.2,-14.4,21.4,1);road(329.8,332.2,-5.8,21.4,1);
+  zebra(297,-7,0,2.4);zebra(318,-7,0,2.4);zebra(305.4,9.6,0,2.4);zebra(318,9,0,2.4);
   // paths through the Esplanade and up the hill
   paint(280.5,281.5,4.4,21.4,tile(pathC,1,17,1.2),.031);paint(276,294.2,15.6,16.6,tile(pathC,18,1,1.2),.031);paint(333.8,357,9,10,tile(pathC,23,1,1.2),.031);paint(344,345,-5.8,21.4,tile(pathC,1,27,1.2),.031);
   // street names
@@ -92,50 +92,121 @@ if(FREO5_ON&&FDET.on)(()=>{
   // north of Phillimore St: B-Shed, the quay plaza (gangway to the Rottnest ferry), the station (kept), shops, the William St corner
   {const g=bld(283.1,-12.4,5.8,3.4,2.8,'#9fb3c0',{win:false,sign:'B-SHED FERRY TERMINAL',signBg:'#1d3a6e',signY:2.2,noCol:true});G.add(g);block(280.2,-14.1,286.0,-10.7);
     for(let k=0;k<3;k++){const bl=put(C(.18,.2,.6,8),M('#3a3a3a'),287.2+k*2,.3,-14.1);}put(B(5.6,.1,.5),M('#b98552'),289.6,.05,-14.3);}
-  row(302.6,-10.4,315.0,-10.4,[0,1],3.2,[{w:4,name:'SEAGULL & CO. GIFTS',wall:'#b8d4d8'},{w:4.2},{w:4.2}]);
+  row(302.6,-10.4,310.8,-10.4,[0,1],3.2,[{w:4,name:'SEAGULL & CO. GIFTS',wall:'#b8d4d8'},{w:4.2}]);
+
   row(321.0,-10.4,333.2,-10.4,[0,1],3.2);
   // between Phillimore and High St: a terrace of shops facing High St, its back to Phillimore
   row(282.2,-1.2,294.0,-1.2,[0,1],2.9);
-  // the Round House on its hill: twelve-sided limestone gaol with a dark roof and a flagpole
-  {const rh=put(C(1.9,1.9,2.4,12),M('#e2d2a8'),278.0,1.2,-.6);const rr=put(C(.6,2.15,.9,12),M('#6a5a4a'),278.0,2.85,-.6);put(C(.04,.04,2.2,6),M('#f6f6f2'),278.0,4.3,-.6);
-    const fl=put(B(.7,.4,.02),M('#1d3a6e'),278.36,5.1,-.6,{nc:1});block(276.2,-2.4,279.8,1.2);
-    const pq=new THREE.Mesh(new THREE.PlaneGeometry(.6,.36),new THREE.MeshBasicMaterial({map:makeSign(['ROUND HOUSE','1831'],48,22,'#5a3a22','#f5ecd8')}));pq.position.set(278.0,1.0,1.32);G.add(pq);}
-  // Kings Square: the Town Hall (clock tower on the corner) and St John's, planters and benches
-  {const th=shop(308.0,-4.2,[0,-1],6.8,3.6,{storeys:2,wall:'#efe0b8',name:'TOWN HALL',spanish:false,ver:false,door:'#3a2a22'});
-    put(B(1.6,6.4,1.6),M('#efe0b8'),305.4,3.2,-3.4);put(new THREE.ConeGeometry(1.25,1.8,4),M('#5a6a6a'),305.4,7.3,-3.4,{ry:Math.PI/4});
-    const ck=new THREE.Mesh(new THREE.CircleGeometry(.42,16),new THREE.MeshBasicMaterial({map:(()=>{const c=mk(24,24),x=c.getContext('2d');x.fillStyle='#f6f2e8';x.beginPath();x.arc(12,12,11,0,7);x.fill();x.strokeStyle='#2a2a2a';x.lineWidth=2;x.beginPath();x.moveTo(12,12);x.lineTo(12,4);x.moveTo(12,12);x.lineTo(17,14);x.stroke();return ctex(c);})()}));
-    ck.position.set(305.4,5.4,-4.21);ck.rotation.y=Math.PI;G.add(ck);block(304.6,-4.2,306.2,-2.6);}
-  {// St John's: limestone nave, steep slate roof, a tower with a spire at the north end (door on the north face)
-    const x0=313.4,z1=-2.4,z2=5.6,w=3.2;put(B(w,3.2,z2-z1),M('#e8dcc0'),x0,1.6,(z1+z2)/2);const sh=new THREE.Shape();sh.moveTo(-w/2-.1,0);sh.lineTo(w/2+.1,0);sh.lineTo(0,1.7);sh.closePath();
-    const rg=new THREE.ExtrudeGeometry(sh,{depth:z2-z1-1.6,bevelEnabled:false});const rf=new THREE.Mesh(rg,M('#4a5058'));rf.position.set(x0,3.2,z1+1.6);rf.castShadow=true;G.add(rf);
-    put(B(1.8,5,1.8),M('#e2d6b8'),x0,2.5,z1+.9);put(new THREE.ConeGeometry(1.1,3,4),M('#4a5058'),x0,6.5,z1+.9,{ry:Math.PI/4});put(C(.03,.03,.8,6),M('#d8c070'),x0,8.3,z1+.9);
-    const dr=new THREE.Mesh(new THREE.PlaneGeometry(.8,1.5),M('#5a3a22'));dr.position.set(x0,.75,z1-.01);dr.rotation.y=Math.PI;G.add(dr);
-    for(let k=0;k<3;k++){const wn=new THREE.Mesh(new THREE.PlaneGeometry(.4,1.2),M('#4a5a7a'));wn.position.set(x0-w/2-.01,1.8,z1+2.6+k*1.6);wn.rotation.y=-Math.PI/2;G.add(wn);}
-    block(x0-w/2,z1,x0+w/2,z2);}
-  {// the square itself: planters with trees, benches, a fountain in the middle
+  // ---- landmark helpers: limestone blocks, arched windows, cornices (painted at 12 px per unit) ----
+  const SH=(hex,k)=>{const c=T3.hex(hex);return `rgb(${c.map(v=>Math.max(0,Math.min(255,Math.round(v*k)))).join(',')})`;};
+  const stone=(x,W,H,base,course,seed,mortar)=>{const r=mulberry32(seed||7);x.fillStyle=SH(base,1);x.fillRect(0,0,W,H);const ch=course||5;
+    for(let y=0;y<H;y+=ch){let xx=-(r()*8|0);const row=(y/ch)|0;while(xx<W){const bw=6+(r()*8|0);x.fillStyle=SH(base,.9+r()*.16);x.fillRect(xx+1,y+1,bw-1,ch-1);x.fillStyle=SH(base,1.08);x.fillRect(xx+1,y+1,bw-1,1);xx+=bw;}
+      x.fillStyle=mortar||SH(base,1.12);x.fillRect(0,y,W,1);}
+    for(let i=0;i<W*H/30;i++){x.fillStyle=r()<.5?'rgba(80,60,40,.08)':'rgba(255,255,255,.07)';x.fillRect(r()*W|0,r()*H|0,1,1);}};
+  const archWin=(x,cx,y,w,h,frame,glass)=>{x.fillStyle=frame;x.fillRect(cx-w/2-1,y,w+2,h+1);x.beginPath();x.arc(cx,y,w/2+1,Math.PI,0);x.fill();x.fillStyle=glass||'#3a4a5c';x.fillRect(cx-w/2,y,w,h);x.beginPath();x.arc(cx,y,w/2,Math.PI,0);x.fill();
+    x.fillStyle='rgba(200,230,255,.4)';x.fillRect(cx-w/2+1,y-w/4,2,h*.4);x.fillStyle=frame;x.fillRect(cx-.5,y-w/2,1,h);x.fillRect(cx-w/2,y+h*.45,w,1);x.fillStyle='rgba(0,0,0,.25)';x.fillRect(cx-w/2-1,y+h+1,w+2,1);};
+  const lancet=(x,cx,y,w,h,frame,glass)=>{x.fillStyle=frame;x.beginPath();x.moveTo(cx-w/2-1,y+h);x.lineTo(cx-w/2-1,y);x.quadraticCurveTo(cx-w/2-1,y-w,cx,y-w*1.2);x.quadraticCurveTo(cx+w/2+1,y-w,cx+w/2+1,y);x.lineTo(cx+w/2+1,y+h);x.fill();
+    x.fillStyle=glass||'#3a4a6a';x.beginPath();x.moveTo(cx-w/2,y+h);x.lineTo(cx-w/2,y);x.quadraticCurveTo(cx-w/2,y-w*.9,cx,y-w*1.05);x.quadraticCurveTo(cx+w/2,y-w*.9,cx+w/2,y);x.lineTo(cx+w/2,y+h);x.fill();x.fillStyle='rgba(220,200,255,.25)';x.fillRect(cx-w/2+1,y,1,h*.6);};
+  const texM=(W,H,draw,o)=>{const c=mk(W,H),x=c.getContext('2d');draw(x,W,H);const t=ctex(c);return new THREE.MeshLambertMaterial(Object.assign({map:t},o||{}));};
+  const boxT=(w,h,d,front,side,top,x,y,z,o)=>{const m=new THREE.Mesh(B(w,h,d),[side,side,top||side,side,front,o&&o.back||side]);m.position.set(x,y,z);if(o&&o.ry)m.rotation.y=o.ry;m.castShadow=m.receiveShadow=true;G.add(m);return m;};
+  const LIME='#e6d6b0',SAND='#e8d4a4',SLATE='#4a5058';
+  // the Round House on its hill: a raised limestone platform with a stair, the twelve-sided gaol, a stepped parapet,
+  // and the signal mast with its yardarm and time ball
+  {const cx=278.6,cz=-.9;const plat=put(C(2.2,2.4,.6,12),texM(48,8,(x,W,H)=>stone(x,W,H,'#c8b088',4,31)),cx,.3,cz);
+    const walls=put(C(1.9,1.9,2.3,12),texM(96,28,(x,W,H)=>{stone(x,W,H,'#e2d2a8',4,32,'#f4ead0');x.fillStyle='#5a4030';x.fillRect(W*.73,H-14,6,14);x.fillStyle='#2a2a2a';x.fillRect(W*.73+1,4,4,3);}),cx,.6+1.15,cz);
+    put(C(2.02,2.02,.28,12),M('#c8b488'),cx,2.9,cz);put(B(1.6,.5,.9),M('#d8c8a0'),cx,3.25,cz);put(B(.3,.36,.3),M('#c8b488'),cx-.7,3.66,cz);put(B(.3,.36,.3),M('#c8b488'),cx+.7,3.66,cz);
+    put(C(.035,.04,3.4,6),M('#f6f6f2'),cx,4.6,cz);put(B(2.4,.05,.05),M('#f6f6f2'),cx,5.4,cz,{nc:1});put(new THREE.SphereGeometry(.2,10,8),M('#1a1a1a'),cx+.6,5.0,cz);
+    for(let k=0;k<5;k++)put(B(1.1,.12,.32),M('#c8b088'),cx,.06+k*.12,cz+2.3+.32*(4-k)*.5);
+    block(cx-1.6,cz-1.6,cx+1.6,cz+1.6);block(cx-2.2,cz-.9,cx+2.2,cz+.9);block(cx-.9,cz-2.2,cx+.9,cz+2.2);
+    const pq=new THREE.Mesh(new THREE.PlaneGeometry(.6,.36),new THREE.MeshBasicMaterial({map:makeSign(['ROUND HOUSE','1831'],48,22,'#2a2a2a','#f5ecd8')}));pq.position.set(cx,2.0,cz+1.92);G.add(pq);}
+  // Kings Square: the Town Hall in sandstone with tall arched windows and a parapet, the clock tower with an octagonal belfry and slate spire
+  {const x1=304.6,x2=311.4,z1=-4.2,z2=-.6,h=3.8,cx=(x1+x2)/2,cz=(z1+z2)/2,w=x2-x1,d=z2-z1;
+    const face=texM(Math.round(w*12),Math.round(h*12),(x,W,H)=>{stone(x,W,H,SAND,5,41,'#f2e4c0');x.fillStyle=SH(SAND,.82);x.fillRect(0,H-8,W,8);x.fillStyle='#f2e4c0';x.fillRect(0,H*.48,W,2);x.fillRect(0,4,W,3);
+      for(let k=0;k<6;k++){const px=(W/6)*(k+.5);x.fillStyle=SH(SAND,1.06);x.fillRect(px-W/12+1,8,2,H-16);archWin(x,px,H*.62,6,11,SH(SAND,1.12),'#34445a');archWin(x,px,H*.2,6,9,SH(SAND,1.12),'#34445a');}
+      x.fillStyle='#3a2a22';x.fillRect(W*.5-5,H-22,10,14);x.beginPath();x.arc(W*.5,H-22,5,Math.PI,0);x.fill();
+      for(let k=0;k<W;k+=4){x.fillStyle=SH(SAND,1.1);x.fillRect(k,0,2,4);}});
+    const side=texM(Math.round(d*12),Math.round(h*12),(x,W,H)=>{stone(x,W,H,SAND,5,42,'#f2e4c0');for(let k=0;k<3;k++){archWin(x,(W/3)*(k+.5),H*.62,6,11,SH(SAND,1.12));archWin(x,(W/3)*(k+.5),H*.2,6,9,SH(SAND,1.12));}});
+    const hall=new THREE.Mesh(B(w,h,d),[side,side,M('#8a8e94'),side,side,face]);hall.position.set(cx,h/2,cz);hall.castShadow=hall.receiveShadow=true;G.add(hall);
+    put(B(w+.2,.18,d+.2),M('#f2e4c0'),cx,h+.09,cz);[x1+.6,x2-.6].forEach(px=>{put(B(1,1.2,.3),M(SAND),px,h+.6,z1+.1);put(new THREE.ConeGeometry(.3,.4,4),M('#f2e4c0'),px,h+1.4,z1+.1,{ry:Math.PI/4});});
+    const roof=put(new THREE.ConeGeometry(.7071,1,4),M(SLATE),cx+.8,h+.5,cz,{ry:Math.PI/4});roof.scale.set(w*.75,1.2,d*1.05);
+    // the tower on the corner
+    const tx=305.4,tz=-3.4;const tw=texM(24,56,(x,W,H)=>{stone(x,W,H,SAND,5,43,'#f2e4c0');x.fillStyle='#f2e4c0';x.fillRect(0,H*.55,W,2);archWin(x,W/2,H*.75,6,9,SH(SAND,1.12),'#2a2a2a');archWin(x,W/2,H*.3,5,8,SH(SAND,1.12),'#34445a');});
+    boxT(1.7,4.6,1.7,tw,tw,M(SAND),tx,2.3,tz);put(B(1.95,.22,1.95),M('#f2e4c0'),tx,4.7,tz);
+    const ck=texM(24,24,(x)=>{x.fillStyle=SH(SAND,1);x.fillRect(0,0,24,24);x.fillStyle='#f6f2e8';x.beginPath();x.arc(12,12,9,0,7);x.fill();x.strokeStyle='#2a2a2a';x.lineWidth=1.5;x.beginPath();x.arc(12,12,9,0,7);x.stroke();x.beginPath();x.moveTo(12,12);x.lineTo(12,5);x.moveTo(12,12);x.lineTo(16,14);x.stroke();});
+    boxT(1.6,1.3,1.6,ck,ck,M(SAND),tx,5.45,tz);put(B(1.8,.16,1.8),M('#f2e4c0'),tx,6.15,tz);
+    const bel=put(C(.7,.75,1.2,8),texM(64,16,(x,W,H)=>{stone(x,W,H,SAND,4,44);for(let k=0;k<8;k++)archWin(x,(W/8)*(k+.5),H*.45,3,6,SH(SAND,1.1),'#1a1a1a');}),tx,6.85,tz);
+    put(C(.78,.78,.12,8),M('#f2e4c0'),tx,7.5,tz);const sp=put(new THREE.ConeGeometry(.78,2.2,8),M(SLATE),tx,8.65,tz);put(C(.02,.02,1.1,6),M('#f6f6f2'),tx,10.3,tz);
+    const fl=new THREE.Mesh(new THREE.PlaneGeometry(.6,.36),texM(12,8,(x)=>{x.fillStyle='#1d3a6e';x.fillRect(0,0,12,8);x.fillStyle='#f6f6f2';x.fillRect(0,0,5,1);x.fillRect(2,0,1,4);x.fillRect(9,5,1,1);x.fillRect(8,2,1,1);},{side:THREE.DoubleSide}));fl.position.set(tx+.32,10.6,tz);G.add(fl);
+    block(x1,z1,x2,z2);block(tx-.85,tz-.85,tx+.85,tz+.85);}
+  // St John's: limestone nave with buttresses and pointed windows, a steep slate roof, a rose window in the north gable, a porch, a tower with a spire
+  {const x0=313.4,z1=-2.4,z2=5.6,w=3.2,hh=3.0;const ls=texM(Math.round((z2-z1)*12),Math.round(hh*12),(x,W,H)=>{stone(x,W,H,'#d8c8a4',4,51,'#ece0c4');for(let k=0;k<5;k++)lancet(x,(W/5)*(k+.5),H*.35,5,H*.45,SH('#d8c8a4',1.12));});
+    const gf=texM(Math.round(w*12),Math.round(hh*12),(x,W,H)=>{stone(x,W,H,'#d8c8a4',4,52,'#ece0c4');lancet(x,W*.3,H*.4,4,H*.42,SH('#d8c8a4',1.12));lancet(x,W*.7,H*.4,4,H*.42,SH('#d8c8a4',1.12));});
+    const nave=new THREE.Mesh(B(w,hh,z2-z1),[ls,ls,M('#d8c8a4'),M('#d8c8a4'),gf,gf]);nave.position.set(x0,hh/2,(z1+z2)/2);nave.castShadow=nave.receiveShadow=true;G.add(nave);
+    const shp=new THREE.Shape();shp.moveTo(-w/2-.12,0);shp.lineTo(w/2+.12,0);shp.lineTo(0,2.0);shp.closePath();const rg=new THREE.ExtrudeGeometry(shp,{depth:z2-z1+.1,bevelEnabled:false});const rf=new THREE.Mesh(rg,M(SLATE));rf.position.set(x0,hh,z1-.05);rf.castShadow=true;G.add(rf);
+    const gab=new THREE.Shape();gab.moveTo(-w/2,0);gab.lineTo(w/2,0);gab.lineTo(0,1.85);gab.closePath();const gg=new THREE.Mesh(new THREE.ShapeGeometry(gab),M('#d8c8a4'));gg.position.set(x0,hh,z1-.06);gg.rotation.y=Math.PI;G.add(gg);
+    const rose=new THREE.Mesh(new THREE.CircleGeometry(.45,16),texM(24,24,(x)=>{x.fillStyle='#d8c8a4';x.fillRect(0,0,24,24);x.fillStyle='#3a4a6a';x.beginPath();x.arc(12,12,11,0,7);x.fill();x.strokeStyle='#e8dcc0';x.lineWidth=1.4;for(let k=0;k<6;k++){const a=k/6*6.28;x.beginPath();x.arc(12+Math.cos(a)*5,12+Math.sin(a)*5,4,0,7);x.stroke();}x.beginPath();x.arc(12,12,11,0,7);x.stroke();}));
+    rose.position.set(x0,hh+.75,z1-.08);rose.rotation.y=Math.PI;G.add(rose);
+    for(let k=0;k<=4;k++){[-1,1].forEach(s=>put(B(.28,hh*.8,.34),M('#ccbc98'),x0+s*(w/2+.12),hh*.4,z1+.6+k*(z2-z1-1.2)/4));}
+    // porch on the north face (the door where you go in)
+    put(B(1.2,1.8,.7),M('#d8c8a4'),x0,.9,z1-.35);const pg=new THREE.Shape();pg.moveTo(-.65,0);pg.lineTo(.65,0);pg.lineTo(0,.7);pg.closePath();const pr=new THREE.Mesh(new THREE.ExtrudeGeometry(pg,{depth:.75,bevelEnabled:false}),M(SLATE));pr.position.set(x0,1.8,z1-.72);G.add(pr);
+    const dr=new THREE.Mesh(new THREE.PlaneGeometry(.6,1.2),texM(8,16,(x)=>{x.fillStyle='#5a3a22';x.fillRect(0,0,8,16);x.fillStyle='#3a2414';x.fillRect(3,2,1,14);x.fillStyle='#d8c070';x.fillRect(5,9,1,1);}));dr.position.set(x0,.6,z1-.71);dr.rotation.y=Math.PI;G.add(dr);
+    // tower and spire at the south-east corner
+    const tw=texM(20,60,(x,W,H)=>{stone(x,W,H,'#d8c8a4',4,53,'#ece0c4');lancet(x,W/2,H*.2,4,9,SH('#d8c8a4',1.12),'#1a1a1a');lancet(x,W/2,H*.6,3,8,SH('#d8c8a4',1.12));});
+    boxT(1.6,5.4,1.6,tw,tw,M('#d8c8a4'),x0+w/2+.5,2.7,z2-1.0);put(B(1.8,.2,1.8),M('#ece0c4'),x0+w/2+.5,5.5,z2-1.0);[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>put(new THREE.ConeGeometry(.12,.6,4),M('#ccbc98'),x0+w/2+.5+a*.75,5.9,z2-1.0+b*.75));
+    put(new THREE.ConeGeometry(.75,3.4,8),M(SLATE),x0+w/2+.5,7.3,z2-1.0);put(C(.02,.02,.7,6),M('#d8c070'),x0+w/2+.5,9.3,z2-1.0);
+    block(x0-w/2-.3,z1-.75,x0+w/2+.3,z2);block(x0+w/2,z2-1.85,x0+w/2+1.35,z2-.15);}
+  {// the square: two tall palms, plane trees in grassy beds, a fountain, benches and the signal-flag planters of High St
     put(C(1.1,1.2,.45,16),M('#d8ccb0'),306.5,.22,3.5);put(C(.95,.95,.06,16),new THREE.MeshLambertMaterial({color:new THREE.Color('#5ab0d0')}),306.5,.46,3.5,{nc:1});put(C(.12,.18,1,8),M('#d8ccb0'),306.5,.9,3.5);block(305.4,2.4,307.6,4.6);
-    [[301.4,6.8],[310.6,6.8],[301.4,.6]].forEach(([x,z])=>{put(B(1.1,.4,1.1),M('#b8a888'),x,.2,z);block(x-.55,z-.55,x+.55,z+.55);if(FDET.bb&&typeof treeVariants!=='undefined'){const v=treeVariants[(x*3|0)%treeVariants.length];FDET.bb(v,x,z,v.w*.75,v.h*.75,.4,true);}});
-    [[303.6,4.8,0],[309.4,4.8,0],[306.5,7.6,1]].forEach(([x,z,r])=>{put(B(r?1.4:.5,.08,r?.5:1.4),M('#7a5a3a'),x,.44,z);});}
+    [[302.6,6.6],[310.4,6.8]].forEach(([x,z])=>{paint(x-1.3,x+1.3,z-.9,z+.9,tile(grassC,2.6,1.8,2),.036);if(FDET.bb&&typeof treeVariants!=='undefined'){const v=treeVariants[1%treeVariants.length];FDET.bb(v,x,z,v.w*.9,v.h*.9,0,true);}});
+    if(FDET.bb&&FDET.palm){[[309.4,1.6],[310.6,3.0]].forEach(([x,z],i)=>{FDET.bb(FDET.palm,x,z,2.2,4.8+i*.6,0,true);block(x-.15,z-.15,x+.15,z+.15);});}
+    [[303.6,4.6,0],[309.0,5.4,0],[306.5,7.9,1],[301.2,2.2,1]].forEach(([x,z,r])=>{put(B(r?1.4:.5,.08,r?.5:1.4),M('#7a5a3a'),x,.44,z);put(B(r?1.4:.06,.3,r?.06:1.4),M('#7a5a3a'),x+(r?0:-.22),.62,z+(r?.22:0));});
+    const FLAG=[(x)=>{x.fillStyle='#1d4e9a';x.fillRect(0,0,16,16);x.strokeStyle='#f6f6f2';x.lineWidth=3;x.beginPath();x.moveTo(0,0);x.lineTo(16,16);x.moveTo(16,0);x.lineTo(0,16);x.stroke();},
+      (x)=>{for(let j=0;j<4;j++)for(let i=0;i<4;i++){x.fillStyle=(i+j)%2?'#1d4e9a':'#f6f6f2';x.fillRect(i*4,j*4,4,4);}},
+      (x)=>{x.fillStyle='#f6f6f2';x.fillRect(0,0,8,16);x.fillStyle='#1d4e9a';x.beginPath();x.moveTo(8,0);x.lineTo(16,0);x.lineTo(12,8);x.lineTo(16,16);x.lineTo(8,16);x.fill();},
+      (x)=>{x.fillStyle='#d8323a';x.fillRect(0,0,16,16);x.fillStyle='#f2c428';x.fillRect(0,6,16,4);x.fillRect(6,0,4,16);},
+      (x)=>{x.fillStyle='#f2c428';x.fillRect(0,0,16,8);x.fillStyle='#d8323a';x.fillRect(0,8,16,8);}];
+    [[283,.5],[286.5,.5],[290,.5],[283,2.7],[286.5,2.7],[290,2.7],[300.4,.2],[300.4,3.4]].forEach(([x,z],i)=>{const fm=texM(16,16,FLAG[i%FLAG.length]);put(B(.8,.6,.8),fm,x,.3,z);put(B(.82,.04,.82),M('#f6f6f2'),x,.61,z,{nc:1});block(x-.4,z-.4,x+.4,z+.4);
+      if(FDET.bb&&typeof FHOME_PLANTS!=='undefined'&&FHOME_PLANTS.length)FDET.bb(FHOME_PLANTS[i%FHOME_PLANTS.length],x,z,.9,.8,.62);});}
   // west side of South Tce: Pippo's first, then cafés down the strip (backs to Market St)
   row(302.0,9.0,302.0,21.0,[1,0],2.2,[{w:2.7,name:'PIPPO’S',wall:'#f2dc96',vc:'#2c4a3a'},{w:3},{w:3.2},{w:3.1}]);
   // east side of South Tce: Freo Thai Basil, shops, Freo Vintage Collective, then the market hall
   row(309.0,9.0,309.0,15.6,[-1,0],2.6,[{w:3.2,name:'FREO THAI BASIL',wall:'#e8b8b0',vc:'#8a2a2a'},{w:3.4}]);
   shop(309.9,17.0,[0,1],3.0,1.4,{storeys:1,name:'FREO VINTAGE',wall:'#c89878',ver:false});
-  {// the market hall (1897): striped brick and cream, two gables, a verandah on the north side, the door where Rosa stands
-    const x1=308.4,x2=315.0,z1=19.4,z2=24.0,H=3.2,cx=(x1+x2)/2,cz=(z1+z2)/2,w=x2-x1;
-    const hc=mk(64,32),hx=hc.getContext('2d');for(let y=0;y<32;y+=4){hx.fillStyle=(y/4)%3===2?'#efe3c4':'#a0583a';hx.fillRect(0,y,64,4);}hx.fillStyle='#efe3c4';hx.fillRect(0,0,64,3);for(let k=0;k<4;k++){hx.fillStyle='#3a2a22';hx.fillRect(5+k*15,12,8,20);hx.fillStyle='#6a4a32';hx.fillRect(6+k*15,13,6,19);}
-    hx.fillStyle='#f6f2e8';hx.fillRect(14,4,36,7);hx.fillStyle='#3a2a22';hx.font='bold 6px monospace';hx.textAlign='center';hx.fillText('MARKETS 1897',32,10);const ht=ctex(hc);
-    const pl=M('#a0583a');put(B(w,H,z2-z1),[pl,pl,pl,pl,pl,new THREE.MeshLambertMaterial({map:ht})],cx,H/2,cz);
-    [x1+w*.25,x1+w*.75].forEach(gx=>{const sh=new THREE.Shape();sh.moveTo(-w/4,0);sh.lineTo(w/4,0);sh.lineTo(0,1.2);sh.closePath();const gg=new THREE.ExtrudeGeometry(sh,{depth:z2-z1,bevelEnabled:false});const r=new THREE.Mesh(gg,M('#8a8e94'));r.position.set(gx,H,z1);r.castShadow=true;G.add(r);});
-    const vr=put(B(w,.06,1),M('#2c4a3a'),cx,2.5,z1-.5,{rx:-.08});for(let k=0;k<=4;k++)put(C(.04,.05,2.5,6),M('#2c4a3a'),x1+.1+k*(w-.2)/4,1.25,z1-.95);block(x1,z1,x2,z2);}
+  {// the markets: limestone walls with arched windows, grey corrugated hip roofs over the halls, a limestone gateway on the north side
+    const x1=308.4,x2=315.0,z1=19.4,z2=24.0,H=2.4,cx=(x1+x2)/2,cz=(z1+z2)/2,w=x2-x1,d=z2-z1;
+    const wf=texM(Math.round(w*12),Math.round(H*12),(x,W,Hh)=>{stone(x,W,Hh,'#d8c49c',4,61,'#ece0c0');for(let k=0;k<7;k++)archWin(x,(W/7)*(k+.5),Hh*.38,5,9,SH('#d8c49c',1.1),'#2e3e3a');});
+    const ws=texM(Math.round(d*12),Math.round(H*12),(x,W,Hh)=>{stone(x,W,Hh,'#d8c49c',4,62,'#ece0c0');for(let k=0;k<4;k++)archWin(x,(W/4)*(k+.5),Hh*.38,5,9,SH('#d8c49c',1.1),'#2e3e3a');});
+    boxT(w,H,d,ws,ws,M('#d8c49c'),cx,H/2,cz,{back:ws});const bf=new THREE.Mesh(new THREE.PlaneGeometry(w,H),wf);bf.position.set(cx,H/2,z1-.01);bf.rotation.y=Math.PI;G.add(bf);
+    const tin=texM(16,16,(x)=>{for(let i=0;i<16;i+=2){x.fillStyle=i%4?'#a8acb0':'#8e9296';x.fillRect(i,0,2,16);}});
+    [[x1+w*.27,w*.5],[x1+w*.73,w*.5]].forEach(([rx,rw])=>{const r=put(new THREE.ConeGeometry(.7071,1,4),tin,rx,H+.55,cz,{ry:Math.PI/4});r.scale.set(rw*1.04,1.1,d*1.04);});
+    put(B(w*.5,.5,d*.4),M('#d8dcd8'),cx,H+1.0,cz);const cl=put(new THREE.ConeGeometry(.7071,1,4),tin,cx,H+1.5,cz,{ry:Math.PI/4});cl.scale.set(w*.52,.5,d*.42);
+    // gateway: two piers, a pointed gable with the name, a dark arch where Rosa stands
+    const gx=309.6;put(B(.5,2.6,.6),M('#d8c49c'),gx-.85,1.3,z1-.2);put(B(.5,2.6,.6),M('#d8c49c'),gx+.85,1.3,z1-.2);put(B(2.2,.5,.6),M('#d8c49c'),gx,2.75,z1-.2);
+    const gs=new THREE.Shape();gs.moveTo(-1.1,0);gs.lineTo(1.1,0);gs.lineTo(0,.7);gs.closePath();const gm=new THREE.Mesh(new THREE.ExtrudeGeometry(gs,{depth:.6,bevelEnabled:false}),M('#ccb88e'));gm.position.set(gx,3.0,z1-.5);G.add(gm);
+    const nm=new THREE.Mesh(new THREE.PlaneGeometry(3.2,.5),new THREE.MeshBasicMaterial({map:makeSign(['FREO MARKETS'],72,12,'#2c5a40','#f5ecd8')}));nm.position.set(cx+1.4,H+.35,z1-.03);nm.rotation.y=Math.PI;G.add(nm);
+    block(x1,z1,x2,z2);block(gx-1.1,z1-.5,gx-.6,z1);block(gx+.6,z1-.5,gx+1.1,z1);}
   // facing William St, between South Tce and William St
   row(315.0,9.0,315.0,16.6,[1,0],3.2,[{w:3.8},{w:3.8}]);
   // east of William St: the café lot (Kip can buy it), shops facing William St, the prison forecourt
   row(320.8,1.6,320.8,8.4,[-1,0],3.2,[{w:3.4},{w:3.4}]);row(328.2,-4.2,328.2,8.4,[1,0],2.6,[{w:4.2},{w:4.2},{w:4.2}]);
-  {// Fremantle Prison: a long limestone wall with a gatehouse of two towers, a clock and big timber gates
-    const x1=321.6,x2=328.2,z1=13.4,z2=21.2;put(B(x2-x1,3.4,z2-z1),M('#e8dcbc'),(x1+x2)/2,1.7,(z1+z2)/2);[x1+.9,x2-.9].forEach(tx=>{put(B(1.6,4.6,1.6),M('#efe3c4'),tx,2.3,z1+.6);put(B(1.8,.3,1.8),M('#d8ccb0'),tx,4.75,z1+.6);});
-    const gt=new THREE.Mesh(new THREE.PlaneGeometry(1.6,2.2),M('#5a3a22'));gt.position.set((x1+x2)/2,1.1,z1-.01);gt.rotation.y=Math.PI;G.add(gt);
-    const sg=new THREE.Mesh(new THREE.PlaneGeometry(2.8,.4),new THREE.MeshBasicMaterial({map:makeSign(['FREMANTLE PRISON'],80,12,'#efe3c4','#3a2a22')}));sg.position.set((x1+x2)/2,2.75,z1-.02);sg.rotation.y=Math.PI;G.add(sg);block(x1,z1,x2,z2);}
+  {// Fremantle Prison: the gatehouse of two octagonal limestone towers, an arch with an iron gate, a curved pediment with a black clock,
+    // low walls with iron railings either side, razor wire along the top of the wall behind, and a flag on a pole in the forecourt
+    const x1=321.6,x2=328.2,z1=13.4,z2=21.2,cx=(x1+x2)/2;
+    const lim=texM(96,40,(x,W,H)=>stone(x,W,H,'#e2d2b0',5,71,'#f0e6d0'));
+    boxT(x2-x1,3.0,z2-z1-.8,lim,lim,M('#d8c8a4'),cx,1.5,(z1+z2)/2+.4);
+    const twr=texM(64,48,(x,W,H)=>{stone(x,W,H,'#e2d2b0',5,72,'#f0e6d0');for(let k=0;k<8;k+=2){x.fillStyle='#5a2a22';x.fillRect((W/8)*(k+.5)-1,H*.2,2,8);x.fillRect((W/8)*(k+.5)-1,H*.6,2,8);}});
+    [cx-1.6,cx+1.6].forEach(tx=>{put(C(.85,.9,4.4,8),twr,tx,2.2,z1+.5);put(C(.98,.98,.22,8),M('#d0c09c'),tx,4.5,z1+.5);});
+    const mid=texM(36,52,(x,W,H)=>{stone(x,W,H,'#e2d2b0',5,73,'#f0e6d0');x.fillStyle='#1a1a1a';x.fillRect(W/2-8,H-26,16,26);x.beginPath();x.arc(W/2,H-26,8,Math.PI,0);x.fill();x.fillStyle='#4a4a4a';for(let i=-7;i<8;i+=2)x.fillRect(W/2+i,H-30,1,30);for(let j=H-30;j<H;j+=4)x.fillRect(W/2-8,j,16,1);
+      x.fillStyle='#d0c09c';for(let k=-10;k<=10;k+=3){x.fillRect(W/2+k,H-36,2,3);}});
+    boxT(2.4,3.6,1.2,mid,lim,M('#d8c8a4'),cx,1.8,z1+.6);
+    const ped=new THREE.Mesh(new THREE.CylinderGeometry(.75,.75,.4,16,1,false,-Math.PI/2,Math.PI),M('#e2d2b0'));ped.rotation.x=Math.PI/2;ped.position.set(cx,3.6,z1);G.add(ped);
+    const clk=new THREE.Mesh(new THREE.CircleGeometry(.36,16),texM(24,24,(x)=>{x.fillStyle='#e2d2b0';x.fillRect(0,0,24,24);x.fillStyle='#141414';x.beginPath();x.arc(12,12,10,0,7);x.fill();x.strokeStyle='#d8b850';x.lineWidth=1.2;x.beginPath();x.moveTo(12,12);x.lineTo(12,5);x.moveTo(12,12);x.lineTo(17,13);x.stroke();for(let k=0;k<12;k++){const a=k/12*6.28;x.fillStyle='#d8b850';x.fillRect(12+Math.cos(a)*8.5,12+Math.sin(a)*8.5,1,1);}}));
+    clk.position.set(cx,3.85,z1-.21);clk.rotation.y=Math.PI;G.add(clk);
+    const sg=new THREE.Mesh(new THREE.PlaneGeometry(2.0,.32),new THREE.MeshBasicMaterial({map:makeSign(['FREMANTLE PRISON'],80,12,'#e2d2b0','#3a2a22')}));sg.position.set(cx,2.95,z1-.01);sg.rotation.y=Math.PI;G.add(sg);
+    for(let k=0;k<26;k++){const t=put(new THREE.TorusGeometry(.14,.015,4,10),M('#9aa0a6'),x1+.1+k*.25,3.15,(z1+z2)/2+.4-(z2-z1-.8)/2+.05,{nc:1});t.rotation.y=Math.PI/2;}
+    [[x1+.1,cx-2.5],[cx+2.5,x2-.1]].forEach(([a,b])=>{put(B(b-a,.6,.3),M('#d0bc90'),(a+b)/2,.3,z1-.15);for(let px=a;px<=b;px+=.22)put(B(.03,.6,.03),M('#1a1a1a'),px,.9,z1-.15,{nc:1});});
+    put(C(.03,.04,4.6,6),M('#f6f6f2'),x1+.6,2.3,z1-2.2);const fl=new THREE.Mesh(new THREE.PlaneGeometry(.9,.5),texM(12,8,(x)=>{x.fillStyle='#1d3a6e';x.fillRect(0,0,12,8);x.fillStyle='#f6f6f2';x.fillRect(0,1,5,1);x.fillRect(2,0,1,4);x.fillRect(9,5,1,1);x.fillRect(8,2,1,1);},{side:THREE.DoubleSide}));fl.position.set(x1+1.06,4.3,z1-2.2);G.add(fl);block(x1+.5,z1-2.3,x1+.7,z1-2.1);
+    block(x1,z1,x2,z2);}
   // the Esplanade: grass, Norfolk pines, the ferris wheel and its ticket booth, the I heart FREO photo sign, the Salty Gull kiosk
   {const wx=285.0,wz=11.4;const ring=put(new THREE.TorusGeometry(3.2,.12,6,28),M('#f6f6f0'),wx,3.8,wz);for(let k=0;k<8;k++){const a=k/8*Math.PI*2;const sp=put(B(.06,6.4,.06),M('#e8e8e4'),wx,3.8,wz,{nc:1});sp.rotation.z=a;
       const gd=put(B(.5,.45,.5),M(['#c8344a','#2f6fb0','#f2c428','#3ec46a'][k%4]),wx+Math.cos(a)*3.2,3.8+Math.sin(a)*3.2-.3,wz);}
@@ -153,6 +224,21 @@ if(FREO5_ON&&FDET.on)(()=>{
   // street trees along the footpaths (sprites) and lamp posts
   if(FDET.bb&&typeof treeVariants!=='undefined'){[[284,-4.6],[290,-4.6],[323,-4.6],[300,-9.6],[296.6,12],[296.6,18],[299.4,6],[316,13],[320.4,12.6],[316,2],[329,14],[329,3]].forEach(([x,z],i)=>{const v=treeVariants[(i+1)%treeVariants.length];FDET.bb(v,x,z,v.w*.62,v.h*.62,0,true);});}
   [[281,-4.4],[293,-4.4],[303,-4.4],[319.6,-4.4],[333,-4.4],[294.4,8],[294.4,16],[299.6,14],[302.8,15],[308,14],[315.4,6],[320.6,-1],[328.4,2]].forEach(([x,z])=>{put(C(.05,.07,2.4,6),M('#2e3236'),x,1.2,z);put(new THREE.SphereGeometry(.13,8,6),M('#f6efd8'),x,2.45,z,{nc:1});});
+  {// a grand old hotel on the William St corner of Phillimore St: two storeys of arches, a parapet, an octagonal corner tower with a dome
+    const x1=310.8,x2=315.0,z1=-13.6,z2=-10.4,h=3.8,cx=(x1+x2)/2,cz=(z1+z2)/2,col='#8a9890',wh='#f2f2ea';
+    const fr=texM(Math.round((x2-x1)*12),Math.round(h*12),(x,W,H)=>{x.fillStyle=col;x.fillRect(0,0,W,H);x.fillStyle=SH(col,.86);x.fillRect(0,H-6,W,6);x.fillStyle=wh;x.fillRect(0,H*.5,W,2);x.fillRect(0,0,W,3);
+      for(let k=0;k<4;k++){const px=(W/4)*(k+.5);x.fillStyle=wh;x.beginPath();x.arc(px,H*.22,5.5,Math.PI,0);x.fill();x.fillRect(px-5.5,H*.22,11,H*.24);x.fillStyle=SH(col,.55);x.beginPath();x.arc(px,H*.22,4.5,Math.PI,0);x.fill();x.fillRect(px-4.5,H*.22,9,H*.24);
+        x.fillStyle=wh;x.fillRect(px-5,H*.4,10,2);archWin(x,px,H*.68,5,H*.22,wh,'#2e3a44');}
+      x.fillStyle='#f6f2e8';x.font='bold 6px monospace';x.textAlign='center';x.fillText('MOORINGS HOTEL',W/2,H*.54+6);});
+    const sd=M(col);const hb=new THREE.Mesh(B(x2-x1,h,z2-z1),[sd,sd,M('#a8acb0'),sd,fr,sd]);hb.position.set(cx,h/2,cz);hb.castShadow=hb.receiveShadow=true;G.add(hb);
+    put(B(x2-x1+.1,.3,.2),M(wh),cx,h+.15,z2-.05);for(let k=0;k<6;k++)put(B(.12,.3,.12),M(wh),x1+.4+k*.68,h+.45,z2-.05);
+    const tx=x2-.55,tz=z2-.55;put(C(.6,.6,h+1.2,8),texM(48,40,(x,W,H)=>{x.fillStyle=col;x.fillRect(0,0,W,H);x.fillStyle=wh;x.fillRect(0,H*.42,W,2);x.fillRect(0,H*.18,W,2);for(let k=0;k<8;k+=2){archWin(x,(W/8)*(k+.5),H*.3,3,5,wh,'#2e3a44');archWin(x,(W/8)*(k+.5),H*.62,3,7,wh,'#2e3a44');}}),tx,(h+1.2)/2,tz);
+    put(C(.68,.68,.14,8),M(wh),tx,h+1.27,tz);const dome=put(new THREE.SphereGeometry(.6,12,8,0,Math.PI*2,0,Math.PI/2),M('#c8ccc8'),tx,h+1.32,tz);put(C(.03,.03,.5,6),M(wh),tx,h+2.1,tz);
+    [[x1+.8,z2+.6],[x1+2.2,z2+.6]].forEach(([ux,uz])=>{put(C(.03,.03,1.8,6),M('#e8e8e4'),ux,.9,uz,{nc:1});const um=put(new THREE.ConeGeometry(.75,.3,8),M('#f2f0e8'),ux,1.85,uz);});
+    block(x1,z1,x2,z2);}
+  {// the Esplanade: old railway tracks with timber loungers on them
+    for(let k=0;k<2;k++)put(B(.06,.06,4.8),M('#6a5a4a'),289.6+k*.7,.06,18.6,{nc:1});for(let z=16.4;z<21;z+=.5)put(B(1.0,.05,.14),M('#7a6a52'),289.95,.03,z,{nc:1});
+    [[17.4],[19.6]].forEach(([z])=>{const lb=put(B(.9,.25,1.4),M('#6a4a32'),289.95,.25,z);const bk=put(B(.9,.08,.7),M('#6a4a32'),289.95,.55,z-.65,{rx:-.6});block(289.4,z-.8,290.5,z+.7);});}
   // 6. the café lot moves to the William St corner; the people of the town walk the new footpaths
   if(typeof BRANCHES!=='undefined'){const b=BRANCHES.find(q=>q.id==='freo');if(b){b.x=323.1;b.z=-2.0;b.tp={x:323.1,z:1.0};}}
   if(typeof WALK_ROUTES!=='undefined')WALK_ROUTES.freo=[[[280,-9],[333,-9]],[[280,-5],[333,-5]],[[295,-5],[295,21]],[[299,-5],[299,21]],[[303.4,9],[303.4,21]],[[307.4,9],[307.4,21]],[[316,-14],[316,21]],[[320,-14],[320,21]],[[282,3.6],[295,3.6]],[[300.5,0],[311,7.6]],[[283,8],[292,8],[292,14.6],[283,14.6],[283,8]],[[329,-5],[329,21]]];
