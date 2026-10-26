@@ -99,7 +99,8 @@
 098-look2-look-lab-pixel-art-ground-perth.js
 099-cinematic-look-lab-lab-or-cine-until-c.js
 100-ref-look-lab-lab-or-ref-paul-s-photos.js
-101-stations-and-ports-paul-oct-2026-walk.js
-102-const-tour-page-u003c-doctype-html-u00.js
-103-function-opentours-opentravel-day-tour.js
-104-part.js
+101-map-editor-look-lab-open-game-with-edi.js
+102-stations-and-ports-paul-oct-2026-walk.js
+103-const-tour-page-u003c-doctype-html-u00.js
+104-function-opentours-opentravel-day-tour.js
+105-part.js
