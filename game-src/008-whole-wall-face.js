@@ -43,7 +43,7 @@ let camDist=14,yaw=0,yawT=0,zm=1;
 const camOff=new THREE.Vector3();
 const rt=new THREE.WebGLRenderTarget(2,2,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat});
 var CINE_LIVE=false;const CINE_ON=CINE_LIVE||/[?&#](lab|cine|r3)\b/.test(location.search+location.hash);// Look Lab: Cinematic camera, Rottnest first
-var PXB_LIVE=false;const PXB_ON=PXB_LIVE||/[?&#]pxb\b/.test(location.search+location.hash);// Look Lab: pixel buildings (3d shapes, pixel skins), Rottnest first
+var PXB_LIVE=true;const PXB_ON=PXB_LIVE||/[?&#]pxb\b/.test(location.search+location.hash);// Look Lab: pixel buildings (3d shapes, pixel skins), Rottnest first
 if(CINE_ON||PXB_ON){rt.depthTexture=new THREE.DepthTexture(2,2);rt.depthTexture.type=THREE.UnsignedIntType;}
 const post=new THREE.ShaderMaterial({
   uniforms:Object.assign({tDiffuse:{value:rt.texture},res:{value:new THREE.Vector2(2,2)},tint:{value:new THREE.Vector3(1,1,1)},focus:{value:.45},px:{value:DPR},fade:{value:0},bloomK:{value:1},blurK:{value:1}},PXB_ON?{tDepth:{value:null},outl:{value:0},nf:{value:new THREE.Vector2(.1,200)}}:{}),
