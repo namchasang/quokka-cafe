@@ -6,9 +6,11 @@ function wall(w,h,o={}){seed(o.seed||7);const W=Math.round(w*PPM),H=Math.round(h
   if(o.plinth!==false)plinth(x,W,H,kind==='stone'?sh(base,.85):'#b8a88c');
   if(o.cornice!==false&&H>40)cornice(x,W,H,tb);
   const n=o.win==null?Math.max(0,Math.floor((W-16)/44)):o.win;const doorAt=o.door?(o.doorAt!=null?o.doorAt:.5):-1;
-  if(n||o.door){const slots=n+(o.door?1:0),step=W/slots;let k=0,dIdx=o.door?Math.min(slots-1,Math.round(doorAt*(slots-1))):-1;
-    for(let i=0;i<slots;i++){const cx=step*(i+.5);if(i===dIdx){const dw=Math.min(26,step-10|0),dh=Math.min(H-14,44);door(x,cx-dw/2,H-dh-3,dw,dh,o.doorCol||'#2f6a74');}
-      else{const ww=Math.min(o.winW||22,step-16|0),wh=Math.min(o.winH||26,H-30);if(ww>6&&wh>8)win(x,cx-ww/2,Math.max(10,H*.42-wh/2),ww,wh,{arch:o.arch,shutter:o.shutter,lit:o.lit,box:o.box!==false});k++;}}}
+  const rows=o.rows||Math.max(1,Math.round(h/2.9)),band=H/rows;
+  if(rows>1)for(let r=1;r<rows;r++){const Y=Math.round(r*band);P(x,sh(tb,1.08),0,Y-2,W,2);P(x,sh(tb,.66),0,Y,W,1);}
+  if(n||o.door)for(let r=0;r<rows;r++){const top=r*band,bottom=r===rows-1,doorRow=bottom&&o.door;const slots=n+(doorRow?1:0);if(!slots)continue;const step=W/slots;let dIdx=doorRow?Math.min(slots-1,Math.round(doorAt*(slots-1))):-1;
+    for(let i=0;i<slots;i++){const cx=step*(i+.5);if(i===dIdx){const dw=Math.min(26,step-10|0),dh=Math.min(band-14,44);door(x,cx-dw/2,H-dh-3,dw,dh,o.doorCol||'#2f6a74');}
+      else{const ww=Math.min(o.winW||22,step-16|0),wh=Math.min(o.winH||26,band-30);if(ww>6&&wh>8)win(x,cx-ww/2,Math.max(top+10,top+band*.42-wh/2),ww,wh,{arch:o.arch&&r===0,shutter:o.shutter,lit:o.lit,box:o.box!==false&&r<2});}}}
   if(o.moss!==false)moss(x,W,H,kind==='stone'?1:.5);if(o.ivy)ivy(x,o.ivy[0]*W,o.ivy[1]*W,H);
   return c;}
 /* --- roofs --- */

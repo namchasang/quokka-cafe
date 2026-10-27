@@ -15,7 +15,7 @@ let rollKey='';
 // city buildings that stand between the camera and Kip turn see-through (they used to squash down to the ground)
 const _cbdBox=new THREE.Box3(),_cbdRay=new THREE.Ray(),_cbdV=new THREE.Vector3(),_cbdT=new THREE.Vector3();
 function cbdSeeThrough(dt){const k=Math.min(1,dt*6);const mx=scene.scale.x<0?-1:1;
-  for(const e of CBD.cut){if(!e.ready){e.g.scale.y=1;e.g.updateMatrixWorld(true);e.box=new THREE.Box3().setFromObject(e.g);e.mats=[];e.g.traverse(o=>{if(!o.isMesh||!o.material||Array.isArray(o.material))return;o.material=o.material.clone();o.material.userData.op0=o.material.opacity;o.material.userData.tr0=o.material.transparent;e.mats.push(o.material);});e.a=1;e.ready=true;}
+  for(const e of CBD.cut){if(!e.ready){e.g.scale.y=1;e.g.updateMatrixWorld(true);e.box=new THREE.Box3().setFromObject(e.g);e.mats=[];e.g.traverse(o=>{if(!o.isMesh||!o.material)return;const cl=m=>{m=m.clone();m.userData.op0=m.opacity;m.userData.tr0=m.transparent;e.mats.push(m);return m;};o.material=Array.isArray(o.material)?o.material.map(cl):cl(o.material);});e.a=1;e.ready=true;}
     let hit=false;if(e.g.visible!==false){for(const hy of[.35,1.05]){_cbdT.set(player.x*mx,hy,player.z);_cbdRay.origin.copy(camera.position);_cbdRay.direction.copy(_cbdT).sub(camera.position);const L=_cbdRay.direction.length();_cbdRay.direction.normalize();
       const p=_cbdRay.intersectBox(e.box,_cbdV);if(p&&camera.position.distanceTo(p)<L-.3){hit=true;break;}}}
     const tg=hit?.22:1;if(Math.abs(e.a-tg)<.005)continue;e.a+=(tg-e.a)*k;if(Math.abs(e.a-tg)<.01)e.a=tg;

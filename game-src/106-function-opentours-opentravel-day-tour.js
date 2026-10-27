@@ -22,9 +22,9 @@ function endTour(){if(!TOUR)return;const T=TOUR.T;TOUR=null;transit=true;fadeTar
 // ---------- Pixel buildings (Look Lab ?pxb, Paul Oct 2026): 3d shapes keep their size, walls/roofs/windows/doors get pixel skins from PXKIT ----------
 // Runs once after the world is built. Only Rottnest for now (Thomson Bay first). Walls without panes get windows painted in;
 // walls with panes keep them, and the panes get pixel frames that glow at night. Roof prisms, hip cones and flat awnings get tiles, slate or tin.
-function pxbScene(){pxbScene.done=true;const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
-  const isl=o=>{o.getWorldPosition(V);scene.worldToLocal(V);try{return zoneOf(V.x)==='island';}catch(e){return false;}};
-  const hex=m=>m&&m.color?'#'+m.color.getHexString():'#e4d2a8';const r1=v=>Math.round(v*10)/10;
+function pxbScene(){pxbScene.done=true;const T0=performance.now();const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+  const isl=o=>{const m=o.material,im=m&&m.map&&m.map.image;return!im||im.width<=32;};// plain walls get the kit; walls with their own picture keep it (redrawn below)// every map; faces that already carry a painted picture keep it
+  const hex=m=>m&&m.color?'#'+m.color.getHexString():'#e4d2a8';const r1=v=>Math.round(v*2)/2;
   const cache=new Map();const tm=(key,make,o)=>{let m=cache.get(key);if(!m){const c=make();m=new THREE.MeshLambertMaterial(Object.assign({map:ctex(c)},o||{}));m.map.minFilter=THREE.NearestFilter;m.map.generateMipmaps=false;cache.set(key,m);}return m;};
   const vehicle=o=>{for(let p=o.parent;p&&p!==scene;p=p.parent)if(p.__wheels>=3)return true;return false;};
   scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='CylinderGeometry'&&o.parent&&o.parent!==scene&&!o.parent.__pxw){o.parent.__pxw=1;let n=0;o.parent.children.forEach(c=>{if(c.isMesh&&c.geometry&&c.geometry.type==='CylinderGeometry'&&c.geometry.parameters.radiusTop<.6&&Math.abs(c.rotation.x)+Math.abs(c.rotation.z)>1)n++;});if(n>=3)o.parent.__wheels=Math.max(o.parent.__wheels||0,n);}});
@@ -40,18 +40,47 @@ function pxbScene(){pxbScene.done=true;const V=new THREE.Vector3(),Q=new THREE.Q
     if(t==='ConeGeometry'&&p.radialSegments<=8&&p.radius*Math.max(sx,sz)>=.9){o.getWorldPosition(V);if(V.y>1.6&&isl(o)&&!vehicle(o))roofs.push({o,kind:'cone',r:p.radius*Math.max(sx,sz),h:p.height*sy,n:p.radialSegments});return;}
     if(t==='PlaneGeometry'&&!o.material.map){const w=p.width*sx,h=p.height*sy;if(w<.22||h<.22||w>1.8||h>1.8)return;o.getWorldPosition(V);if(V.y<.25||V.y>3.2)return;
       const c=o.material.color,l=c.r*.3+c.g*.59+c.b*.11;const isDoor=h>=.8&&h>w*1.3&&V.y-h/2<.35;if(!isDoor&&l>.62)return;if(isl(o))panes.push({o,w,h,door:isDoor,pos:V.clone()});}});
+  // faces that already carry a painted picture (the towns from Paul's photos): keep the design, redraw it as pixel art at the kit's density
+  const hdT=new Map();let nh=0;
+  const facadeHD=t=>{if(hdT.has(t))return hdT.get(t);let out=null;try{const im=t.image;if(!im||!(im.width>=8)||im.width>640||im.height>640||(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t)))throw 0;
+      const k=Math.max(2,Math.min(3,Math.floor(1024/Math.max(im.width,im.height)))),W=im.width,H=im.height,W2=W*k,H2=H*k;
+      const sc=document.createElement('canvas');sc.width=W;sc.height=H;const sx=sc.getContext('2d');sx.drawImage(im,0,0);const s0=sx.getImageData(0,0,W,H).data;
+      const key=(x,y)=>{x=(x+W)%W;y=Math.max(0,Math.min(H-1,y));const o=(y*W+x)*4;return(s0[o]<<16)|(s0[o+1]<<8)|s0[o+2];};const lum=c=>(((c>>16)&255)*.3+((c>>8)&255)*.59+(c&255)*.11);
+      const oc=document.createElement('canvas');oc.width=W2;oc.height=H2;const ox=oc.getContext('2d'),id=ox.createImageData(W2,H2),d=id.data;
+      const put=(X,Y,c,f)=>{const o=(Y*W2+X)*4;d[o]=Math.min(255,((c>>16)&255)*f);d[o+1]=Math.min(255,((c>>8)&255)*f);d[o+2]=Math.min(255,(c&255)*f);d[o+3]=255;};
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=key(x,y),up=key(x,y-1),dn=key(x,y+1),lf=key(x-1,y),rt=key(x+1,y),L=lum(c);
+        const n=1+(((x*73856093)^(y*19349663))&7)/160-.022;
+        for(let j=0;j<k;j++)for(let i=0;i<k;i++){let f=n;
+          if(j===0&&up!==c)f*=lum(up)<L-24?.62:1.12;// a lit top edge, or an inked edge under something darker
+          else if(j===k-1&&dn!==c)f*=lum(dn)>L+24?.7:.86;// shade at the foot of each patch
+          if(i===0&&lf!==c&&lum(lf)>L+40)f*=.72;if(i===k-1&&rt!==c&&lum(rt)>L+40)f*=.78;
+          put(x*k+i,y*k+j,c,f);}}
+      ox.putImageData(id,0,0);out=new THREE.CanvasTexture(oc);out.magFilter=out.minFilter=THREE.NearestFilter;out.generateMipmaps=false;out.wrapS=t.wrapS;out.wrapT=t.wrapT;out.repeat.copy(t.repeat);out.offset.copy(t.offset);out.rotation=t.rotation;out.center.copy(t.center);out.encoding=t.encoding;nh++;}catch(e){out=null;}
+    hdT.set(t,out);return out;};
+  const hdMat=new Map();const upMat=m=>{if(!m||!m.map||m.__pxHD||m.transparent||m.alphaTest>0||m.isMeshBasicMaterial||m.isSpriteMaterial||m.isShaderMaterial)return m;if(hdMat.has(m))return hdMat.get(m);const t=facadeHD(m.map);let r=m;if(t){r=m.clone();r.map=t;if(m.emissiveMap===m.map)r.emissiveMap=t;r.__pxHD=1;}hdMat.set(m,r);return r;};
+  scene.traverse(o=>{if(!o.isMesh||o.__pxSkip||!o.geometry||!o.material)return;const t=o.geometry.type;if(t!=='BoxGeometry'&&t!=='PlaneGeometry'&&t!=='CylinderGeometry'&&t!=='ExtrudeGeometry'&&t!=='ShapeGeometry')return;
+    o.geometry.computeBoundingBox&&!o.geometry.boundingBox&&o.geometry.computeBoundingBox();const bb=o.geometry.boundingBox;if(!bb)return;o.matrixWorld.decompose(V,Q,SC);if((bb.max.y-bb.min.y)*Math.abs(SC.y)<1)return;
+    if(typeof BB!=='undefined'&&BB.includes&&BB.includes(o))return;if(Array.isArray(o.material))o.material=o.material.map(upMat);else o.material=upMat(o.material);});
   // which wall face each pane sits on
   const inv=new THREE.Matrix4(),L=new THREE.Vector3();
   walls.forEach(W=>{W.faces=[0,0,0,0,0,0];inv.copy(W.o.matrixWorld).invert();const p=W.o.geometry.parameters;
     panes.forEach(P=>{L.copy(P.pos).applyMatrix4(inv);const ax=Math.abs(L.x)-p.width/2,az=Math.abs(L.z)-p.depth/2;
       if(Math.abs(L.y)<p.height/2+.1){if(Math.abs(ax)<.25&&Math.abs(L.z)<p.depth/2+.05)W.faces[L.x>0?0:1]++;else if(Math.abs(az)<.25&&Math.abs(L.x)<p.width/2+.05)W.faces[L.z>0?4:5]++;}});});
   let nw=0,nr=0,np=0;const glowMats=[];
-  walls.forEach((W,i)=>{const base=hex(W.o.material),lum=PXK.lum(base);const kind=lum>.84?'stone':lum<.3?'brick':'plaster';
-    const big=W.w*W.d>4.5;const face=(fw,has,k)=>{const n=has||fw<1.7||W.h<1.5||Math.min(W.w,W.d)<.4?0:Math.max(1,Math.floor((fw-.6)/1.5));const key=['w',base,r1(fw),r1(W.h),n,k%2].join('|');
+  // the wall's own colour: material colour times the most common colour of its little tile (so a teal tower stays teal)
+  const avgC=new Map();const tileCol=m=>{const im=m.map&&m.map.image;if(!im)return hex(m);if(avgC.has(im))return avgC.get(im);let out=hex(m);try{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;const cnt=new Map();let best=0,bk=0;
+      for(let q=0;q<d.length;q+=4){const k=((d[q]>>3)<<10)|((d[q+1]>>3)<<5)|(d[q+2]>>3);const n=(cnt.get(k)||0)+1;cnt.set(k,n);if(n>best){best=n;bk=q;}}const col=new THREE.Color(d[bk]/255,d[bk+1]/255,d[bk+2]/255).multiply(m.color);out='#'+col.getHexString();}catch(e){}avgC.set(im,out);return out;};
+  walls.forEach((W,i)=>{const base=tileCol(W.o.material),lum=PXK.lum(base);const kind=lum>.84?'stone':lum<.3?'brick':'plaster';
+    const big=W.w*W.d>4.5;const face=(fw,has,k)=>{const n=has||fw<1.7||W.h<1.25||Math.min(W.w,W.d)<.4?0:Math.max(1,Math.floor((fw-.6)/1.5));const key=['w',base,r1(fw),r1(W.h),n,k%2].join('|');
       const opt={base:lum>.95?'#ece0c2':base,kind,win:n,door:false,shutter:k%2?'#3d7a78':null,arch:big&&k%2===0,seed:13+k*7+(fw*10|0),ivy:fw>2.4&&(i%4===1)?[.05,.28]:null};
-      if(!n)return tm(key,()=>PXK.wall(fw,W.h,opt));let m=cache.get(key);if(m)return m;
+      if(W.h>6.6||fw>14){const mw=fw>14?6:Math.max(1.6,r1(fw)),mh=2.9,nx=Math.max(1,Math.round(fw/mw)),ny=Math.max(1,Math.round(W.h/mh)),k2=['m',base,mw,nx,ny,k%2].join('|');let mm=cache.get(k2);if(mm)return mm;
+        const mo=Object.assign({},opt,{win:Math.max(1,Math.floor((mw-.4)/1.5)),rows:1,plinth:false,cornice:true,moss:false,ivy:null,shutter:null,arch:false,quoins:false,box:false});
+        const day=PXK.wall(mw,mh,mo),lit=PXK.wall(mw,mh,Object.assign({},mo,{lit:true}));{const A=day.getContext('2d').getImageData(0,0,day.width,day.height),Bq=lit.getContext('2d').getImageData(0,0,day.width,day.height);for(let q=0;q<A.data.length;q+=4){const d=Math.abs(A.data[q]-Bq.data[q])+Math.abs(A.data[q+1]-Bq.data[q+1])+Math.abs(A.data[q+2]-Bq.data[q+2]);if(d<=30){Bq.data[q]=Bq.data[q+1]=Bq.data[q+2]=0;}}lit.getContext('2d').putImageData(Bq,0,0);}const t1=ctex(day),t2=ctex(lit);[t1,t2].forEach(t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(nx,ny);});
+        mm=new THREE.MeshLambertMaterial({map:t1,emissive:0xffffff,emissiveIntensity:0,emissiveMap:t2});cache.set(k2,mm);glowMats.push(mm);return mm;}
+      const fwR=Math.max(.6,r1(fw)),hR=Math.max(1,r1(W.h));fw=fwR;
+      if(!n)return tm(key,()=>PXK.wall(fw,hR,opt));let m=cache.get(key);if(m)return m;
       // painted windows glow at night: the lit version minus the day version gives the glass only
-      const day=PXK.wall(fw,W.h,opt),lit=PXK.wall(fw,W.h,Object.assign({},opt,{lit:true})),em=document.createElement('canvas');em.width=day.width;em.height=day.height;
+      const day=PXK.wall(fw,hR,opt),lit=PXK.wall(fw,hR,Object.assign({},opt,{lit:true})),em=document.createElement('canvas');em.width=day.width;em.height=day.height;
       const a=day.getContext('2d').getImageData(0,0,day.width,day.height),b=lit.getContext('2d').getImageData(0,0,day.width,day.height),e=em.getContext('2d').createImageData(day.width,day.height);
       for(let q=0;q<a.data.length;q+=4){const dif=Math.abs(a.data[q]-b.data[q])+Math.abs(a.data[q+1]-b.data[q+1])+Math.abs(a.data[q+2]-b.data[q+2]);if(dif>30){e.data[q]=b.data[q];e.data[q+1]=b.data[q+1];e.data[q+2]=b.data[q+2];}e.data[q+3]=255;}
       em.getContext('2d').putImageData(e,0,0);m=new THREE.MeshLambertMaterial({map:ctex(day),emissive:0xffffff,emissiveIntensity:0,emissiveMap:ctex(em)});cache.set(key,m);glowMats.push(m);return m;};
@@ -70,10 +99,10 @@ function pxbScene(){pxbScene.done=true;const V=new THREE.Vector3(),Q=new THREE.Q
     else{const aspect=P.h/P.w,w=Math.max(8,Math.round(P.w*32)-6),h=Math.max(8,Math.round(P.h*32)-6),key='p|'+w+'|'+h;
       m=cache.get(key);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(PXK.pane(false,w,h)),emissive:0xffffff,emissiveIntensity:0});m.emissiveMap=ctex(PXK.pane(true,w,h));cache.set(key,m);glowMats.push(m);}}
     P.o.material=m;np++;});
-  PXB_GLOW.push(...glowMats);pxbScene.glow=PXB_GLOW;pxbScene.stats={walls:nw,roofs:nr,panes:np};
+  PXB_GLOW.push(...glowMats);pxbScene.glow=PXB_GLOW;pxbScene.stats={walls:nw,roofs:nr,panes:np,mats:cache.size,hd:nh,ms:Math.round(performance.now()-T0)};window.__pxbStats=pxbScene.stats;if(typeof CBD!=='undefined'&&CBD.cut)CBD.cut.forEach(e=>{e.ready=false;});
   if(rt.depthTexture&&post.uniforms.outl){post.uniforms.tDepth.value=rt.depthTexture;post.uniforms.outl.value=1;post.uniforms.nf.value.set(camera.near,camera.far);}}
-function pxbTick(){if(!pxbScene.glow)return;if(post.uniforms.outl)post.uniforms.outl.value=typeof player!=='undefined'&&zoneOf(player.x)==='island'?1:0;const n=typeof NIGHT==='number'?NIGHT:0,h=(typeof S!=='undefined'?S.time%1440:720)/60,dusk=Math.max(0,Math.min(1,(h-17.6)/1.2)),k=Math.max(n,dusk*.6);
-  if(CAFE_PX)CAFE_PX.tick(performance.now()/1000);if(pxbScene._k===k)return;pxbScene._k=k;pxbScene.glow.forEach(m=>m.emissiveIntensity=k*1.35);PXB_LAMPS.forEach(l=>l.material.color.set(k>.3?'#ffd070':'#e8d8a8'));
+function pxbTick(){if(!pxbScene.glow)return;if(post.uniforms.outl)post.uniforms.outl.value=1;const n=typeof NIGHT==='number'?NIGHT:0,h=(typeof S!=='undefined'?S.time%1440:720)/60,dusk=Math.max(0,Math.min(1,(h-17.6)/1.2)),k=Math.max(n,dusk*.6);
+  if(CAFE_PX)CAFE_PX.tick(performance.now()/1000);if(pxbScene._k===k)return;pxbScene._k=k;pxbScene.glow.forEach(m=>m.emissiveIntensity=k*(m.__dim||1.35));PXB_LAMPS.forEach(l=>l.material.color.set(k>.3?'#ffd070':'#e8d8a8'));
 }
 
 function tex3Scene(){tex3Scene.done=true;const V3=new THREE.Vector3(),cache=new Map(),vcache=new Map();let walls=0,cars=0;
