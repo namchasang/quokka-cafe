@@ -111,5 +111,6 @@ Find code: `grep -n 'name' game-src/*`.
 | 103-map-editor-look-lab-open-game-with-edi.js | 9387-9491 | 16 | EDIT_ON |
 | 104-stations-and-ports-paul-oct-2026-walk.js | 9492-9520 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
 | 105-const-tour-page-u003c-doctype-html-u00.js | 9521-9521 | 51 | embedded data, do not open |
-| 106-function-opentours-opentravel-day-tour.js | 9522-9662 | 21 | openTours, TOUR, startTour, endTour, pxbScene, pxbTick, tex3Scene |
-| 107-part.js | 9663-9665 | 1 |  |
+| 106-function-opentours-opentravel-day-tour.js | 9522-9585 | 10 | openTours, TOUR, startTour, endTour, PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace |
+| 107-people-and-animals-a-touch-brighter-th.js | 9586-9706 | 17 | pxPopTick, pxbScene, pxbTick, tex3Scene |
+| 108-part.js | 9707-9709 | 1 |  |
