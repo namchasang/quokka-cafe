@@ -113,5 +113,5 @@ Find code: `grep -n 'name' game-src/*`.
 | 105-stations-and-ports-paul-oct-2026-walk.js | 9516-9544 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
 | 106-const-tour-page-u003c-doctype-html-u00.js | 9545-9545 | 51 | embedded data, do not open |
 | 107-function-opentours-opentravel-day-tour.js | 9546-9620 | 12 | openTours, TOUR, startTour, endTour, PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace |
-| 108-people-and-animals-a-touch-brighter-th.js | 9621-9780 | 22 | pxPopTick, pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
-| 109-part.js | 9781-9783 | 1 |  |
+| 108-people-and-animals-a-touch-brighter-th.js | 9621-9785 | 23 | pxPopTick, pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
+| 109-part.js | 9786-9788 | 1 |  |

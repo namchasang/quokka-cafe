@@ -104,6 +104,11 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();const V=new TH
       m=cache.get(key);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(PXK.pane(false,w,h)),emissive:0xffffff,emissiveIntensity:0});m.emissiveMap=ctex(PXK.pane(true,w,h));cache.set(key,m);glowMats.push(m);}}
     P.o.material=m;np++;});
   PXB_GLOW.push(...glowMats);pxbScene.glow=PXB_GLOW;try{pxOneLook();}catch(e){console.error(e);}pxbScene.stats={walls:nw,roofs:nr,panes:np,mats:cache.size,hd:nh,ms:Math.round(performance.now()-T0),one:pxOneLook.stats,hips:pxbScene.hips};window.__pxbStats=pxbScene.stats;if(typeof CBD!=='undefined'&&CBD.cut)CBD.cut.forEach(e=>{e.ready=false;});
+  // Victoria Park shop fronts (painted from Paul's photos): real shop glass with goods behind it and a panelled door, both lit at night
+  if(typeof VP_SHOPS!=='undefined'&&typeof REF_ON!=='undefined'&&REF_ON)VP_SHOPS.forEach((sh,i)=>{if(sh.id==='bkk'||sh.id==='pub')return;const h=sh.id==='kmax'?4.4:3,w=5.2,z=sh.z+1.71+.015;
+    const gw=w*.58,gh=h*.5-.42,gx=sh.x-w/2+w*.08+gw/2,gy=.3+gh/2;const gm=pxGlassMat(['#4a6a86','#5a7a86','#4e6a7e'][i%3],gw,gh);const g=new THREE.Mesh(new THREE.PlaneGeometry(gw,gh),gm);g.position.set(gx,gy,z);g.__pxSkip=1;scene.add(g);
+    const dw=w*.16,dh=h*.5-.3,dcol=['#2f5a46','#6a2a2a','#1d3a6e','#3a3e48','#7a4a2a'][i%5];const dk='vpd|'+dcol;let dm=cache.get(dk);if(!dm){const day=PXK.doorPane(dcol,Math.round(dw*32)-6,Math.round(dh*32)-4);dm=new THREE.MeshLambertMaterial({map:ctex(day)});cache.set(dk,dm);}
+    const d=new THREE.Mesh(new THREE.PlaneGeometry(dw,dh),dm);d.position.set(sh.x-w/2+w*.78,.25+dh/2,z);d.__pxSkip=1;scene.add(d);});
   // buildings outside the city fade when they stand between the camera and Kip (the city has its own)
   {const cutG=new Set(typeof CBD!=='undefined'&&CBD.cut?CBD.cut.map(e=>e.g):[]);const inCut=o=>{for(let p=o;p;p=p.parent)if(cutG.has(p))return true;return false;};const seen=new Set();PXB_SEE.length=0;
     walls.forEach(W=>{if(inCut(W.o))return;const par=W.o.parent;const root=par&&par!==scene&&par.children.length<=40?par:W.o;if(seen.has(root))return;seen.add(root);
