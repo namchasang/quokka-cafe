@@ -2,6 +2,8 @@
 const RADIO={ctx:null,master:null,rev:null,st:'off',vol:.5,timer:null,next:0,step:0,bar:0,nodes:[],wave:null,crackle:null};
 const RSTATIONS={
  seaside:{name:'Seaside Piano',desc:'Gentle piano and soft waves, like a slow morning on the jetty.',bpm:72},
+ citypop:{name:'City Pop',desc:'30 original city pop tracks: bright 80s pop with funky bass, claps, synths and brass for night drives and good moods.',bpm:108},
+ sleep:{name:'Sleep Lo-fi',desc:'30 slow, soft tracks for sleep and rest, with the sea, rain or a quiet room underneath.',bpm:56},
  beats:{name:'Lo-fi Beats',desc:'30 original lo-fi hip hop tracks for work and study: jazzy chords, boom-bap drums, vinyl crackle.',bpm:86},
  lofi:{name:'Island Lo-fi',desc:'30 original lo-fi tracks: 15 to study and work to, 15 slow ones with soft rain on the roof.',bpm:78},
  breeze:{name:'Asian Breeze',desc:'Pentatonic plucks like a koto or guzheng over a calm pad.',bpm:66},
