@@ -117,5 +117,5 @@ Find code: `grep -n 'name' game-src/*`.
 | 109-function-opentours-opentravel-day-tour.js | 9737-9811 | 12 | openTours, TOUR, startTour, endTour, PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace |
 | 110-people-and-animals-a-touch-brighter-th.js | 9812-9993 | 23 | pxPopTick, VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
 | 111-perth-station-pixel-look-1890s-front-i.js | 9994-10399 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
-| 112-part.js | 10400-10562 | 23 | pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
-| 113-part.js | 10563-10565 | 1 |  |
+| 112-part.js | 10400-10887 | 60 | P, MC, T, MODE, Mat, colr, PPM, cv, px, S |
+| 113-part.js | 10888-10890 | 1 |  |
