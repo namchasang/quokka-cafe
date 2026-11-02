@@ -1,3 +1,4 @@
+// City Pop is off the radio for now (Paul, Nov 2026): the tracks stay here; add citypop back to RSTATIONS and TSTN to bring it back.
 // ---------- City Pop: 30 original city pop tracks (bright 80s pop with funk bass and synths) ----------
 // Major 7th chords, a slap-style bass that walks in 16ths, funky drums with hand claps, cutting guitar,
 // brass stabs into the chorus and a lead on synth, sax, e-piano bells or flute.

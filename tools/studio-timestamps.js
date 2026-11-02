@@ -11,7 +11,7 @@ const code = src.slice(a, b) + src.slice(e, f) + src.slice(h1, h2) + src.slice(c
 const { CRYSTAL, crCompile, LOFI, lfCompile, HOP, hpCompile, CITY, cpCompile, SLEEP, slCompile, STUDIO_PL, PL_GAP } = new Function(
   'const RADIO={};function mtof(m){return 440*Math.pow(2,(m-69)/12);}' + code +
   ';return {CRYSTAL,crCompile,LOFI,lfCompile,HOP,hpCompile,CITY,cpCompile,SLEEP,slCompile,STUDIO_PL,PL_GAP};')();
-const TS = { crystal: [CRYSTAL, crCompile], lofi: [LOFI, lfCompile], beats: [HOP, hpCompile], citypop: [CITY, cpCompile], sleep: [SLEEP, slCompile] };
+const TS = { crystal: [CRYSTAL, crCompile], lofi: [LOFI, lfCompile], beats: [HOP, hpCompile], sleep: [SLEEP, slCompile] };
 const clock = s => { s = Math.floor(s); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60;
   return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
 for (const P of STUDIO_PL) {

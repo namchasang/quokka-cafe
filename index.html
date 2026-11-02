@@ -3282,7 +3282,7 @@ const GUIDE_SYS=[
  ['Saving','The game saves automatically to one of 6 slots. Load another slot from the title screen.'],
  ['Island Code (visit friends online)','\u2630 \u2192 Island Code \u2192 Get my island code. You get a code like QK-4821 and your game backs up to the cloud by itself. Friends type your code to visit the newest version of your island, even when you are offline. While visiting you can \u2661 like the caf\u00e9, \u270e sign the guestbook and \U0001F381 leave a gift. Gifts and notes arrive in Island Code \u2192 Mailbox. Keep your recovery key secret: with it you can restore the island on a new phone. No internet? The Offline code tab still makes a Dream Code to paste.'],
  ['Caf\u00e9 chain','Buy Quokka Cafe branches at Geordie Bay (900), South Perth (1,500), Victoria Park (1,800) and Fremantle (2,500). Each earns every hour 7:00\u201316:00. Open \u2630 \u2192 Caf\u00e9 HQ from anywhere to collect tills, upgrade to Level 4, change style or hire a manager who banks the till at midnight.'],
- ['Radio','\u2630 \u2192 Radio: seven stations of original music made for the café (Seaside Piano, Island Lo-fi, Lo-fi Beats, City Pop, Sleep Lo-fi, Crystal Harbour, Asian Breeze). Every station except Seaside Piano and Asian Breeze plays named tracks you can skip; set the volume or turn it off.'],
+ ['Radio','\u2630 \u2192 Radio: six stations of original music made for the café (Seaside Piano, Island Lo-fi, Lo-fi Beats, Sleep Lo-fi, Crystal Harbour, Asian Breeze). Every station except Seaside Piano and Asian Breeze plays named tracks you can skip; set the volume or turn it off.'],
  ['Caf\u00e9 upgrades and styles','Use the Caf\u00e9 plans sign beside the deck (or \u2630 \u2192 Caf\u00e9). Four levels: Kiosk, Caf\u00e9 (450), Bistro (900) and Destination caf\u00e9 (1,500), each adding a table and bonuses. Five styles: Classic Rotto, English Cottage, French Riviera, Japanese Ryokan and Seaside Mykonos (250 coins each to unlock, then switch for free).'],
  ['Seasons and calendar','Four Australian seasons of 28 days: Summer, Autumn, Winter, Spring. Weather follows the season (wetter winters). Tap the day in the clock card, or press C.'],
  ['Mail','Check the mailbox beside the caf\u00e9. Letters from Mum, friends and the notice board, sometimes with coins.'],
@@ -3509,7 +3509,6 @@ function renderCafe(){setTimeout(hqQuestCheck,0);renderHQTabs();const isMain=hqT
 const RADIO={ctx:null,master:null,rev:null,st:'off',vol:.5,timer:null,next:0,step:0,bar:0,nodes:[],wave:null,crackle:null};
 const RSTATIONS={
  seaside:{name:'Seaside Piano',desc:'Gentle piano and soft waves, like a slow morning on the jetty.',bpm:72},
- citypop:{name:'City Pop',desc:'30 original city pop tracks: bright 80s pop with funky bass, claps, synths and brass for night drives and good moods.',bpm:108},
  sleep:{name:'Sleep Lo-fi',desc:'30 slow, soft tracks for sleep and rest, with the sea, rain or a quiet room underneath.',bpm:56},
  beats:{name:'Lo-fi Beats',desc:'30 original lo-fi hip hop tracks for work and study: jazzy chords, boom-bap drums, vinyl crackle.',bpm:86},
  lofi:{name:'Island Lo-fi',desc:'30 original lo-fi tracks: 15 to study and work to, 15 slow ones with soft rain on the roof.',bpm:78},
@@ -3845,6 +3844,7 @@ function hpCompile(tr){const R=lfRng(tr.seed),ev=[],bar4=4,sw=tr.sw;
     bar+=n;});
   const beats=used*bar4+1;ev.push({b:0,k:'bed',kind:'crackle',d:beats});
   ev.sort((a,b)=>a.b-b.b);return{ev,beats};}
+// City Pop is off the radio for now (Paul, Nov 2026): the tracks stay here; add citypop back to RSTATIONS and TSTN to bring it back.
 // ---------- City Pop: 30 original city pop tracks (bright 80s pop with funk bass and synths) ----------
 // Major 7th chords, a slap-style bass that walks in 16ths, funky drums with hand claps, cutting guitar,
 // brass stabs into the chorus and a lead on synth, sax, e-piano bells or flute.
@@ -4037,7 +4037,7 @@ function slPlay(tr,e,t,spb){
   else lfPlay(tr,e,t,spb);}
 // Track stations: Crystal Harbour and Island Lo-fi play composed tracks in order.
 function crPlay(tr,e,t,spb){if(e.k==='lead'){(tr.lead==='flute'?flute:tr.lead==='oboe'?oboe:bell)(t,e.n,e.d*spb*.95,e.v*1.6);}else if(e.k==='bell')bell(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='harp')harp(t,e.n,e.v);else if(e.k==='piano')piano(t,e.n,e.d*spb,e.v*1.4);else if(e.k==='bass')bass(t,e.n,e.d*spb,e.v*.65);else if(e.k==='strings')strings(t,e.ns,e.d*spb,e.v*.8);else if(e.k==='hat')hat(t,e.v*.6);}
-const TSTN={crystal:{list:CRYSTAL,compile:crCompile,play:crPlay},lofi:{list:LOFI,compile:lfCompile,play:lfPlay},beats:{list:HOP,compile:hpCompile,play:hpPlay},citypop:{list:CITY,compile:cpCompile,play:cpPlay},sleep:{list:SLEEP,compile:slCompile,play:slPlay}};
+const TSTN={crystal:{list:CRYSTAL,compile:crCompile,play:crPlay},lofi:{list:LOFI,compile:lfCompile,play:lfPlay},beats:{list:HOP,compile:hpCompile,play:hpPlay},sleep:{list:SLEEP,compile:slCompile,play:slPlay}};
 function tsOf(){return TSTN[RADIO.st]||TSTN.crystal;}
 function crStart(i,t0){const T=tsOf(),L=T.list;const tr=L[((i%L.length)+L.length)%L.length];RADIO.trk=L.indexOf(tr);RADIO.trkSt=RADIO.st;RADIO.cr=T.compile(tr);RADIO.crI=0;RADIO.crT0=t0!=null?t0:RADIO.ctx.currentTime+.15;RADIO.crSpb=60/tr.bpm;RADIO.crLoops=0;
   try{const n=$('#rdNow');if(n&&overlay==='radio')renderRadio();}catch(e){}if(running&&TSTN[RADIO.st]&&!RADIO.pl)toast('♫ Now playing: '+tr.t,2.6);}
@@ -4057,8 +4057,6 @@ const STUDIO_PL=[
  {id:'softrain',st:'lofi',name:'Soft Rain + Slow Lofi',hint:'try Showers',titles:['Rain on the Awning','Wet Sand, Warm Mug','Grey Morning at Geordie Bay','Drizzle on the Jetty','Window Seat','Umbrella for Two','Storm over the Salt Lakes','Foggy Lighthouse','Kip Naps Through the Rain','Damp Postcards','Steam from the Teapot','Slow Ferry in the Rain','Rainy Day Reading','Puddles by the Bakery','After the Storm']},
  {id:'beats1',st:'beats',name:'Lo-fi Beats Vol. 1',hint:'try Sunny, 09:00–15:00',titles:['Espresso Shot Beats','Notebook Margins','Highlighter Yellow','Deadline in Daylight','Laptop by the Jetty','Inbox Zero','Coffee Ring Notes','Cold Brew Focus','Sticky Note Wall','Ferry Wi-Fi Study','Café Corner Booth','Late Lecture Rewind','Bike Lane Commute','Overtime at the Counter','Pomodoro Twenty-Five']},
  {id:'beats2',st:'beats',name:'Lo-fi Beats Vol. 2',hint:'try Sunny, 15:00–18:00',titles:['Thesis Draft Three','Quokka on a Coffee Break','Reading Room by the Sea','Steam Wand Swing','Spreadsheet Sunset','Library Card','Golden Hour Homework','Index Card Shuffle','Quiet Desk, Loud Ideas','Second Flat White','Saltwater Study Hall','Coastline Commute','Midnight Revision','Clocking Off','Tomorrow’s To-Do List']},
- {id:'city1',st:'citypop',name:'City Pop Vol. 1',hint:'try Sunny, 17:30–19:00',titles:['Mounts Bay Night Drive','Neon on the Swan','Sunset Coast Highway','Ferry Lights at Eight','City Lights from the Hill','Midnight at the Jetty','Pink Lake Postcard','Cassette from Fremantle','Summer Rain on the Terrace','Cruising Mill Point Road','Moonlight Marina','Weekend Window Seat','Glitter on the River','Last Train to the Coast','Rooftop Sunset Party']},
- {id:'city2',st:'citypop',name:'City Pop Vol. 2',hint:'try a clear night',titles:['Sea Breeze Convertible','Lighthouse Rendezvous','Saturday Night Quokka','Polaroid Summer','Two Coffees, One Sunset','Disco Ball over Thomson Bay','Radio Love 101.7','Night Market Neon','Coast Road at Two A.M.','Velvet Evening','Starlight Boulevard','Hello from the Island','Palm Trees and Pay Phones','Golden Hour Groove','See You at Sunrise']},
  {id:'sleep1',st:'sleep',name:'Sleep Lo-fi Vol. 1',hint:'try a clear night',titles:['Tide Comes In Slowly','Lantern Off, Stars On','Hammock at Midnight','Sleepy Ferry Home','Moonlight on the Salt Lake','Waves Counting Sheep','Quiet Bay, Quiet Mind','Kip Dreams of Coffee','Blanket of Fog','Starlight over Thomson Bay','Night Swim in a Dream','Seashell Lullaby','Warm Milk and Honey','Sound of the Sea Wall','Gentle Rain, Gentle Night']},
  {id:'sleep2',st:'sleep',name:'Sleep Lo-fi Vol. 2',hint:'try Showers at night',titles:['Drifting Dinghy','Three A.M. Lighthouse','Sleeping Gulls','Pillow of Clouds','Distant Ferry Horn','Breathing with the Tide','Southern Cross Dreams','Soft Sand, Slow Breath','After the Last Customer','Moon over the Jetty','Dreaming in Blue','Little Boat, Big Sky','Cocoa Before Bed','Nightlight','Until Morning']}];
 let PL_SEL=-1;
@@ -8053,8 +8051,8 @@ if(hot&&hot.data&&hot.data.S&&hot.data.running){const oldL=hot.data.S.isv!==2,v1
 // The clock follows Perth time, the café never closes, rain tracks bring rain, the camera drifts between café shots,
 // customers keep arriving and Kip takes each order, makes it at the counter and carries it to the table.
 const LIVEM=(()=>{if(!LIVE)return null;
-  const Q=new URLSearchParams(location.search);const ST=['crystal','beats','citypop','sleep'].includes(Q.get('st'))?Q.get('st'):'lofi';
-  const FREQ={lofi:'92.1',crystal:'96.9',beats:'99.5',citypop:'101.7',sleep:'90.3'};
+  const Q=new URLSearchParams(location.search);const ST=['crystal','beats','sleep'].includes(Q.get('st'))?Q.get('st'):'lofi';
+  const FREQ={lofi:'92.1',crystal:'96.9',beats:'99.5',sleep:'90.3'};
   const perthMin=()=>{const d=new Date();return (d.getUTCHours()*60+d.getUTCMinutes()+480+d.getUTCSeconds()/60)%1440;};
   // ---- overlay: brand, live badge, now playing, Perth clock ----
   const css=document.createElement('style');css.textContent=`
