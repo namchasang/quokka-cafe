@@ -5,7 +5,7 @@
 --   Authentication -> Sign In / Providers -> Google: ON (client ID + secret from Google Cloud; the same OAuth client
 --   as Roo Road / Magpie works if you add this project's callback URL https://xhrptgpzifqscydroiuv.supabase.co/auth/v1/callback)
 --   Authentication -> URL Configuration -> Redirect URLs: add https://namchasang.github.io/quokka-cafe/**
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
 -- one row per signed-in player
 create table if not exists public.qc_accounts (
@@ -66,7 +66,7 @@ returns jsonb language plpgsql security definer set search_path = public as $$
 declare c text := qc_norm(p_code); h text; r qc_codes%rowtype; dev text := left(coalesce(p_device,''), 64);
 begin
   if c !~ '^QC[PS][A-Z0-9]{10}$' or dev = '' then return jsonb_build_object('ok', false, 'reason', 'bad'); end if;
-  h := encode(digest('qc-code|' || c, 'sha256'), 'hex');
+  h := encode(extensions.digest('qc-code|' || c, 'sha256'), 'hex');
   select * into r from qc_codes where hash = h for update;
   if not found then return jsonb_build_object('ok', false, 'reason', 'bad'); end if;
   if not (r.devices ? dev) then
