@@ -117,6 +117,15 @@ function renderAcct(){const T=$('#acTabs'),B=$('#acBody');T.innerHTML='';B.inner
 acBuild();// the panel must exist before showOverlay/hideOverlays touch it
 if(ACCT_ON){const b=$('#acctBtn');if(b){b.hidden=false;b.onclick=()=>openAcct();}if(AUTH.fresh)setTimeout(()=>{if(running)toast('✓ Signed in. Your café now saves to the cloud.',3.5);authRefreshMe();},4000);else if(AUTH.s)setTimeout(authRefreshMe,6000);}
 
+// ---------- Photo mode (?shot=x,z,hour[,weather,zoom,yaw]): the real game with no menus, no saving, a fixed place and time ----------
+// For website and post screenshots. Nothing is saved and the player's own slots are never touched. Weather 0 sun, 3 rain.
+const SHOT=(()=>{const m=location.search.match(/[?&]shot=([-0-9.,]+)/);if(!m||LIVE)return null;const a=m[1].split(',').map(Number);
+  return{x:a[0],z:a[1],h:isFinite(a[2])?a[2]:10,wx:a[3]|0,zm:a[4]||1,yaw:a[5]||0};})();
+if(SHOT){save=function(){};hasPass=function(){return true;};
+  const _u=update;update=function(dt){if(!ui.dlg.hidden){dlgQ=[];dlgDone=null;ui.dlg.hidden=true;}if(overlay&&running)hideOverlays();S.time=SHOT.h*60;S.wx=SHOT.wx;_u(dt);};
+  const _c=updateCamera;updateCamera=function(dt,snap){if(running&&!overlay){yawT=SHOT.yaw;zm=SHOT.zm;}return _c(dt,snap);};
+  setTimeout(()=>{startGame({day:5});STUDIO=true;document.body.classList.add('studio');S.pass=true;player.x=SHOT.x;player.z=SHOT.z;S.wx=SHOT.wx;S.time=SHOT.h*60;updateCamera(0,true);},900);}
+
 if(WORLD.on&&(WORLD3D_LIVE||OW3D_ON)){let OW=null,root=null;
   const close3=()=>{if(OW)OW.close();if(root)root.hidden=true;};
   const ensure=()=>{if(OW)return;const st=document.createElement('style');st.textContent=OW3D_CSS;document.head.appendChild(st);root=document.createElement('div');root.id='owRoot';root.hidden=true;root.innerHTML=OW3D_HTML;document.body.appendChild(root);

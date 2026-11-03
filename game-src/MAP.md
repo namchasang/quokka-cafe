@@ -123,4 +123,4 @@ Find code: `grep -n 'name' game-src/*`.
 | 115-cut-out-card-leaves-lace-grass-alpha-t.js | 10572-10662 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
 | 116-island-cottage-limestone-or-board-plas.js | 10663-10709 | 7 |  |
 | 117-ppl-lib-end.js | 10710-10900 | 27 | wel4Build, pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
-| 118-hd-pixel-set-on-rottnest-only-look-lab.js | 10901-11032 | 19 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant, authLoad |
+| 118-hd-pixel-set-on-rottnest-only-look-lab.js | 10901-11041 | 20 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant, authLoad |
