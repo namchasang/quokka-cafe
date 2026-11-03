@@ -10783,7 +10783,20 @@ function pxbLaneClear(){if(typeof BLANES==='undefined'||!BLANES.length)return;co
     colliders.forEach(c=>{if(c.x1<1e8&&c.x1>=o0.min.x-.3&&c.x2<=o0.max.x+.3&&c.z1>=o0.min.z-.3&&c.z2<=o0.max.z+.3){c.x1+=tot.x;c.x2+=tot.x;c.z1+=tot.z;c.z2+=tot.z;}});
     n++;out.push([Math.round(cx),Math.round((o0.min.z+o0.max.z)/2),+tot.x.toFixed(2),+tot.z.toFixed(2)]);});
   pxbLaneClear.moved=out;window.__laneMoved=out;}
-function pxbScene(){pxbScene.done=true;const T0=performance.now();try{pxbLaneClear();}catch(e){console.error(e);}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+// ---------- skewed roofs (Paul, Nov 2026): a four-sided cone turned 45° and then stretched comes out as a twisted diamond.
+// Every such roof on every map is rebuilt as a true hip roof over the rectangle it was meant to cover.
+function pxFixDiamonds(){let n=0;const out=[];scene.traverse(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='ConeGeometry')return;const p=o.geometry.parameters;if(p.radialSegments!==4)return;
+    const ry=((o.rotation.y%(Math.PI/2))+Math.PI/2)%(Math.PI/2);if(Math.abs(ry-Math.PI/4)>.06||Math.abs(o.rotation.x)>.01||Math.abs(o.rotation.z)>.01)return;const sx=o.scale.x,sz=o.scale.z;if(Math.abs(sx-sz)<.02*Math.max(sx,sz))return;
+    const W=Math.SQRT2*p.radius*Math.abs(sx),D=Math.SQRT2*p.radius*Math.abs(sz),H=p.height*o.scale.y,hx=W/2,hz=D/2,y0=-H/2,y1=H/2;const alongX=W>=D,ri=Math.min(hx,hz);
+    const R1=alongX?[-hx+ri,y1,0]:[0,y1,-hz+ri],R2=alongX?[hx-ri,y1,0]:[0,y1,hz-ri];const A=[-hx,y0,-hz],B=[hx,y0,-hz],C=[hx,y0,hz],Dd=[-hx,y0,hz];const pos=[],uv=[];
+    const sl=Math.hypot(ri,H);const tri=(a,b,c)=>{pos.push(...a,...b,...c);[a,b,c].forEach(v=>uv.push((alongX?v[0]:v[2])/2,(v[1]-y0)/H*sl/2));};
+    if(alongX){tri(Dd,C,R2);tri(Dd,R2,R1);tri(B,A,R1);tri(B,R1,R2);tri(A,Dd,R1);tri(C,B,R2);}else{tri(A,Dd,R2);tri(A,R2,R1);tri(C,B,R1);tri(C,R1,R2);tri(Dd,C,R2);tri(B,A,R1);}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();
+    const m0=Array.isArray(o.material)?o.material[0]:o.material;o.geometry=g;let col='#'+(m0&&m0.color?m0.color.getHexString():'a8acb0');if(m0&&m0.map&&m0.map.image&&m0.color&&m0.color.getHex()===0xffffff){try{const im=m0.map.image,c=document.createElement('canvas');c.width=c.height=1;const x=c.getContext('2d');x.drawImage(im,0,0,1,1);const d=x.getImageData(0,0,1,1).data;col='#'+[d[0],d[1],d[2]].map(v=>v.toString(16).padStart(2,'0')).join('');}catch(e){}}
+    const hsl={};new THREE.Color(col).getHSL(hsl);const kind=hsl.s<.18?'tin':(hsl.h>.5&&hsl.h<.75)?'slate':'tile';const key=col+kind;pxFixDiamonds.c=pxFixDiamonds.c||{};let mm=pxFixDiamonds.c[key];
+    if(!mm){const t=ctex(PXK.roof(2,2,{base:col,kind,seed:23}));t.wrapS=t.wrapT=THREE.RepeatWrapping;mm=new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide});mm.__pxSkip=1;pxFixDiamonds.c[key]=mm;}o.material=mm;o.__pxSkip=1;
+    o.rotation.y-=ry;o.scale.set(1,1,1);o.updateMatrix();n++;out.push([+W.toFixed(1),+D.toFixed(1)]);});pxFixDiamonds.n=n;window.__diam=n;}
+function pxbScene(){pxbScene.done=true;const T0=performance.now();try{pxFixDiamonds();}catch(e){console.error(e);}try{pxbLaneClear();}catch(e){console.error(e);}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
   const isl=o=>{const m=o.material,im=m&&m.map&&m.map.image;return!im||im.width<=32;};// plain walls get the kit; walls with their own picture keep it (redrawn below)// every map; faces that already carry a painted picture keep it
   const hex=m=>m&&m.color?'#'+m.color.getHexString():'#e4d2a8';const r1=v=>Math.round(v*2)/2;
   const cache=new Map();const tm=(key,make,o)=>{let m=cache.get(key);if(!m){const c=make();m=new THREE.MeshLambertMaterial(Object.assign({map:ctex(c)},o||{}));m.map.minFilter=THREE.NearestFilter;m.map.generateMipmaps=false;cache.set(key,m);}return m;};
@@ -10870,7 +10883,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();try{pxbLaneCle
     const mesh=new THREE.Mesh(g,m);mesh.castShadow=mesh.receiveShadow=true;mesh.__pxSkip=1;W.o.add(mesh);
     // a dark fascia under the eaves
     const fb=new THREE.Mesh(new THREE.BoxGeometry(2*X,.1/sy,2*Z),new THREE.MeshLambertMaterial({color:new THREE.Color(base).multiplyScalar(.5)}));fb.position.y=y0+.02/sy;fb.__pxSkip=1;W.o.add(fb);
-    R.o.visible=false;(pxbScene.hips=pxbScene.hips||[]).push([Math.round(RC.x),Math.round(RC.z)]);return true;}
+    R.o.visible=false;(pxbScene.hips=pxbScene.hips||[]).push([Math.round(RC.x),Math.round(RC.z),+W.w.toFixed(1),+W.d.toFixed(1),+(RB.max.x-RB.min.x).toFixed(1),+(RB.max.z-RB.min.z).toFixed(1),W.__nc]);return true;}
   const roofKind=c=>{const a=new THREE.Color(c);const hsl={};a.getHSL(hsl);return hsl.s<.22?'slate':(hsl.h>.18&&hsl.h<.5)?'tin':(hsl.h>.5&&hsl.h<.75)?'slate':'tile';};
   roofs.forEach(R=>{const base=hex(R.o.material),k=roofKind(base);
     if(R.kind==='prism'){const side=2*R.r*Math.sin(Math.PI/R.n)*R.s,circ=side*R.n;const m=tm(['rp',base,r1(circ),r1(R.L),k].join('|'),()=>PXK.roof(circ,R.L,{base,kind:k,across:true}));

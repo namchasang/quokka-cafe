@@ -123,7 +123,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 115-cut-out-card-leaves-lace-grass-alpha-t.js | 10587-10677 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
 | 116-island-cottage-limestone-or-board-plas.js | 10678-10724 | 7 |  |
 | 117-ppl-lib-end.js | 10725-10764 | 4 | wel4Build |
-| 118-buildings-off-bike-lanes-paul-nov-2026.js | 10765-10936 | 25 | pxbLaneClear, pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
-| 119-hd-pixel-set-on-rottnest-only-look-lab.js | 10937-10976 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 120-auth.js | 10977-11055 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 121-photo-mode-shot-x-z-hour-weather-zoom.js | 11056-11077 | 3 | SHOT |
+| 118-buildings-off-bike-lanes-paul-nov-2026.js | 10765-10949 | 27 | pxbLaneClear, pxFixDiamonds, pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
+| 119-hd-pixel-set-on-rottnest-only-look-lab.js | 10950-10989 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 120-auth.js | 10990-11068 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 121-photo-mode-shot-x-z-hour-weather-zoom.js | 11069-11090 | 3 | SHOT |
