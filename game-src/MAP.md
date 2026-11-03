@@ -85,42 +85,45 @@ Find code: `grep -n 'name' game-src/*`.
 | 077-more-from-paul-s-perth-photos-same-loo.js | 7015-7083 | 8 |  |
 | 078-fremantle-map-closer-to-real-town-same.js | 7084-7159 | 11 | FREO_LAND |
 | 079-st-george-s-cathedral-on-st-georges-te.js | 7160-7207 | 5 |  |
-| 080-fremantle-from-paul-s-street-photos-sa.js | 7208-7347 | 20 | FREO2_LIVE |
-| 081-fremantle-town-plan-same-look-lab-laye.js | 7348-7469 | 15 |  |
-| 082-perth-cbd-fill-empty-corners-same-look.js | 7470-7527 | 7 |  |
-| 083-perth-cbd-busy-footpaths-same-look-lab.js | 7528-7609 | 9 |  |
-| 084-fremantle-opened-up-look-lab-lab-or-fr.js | 7610-7901 | 41 | FREO4_LIVE, FREO5_LIVE |
-| 085-island-loop-bus-a-19-stop-loop-bus-lik.js | 7902-7947 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 086-tidy-island-after-it-grows-nothing-on.js | 7948-8057 | 13 | flipIslandSigns, hot |
-| 087-live-mode-live-1-kip-runs-caf-on-his-o.js | 8058-8132 | 8 | LIVEM |
-| 088-look-lab-landscape-layers-of-each-real.js | 8133-8318 | 25 | LAB |
-| 089-hd-plants-every-tree-bush-flower-and-g.js | 8319-8386 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 090-layered-pixel-trees-2-5d-look-lab-laye.js | 8387-8427 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 091-roo-road-rescue-cars-3d-shared-with-qu.js | 8428-8588 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
-| 092-car-dealership-on-teddington-rd-victor.js | 8589-8667 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
-| 093-world-map-engine-shared-with-mockup.js | 8668-8741 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
-| 094-sprites.js | 8742-8790 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
-| 095-loop.js | 8791-8836 | 5 | last, frame, label, perth, aus |
-| 096-city-walls-and-world-map-look-lab-lab.js | 8837-8976 | 21 | WORLD_LIVE, OW3D_ON, TOWN_LINK, TOWN_NAME, linkTo, linkSignText, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF |
-| 097-3d-overworld-paul-approved-oct-2026-re.js | 8977-8990 | 6 | WORLD3D_LIVE, OW_LOOK2_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
-| 098-const-real-w-600-h-400-land-4aaab.js | 8991-8991 | 117 | embedded data, do not open |
-| 099-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 8992-9095 | 14 | G, LAND, ELEV, elevAt, landAt, DL, R, P, fade, noise |
-| 100-low-poly-helpers.js | 9096-9137 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
-| 101-kip-pixel-sprite-and-little-retro-car.js | 9138-9182 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
-| 102-driving-buttons-gas-brake-steer.js | 9183-9227 | 6 | DRV, mm, drawMini, resize, last, frame |
-| 103-look2-look-lab-pixel-art-ground-perth.js | 9228-9388 | 18 | L2, L2hash, L2paint, L2objects |
-| 104-cinematic-look-lab-lab-or-cine-until-c.js | 9389-9471 | 9 | CINEMA, cineInit, _cv, cineTick |
-| 105-ref-look-lab-lab-or-ref-paul-s-photos.js | 9472-9609 | 20 | REF_LIVE |
-| 106-map-editor-look-lab-open-game-with-edi.js | 9610-9714 | 16 | EDIT_ON |
-| 107-stations-and-ports-paul-oct-2026-walk.js | 9715-9743 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
-| 108-const-tour-page-u003c-doctype-html-u00.js | 9744-9744 | 51 | embedded data, do not open |
-| 109-function-opentours-opentravel-day-tour.js | 9745-9819 | 12 | openTours, TOUR, startTour, endTour, PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace |
-| 110-people-and-animals-a-touch-brighter-th.js | 9820-10001 | 23 | pxPopTick, VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
-| 111-perth-station-pixel-look-1890s-front-i.js | 10002-10408 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
-| 112-paul-perth-library-shared-with-every-p.js | 10409-10472 | 3 | P |
-| 113-light-from-above-inside-a-blob-of-foli.js | 10473-10514 | 2 | MC, T |
-| 114-render-mode-default-srgb-output-meshst.js | 10515-10571 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
-| 115-cut-out-card-leaves-lace-grass-alpha-t.js | 10572-10662 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
-| 116-island-cottage-limestone-or-board-plas.js | 10663-10709 | 7 |  |
-| 117-ppl-lib-end.js | 10710-10900 | 27 | wel4Build, pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
-| 118-hd-pixel-set-on-rottnest-only-look-lab.js | 10901-11041 | 20 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant, authLoad |
+| 080-fremantle-from-paul-s-street-photos-sa.js | 7208-7348 | 20 | FREO2_LIVE |
+| 081-fremantle-town-plan-same-look-lab-laye.js | 7349-7470 | 15 |  |
+| 082-perth-cbd-fill-empty-corners-same-look.js | 7471-7528 | 7 |  |
+| 083-perth-cbd-busy-footpaths-same-look-lab.js | 7529-7610 | 9 |  |
+| 084-fremantle-opened-up-look-lab-lab-or-fr.js | 7611-7916 | 43 | FREO4_LIVE, FREO5_LIVE |
+| 085-island-loop-bus-a-19-stop-loop-bus-lik.js | 7917-7962 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 086-tidy-island-after-it-grows-nothing-on.js | 7963-8072 | 13 | flipIslandSigns, hot |
+| 087-live-mode-live-1-kip-runs-caf-on-his-o.js | 8073-8147 | 8 | LIVEM |
+| 088-look-lab-landscape-layers-of-each-real.js | 8148-8333 | 25 | LAB |
+| 089-hd-plants-every-tree-bush-flower-and-g.js | 8334-8401 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 090-layered-pixel-trees-2-5d-look-lab-laye.js | 8402-8442 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 091-roo-road-rescue-cars-3d-shared-with-qu.js | 8443-8603 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
+| 092-car-dealership-on-teddington-rd-victor.js | 8604-8682 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
+| 093-world-map-engine-shared-with-mockup.js | 8683-8756 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
+| 094-sprites.js | 8757-8805 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
+| 095-loop.js | 8806-8851 | 5 | last, frame, label, perth, aus |
+| 096-city-walls-and-world-map-look-lab-lab.js | 8852-8991 | 21 | WORLD_LIVE, OW3D_ON, TOWN_LINK, TOWN_NAME, linkTo, linkSignText, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF |
+| 097-3d-overworld-paul-approved-oct-2026-re.js | 8992-9005 | 6 | WORLD3D_LIVE, OW_LOOK2_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
+| 098-const-real-w-600-h-400-land-4aaab.js | 9006-9006 | 117 | embedded data, do not open |
+| 099-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 9007-9110 | 14 | G, LAND, ELEV, elevAt, landAt, DL, R, P, fade, noise |
+| 100-low-poly-helpers.js | 9111-9152 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
+| 101-kip-pixel-sprite-and-little-retro-car.js | 9153-9197 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
+| 102-driving-buttons-gas-brake-steer.js | 9198-9242 | 6 | DRV, mm, drawMini, resize, last, frame |
+| 103-look2-look-lab-pixel-art-ground-perth.js | 9243-9403 | 18 | L2, L2hash, L2paint, L2objects |
+| 104-cinematic-look-lab-lab-or-cine-until-c.js | 9404-9486 | 9 | CINEMA, cineInit, _cv, cineTick |
+| 105-ref-look-lab-lab-or-ref-paul-s-photos.js | 9487-9624 | 20 | REF_LIVE |
+| 106-map-editor-look-lab-open-game-with-edi.js | 9625-9729 | 16 | EDIT_ON |
+| 107-stations-and-ports-paul-oct-2026-walk.js | 9730-9758 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
+| 108-const-tour-page-u003c-doctype-html-u00.js | 9759-9759 | 51 | embedded data, do not open |
+| 109-function-opentours-opentravel-day-tour.js | 9760-9834 | 12 | openTours, TOUR, startTour, endTour, PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace |
+| 110-people-and-animals-a-touch-brighter-th.js | 9835-10016 | 23 | pxPopTick, VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
+| 111-perth-station-pixel-look-1890s-front-i.js | 10017-10423 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
+| 112-paul-perth-library-shared-with-every-p.js | 10424-10487 | 3 | P |
+| 113-light-from-above-inside-a-blob-of-foli.js | 10488-10529 | 2 | MC, T |
+| 114-render-mode-default-srgb-output-meshst.js | 10530-10586 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
+| 115-cut-out-card-leaves-lace-grass-alpha-t.js | 10587-10677 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
+| 116-island-cottage-limestone-or-board-plas.js | 10678-10724 | 7 |  |
+| 117-ppl-lib-end.js | 10725-10764 | 4 | wel4Build |
+| 118-buildings-off-bike-lanes-paul-nov-2026.js | 10765-10936 | 25 | pxbLaneClear, pxbScene, PXB_SEE, pxbSee, pxbTick, tex3Scene |
+| 119-hd-pixel-set-on-rottnest-only-look-lab.js | 10937-10976 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 120-auth.js | 10977-11055 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 121-photo-mode-shot-x-z-hour-weather-zoom.js | 11056-11077 | 3 | SHOT |

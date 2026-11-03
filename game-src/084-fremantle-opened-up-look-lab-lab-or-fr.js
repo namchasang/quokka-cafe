@@ -241,8 +241,22 @@ if(FREO5_ON&&FDET.on)(()=>{
     [[17.4],[19.6]].forEach(([z])=>{const lb=put(B(.9,.25,1.4),M('#6a4a32'),289.95,.25,z);const bk=put(B(.9,.08,.7),M('#6a4a32'),289.95,.55,z-.65,{rx:-.6});block(289.4,z-.8,290.5,z+.7);});}
   // 6. the café lot moves to the William St corner; the people of the town walk the new footpaths
   if(typeof BRANCHES!=='undefined'){const b=BRANCHES.find(q=>q.id==='freo');if(b){b.x=323.1;b.z=-2.0;b.tp={x:323.1,z:1.0};}}
-  if(typeof WALK_ROUTES!=='undefined')WALK_ROUTES.freo=[[[280,-9],[333,-9]],[[280,-5],[333,-5]],[[295,-5],[295,21]],[[299,-5],[299,21]],[[303.4,9],[303.4,21]],[[307.4,9],[307.4,21]],[[316,-14],[316,21]],[[320,-14],[320,21]],[[282,3.6],[295,3.6]],[[300.5,0],[311,7.6]],[[283,8],[292,8],[292,14.6],[283,14.6],[283,8]],[[329,-5],[329,21]]];
+  // the four cross streets run on to the street along the homes, so every road joins up (Paul, Nov 2026)
+  [[295.8,298.2],[304.2,306.6],[316.8,319.2],[329.8,332.2]].forEach(([a,b])=>{paint(a,b,21.4,25.3,tile(asphC,b-a,3.9,3),.046);for(let t=21.9;t<25;t+=1.1)paint((a+b)/2-.05,(a+b)/2+.05,t,t+.5,M('#f3f3ea'),.048);[22.0,24.18].forEach(zc=>{for(let k=0;k<4;k++){const o=-.45+k*.3;paint(a+.15,b-.15,zc+o-.09,zc+o+.09,M('#f6f6f0'),.05);}});
+    if(typeof trees!=='undefined')for(let i=trees.length-1;i>=0;i--){const t=trees[i];if(t.x>a-.6&&t.x<b+.6&&t.z>21.2&&t.z<25.5){t.m.visible=false;t.dead=1;}}
+    for(let i=colliders.length-1;i>=0;i--){const c=colliders[i];if(c.x2>a&&c.x1<b&&c.z2>21.4&&c.z1<25.3&&c.x2-c.x1<1.2)colliders.splice(i,1);}});
+  // the old dead-end stubs of the homes streets beside the new crossings are lawn again (footpath and verge kept)
+  [[302.4,304.2],[319.2,321.6],[334.6,337.8]].forEach(([a,b])=>{paint(a,b,22.1,23.83,tile(grassC,b-a,1.7,2.2),.037);paint(a,b,23.83,24.53,M('#cfcac0'),.037);paint(a,b,24.53,25.09,tile(grassC,b-a,.6,2.2),.037);});
+  // crossings where the footpaths meet a road
+  zebra(316,-7,0,1.2);zebra(320,-7,0,1.2);[297,318,331].forEach(x=>zebra(x,-5,1,1.2));zebra(318,-9,1,1.2);
+  {const _fw6=freoWalk;freoWalk=function(x,z){if(x>274.4&&x<357.5&&z>=21.4&&z<25.4)return true;return _fw6(x,z);};}
+  if(typeof WALK_ROUTES!=='undefined')WALK_ROUTES.freo=[[[280,-9],[333,-9]],[[280,-5],[333,-5]],[[295,-5],[295,21]],[[299,-5],[299,21]],[[303.4,9],[303.4,21]],[[307.4,9],[307.4,21]],[[316,-14],[316,21]],[[320,-14],[320,21]],
+    [[276,22.0],[356,22.0]],[[276,24.05],[356,24.05]],[[299,21],[299,22.0]],[[316,21],[316,24.05]],[[335,-5],[345,-5],[344.5,9.5],[356,9.5]],[[344.5,-5],[344.5,21]],[[334,9.5],[344.5,9.5]],[[282,3.6],[295,3.6]],[[300.5,0],[311,7.6]],[[283,8],[292,8],[292,14.6],[283,14.6],[283,8]],[[329,-5],[329,21]]];
   if(typeof SAFE_SPOTS!=='undefined')SAFE_SPOTS.freo=[[290,-9],[301,6],[310,2]];
+  if(typeof walkers!=='undefined'&&typeof WALK_ROUTES!=='undefined'){const R=WALK_ROUTES.freo;let k=0;walkers.forEach(w=>{if(w.zone!=='freo')return;const route=R[k++%R.length];w.route=route;w.seg=0;w.dir=1;w.x=route[0][0];w.z=route[0][1];});
+    // more people in town: ten more walkers on the new footpaths
+    if(typeof humanFrames!=='undefined'){const rr=mulberry32(4343);for(let i=0;i<10;i++){const route=R[(k+i)%R.length];const m=spriteMesh(humanFrames({skin:SKINS[rr()*SKINS.length|0],hair:HAIRS[rr()*HAIRS.length|0],shirt:SHIRTS[rr()*SHIRTS.length|0],pants:PANTS[rr()*PANTS.length|0],hat:HATS[rr()*HATS.length|0]}),.95,1.58);m.visible=false;scene.add(m);const sh=blob(.8);sh.visible=false;
+      const t=rr();walkers.push({zone:'freo',m,sh,route,seg:0,dir:1,x:lerp(route[0][0],route[1][0],t),z:lerp(route[0][1],route[1][1],t),sp:1+rr()*.8,off:(rr()-.5)*.9,walkT:rr()*5,face:1,bike:false,pause:0});}}}
   // the south end of the Esplanade is park now, not the old harbour edge
   {const _fw5=freoWalk;freoWalk=function(x,z){if(x>274.6&&x<294.3&&z>14&&z<21.45)return true;return _fw5(x,z);};}
 })();

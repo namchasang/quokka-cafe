@@ -7323,9 +7323,10 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   if(CDET.makeCar){const V=[],GV=new THREE.Group();G.add(GV);
     const mkCar=()=>r()<.5?CDET.retroCar():CDET.makeCar(pick(['sedan','hatch','ute','hatch']),pick(['#c8344a','#2f6fb0','#f6f6f0','#2a2a30','#9aa4ac','#3e7d5c','#d8d2c4']));
     const HE=-2.45,HW=-1.55,SS=304.55,SN=303.45,BE=20.0,BW=20.8,ME=4.1,MW=4.9;
-    const ROUTES=[{p:[[282,-8.45],[SS,-8.45],[SS,BE],[351,BE]],n:2},{p:[[351,BW],[SN,BW],[SN,-7.55],[282,-7.55]],n:2},
-      {p:[[334.75,-5.6],[334.75,BW],[SN,BW],[SN,HW],[279.5,HW]],n:1},{p:[[279.5,HE],[SS,HE],[SS,BE],[333.85,BE],[333.85,-5.6]],n:1},
-      {p:[[351,BW],[SN,BW],[SN,MW],[280.5,MW]],n:1},{p:[[280.5,ME],[SS,ME],[SS,BE],[351,BE]],n:1}];
+    const PE=-6.45,PW=-7.55,HE2=25.7,HW2=26.5;// Phillimore St lanes, the homes street lanes
+    const ROUTES=[{p:[[279.5,PE],[318.55,PE],[318.55,HE2],[352,HE2]],n:2},{p:[[352,HW2],[317.45,HW2],[317.45,PW],[279.5,PW]],n:2},
+      {p:[[279.5,PE],[296.45,PE],[296.45,HE2],[330.45,HE2],[330.45,PW],[279.5,PW]],n:2},{p:[[279.5,PE],[331.55,PE],[331.55,HW2],[297.55,HW2],[297.55,PW],[279.5,PW]],n:1},
+      {p:[[352,HW2],[305.95,HW2],[305.95,9]],n:1},{p:[[304.85,9],[304.85,HE2],[352,HE2]],n:1}];
     ROUTES.forEach(R=>{const P=[],pts=R.p;for(let i=0;i<pts.length;i++){if(i===0||i===pts.length-1){P.push(pts[i]);continue;}
         const[ax,az]=pts[i-1],[px,pz]=pts[i],[qx,qz]=pts[i+1];let d1x=px-ax,d1z=pz-az;const l1=Math.hypot(d1x,d1z);d1x/=l1;d1z/=l1;let d2x=qx-px,d2z=qz-pz;const l2=Math.hypot(d2x,d2z);d2x/=l2;d2z/=l2;
         const rr=.7,s0=[px-d1x*rr,pz-d1z*rr],s2=[px+d2x*rr,pz+d2z*rr];for(let k=0;k<=8;k++){const t=k/8,u=1-t;P.push([u*u*s0[0]+2*u*t*px+t*t*s2[0],u*u*s0[1]+2*u*t*pz+t*t*s2[1]]);}}
@@ -7392,8 +7393,8 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   signPost(301.9,-9.9,makeSign(['PHILLIMORE ST'],56,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(336,-5,makeSign(['ADELAIDE ST'],52,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(306,-.6,makeSign(['HIGH ST MALL'],52,10,'#1d3a6e','#ffffff'),1.6,.3);
 
   // ===== kerbside parking on the big streets =====
-  kerbX(283,292.5,-9.65,0);kerbX(283.2,302.4,-6.35,Math.PI,.8);
-  kerbX(306,332.6,21.6,Math.PI,.8);kerbX(336,351,21.6,Math.PI,.7);
+  // (Fremantle re-plan, Nov 2026) bays sit beside a real road: the north kerb of the street along the homes
+  kerbX(307.2,316.4,24.8,Math.PI,.8);kerbX(321.8,329.4,24.8,Math.PI,.8);kerbX(338,351,24.8,Math.PI,.7);
   kerbZ(-1.8,18.8,332.85,Math.PI/2,.7);
 
   // ===== High St mall: car-free pavers, flag planters down the middle, benches, festoon lights =====
@@ -7850,8 +7851,22 @@ if(FREO5_ON&&FDET.on)(()=>{
     [[17.4],[19.6]].forEach(([z])=>{const lb=put(B(.9,.25,1.4),M('#6a4a32'),289.95,.25,z);const bk=put(B(.9,.08,.7),M('#6a4a32'),289.95,.55,z-.65,{rx:-.6});block(289.4,z-.8,290.5,z+.7);});}
   // 6. the café lot moves to the William St corner; the people of the town walk the new footpaths
   if(typeof BRANCHES!=='undefined'){const b=BRANCHES.find(q=>q.id==='freo');if(b){b.x=323.1;b.z=-2.0;b.tp={x:323.1,z:1.0};}}
-  if(typeof WALK_ROUTES!=='undefined')WALK_ROUTES.freo=[[[280,-9],[333,-9]],[[280,-5],[333,-5]],[[295,-5],[295,21]],[[299,-5],[299,21]],[[303.4,9],[303.4,21]],[[307.4,9],[307.4,21]],[[316,-14],[316,21]],[[320,-14],[320,21]],[[282,3.6],[295,3.6]],[[300.5,0],[311,7.6]],[[283,8],[292,8],[292,14.6],[283,14.6],[283,8]],[[329,-5],[329,21]]];
+  // the four cross streets run on to the street along the homes, so every road joins up (Paul, Nov 2026)
+  [[295.8,298.2],[304.2,306.6],[316.8,319.2],[329.8,332.2]].forEach(([a,b])=>{paint(a,b,21.4,25.3,tile(asphC,b-a,3.9,3),.046);for(let t=21.9;t<25;t+=1.1)paint((a+b)/2-.05,(a+b)/2+.05,t,t+.5,M('#f3f3ea'),.048);[22.0,24.18].forEach(zc=>{for(let k=0;k<4;k++){const o=-.45+k*.3;paint(a+.15,b-.15,zc+o-.09,zc+o+.09,M('#f6f6f0'),.05);}});
+    if(typeof trees!=='undefined')for(let i=trees.length-1;i>=0;i--){const t=trees[i];if(t.x>a-.6&&t.x<b+.6&&t.z>21.2&&t.z<25.5){t.m.visible=false;t.dead=1;}}
+    for(let i=colliders.length-1;i>=0;i--){const c=colliders[i];if(c.x2>a&&c.x1<b&&c.z2>21.4&&c.z1<25.3&&c.x2-c.x1<1.2)colliders.splice(i,1);}});
+  // the old dead-end stubs of the homes streets beside the new crossings are lawn again (footpath and verge kept)
+  [[302.4,304.2],[319.2,321.6],[334.6,337.8]].forEach(([a,b])=>{paint(a,b,22.1,23.83,tile(grassC,b-a,1.7,2.2),.037);paint(a,b,23.83,24.53,M('#cfcac0'),.037);paint(a,b,24.53,25.09,tile(grassC,b-a,.6,2.2),.037);});
+  // crossings where the footpaths meet a road
+  zebra(316,-7,0,1.2);zebra(320,-7,0,1.2);[297,318,331].forEach(x=>zebra(x,-5,1,1.2));zebra(318,-9,1,1.2);
+  {const _fw6=freoWalk;freoWalk=function(x,z){if(x>274.4&&x<357.5&&z>=21.4&&z<25.4)return true;return _fw6(x,z);};}
+  if(typeof WALK_ROUTES!=='undefined')WALK_ROUTES.freo=[[[280,-9],[333,-9]],[[280,-5],[333,-5]],[[295,-5],[295,21]],[[299,-5],[299,21]],[[303.4,9],[303.4,21]],[[307.4,9],[307.4,21]],[[316,-14],[316,21]],[[320,-14],[320,21]],
+    [[276,22.0],[356,22.0]],[[276,24.05],[356,24.05]],[[299,21],[299,22.0]],[[316,21],[316,24.05]],[[335,-5],[345,-5],[344.5,9.5],[356,9.5]],[[344.5,-5],[344.5,21]],[[334,9.5],[344.5,9.5]],[[282,3.6],[295,3.6]],[[300.5,0],[311,7.6]],[[283,8],[292,8],[292,14.6],[283,14.6],[283,8]],[[329,-5],[329,21]]];
   if(typeof SAFE_SPOTS!=='undefined')SAFE_SPOTS.freo=[[290,-9],[301,6],[310,2]];
+  if(typeof walkers!=='undefined'&&typeof WALK_ROUTES!=='undefined'){const R=WALK_ROUTES.freo;let k=0;walkers.forEach(w=>{if(w.zone!=='freo')return;const route=R[k++%R.length];w.route=route;w.seg=0;w.dir=1;w.x=route[0][0];w.z=route[0][1];});
+    // more people in town: ten more walkers on the new footpaths
+    if(typeof humanFrames!=='undefined'){const rr=mulberry32(4343);for(let i=0;i<10;i++){const route=R[(k+i)%R.length];const m=spriteMesh(humanFrames({skin:SKINS[rr()*SKINS.length|0],hair:HAIRS[rr()*HAIRS.length|0],shirt:SHIRTS[rr()*SHIRTS.length|0],pants:PANTS[rr()*PANTS.length|0],hat:HATS[rr()*HATS.length|0]}),.95,1.58);m.visible=false;scene.add(m);const sh=blob(.8);sh.visible=false;
+      const t=rr();walkers.push({zone:'freo',m,sh,route,seg:0,dir:1,x:lerp(route[0][0],route[1][0],t),z:lerp(route[0][1],route[1][1],t),sp:1+rr()*.8,off:(rr()-.5)*.9,walkT:rr()*5,face:1,bike:false,pause:0});}}}
   // the south end of the Esplanade is park now, not the old harbour edge
   {const _fw5=freoWalk;freoWalk=function(x,z){if(x>274.6&&x<294.3&&z>14&&z<21.45)return true;return _fw5(x,z);};}
 })();
@@ -10747,7 +10762,28 @@ function wel4Build(){const DZ=-2.2,X1=598,X2=702,Z1=-60,Z2=-20.8,V=new THREE.Vec
   // a zebra crossing from the station doors across both carriageways
   for(let z=R1+.15;z<R2-.1;z+=.32){if(Math.abs(z-MZ)<MW/2)continue;flat(1.6,.18,677,z,W,.034);}
   wel4Build.moved=moved.size;}
-function pxbScene(){pxbScene.done=true;const T0=performance.now();if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+// ---------- buildings off the bike lanes (Paul, Nov 2026): a house whose walls, verandah or posts reach over a lane steps back from it ----------
+function pxbLaneClear(){if(typeof BLANES==='undefined'||!BLANES.length)return;const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);let n=0;const out=[];
+  const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
+  const lanes=BLANES.filter(l=>l[0][0]<99.5);
+  // how far a box reaches into a lane: sample its footprint edge, return the push vector that clears it
+  const push=b=>{let best=null;for(const l of lanes){const[a,c,w]=l,hw=(w||1.15)/2+.25,dx=c[0]-a[0],dz=c[1]-a[1],len=Math.hypot(dx,dz)||1,nx=-dz/len,nz=dx/len;
+      const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;// project the box on the lane normal
+      const t=((cx-a[0])*dx+(cz-a[1])*dz)/(len*len);if(t<-.05||t>1.05)continue;
+      const along=Math.abs(dx/len)*(b.max.x-b.min.x)/2+Math.abs(dz/len)*(b.max.z-b.min.z)/2;const tt=((cx-a[0])*dx+(cz-a[1])*dz)/len;if(tt+along<0||tt-along>len)continue;
+      const side=(cx-a[0])*nx+(cz-a[1])*nz,half=Math.abs(nx)*(b.max.x-b.min.x)/2+Math.abs(nz)*(b.max.z-b.min.z)/2,gap=Math.abs(side)-half;
+      if(gap<hw){const d=hw-gap,sg=side>=0?1:-1;if(!best||d>best.d)best={d,x:nx*sg*d,z:nz*sg*d};}}return best;};
+  scene.children.forEach(g=>{if(!g.isGroup||!g.visible||g.children.length>60||g.userData.lane)return;const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2;
+    if(cx>99.5||cx<-260||b.max.y-b.min.y<1.3||b.max.x-b.min.x>14||b.max.z-b.min.z>14)return;
+    let hasWall=false;g.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='BoxGeometry'){const p=o.geometry.parameters;if(p.height>1.2&&Math.max(p.width,p.depth)>1.5)hasWall=true;}});if(!hasWall)return;
+    let tot=null;for(let k=0;k<3;k++){const q=push(b);if(!q)break;b.min.x+=q.x;b.max.x+=q.x;b.min.z+=q.z;b.max.z+=q.z;tot=tot?{x:tot.x+q.x,z:tot.z+q.z}:{x:q.x,z:q.z};}
+    if(!tot)return;const o0=lbox(g);
+    // move the group (scene-local), its colliders and any loose parts standing inside its old footprint (signs, lamps, flowers)
+    g.position.x+=tot.x;g.position.z+=tot.z;
+    colliders.forEach(c=>{if(c.x1<1e8&&c.x1>=o0.min.x-.3&&c.x2<=o0.max.x+.3&&c.z1>=o0.min.z-.3&&c.z2<=o0.max.z+.3){c.x1+=tot.x;c.x2+=tot.x;c.z1+=tot.z;c.z2+=tot.z;}});
+    n++;out.push([Math.round(cx),Math.round((o0.min.z+o0.max.z)/2),+tot.x.toFixed(2),+tot.z.toFixed(2)]);});
+  pxbLaneClear.moved=out;window.__laneMoved=out;}
+function pxbScene(){pxbScene.done=true;const T0=performance.now();try{pxbLaneClear();}catch(e){console.error(e);}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
   const isl=o=>{const m=o.material,im=m&&m.map&&m.map.image;return!im||im.width<=32;};// plain walls get the kit; walls with their own picture keep it (redrawn below)// every map; faces that already carry a painted picture keep it
   const hex=m=>m&&m.color?'#'+m.color.getHexString():'#e4d2a8';const r1=v=>Math.round(v*2)/2;
   const cache=new Map();const tm=(key,make,o)=>{let m=cache.get(key);if(!m){const c=make();m=new THREE.MeshLambertMaterial(Object.assign({map:ctex(c)},o||{}));m.map.minFilter=THREE.NearestFilter;m.map.generateMipmaps=false;cache.set(key,m);}return m;};
@@ -10816,7 +10852,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(HDR_ON)try{
   walls.forEach(W=>{W.box=new THREE.Box3().setFromObject(W.o);});const RB=new THREE.Box3(),RC=new THREE.Vector3();
   function pxHip(R,base,k){RB.setFromObject(R.o);RB.getCenter(RC);let best=null,bd=1e9;
     for(const W of walls){const b=W.box;if(RC.x<b.min.x||RC.x>b.max.x||RC.z<b.min.z||RC.z>b.max.z)continue;const dy=Math.abs(RB.min.y-b.max.y);if(dy<1&&dy<bd){bd=dy;best=W;}}
-    if(!best)return false;const W=best,p=W.o.geometry.parameters,sx=W.w/p.width,sy=W.h/p.height,sz=W.d/p.depth,ov=.22;
+    if(!best)return false;if(best.__nc===undefined){best.__nc=roofs.filter(q=>{if(q.kind!=='cone')return false;RB.setFromObject(q.o);const c=RB.getCenter(new THREE.Vector3());const b=best.box;return c.x>b.min.x&&c.x<b.max.x&&c.z>b.min.z&&c.z<b.max.z&&Math.abs(RB.min.y-b.max.y)<1;}).length;RB.setFromObject(R.o);RB.getCenter(RC);}if(best.__nc>1)return false;const W=best,p=W.o.geometry.parameters,sx=W.w/p.width,sy=W.h/p.height,sz=W.d/p.depth,ov=.22;
     const X=p.width/2+ov/sx,Z=p.depth/2+ov/sz,y0=p.height/2,H=Math.min(W.w,W.d)/2*.8/sy,alongX=W.w>=W.d;
     const ix=alongX?Math.min(X,(W.d/2+ov)/sx):X,iz=alongX?Z:Math.min(Z,(W.w/2+ov)/sz);
     const R1=alongX?[-X+ix,y0+H,0]:[0,y0+H,-Z+iz],R2=alongX?[X-ix,y0+H,0]:[0,y0+H,Z-iz];

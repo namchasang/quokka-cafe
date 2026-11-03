@@ -45,8 +45,8 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   signPost(301.9,-9.9,makeSign(['PHILLIMORE ST'],56,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(336,-5,makeSign(['ADELAIDE ST'],52,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(306,-.6,makeSign(['HIGH ST MALL'],52,10,'#1d3a6e','#ffffff'),1.6,.3);
 
   // ===== kerbside parking on the big streets =====
-  kerbX(283,292.5,-9.65,0);kerbX(283.2,302.4,-6.35,Math.PI,.8);
-  kerbX(306,332.6,21.6,Math.PI,.8);kerbX(336,351,21.6,Math.PI,.7);
+  // (Fremantle re-plan, Nov 2026) bays sit beside a real road: the north kerb of the street along the homes
+  kerbX(307.2,316.4,24.8,Math.PI,.8);kerbX(321.8,329.4,24.8,Math.PI,.8);kerbX(338,351,24.8,Math.PI,.7);
   kerbZ(-1.8,18.8,332.85,Math.PI/2,.7);
 
   // ===== High St mall: car-free pavers, flag planters down the middle, benches, festoon lights =====

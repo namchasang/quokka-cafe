@@ -116,9 +116,10 @@ if(FDET.on&&FREO2_ON)(()=>{const G=FDET.g;
   if(CDET.makeCar){const V=[],GV=new THREE.Group();G.add(GV);
     const mkCar=()=>r()<.5?CDET.retroCar():CDET.makeCar(pick(['sedan','hatch','ute','hatch']),pick(['#c8344a','#2f6fb0','#f6f6f0','#2a2a30','#9aa4ac','#3e7d5c','#d8d2c4']));
     const HE=-2.45,HW=-1.55,SS=304.55,SN=303.45,BE=20.0,BW=20.8,ME=4.1,MW=4.9;
-    const ROUTES=[{p:[[282,-8.45],[SS,-8.45],[SS,BE],[351,BE]],n:2},{p:[[351,BW],[SN,BW],[SN,-7.55],[282,-7.55]],n:2},
-      {p:[[334.75,-5.6],[334.75,BW],[SN,BW],[SN,HW],[279.5,HW]],n:1},{p:[[279.5,HE],[SS,HE],[SS,BE],[333.85,BE],[333.85,-5.6]],n:1},
-      {p:[[351,BW],[SN,BW],[SN,MW],[280.5,MW]],n:1},{p:[[280.5,ME],[SS,ME],[SS,BE],[351,BE]],n:1}];
+    const PE=-6.45,PW=-7.55,HE2=25.7,HW2=26.5;// Phillimore St lanes, the homes street lanes
+    const ROUTES=[{p:[[279.5,PE],[318.55,PE],[318.55,HE2],[352,HE2]],n:2},{p:[[352,HW2],[317.45,HW2],[317.45,PW],[279.5,PW]],n:2},
+      {p:[[279.5,PE],[296.45,PE],[296.45,HE2],[330.45,HE2],[330.45,PW],[279.5,PW]],n:2},{p:[[279.5,PE],[331.55,PE],[331.55,HW2],[297.55,HW2],[297.55,PW],[279.5,PW]],n:1},
+      {p:[[352,HW2],[305.95,HW2],[305.95,9]],n:1},{p:[[304.85,9],[304.85,HE2],[352,HE2]],n:1}];
     ROUTES.forEach(R=>{const P=[],pts=R.p;for(let i=0;i<pts.length;i++){if(i===0||i===pts.length-1){P.push(pts[i]);continue;}
         const[ax,az]=pts[i-1],[px,pz]=pts[i],[qx,qz]=pts[i+1];let d1x=px-ax,d1z=pz-az;const l1=Math.hypot(d1x,d1z);d1x/=l1;d1z/=l1;let d2x=qx-px,d2z=qz-pz;const l2=Math.hypot(d2x,d2z);d2x/=l2;d2z/=l2;
         const rr=.7,s0=[px-d1x*rr,pz-d1z*rr],s2=[px+d2x*rr,pz+d2z*rr];for(let k=0;k<=8;k++){const t=k/8,u=1-t;P.push([u*u*s0[0]+2*u*t*px+t*t*s2[0],u*u*s0[1]+2*u*t*pz+t*t*s2[1]]);}}
