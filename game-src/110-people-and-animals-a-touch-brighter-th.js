@@ -5,7 +5,7 @@ function pxPopTick(){const now=performance.now();if(pxPopTick.t&&now-pxPopTick.t
 // ---------- Albany Highway like Paul's photos (Look Lab ?vp2, Oct 2026): kerbside parking bays both sides, red-brown road,
 // brick footpaths, banner poles and curved street lamps. Bays sit where the painted lanes were; every third bay stays empty
 // so Kip can always cross to the night market.
-const VP2_ON=/[?&#]vp2\b/.test(location.search+location.hash);
+const VP2_ON=true||/[?&#]vp2\b/.test(location.search+location.hash);
 function vp2Build(){if(typeof VPB==='undefined')return;const X1=489,X2=561,V=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);const r=mulberry32(91);
   const inVP=(o)=>{B.setFromObject(o);B.getCenter(V);scene.worldToLocal(V);return V.x>480&&V.x<570&&Math.abs(V.z)<2.2&&B.max.y<.06;};// world → scene-local (the scene is mirrored while Kip is on the island)
   // road recoloured red-brown, painted lanes hidden (the bays take their place), footpaths become red brick
@@ -29,7 +29,7 @@ function vp2Build(){if(typeof VPB==='undefined')return;const X1=489,X2=561,V=new
     const hd=new THREE.Mesh(new THREE.BoxGeometry(.18,.08,.3),pm);hd.position.set(x,3.32,.7);scene.add(hd);const l=new THREE.Mesh(new THREE.BoxGeometry(.14,.03,.24),new THREE.MeshBasicMaterial({color:'#ffe2a0'}));l.position.set(x,3.27,.7);scene.add(l);if(typeof PXB_LAMPS!=='undefined')PXB_LAMPS.push(l);col(x-.07,1.31,x+.07,1.45);}
   vp2Build.cars=nCars;}
 // ---------- Landmarks rebuilt with the pixel kit by the builder team (Look Lab ?bld3, Oct 2026): Kingstown Barracks, Perth Station, the Moorings Hotel ----------
-const BLD3_ON=/[?&#](bld3|lab)\b/.test(location.search+location.hash);
+const BLD3_ON=true||/[?&#](bld3|lab)\b/.test(location.search+location.hash);
 // Kingstown Barracks (Rottnest, south side): pixel-look heritage barracks. Builder: kingstown.
 // Cream rendered walls with limestone quoins, sash windows + shutters, hipped corrugated-tin roofs, a long verandah on
 // timber posts with brackets, fretwork and a rail, a gabled entrance porch with the name sign, chimneys, gutters and
