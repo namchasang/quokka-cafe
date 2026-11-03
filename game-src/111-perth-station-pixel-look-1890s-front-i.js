@@ -404,3 +404,4 @@ function pxbBuild_freohotel(){
   [[X2+.1,Z2-1.45],[X1+.12,Z2+.25]].forEach(([x,z])=>{mesh(B(.3,.32,.3),M('#5a5e62'),x,.16,z);mesh(new THREE.IcosahedronGeometry(.2,0),new THREE.MeshLambertMaterial({color:'#4f8a3a',flatShading:true}),x,.42,z);
     for(let k=0;k<4;k++)mesh(B(.06,.06,.06),M(['#e05a6a','#f4d04a','#f0f0f0','#c070e0'][k]),x+Math.cos(k*1.6)*.14,.55,z+Math.sin(k*1.6)*.14,{nc:1});});
   window.__freohotel={hid:nHid,meshes:g.children.length};
+}

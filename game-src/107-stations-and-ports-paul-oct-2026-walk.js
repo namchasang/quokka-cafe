@@ -1,5 +1,5 @@
 // ---------- stations and ports (Paul, Oct 2026): walk in, pick a town, step off at its station or jetty ----------
-const HUBS={train:{word:'Train',many:'Trains',fare:5,mins:25,stops:{cbd:{n:'Perth Station',x:680,z:-21.6},freo:{n:'Fremantle Station',x:297.5,z:-9.9},vp:{n:'Victoria Park Station',x:558.6,z:-6.4},air:{n:'Airport Central',x:726,z:12.4}}},
+const HUBS={train:{word:'Train',many:'Trains',fare:5,mins:25,stops:{cbd:{n:'Perth Station',x:680,z:WEL4_ON?-24.45:-21.6},freo:{n:'Fremantle Station',x:297.5,z:-9.9},vp:{n:'Victoria Park Station',x:558.6,z:-6.4},air:{n:'Airport Central',x:726,z:12.4}}},
   ferry:{word:'Ferry',many:'Ferries',fare:8,mins:35,stops:{cbd:{n:'Barrack St Jetty',x:670.6,z:17.2},sp:{n:'Mends St Jetty',x:SPX+.4,z:-8.2},freo:{n:'B-Shed ferry terminal',x:285,z:-9.6},island:{n:'Thomson Bay jetty',x:IW(-16,4.4).x+1.6,z:IW(-16,4.4).z+1.2}}}};
 function openHub(mode,from){const H=HUBS[mode],F=H.stops[from];const lockedFreo=typeof freoUnlocked==='function'&&!freoUnlocked();
   openTravel('Where to?',F.n+' · '+H.many.toLowerCase(),Object.keys(H.stops).map(z=>({id:z,name:TOWN_NAME[z]+' · '+H.stops[z].n,here:z===from,

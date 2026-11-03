@@ -19,6 +19,13 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
 </head>
 <body>
+<style>html,body{margin:0;height:100%;background:#0f1424;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}</style>
+<title>Quokka Cafe and Friends</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap">
+</head>
+<body>
 <style>
 /* Layout: full-bleed pixel-art island; navy-and-gold JRPG panels float at the screen edges */
 :root{
@@ -996,6 +1003,7 @@ let camDist=14,yaw=0,yawT=0,zm=1;
 const camOff=new THREE.Vector3();
 const rt=new THREE.WebGLRenderTarget(2,2,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat});
 var CINE_LIVE=false;const CINE_ON=CINE_LIVE||/[?&#](lab|cine|r3)\b/.test(location.search+location.hash);// Look Lab: Cinematic camera, Rottnest first
+var WEL4_LIVE=false;const WEL4_ON=WEL4_LIVE||/[?&#]wel4\b/.test(location.search+location.hash);// Look Lab: Wellington St in front of Perth Station, four lanes and a median (Paul, Nov 2026)
 var PXB_LIVE=true;const PXB_ON=PXB_LIVE||/[?&#]pxb\b/.test(location.search+location.hash);// Look Lab: pixel buildings (3d shapes, pixel skins), Rottnest first
 if(CINE_ON||PXB_ON){rt.depthTexture=new THREE.DepthTexture(2,2);rt.depthTexture.type=THREE.UnsignedIntType;}
 const post=new THREE.ShaderMaterial({
@@ -6269,11 +6277,12 @@ if(CDET.on)(()=>{
     return{g,len:.75,wid:.32};}
 
   // routes (keep left): St Georges Tce, Riverside Dr, Wellington St (one way) and turns through Barrack and William streets
-  const SGe=-3.65,SGw=-2.55,RVe=4.99,RVw=5.77,WL=-21.7,BRs=667.85,WMn=638.55,BKe=4.07,BKw=4.43;
+  const SGe=-3.65,SGw=-2.55,RVe=4.99,RVw=5.77,WL=WEL4_ON?-21.35:-21.7,BRs=667.85,WMn=638.55,BKe=4.07,BKw=4.43;
   const ROUTES=[
     {p:[[621,SGe],[701,SGe]],n:3,bus:.18},{p:[[701,SGw],[621,SGw]],n:3,bus:.18},
     {p:[[621,RVe],[701,RVe]],n:2},{p:[[701,RVw],[621,RVw]],n:2},
     {p:[[621,WL],[701,WL]],n:2,bus:.4,stopX:661.4},
+    ...(WEL4_ON?[{p:[[621,-21.95],[701,-21.95]],n:2},{p:[[701,-23.35],[621,-23.35]],n:2},{p:[[701,-23.95],[621,-23.95]],n:2}]:[]),
     {p:[[621,WL],[BRs,WL],[BRs,RVe],[701,RVe]],n:1},
     {p:[[701,RVw],[WMn,RVw],[WMn,WL],[701,WL]],n:1},
     {p:[[621,SGe],[BRs,SGe],[BRs,RVw],[621,RVw]],n:1},
@@ -9703,7 +9712,7 @@ if(EDIT_ON)(()=>{const KEY='qc-map-edits-v1';let E=[];try{E=JSON.parse(localStor
   window.EDIT={E,apply,LIB};
 })();
 // ---------- stations and ports (Paul, Oct 2026): walk in, pick a town, step off at its station or jetty ----------
-const HUBS={train:{word:'Train',many:'Trains',fare:5,mins:25,stops:{cbd:{n:'Perth Station',x:680,z:-21.6},freo:{n:'Fremantle Station',x:297.5,z:-9.9},vp:{n:'Victoria Park Station',x:558.6,z:-6.4},air:{n:'Airport Central',x:726,z:12.4}}},
+const HUBS={train:{word:'Train',many:'Trains',fare:5,mins:25,stops:{cbd:{n:'Perth Station',x:680,z:WEL4_ON?-24.45:-21.6},freo:{n:'Fremantle Station',x:297.5,z:-9.9},vp:{n:'Victoria Park Station',x:558.6,z:-6.4},air:{n:'Airport Central',x:726,z:12.4}}},
   ferry:{word:'Ferry',many:'Ferries',fare:8,mins:35,stops:{cbd:{n:'Barrack St Jetty',x:670.6,z:17.2},sp:{n:'Mends St Jetty',x:SPX+.4,z:-8.2},freo:{n:'B-Shed ferry terminal',x:285,z:-9.6},island:{n:'Thomson Bay jetty',x:IW(-16,4.4).x+1.6,z:IW(-16,4.4).z+1.2}}}};
 function openHub(mode,from){const H=HUBS[mode],F=H.stops[from];const lockedFreo=typeof freoUnlocked==='function'&&!freoUnlocked();
   openTravel('Where to?',F.n+' · '+H.many.toLowerCase(),Object.keys(H.stops).map(z=>({id:z,name:TOWN_NAME[z]+' · '+H.stops[z].n,here:z===from,
@@ -10699,7 +10708,45 @@ P.reg('hd-pixel-set', { group: 'models/buildings', from: 'Paul Engine HD Look La
 })();
 /* PPL-LIB-END */
 
-function pxbScene(){pxbScene.done=true;const T0=performance.now();if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+// ---------- Wellington St, four lanes with a median (Look Lab ?wel4): Perth Station moves 2.2 m north to make room ----------
+function wel4Build(){const DZ=-2.2,X1=598,X2=702,Z1=-60,Z2=-20.8,V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);
+  const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L;};
+  const moved=new Set();const walk=o=>{for(const c of o.children.slice()){if(c.isLight||c.isCamera)continue;const b=lbox(c);if(!b)continue;
+      const flatRoad=b.max.y-b.min.y<.06&&b.max.x-b.min.x>12;const cz=(b.min.z+b.max.z)/2;
+      // the whole north side of Wellington St (shops, the station, lamps, trees, the towers behind) moves north with the road
+      if(b.min.x>=X1-.5&&b.max.x<=X2+.5&&b.max.z<=Z2&&cz<-21.25&&b.max.z-b.min.z<14&&!flatRoad){c.position.z+=DZ;moved.add(c);}else if(b.max.x>X1&&b.min.x<X2&&b.max.z>Z1&&b.min.z<Z2&&c.children.length)walk(c);}};
+  walk(scene);
+  colliders.forEach(c=>{if(c.x1>=X1-.5&&c.x2<=X2+.5&&c.z2<=Z2&&(c.z1+c.z2)/2<-21.25&&c.z1>-60){c.z1+=DZ;c.z2+=DZ;}});
+  if(typeof CBD!=='undefined'&&CBD.cut)CBD.cut.forEach(e=>{for(let p=e.g;p;p=p.parent)if(moved.has(p)){e.z1+=DZ;e.ready=false;break;}});
+  // the old one-way arrows and sign go
+  scene.traverse(o=>{if(!o.isMesh)return;const b=lbox(o);if(!b)return;const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;
+    if(Math.abs(cz+21.7)<.3&&b.max.y<.04&&b.min.y>.03&&b.max.x-b.min.x<1.2&&[628,648,684].some(x=>Math.abs(cx-x)<.6))o.visible=false;
+    if(Math.abs(cx-624.4)<.4&&Math.abs(cz+20.54)<.12&&b.max.y>1)o.visible=false;});
+  // new road surface, lanes, the median with gaps at William St, Barrack St and the station crossing
+  const asph=(()=>{const c=mk(32,32),x=c.getContext('2d');x.fillStyle='#4a4d55';x.fillRect(0,0,32,32);const r=mulberry32(5);for(let i=0;i<90;i++){x.fillStyle=r()<.5?'#55585f':'#43464d';x.fillRect(r()*32|0,r()*32|0,1,1);}return c;})();
+  const W=new THREE.MeshBasicMaterial({color:'#f2efe6'}),Y=new THREE.MeshBasicMaterial({color:'#e8c430'});
+  const flat=(w,d,x,z,m,y)=>{const q=new THREE.Mesh(new THREE.PlaneGeometry(w,d),m);q.rotation.x=-Math.PI/2;q.position.set(x,y,z);q.receiveShadow=true;scene.add(q);return q;};
+  const R1=-24.3,R2=-20.95,MZ=-22.65,MW=.55;
+  flat(78,R2-R1,661,(R1+R2)/2,new THREE.MeshLambertMaterial({map:ctex(asph,{rep:[78,R2-R1]})}),.029);
+  flat(78,-24.3+25.1,661,(-25.1-24.3)/2,lmat(paveC,[39,.4]),.029);// the station forecourt
+  const gaps=[[639.1,1.4],[667.3,1.4],[677,1.1]];const open=x=>gaps.some(([g,w])=>Math.abs(x-g)<w);
+  for(let x=622.6;x<700;x+=2.2){if(open(x))continue;flat(1,.06,x,(R1+MZ-MW/2)/2,W,.033);flat(1,.06,x,(R2+MZ+MW/2)/2,W,.033);}
+  flat(78,.05,661,R1+.06,W,.033);flat(78,.05,661,R2-.06,W,.033);
+  const kerb=new THREE.MeshLambertMaterial({map:ctex((()=>{const c=mk(32,8),x=c.getContext('2d');x.fillStyle='#c8c0ac';x.fillRect(0,0,32,8);x.fillStyle='#e8e0cc';x.fillRect(0,0,32,2);for(let i=0;i<32;i+=8){x.fillStyle='#a8a08c';x.fillRect(i,0,1,8);}return c;})(),{rep:[20,1]})});
+  const top=lmat(grassC,[10,1]);let segs=[];let a=622;[...gaps].sort((p,q)=>p[0]-q[0]).forEach(([g,w])=>{segs.push([a,g-w]);a=g+w;});segs.push([a,700]);
+  segs.forEach(([x1,x2])=>{if(x2-x1<.5)return;const m=new THREE.Mesh(new THREE.BoxGeometry(x2-x1,.12,MW),[kerb,kerb,top,kerb,kerb,kerb]);m.position.set((x1+x2)/2,.06,MZ);m.castShadow=m.receiveShadow=true;scene.add(m);
+    for(let x=x1+.4;x<x2-.3;x+=.9)flat(.06,.06,x,MZ+MW/2+.04,Y,.033),flat(.06,.06,x,MZ-MW/2-.04,Y,.033);
+    // twin-arm lamps along the median
+    for(let x=x1+2;x<x2-1;x+=8){const p=new THREE.Mesh(new THREE.CylinderGeometry(.045,.06,3,6),new THREE.MeshLambertMaterial({color:'#3a3e48'}));p.position.set(x,1.62,MZ);scene.add(p);
+      [-1,1].forEach(sg=>{const arm=new THREE.Mesh(new THREE.BoxGeometry(.05,.05,.7),new THREE.MeshLambertMaterial({color:'#3a3e48'}));arm.position.set(x,3.05,MZ+sg*.33);scene.add(arm);
+        const l=new THREE.Mesh(new THREE.BoxGeometry(.16,.05,.26),new THREE.MeshBasicMaterial({color:'#e8d8a8'}));l.position.set(x,3.0,MZ+sg*.62);scene.add(l);if(typeof PXB_LAMPS!=='undefined')PXB_LAMPS.push(l);});
+      col(x-.07,MZ-.07,x+.07,MZ+.07);}
+    // little shrubs on the median (pixel sprites, the game's own bushes)
+    if(typeof bushVariants!=='undefined'&&bushVariants.length)for(let x=x1+1;x<x2-.6;x+=2.6){const v=bushVariants[(x*7|0)%bushVariants.length];const g=new THREE.PlaneGeometry(.8,.5);g.translate(0,.25,0);const bm=new THREE.Mesh(g,v.m);bm.customDepthMaterial=v.d;bm.position.set(x,.12,MZ);scene.add(bm);if(typeof BB!=='undefined')BB.push(bm);}});
+  // a zebra crossing from the station doors across both carriageways
+  for(let z=R1+.15;z<R2-.1;z+=.32){if(Math.abs(z-MZ)<MW/2)continue;flat(1.6,.18,677,z,W,.034);}
+  wel4Build.moved=moved.size;}
+function pxbScene(){pxbScene.done=true;const T0=performance.now();if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
   const isl=o=>{const m=o.material,im=m&&m.map&&m.map.image;return!im||im.width<=32;};// plain walls get the kit; walls with their own picture keep it (redrawn below)// every map; faces that already carry a painted picture keep it
   const hex=m=>m&&m.color?'#'+m.color.getHexString():'#e4d2a8';const r1=v=>Math.round(v*2)/2;
   const cache=new Map();const tm=(key,make,o)=>{let m=cache.get(key);if(!m){const c=make();m=new THREE.MeshLambertMaterial(Object.assign({map:ctex(c)},o||{}));m.map.minFilter=THREE.NearestFilter;m.map.generateMipmaps=false;cache.set(key,m);}return m;};

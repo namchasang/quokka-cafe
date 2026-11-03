@@ -110,5 +110,10 @@
 109-function-opentours-opentravel-day-tour.js
 110-people-and-animals-a-touch-brighter-th.js
 111-perth-station-pixel-look-1890s-front-i.js
-112-part.js
-113-part.js
+112-paul-perth-library-shared-with-every-p.js
+113-light-from-above-inside-a-blob-of-foli.js
+114-render-mode-default-srgb-output-meshst.js
+115-cut-out-card-leaves-lace-grass-alpha-t.js
+116-island-cottage-limestone-or-board-plas.js
+117-ppl-lib-end.js
+118-hd-pixel-set-on-rottnest-only-look-lab.js

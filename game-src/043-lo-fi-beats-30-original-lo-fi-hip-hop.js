@@ -86,3 +86,4 @@ function hpCompile(tr){const R=lfRng(tr.seed),ev=[],bar4=4,sw=tr.sw;
     bar+=n;});
   const beats=used*bar4+1;ev.push({b:0,k:'bed',kind:'crackle',d:beats});
   ev.sort((a,b)=>a.b-b.b);return{ev,beats};}
+// City Pop is off the radio for now (Paul, Nov 2026): the tracks stay here; add citypop back to RSTATIONS and TSTN to bring it back.
