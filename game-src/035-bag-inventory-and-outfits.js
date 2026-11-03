@@ -36,6 +36,6 @@ function renderBag(){const T=$('#bgTabs');T.innerHTML='';[['bag','Bag'],['outfit
     [['apron','Apron'],['hat','Hat'],['acc','Accessory']].forEach(([slot,label])=>{const h=document.createElement('h3');h.className='bgH';h.textContent=label;right.appendChild(h);const row=document.createElement('div');row.className='qtabs';
       const opts=Object.keys(WARD[slot]).filter(id=>wardOwn(slot,id));if(slot!=='apron')opts.unshift(null);
       opts.forEach(id=>{const b=document.createElement('button');b.type='button';b.className='qtab'+(o[slot]===id?' on':'');b.id='wr-'+slot+'-'+(id||'none');b.textContent=id?WARD[slot][id].name:'None';b.onclick=()=>{o[slot]=id;save();applyOutfit();renderBag();};row.appendChild(b);});
-      const locked=Object.keys(WARD[slot]).filter(id=>!wardOwn(slot,id));if(locked.length){const p=document.createElement('p');p.className='bgE';p.textContent='More in shops: '+locked.map(id=>WARD[slot][id].name+' ('+({island:'General Store',sp:'Mends Servo',freo:'Freo Markets',vp:'Homebox'})[WARD[slot][id].shop]+')').join(', ');right.append(row,p);}else right.appendChild(row);});
+      const locked=Object.keys(WARD[slot]).filter(id=>!wardOwn(slot,id)&&!WARD[slot][id].prem);if(locked.length){const p=document.createElement('p');p.className='bgE';p.textContent='More in shops: '+locked.map(id=>WARD[slot][id].name+' ('+({island:'General Store',sp:'Mends Servo',freo:'Freo Markets',vp:'Homebox'})[WARD[slot][id].shop]+')').join(', ');right.append(row,p);}else right.appendChild(row);});
     wrap.appendChild(right);B.appendChild(wrap);}}
 

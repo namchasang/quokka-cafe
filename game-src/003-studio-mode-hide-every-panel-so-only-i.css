@@ -43,6 +43,7 @@ body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
       <button class="panel hudBtn more" id="cafeBtn" type="button">Café HQ</button>
       <button class="panel hudBtn more" id="saveBtn" type="button">Save</button>
       <button class="panel hudBtn more" id="passBtn" type="button">Perth Pass</button>
+      <button class="panel hudBtn more" id="acctBtn" type="button" hidden>Account &amp; Shop</button>
       <button class="panel hudBtn more" id="gmBtn" type="button" hidden>★ GM</button>
       <button class="panel hudBtn more" id="unstuckBtn" type="button">Unstuck</button>
       <button class="panel hudBtn more" id="guideBtn" type="button">Guide</button>
