@@ -33,6 +33,8 @@
 .tMenu h3{font-family:var(--display);font-size:15px;color:var(--cream);margin:16px 0 8px}
 .tMenu .langRow{justify-content:flex-start;margin:0}
 .tClose{padding:6px 12px;font-size:13px}
+.ovHome .tMenu{margin:0;box-sizing:border-box}
+@media (max-width:520px){.ovHome .tMenu{left:16px;right:16px;width:auto;max-width:none}}
 .eyebrow{font-family:var(--display);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--sea)}
 .title{font-family:var(--display);font-weight:700;font-size:clamp(38px,11vw,54px);line-height:.95;margin:8px 0 2px;color:var(--gold);text-shadow:0 3px 0 #3a2a12;text-wrap:balance}
 .subtitle{font-family:var(--display);font-size:20px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream);margin:0 0 14px}
