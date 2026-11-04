@@ -71,9 +71,11 @@ function startGame(data){zm=1;yawT=0;mapMode='zone';if(data&&ISL.done&&data.isv!
   if(QC_DEEP){const code=QC_DEEP;QC_DEEP=null;toast('\u2708 Flying to '+code+' soon\u2026',3);const go=()=>{if(dlgOpen()||VISIT){setTimeout(go,1000);return;}qcVisit(code).then(()=>{if(!VISIT){const t=$('#icMsg').textContent;if(t)toast(t,5);}});};setTimeout(go,1500);}}
 function renderTitle(){const b=$('#titleBtns');b.innerHTML='';let best=0,bt=-1;for(let i=1;i<=SLOTS;i++){const v=readSlot(i);if(v&&(v.savedAt||0)>bt){bt=v.savedAt||0;best=i;}}
   const mkb=(id,t,cls,fn)=>{const e=document.createElement('button');e.className='btn'+(cls?' '+cls:'');e.type='button';e.id=id;e.textContent=t;e.onclick=fn;b.appendChild(e);};
-  if(best){const sv=readSlot(best);mkb('continueBtn','Continue · Slot '+best+' · Day '+sv.day,'',()=>{SLOT=best;startGame(sv);});mkb('loadBtn','Load game','ghost',()=>openSlots('load'));}else mkb('loadBtn','Import a save','ghost',()=>openSlots('load'));
-  mkb('newBtn','New game',best?'ghost':'',()=>openSlots('new'));}
+  mkb('newBtn','New game','',()=>openSlots('new'));mkb('loadBtn','Load game','ghost',()=>openSlots('load'));}
 let slotMode='load';
+function tMenuShow(on){const m=$('#tMenu'),g=$('#tGear');m.hidden=!on;g.setAttribute('aria-expanded',on?'true':'false');if(on)$('#tClose').focus();else g.focus();}
+$('#tGear').addEventListener('click',()=>tMenuShow($('#tMenu').hidden));$('#tClose').addEventListener('click',()=>tMenuShow(false));
+addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay==='title'&&!$('#tMenu').hidden){e.stopPropagation();tMenuShow(false);}},true);
 function openSlots(mode){slotMode=mode;$('#slEyebrow').textContent=mode==='load'?'Load game':'New game';$('#slTitle').textContent=mode==='load'?'Choose a save':'Choose a slot for your new island';renderSlots();overlay='slots';['title','slots'].forEach(k=>$('#'+k+'Ov').hidden=k!=='slots');}
 function renderSlots(){const L=$('#slList');L.innerHTML='';for(let i=1;i<=SLOTS;i++){const v=readSlot(i);const d=document.createElement('div');d.className='wi'+(v?'':' empty');d.innerHTML='<div class="n"></div><div class="d"></div><button class="btn buy" type="button"></button>';
   d.querySelector('.n').textContent='Slot '+i+(v?' · Day '+v.day:'');const when=v&&v.savedAt?new Date(v.savedAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}):'';

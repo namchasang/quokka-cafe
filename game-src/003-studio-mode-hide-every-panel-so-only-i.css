@@ -68,30 +68,36 @@ body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
 
   <div id="dlg" class="panel" hidden><div class="who" id="dlgWho">Kip</div><p id="dlgTxt"></p><span class="more">▼</span></div>
 
-  <div class="overlay ovTitle" id="titleOv">
-    <div class="card panel">
-      <div class="eyebrow">Rottnest Island · Western Australia</div>
+  <div class="overlay ovTitle ovHome" id="titleOv">
+    <button class="tGear" id="tGear" type="button" aria-label="Settings" aria-expanded="false" aria-controls="tMenu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <div class="tHome">
       <div class="title">Quokka Cafe</div>
       <div class="subtitle">and Friends</div>
-      <p>Fresh out of university, Kip the quokka has left his little home in Victoria Park to open a tiny café by the jetty on Rottnest. Serve the morning ferry crowd, explore the island after closing time, and save for everything on the wishlist so Mum and Dad can move in.</p>
-      <div class="langRow" data-notr><button class="btn ghost langBtn" data-l="en" type="button">English</button><button class="btn ghost langBtn" data-l="th" type="button">ภาษาไทย</button></div>
       <div class="btns" id="titleBtns"></div>
+    </div>
+    <div class="card panel tMenu" id="tMenu" hidden>
+      <div class="tMenuHead"><div class="eyebrow">Settings</div><button class="btn ghost tClose" id="tClose" type="button">Close</button></div>
+      <h3>Language</h3>
+      <div class="langRow" data-notr><button class="btn ghost langBtn" data-l="en" type="button">English</button><button class="btn ghost langBtn" data-l="th" type="button">ภาษาไทย</button></div>
+      <h3>Story</h3>
+      <p>Fresh out of university, Kip the quokka has left his little home in Victoria Park to open a tiny café by the jetty on Rottnest. Serve the morning ferry crowd, explore the island after closing time, and save for everything on the wishlist so Mum and Dad can move in.</p>
+      <h3>How to play</h3>
       <div class="keys">
-        <b>Move</b><span>Drag on the left of the screen · WASD / arrows</span>
-        <b>Act</b><span>Round button · Space or E</span>
-        <b>Camera</b><span>Right-click drag · ⟲ ⟳ buttons · Q / R</span>
-        <b>Zoom</b><span>+ − buttons · pinch · mouse wheel</span>
-        <b>Weather</b><span>Changes each day · tap the weather chip to preview</span>
-        <b>Bike</b><span>Rack beside the café · twice as fast</span>
-        <b>Quests</b><span>Quests button · J</span>
-        <b>Own bike</b><span>B (after buying one in South Perth)</span>
-        <b>Bag & outfit</b><span>Bag button · G</span>
-        <b>Ride</b><span>Ride button · V</span>
-        <b>Postcards</b><span>Photo button · P · Album · O</span>
-        <b>Map</b><span>Tap the minimap · M</span>
-        <b>Wishlist</b><span>Café HQ → Wishlist tab · I</span>
-        <b>Guide</b><span>Guide button · H</span>
-      </div>
+          <b>Move</b><span>Drag on the left of the screen · WASD / arrows</span>
+          <b>Act</b><span>Round button · Space or E</span>
+          <b>Camera</b><span>Right-click drag · ⟲ ⟳ buttons · Q / R</span>
+          <b>Zoom</b><span>+ − buttons · pinch · mouse wheel</span>
+          <b>Weather</b><span>Changes each day · tap the weather chip to preview</span>
+          <b>Bike</b><span>Rack beside the café · twice as fast</span>
+          <b>Quests</b><span>Quests button · J</span>
+          <b>Own bike</b><span>B (after buying one in South Perth)</span>
+          <b>Bag & outfit</b><span>Bag button · G</span>
+          <b>Ride</b><span>Ride button · V</span>
+          <b>Postcards</b><span>Photo button · P · Album · O</span>
+          <b>Map</b><span>Tap the minimap · M</span>
+          <b>Wishlist</b><span>Café HQ → Wishlist tab · I</span>
+          <b>Guide</b><span>Guide button · H</span>
+        </div>
     </div>
   </div>
 
