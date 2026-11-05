@@ -184,7 +184,7 @@ if(FDET.on)(()=>{
     paint(1.4,9,lmat(sandC,[1,4]),284.5,9.6,.03);
     const NP2=pineVariant();[[280.6,9],[280.8,13],[296.4,8.2],[292.6,13.2]].forEach(([x,z])=>{bb(NP2,x,z,NP2.w*1.45,NP2.h*1.6,0,true);col(x-.2,z-.1,x+.2,z+.1);});
     person({hair:'#d8d4cc',skin:'#f1c7a0',shirt:'#2f6fb0',pants:'#5a6a8a',hat:null},288.4,12.6,-1);
-    {const dog=pix(["..oo......","..obo.....",".obbbbbbo.","obbbbbbbbo",".obbbbbbo.","..o.o.o.o."],{o:'#3a2a1a',b:'#a8643a'});[0,1].forEach(i=>{const d=spriteMesh([dog],.55,.35);d.position.set(287.5-i*.6,0,12.9);scene.add(d);(FDET.people=FDET.people||[]).push(d);});}}
+    {const dog=CHAR2_ON?dog32():pix(["..oo......","..obo.....",".obbbbbbo.","obbbbbbbbo",".obbbbbbo.","..o.o.o.o."],{o:'#3a2a1a',b:'#a8643a'});[0,1].forEach(i=>{const d=spriteMesh([dog],.55,.35);d.position.set(287.5-i*.6,0,12.9);scene.add(d);(FDET.people=FDET.people||[]).push(d);});}}
 
   // ===== 7. Bathers Beach (from the video): coastal scrub, a sandy path with rope fence, the wrack line and a beach shack =====
   {paint(6.4,5.4,lmat(sandC,[2,2]),277.3,11.1,.013);

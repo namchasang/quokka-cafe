@@ -1,31 +1,3 @@
-// ---------- painter for 32px creature sprites ----------
-function painter(W,H){const c=mk(W,H),x=c.getContext('2d'),img=x.createImageData(W,H),D=img.data;
-  const set=(i,j,col)=>{i|=0;j|=0;if(i<0||j<0||i>=W||j>=H)return;const k=(j*W+i)*4;D[k]=col[0];D[k+1]=col[1];D[k+2]=col[2];D[k+3]=255;};
-  const ell=(cx,cy,rx,ry,pal)=>{for(let j=0;j<H;j++)for(let i=0;i<W;i++){const dx=(i+.5-cx)/rx,dy=(j+.5-cy)/ry,d=dx*dx+dy*dy;if(d>1)continue;const l=(-dx*.5-dy*.8)*.55+(1-d)*.55;let k=Math.round((l+.35)/1.3*(pal.length-1));k=clamp(k,0,pal.length-1);if((i+j)&1&&d>.75)k=Math.max(0,k-1);set(i,j,pal[k]);}};
-  return{set,ell,done:o=>{x.putImageData(img,0,0);return outlineCanvas(c,o||[40,32,28]);}};}
-function roo32(hop,joey){const P=painter(32,32);const g=[[70,62,58],[105,94,86],[140,126,114],[172,158,142],[200,188,170]],bl=[[176,162,146],[208,196,178],[228,218,200]];const lift=hop?-3:0;
-  P.ell(8,27+lift*.4,7.5,1.9,g);P.ell(15.5,30+lift,5.2,1.6,g);P.ell(16,19.5+lift,6.6,8,g);P.ell(18,21+lift,3.6,5.6,bl);P.ell(21,17+lift,1.4,3.2,g);
-  if(joey){P.ell(18.6,21.6+lift,2.2,2,g);P.set(19,21+lift,[20,16,16]);}
-  P.ell(22.6,9+lift,4,3.4,g);P.ell(26,10+lift,2.4,1.8,bl);P.ell(20.8,3.8+lift,1.2,2.8,g);P.ell(23.6,3.6+lift,1.2,2.8,g);P.set(23,8+lift,[20,16,16]);P.set(23,7+lift,[255,255,255]);P.set(27,9+lift,[30,22,20]);
-  return P.done();}
-// ---------- Heirisson Island ----------
-box(32,.5,20,lmat(sandC,[8,5]),420,-.26,0,{noCast:true});flat(30,18,lmat(grassC,[5,3]),420,.012,0);
-flat(26,1.2,lmat(pathC,[13,.6]),420,.018,5.2);flat(1.2,14,lmat(pathC,[.6,7]),433,.018,-2);
-(()=>{const deck=new THREE.Mesh(new THREE.BoxGeometry(58,.3,2.6),new THREE.MeshLambertMaterial({color:0x8a8f99}));deck.position.set(420,.55,-11.5);deck.castShadow=true;scene.add(deck);
-  for(let i=0;i<9;i++){const p=new THREE.Mesh(new THREE.CylinderGeometry(.25,.25,1.4,8),new THREE.MeshLambertMaterial({color:0x6a6e76}));p.position.set(394+i*6.5,-.2,-11.5);scene.add(p);const l=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.6,6),new THREE.MeshLambertMaterial({color:0x3a3e46}));l.position.set(394+i*6.5,1.5,-10.3);scene.add(l);}
-  const busBody=new THREE.Group();const b=new THREE.Mesh(new THREE.BoxGeometry(5,1.6,1.8),new THREE.MeshLambertMaterial({color:0xf6f2e8}));b.position.y=1.1;busBody.add(b);const s=new THREE.Mesh(new THREE.BoxGeometry(5.02,.5,1.82),new THREE.MeshLambertMaterial({color:0x2f9a5a}));s.position.y=.55;busBody.add(s);const w=new THREE.Mesh(new THREE.BoxGeometry(5.04,.45,1.84),new THREE.MeshLambertMaterial({color:0x2a3a58}));w.position.y=1.35;busBody.add(w);
-  busBody.scale.set(.36,.56,.5);/* same size as one train carriage */busBody.position.set(432,.7,-11.5);scene.add(busBody);window.__busProto=busBody;})();
-// sanctuary fence with a gate on the south side
-(()=>{const runs=[[410,-7,430,-7],[410,-7,410,3],[430,-7,430,3],[410,3,419,3],[421,3,430,3]];runs.forEach(([x1,z1,x2,z2])=>{const len=Math.hypot(x2-x1,z2-z1),n=Math.ceil(len/1.4);for(let i=0;i<=n;i++){const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.1,5),legMat);p.position.set(lerp(x1,x2,i/n),.55,lerp(z1,z2,i/n));scene.add(p);}
-  [.4,.8].forEach(h=>{const w=new THREE.Mesh(new THREE.BoxGeometry(Math.abs(x2-x1)||.03,.02,Math.abs(z2-z1)||.03),new THREE.MeshLambertMaterial({color:0x9aa0a8}));w.position.set((x1+x2)/2,h,(z1+z2)/2);scene.add(w);});col(Math.min(x1,x2)-.06,Math.min(z1,z2)-.06,Math.max(x1,x2)+.06,Math.max(z1,z2)+.06);});
-  signPost(417.6,3.6,makeSign(['KANGAROO','SANCTUARY'],48,20,'#5a3a22','#f5ecd8'),1.2,.5);})();
-const roos=[0,1,2,3,4,5].map(i=>{const joey=i===0;const m=spriteMesh([roo32(false,joey),roo32(true,joey)],1.7,1.7);const x=412+((i*7)%16),z=-5+((i*5)%7);m.position.set(x,0,z);scene.add(m);const sh=blob(.9);return{m,sh,x,z,tx:x,tz:z,wait:Math.random()*3,hop:0,face:1,walkT:0,joey};});
-// a bronze kangaroo sculpture by the river
-(()=>{box(1.2,.8,1.2,lmat(stoneC,[1,1]),412,.4,7.2);const P=painter(20,40);const br=[[58,42,30],[86,62,42],[116,84,56],[146,108,72]];P.ell(10,25,5,8,br);P.ell(12.5,13,3,3.5,br);P.ell(11.5,8,1,2.6,br);P.ell(14,8,1,2.6,br);P.ell(4.5,33,1.6,6,br);P.ell(11,35,3.4,3,br);P.ell(14,20,1.2,3,br);const st=spriteMesh([P.done([30,22,16])],.9,1.8);st.position.set(412,.8,7.2);scene.add(st);
-  signPost(414,8.6,makeSign(['KANGAROO SCULPTURE'],70,12,'#3a2a20','#f5ecd8'),1.4,.3);col(411.3,6.5,412.7,7.9);})();
-const swans=[0,1,2,3].map(i=>{const m=spriteMesh([pix(["...oo.........","..obbo........",".rrbbo........","....obo.......","....obo.......","....obbooooo..","...obbbbbbbbo.","..obbbbbwbbbbo","..obbbbbbbbbo.","...oooooooooo."],{o:'#0e0e14',b:'#22222c',r:'#d8343a',w:'#f4f4f0'})],.9,.65,{shadow:false});scene.add(m);return{m,ph:i*1.7,cx:404+i*9,cz:12+(i%2)*.8};});
-const pelican=spriteMesh([pix(["...ooo........","..owwwo.......","..owewo.......",".yyyyyyo......","..yyyyo.o.....","...owwwwwo....","..owwwwwwwo...","..owwwkkwwwo..","..owwkkkkwwo..","...owwwwwwo...","....oowwoo....",".....o..o.....","....oo..oo....",".............."],{o:'#2a2a30',w:'#f6f6f0',e:'#1a1a1a',y:'#f2c45a',k:'#2a2a30'})],1.1,1.1);pelican.position.set(436,0,6.4);scene.add(pelican);
-[[406,-8],[407,8.5],[435.5,-8.2],[425.5,8.6]].forEach(([x,z])=>{const v=treeVariants[1];const g=new THREE.PlaneGeometry(v.w,v.h);g.translate(0,v.h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});});
 // ---------- Victoria Park: Albany Highway ----------
 box(74,.5,30,lmat(paveC,[37,15]),525,-.26,0,{noCast:true});
 flat(74,2.4,lmat(asphC,[37,1.2]),525,.02,0);for(let x=490;x<562;x+=2.4)flat(1.1,.1,new THREE.MeshLambertMaterial({color:0xf3d24a}),x,.026,0);
@@ -60,3 +32,27 @@ const spBus=window.__busProto.clone();spBus.position.set(BUS_STOPS.sp.x+.6,0,21.
 // island General Store in the Settlement
 (()=>{bld(4.6,-8.6,3.6,2.4,2.4,'#f2e6c8',{ver:'#c8344a',sign:'GENERAL STORE',signBg:'#c8344a'});[['#86b86e',3.4],['#f1c64a',4.2],['#e8735a',5]].forEach(([c,x])=>box(.5,.3,.4,new THREE.MeshLambertMaterial({color:new THREE.Color(c)}),x,.15,-6.7));})();
 
+// ---------- Quokka Village (inland bush, where quokkas gather most) ----------
+const VILLAGE={x:24,z:5};
+(()=>{const V=VILLAGE;const plaza=new THREE.Mesh(new THREE.CircleGeometry(2.1,24),lmat(pathC,[2,2]));plaza.rotation.x=-Math.PI/2;plaza.position.set(V.x,groundY(V.x,V.z)+.03,V.z);plaza.receiveShadow=true;scene.add(plaza);
+  // campfire
+  for(let i=0;i<5;i++){const a=i/5*6.283;const st=new THREE.Mesh(new THREE.DodecahedronGeometry(.13),new THREE.MeshLambertMaterial({color:0x9a958a}));st.position.set(V.x+Math.cos(a)*.38,groundY(V.x,V.z)+.08,V.z+Math.sin(a)*.38);scene.add(st);}
+  [0,1.2].forEach(a=>{const l=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.6,6),new THREE.MeshLambertMaterial({color:0x6b4428}));l.rotation.z=Math.PI/2;l.rotation.y=a;l.position.set(V.x,groundY(V.x,V.z)+.1,V.z);scene.add(l);});
+  const fc=mk(12,16),fx=fc.getContext('2d');[['#ff8a2a',[[3,6,6,10]]],['#ffd34d',[[4,9,4,7]]],['#fff3c0',[[5,12,2,3]]]].forEach(([c,rs])=>{fx.fillStyle=c;rs.forEach(q=>fx.fillRect(...q));});fx.fillStyle='#ff8a2a';fx.fillRect(5,3,2,3);fx.fillRect(2,8,1,4);fx.fillRect(9,7,1,5);
+  const fire=new THREE.Mesh(new THREE.PlaneGeometry(.45,.6),new THREE.MeshBasicMaterial({map:ctex(fc),transparent:true,alphaTest:.3,side:THREE.DoubleSide}));fire.geometry.translate(0,.3,0);fire.position.set(V.x,groundY(V.x,V.z)+.05,V.z);scene.add(fire);BB.push(fire);window.__vfire=fire;
+  col(V.x-.45,V.z-.45,V.x+.45,V.z+.45);
+  // teepees
+  const tp=(c1,c2)=>{const c=mk(32,32),x=c.getContext('2d');x.fillStyle='#efe2c4';x.fillRect(0,0,32,32);x.fillStyle=c1;x.fillRect(0,10,32,3);x.fillRect(0,22,32,2);x.fillStyle=c2;for(let i=0;i<32;i+=4){x.fillRect(i,14,2,2);x.fillRect(i+2,18,2,2);}x.fillStyle='#d8c8a4';for(let i=0;i<40;i++)x.fillRect(Math.random()*32|0,Math.random()*32|0,1,1);return ctex(c);};
+  [[-3.4,-1.2,'#c8344a','#2f78a8'],[-2.6,2.2,'#3e7d5c','#e8a33a'],[3.2,2.4,'#9478d4','#ef7d5e']].forEach(([dx,dz,c1,c2])=>{const x=V.x+dx,z=V.z+dz,gy=groundY(x,z);const cone=new THREE.Mesh(new THREE.ConeGeometry(.95,2.2,10,1,true),new THREE.MeshLambertMaterial({map:tp(c1,c2),side:THREE.DoubleSide}));cone.position.set(x,gy+1.1,z);cone.castShadow=true;scene.add(cone);
+    for(let i=0;i<4;i++){const a=i/4*6.283+.4;const pole=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.7,5),new THREE.MeshLambertMaterial({color:0x6b4428}));pole.position.set(x+Math.cos(a)*.12,gy+2.35,z+Math.sin(a)*.12);pole.rotation.set(Math.sin(a)*.4,0,-Math.cos(a)*.4);scene.add(pole);}
+    const door=new THREE.Mesh(new THREE.PlaneGeometry(.5,.8),new THREE.MeshLambertMaterial({color:0x3a2a20,side:THREE.DoubleSide}));door.position.set(x,gy+.4,z+.62);door.rotation.x=-.36;scene.add(door);col(x-.7,z-.7,x+.7,z+.7);});
+  // Spanish colonial cottages, like old Fremantle
+  const arch=()=>{const c=mk(16,24),x=c.getContext('2d');x.fillStyle='#5a3a22';x.beginPath();x.moveTo(1,24);x.lineTo(1,8);x.arc(8,8,7,Math.PI,0);x.lineTo(15,24);x.fill();x.fillStyle='#7a5032';x.fillRect(3,10,10,13);x.fillStyle='#ffd34d';x.fillRect(11,16,1,1);return ctex(c);};
+  [[3.6,-1.6],[0,-3],[-0.2,3.4]].forEach(([dx,dz],i)=>{const x=V.x+dx,z=V.z+dz,gy=groundY(x,z);const g=bld(x,z,2.1,1.6,1.5,'#f6f0e2',{win:false,roof:'#c2603a',roofH:.65,noCol:true});g.position.y=gy;
+    const d=new THREE.Mesh(new THREE.PlaneGeometry(.55,.85),new THREE.MeshLambertMaterial({map:arch(),transparent:true,alphaTest:.5}));d.position.set(0,.43,.81);g.add(d);// door, windows and pot ride with the cottage (the island warp moved them apart)
+    [-.65,.65].forEach(o=>{const w=new THREE.Mesh(new THREE.PlaneGeometry(.32,.42),new THREE.MeshLambertMaterial({color:0x2f78a8}));w.position.set(o,.85,.81);g.add(w);const s=new THREE.Mesh(new THREE.PlaneGeometry(.12,.44),new THREE.MeshLambertMaterial({color:0x3e7d5c}));s.position.set(o-.24,.85,.812);g.add(s);});
+    const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.22,8),new THREE.MeshLambertMaterial({color:0xc2603a}));pot.position.set(.42,.11,.98);g.add(pot);col(x-1.05,z-.8,x+1.05,z+.8);});
+  signPost(V.x-1.4,V.z+4.4,makeSign(['QUOKKA','VILLAGE'],48,20,'#5a3a22','#f5ecd8'),1.1,.5);})();
+const VILLAGE_ELDER={x:VILLAGE.x+1.5,z:VILLAGE.z+.6};
+
+const elder=spriteMesh(quokkaFrames('#f5ecd8',.82),1.05,1.05);elder.position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z),VILLAGE_ELDER.z);scene.add(elder);blob(.8).position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z)+.03,VILLAGE_ELDER.z);

@@ -1,14 +1,3 @@
-// ---------- beach hammock with orange juice ----------
-const BEACH=LOTS.beach;let juiceMesh;
-(()=>{const x0=BEACH.x,z0=BEACH.z;[-1.45,1.45].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,1.7,8),legMat);p.position.set(x0+s,.85,z0);p.castShadow=true;scene.add(p);col(x0+s-.15,z0-.15,x0+s+.15,z0+.15);});
-  const nc=mk(16,16),nx=nc.getContext('2d');for(let i=0;i<16;i++)for(let j=0;j<16;j++){nx.fillStyle=(i+j)%4<2?'#f6ead2':'#5cc6d8';nx.fillRect(i,j,1,1);}
-  const net=new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,2.6,14,1,true,Math.PI*.15,Math.PI*.7),lmat(nc,[3,2],{side:THREE.DoubleSide}));net.rotation.z=Math.PI/2;net.rotation.x=Math.PI;net.position.set(x0,1.05,z0);net.castShadow=true;scene.add(net);
-  box(.55,.5,.55,lmat(counterC,[1,1]),x0+2.1,.25,z0+.1);col(x0+1.8,z0-.2,x0+2.4,z0+.4);
-  const glass=new THREE.Mesh(new THREE.CylinderGeometry(.09,.075,.26,10),new THREE.MeshLambertMaterial({color:0xe8f6ff,transparent:true,opacity:.55}));glass.position.set(x0+2.1,.63,z0+.1);scene.add(glass);
-  juiceMesh=new THREE.Mesh(new THREE.CylinderGeometry(.08,.068,.22,10),new THREE.MeshLambertMaterial({color:0xffa21e,emissive:0x442200}));juiceMesh.geometry.translate(0,.11,0);juiceMesh.position.set(x0+2.1,.51,z0+.1);scene.add(juiceMesh);
-  const straw=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.36,5),new THREE.MeshLambertMaterial({color:0xe8457a}));straw.position.set(x0+2.14,.72,z0+.1);straw.rotation.z=-.25;scene.add(straw);
-  const sl=new THREE.Mesh(new THREE.TorusGeometry(.06,.02,6,10,Math.PI),new THREE.MeshLambertMaterial({color:0xffd34d}));sl.position.set(x0+2.02,.76,z0+.1);scene.add(sl);})();
-
 // ---------- harbour upgrades ----------
 const JMULT=[1,1.5,1.9,2.3,2.7],JX1=[-21.4,-22.6,-27.4,-27.4,-35.4];
 const DOCKS=[[-18.8,6.8,0],[-18.8,3.2,Math.PI],[-25,6.8,0],[-25,3.2,Math.PI]];

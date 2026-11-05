@@ -58,7 +58,7 @@ const sparkWater=flat(640,640,new THREE.MeshBasicMaterial({map:ctex(sparkWaterC,
 const GULL_A=["g..........g","gg........gg",".gww....wwg.","..wwwwwwwwy.","....wwww....","............"];
 const GULL_B=["............","............","..wwwwwwwwy.",".gwwwwwwwwg.","gg........gg","g..........g"];
 const gullPal={g:'#7d8590',w:'#f4f4f0',y:'#e8a33a'};
-const gulls=[0,1,2].map(i=>{const m=spriteMesh([pix(GULL_A,gullPal),pix(GULL_B,gullPal)],.9,.45,{shadow:false});scene.add(m);const sh=blob(.6);sh.material.opacity=.5;return{m,sh,ph:i*2.1,r:5+i*1.8,h:4.2+i*.6,sp:.32+i*.07};});
+const gulls=[0,1,2].map(i=>{const m=spriteMesh(CHAR2_ON?[gull32(0),gull32(1)]:[pix(GULL_A,gullPal),pix(GULL_B,gullPal)],.9,.45,{shadow:false});scene.add(m);const sh=blob(.6);sh.material.opacity=.5;return{m,sh,ph:i*2.1,r:5+i*1.8,h:4.2+i*.6,sp:.32+i*.07};});
 // weather
 const WEATHERS=[
  {label:'Sunny',icon:'☀',temp:[24,28],cloud:0,rain:0,wind:.25,sun:1},

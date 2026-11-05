@@ -56,7 +56,7 @@ signPost(197.4,19.4,makeSign(['SWAN RIVER ZOO','→ LABOUCHERE RD'],64,22,'#3e7d
 [[171,6],[182,8.2],[192,7.4],[198,1]].forEach(([x,z])=>{const g=new THREE.PlaneGeometry(jac.w,jac.h);g.translate(0,jac.h/2,0);const m=new THREE.Mesh(g,jac.m);m.customDepthMaterial=jac.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);col(x-.3,z-.3,x+.3,z+.3);flat(3.2,3.2,petalMat,x+.4,.02,z-.3);});
 // black swans on the river, plus one very convincing cardboard swan
 const SWAN_ROWS=["....oo......","...obbo.....","...obro.....","....ob......","....ob......","...obbbo.oo.","..obbbbbobbo",".obbwbbbbbbo",".obbbbbbbbo.","..oooooooo.."];
-const swanCv=pix(SWAN_ROWS,{o:'#0d0d12',b:'#24242c',r:'#d8342a',w:'#f3efe6'});
+const swanCv=CHAR2_ON?swan32():pix(SWAN_ROWS,{o:'#0d0d12',b:'#24242c',r:'#d8342a',w:'#f3efe6'});
 const SWANS=[[128,-6.2],[141,-7.4],[163,-6],[174,-7.2],[191,-6.4]].map(([x,z],i)=>{const m=spriteMesh([swanCv],.95,.8);m.position.set(x,-.1,z);scene.add(m);return{m,x0:x,z0:z,ph:i*1.7};});
 const cardSwan=(()=>{const m=spriteMesh([swanCv],.95,.8);m.position.set(195.6,0,1.4);scene.add(m);const st=new THREE.Mesh(new THREE.BoxGeometry(.05,.3,.05),legMat);st.position.set(195.6,.15,1.38);scene.add(st);return m;})();
 // new South Perth locals

@@ -16,7 +16,7 @@ const plankton=new THREE.Points(plkGeo,new THREE.ShaderMaterial({uniforms:{time:
 plankton.frustumCulled=false;scene.add(plankton);
 // butterflies by day
 const BFLY=[["o.....o","wo...ow","wwo.oww",".wwoww.","wwo.oww","wo...ow"],["...o...","..wow..",".wwoww.",".wwoww.","..wow..","...o..."]];
-const butterflies=[['#f08a3c','#2a1d1a'],['#f6f2e8','#5a4a3a'],['#7fb8e8','#1d2238'],['#f4d23a','#3a2a10']].flatMap((p,i)=>[0,1].map(j=>{const m=spriteMesh(BFLY.map(r=>pix(r,{w:p[0],o:p[1]})),.32,.28,{shadow:false});scene.add(m);return{m,ph:R()*6.28,ox:(R()-.5)*16,oz:(R()-.5)*10,sp:.4+R()*.4};}));
+const butterflies=[['#f08a3c','#2a1d1a'],['#f6f2e8','#5a4a3a'],['#7fb8e8','#1d2238'],['#f4d23a','#3a2a10']].flatMap((p,i)=>[0,1].map(j=>{const m=spriteMesh(CHAR2_ON?[bfly32(p[0],p[1],0),bfly32(p[0],p[1],1)]:BFLY.map(r=>pix(r,{w:p[0],o:p[1]})),.32,.28,{shadow:false});scene.add(m);return{m,ph:R()*6.28,ox:(R()-.5)*16,oz:(R()-.5)*10,sp:.4+R()*.4};}));
 function nightTick(dt,t){const h=S.time/60;NIGHT=h<7?clamp((6.6-h)/1.2,0,1):clamp((h-18.6)/1.4,0,1);lampTick();
   fairy.forEach((f,i)=>{f.visible=NIGHT>.02||h>17.5;const tw=.75+.25*Math.sin(t*3+i*1.7);f.scale.setScalar(1+NIGHT*.6*tw);});
   nightLights.forEach(L=>L.intensity=L.userData.max*NIGHT*(1-wxC.rain*.3));
@@ -54,7 +54,7 @@ const mei={x:144,z:2.4};mei.mesh=spriteMesh(humanFrames({hair:'#1b1b2b',skin:'#e
 const ruth={x:151.4,z:-3.1};ruth.mesh=spriteMesh(humanFrames({hair:'#9b3b22',hat:'#24305a',skin:'#f1c7a0',shirt:'#f3efe6',pants:'#24305a'}),.95,1.58);ruth.mesh.position.set(ruth.x,0,ruth.z);scene.add(ruth.mesh);blob(.9).position.set(ruth.x,.03,ruth.z);
 const shopkeepers=[['market',{hair:'#1b1b2b',skin:'#c68a5e',shirt:'#c8344a',pants:'#2f3b5c',hat:null}],['servo',{hair:'#6b4226',skin:'#f1c7a0',shirt:'#2f6fb0',pants:'#4a4a4a',hat:'#2f6fb0'}],['seeds',{hair:'#d9b25a',skin:'#f1c7a0',shirt:'#3e7d5c',pants:'#c9b68a',hat:'#e8d4a0'}]].map(([id,v])=>{const P=SHOP_POS[id];const m=spriteMesh(humanFrames(v),.95,1.58);const x=P.x+(id==='servo'?1.9:-.9),z=P.z+(id==='servo'?.6:1.75);m.position.set(x,0,z);scene.add(m);blob(.85).position.set(x,.03,z);return{id,x,z};});
 const gus={x:-11.5,z:3.6};gus.mesh=spriteMesh(humanFrames({hair:'#d8d4cc',hat:'#24305a',skin:'#d9a173',shirt:'#f3efe6',pants:'#24305a'}),.95,1.58);gus.mesh.position.set(gus.x,0,gus.z);scene.add(gus.mesh);blob(.9).position.set(gus.x,.03,gus.z);
-const wren={x:30.8,z:-2.6};wren.mesh=spriteMesh([pix(WREN,{o:'#1d2238',u:'#3f7fe0',e:'#ffffff',y:'#e8a33a',w:'#e9e2d0',b:'#7a6248'})],.75,.75);wren.mesh.position.set(wren.x,0,wren.z);scene.add(wren.mesh);blob(.6).position.set(wren.x,.03,wren.z);
+const wren={x:30.8,z:-2.6};wren.mesh=spriteMesh([CHAR2_ON?wren32():pix(WREN,{o:'#1d2238',u:'#3f7fe0',e:'#ffffff',y:'#e8a33a',w:'#e9e2d0',b:'#7a6248'})],.75,.75);wren.mesh.position.set(wren.x,0,wren.z);scene.add(wren.mesh);blob(.6).position.set(wren.x,.03,wren.z);
 const exclFor=t=>{const m=spriteMesh([pix(ICONS.excl,{o:'#2a1d1a',y:'#ffd34d'})],.32,.38,{basic:true,shadow:false});scene.add(m);return m;};
 gus.excl=exclFor();wren.excl=exclFor();
 
