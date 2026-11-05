@@ -1361,7 +1361,7 @@ function epx2(src){const W=src.width,H=src.height,s=src.getContext('2d').getImag
     put(x*2,y*2,e0);put(x*2+1,y*2,e1);put(x*2,y*2+1,e2);put(x*2+1,y*2+1,e3);}cx.putImageData(id,0,0);return cv;}
 // every living thing (people, riders, birds, animals) gets the same pixel density as Kip (Paul, Nov 2026): HD pass, then smooth 2x steps
 // until the sprite has at least ~48 pixels per metre on screen (Kip has 56). The world width comes from spriteMesh (opts.__wm).
-const CHAR2_ON=/[?&#](char2|lab)\b/.test(location.search+location.hash);// Look Lab: people, cyclists, birds and animals at Kip's pixel density
+const CHAR2_ON=true||/[?&#](char2|lab)\b/.test(location.search+location.hash);// Look Lab: people, cyclists, birds and animals at Kip's pixel density
 const CHAR_PPM=CHAR2_ON?48:0;
 if(LOOK2.on){const _mk=mkFrame;mkFrame=function(f){const had=!!f.m;const r=_mk(f);const wm=f.o&&f.o.__wm;
   if(!had&&f.t&&f.c&&f.c.width<=128&&f.c.width>=4&&((f.c.width>=16&&f.c.height>=20)||(CHAR2_ON&&wm))){f.lo=f.c;let hi=PX4_ON?epx2(charHD(f.c)):charHD(f.c);if(wm)while(hi.width/wm<CHAR_PPM&&hi.width<512)hi=charHD(hi);f.hi=hi;f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};
@@ -1875,7 +1875,7 @@ COTTAGES.forEach(cg=>{const g=new THREE.Group();const w=new THREE.Mesh(new THREE
 signPost(19.5,-8.4,makeSign(['THE BASIN'],48,12,'#7a5033','#f5ecd8'),1.5,.4);
 box(1.6,.08,.75,new THREE.MeshLambertMaterial({color:0xb98552}),17.2,.72,-8.6);[-.55,.55].forEach(o=>box(1.6,.06,.28,new THREE.MeshLambertMaterial({color:0xa8744a}),17.2,.42,-8.6+o));box(.12,.7,.5,legMat,16.6,.36,-8.6);box(.12,.7,.5,legMat,17.8,.36,-8.6);col(16.3,-9.1,18.1,-8.1);
 const SNORK=["......yy..","..oooo.y..",".ohhhhoy..",".obbbbbo..",".ossssso..","wwwwwwwwww",".w..ww..w."];
-const snorks=[[19,-12.4,'#6b4226','#f1c7a0'],[21.6,-12.9,'#d9b25a','#c68a5e']].map(([x,z,h,s])=>{const m=spriteMesh([pix(SNORK,{o:'#2a1d1a',h,b:'#2f6fb0',s,y:'#ffd34d',w:'#ffffff'})],.75,.52,{shadow:false});m.position.set(x,-.25,z);scene.add(m);return{m,x,z};});
+const snorks=[[19,-12.4,'#6b4226','#f1c7a0'],[21.6,-12.9,'#d9b25a','#c68a5e']].map(([x,z,h,s])=>{const m=spriteMesh([CHAR2_ON?snork32(h,s):pix(SNORK,{o:'#2a1d1a',h,b:'#2f6fb0',s,y:'#ffd34d',w:'#ffffff'})],.75,.52,{shadow:false});m.position.set(x,-.25,z);scene.add(m);return{m,x,z};});
 // quokka crossing sign
 (()=>{const c=mk(24,24),x=c.getContext('2d');x.fillStyle='#2a1d1a';x.beginPath();x.moveTo(12,0);x.lineTo(24,12);x.lineTo(12,24);x.lineTo(0,12);x.closePath();x.fill();x.fillStyle='#f1c64a';x.beginPath();x.moveTo(12,2);x.lineTo(22,12);x.lineTo(12,22);x.lineTo(2,12);x.closePath();x.fill();
   const q=pix(QK_TOP.concat(QK_LEGS.idle),{o:'#1a1410',b:'#1a1410',p:'#1a1410',e:'#1a1410',w:'#1a1410',n:'#1a1410',l:'#1a1410',c:'#1a1410',a:'#1a1410'});x.drawImage(q,4,4);
@@ -2449,6 +2449,14 @@ function bfly32(w,o,f){const P=painter(21,18),Wn=RAMP(w,4),O=RAMP(o,3);
 function wren32(){const P=painter(36,36),U=RAMP('#3f7fe0'),K=RAMP('#1d2238',4),Bn=RAMP('#9a7a58'),W=RAMP('#e9e2d0',3);
   P.ell(16,22,8,6.6,Bn);P.ell(14,24,6,4,W);P.ell(14,13,6,5.6,U);P.ell(12,12,2.4,1.4,K);P.ell(22,13,2.2,8,Bn);P.ell(22,13,1.3,7,K);P.ell(8,13.5,2.6,1,RAMP('#3a3a3a',2));
   P.set(13,11,[255,255,255]);P.set(12,11,[10,10,14]);P.ell(13,31,.8,3,RAMP('#5a4a3a',2));P.ell(18,31,.8,3,RAMP('#5a4a3a',2));return P.done([22,24,40]);}
+function seal32(){const P=painter(36,27),B=RAMP('#6a5a4e'),L=RAMP('#a8988a',3);
+  P.ell(15,18,12,6.4,B);P.ell(26,11,6,5,B);P.ell(30,13,3,2,L);P.ell(14,20,8,3,L.slice(0,2));P.ell(5,22,4,2.4,B);P.ell(19,24,4,2,B);P.set(27,9,[20,16,14]);P.set(26,9,[230,226,220]);P.set(32,12,[20,16,14]);return P.done([34,28,24]);}
+function surfer32(sk,hair,suit){const P=painter(30,27),S=RAMP(sk,4),H=RAMP(hair,3),W=RAMP(suit,4),Bd=RAMP('#e84a3a',4),Bb=RAMP('#f2f0e6',3);
+  P.ell(15,24,13,1.8,Bd);P.ell(15,25.5,12,1,Bb);P.ell(11,21,1.6,3.2,W);P.ell(19,21,1.6,3.2,W);P.ell(15,14,4,5,W);P.ell(9,13,1.4,3.6,S);P.ell(21,13,1.4,3.6,S);P.ell(15,6,3.4,3.6,S);P.ell(15,3.6,3.6,2,H);P.set(14,6,[30,20,16]);P.set(16,6,[30,20,16]);return P.done([42,30,26]);}
+function snork32(hair,sk){const P=painter(30,21),Hh=RAMP(hair,3),S=RAMP(sk,4),Bm=RAMP('#2f6fb0',4),Y=RAMP('#ffd34d',3),Wt=RAMP('#8fd8f0',3);
+  P.ell(15,17,14,3,Wt);P.ell(15,11,7,5,S);P.ell(15,7.4,7.4,3.4,Hh);P.ell(15,11.5,6.4,2,Bm);P.ell(12.5,11.5,1.8,1.2,RAMP('#a8d8f0',2));P.ell(17.5,11.5,1.8,1.2,RAMP('#a8d8f0',2));P.ell(23,6,1.2,5,Y);P.ell(23,1.6,1.6,1,Y);
+  for(let i=0;i<30;i+=3)P.set(i,15,[240,250,255]);return P.done([30,30,40]);}
+function fish32(){const P=painter(24,12),B=RAMP('#6fa8d8'),W=RAMP('#eef6fc',3);P.ell(11,6,8,3.6,B);P.ell(3,6,2.4,3.4,B);P.ell(12,7.6,6,1.4,W);P.set(16,5,[255,255,255]);P.set(17,5,[20,24,40]);return P.done([29,58,90]);}
 function roo32(hop,joey){const P=painter(32,32);const g=[[70,62,58],[105,94,86],[140,126,114],[172,158,142],[200,188,170]],bl=[[176,162,146],[208,196,178],[228,218,200]];const lift=hop?-3:0;
   P.ell(8,27+lift*.4,7.5,1.9,g);P.ell(15.5,30+lift,5.2,1.6,g);P.ell(16,19.5+lift,6.6,8,g);P.ell(18,21+lift,3.6,5.6,bl);P.ell(21,17+lift,1.4,3.2,g);
   if(joey){P.ell(18.6,21.6+lift,2.2,2,g);P.set(19,21+lift,[20,16,16]);}
@@ -2469,7 +2477,7 @@ const roos=[0,1,2,3,4,5].map(i=>{const joey=i===0;const m=spriteMesh([roo32(fals
 // a bronze kangaroo sculpture by the river
 (()=>{box(1.2,.8,1.2,lmat(stoneC,[1,1]),412,.4,7.2);const P=painter(20,40);const br=[[58,42,30],[86,62,42],[116,84,56],[146,108,72]];P.ell(10,25,5,8,br);P.ell(12.5,13,3,3.5,br);P.ell(11.5,8,1,2.6,br);P.ell(14,8,1,2.6,br);P.ell(4.5,33,1.6,6,br);P.ell(11,35,3.4,3,br);P.ell(14,20,1.2,3,br);const st=spriteMesh([P.done([30,22,16])],.9,1.8);st.position.set(412,.8,7.2);scene.add(st);
   signPost(414,8.6,makeSign(['KANGAROO SCULPTURE'],70,12,'#3a2a20','#f5ecd8'),1.4,.3);col(411.3,6.5,412.7,7.9);})();
-const swans=[0,1,2,3].map(i=>{const m=spriteMesh([pix(["...oo.........","..obbo........",".rrbbo........","....obo.......","....obo.......","....obbooooo..","...obbbbbbbbo.","..obbbbbwbbbbo","..obbbbbbbbbo.","...oooooooooo."],{o:'#0e0e14',b:'#22222c',r:'#d8343a',w:'#f4f4f0'})],.9,.65,{shadow:false});scene.add(m);return{m,ph:i*1.7,cx:404+i*9,cz:12+(i%2)*.8};});
+const swans=[0,1,2,3].map(i=>{const m=spriteMesh([CHAR2_ON?swan32():pix(["...oo.........","..obbo........",".rrbbo........","....obo.......","....obo.......","....obbooooo..","...obbbbbbbbo.","..obbbbbwbbbbo","..obbbbbbbbbo.","...oooooooooo."],{o:'#0e0e14',b:'#22222c',r:'#d8343a',w:'#f4f4f0'})],.9,.65,{shadow:false});scene.add(m);return{m,ph:i*1.7,cx:404+i*9,cz:12+(i%2)*.8};});
 const pelican=spriteMesh([CHAR2_ON?pelican32():pix(["...ooo........","..owwwo.......","..owewo.......",".yyyyyyo......","..yyyyo.o.....","...owwwwwo....","..owwwwwwwo...","..owwwkkwwwo..","..owwkkkkwwo..","...owwwwwwo...","....oowwoo....",".....o..o.....","....oo..oo....",".............."],{o:'#2a2a30',w:'#f6f6f0',e:'#1a1a1a',y:'#f2c45a',k:'#2a2a30'})],1.1,1.1);pelican.position.set(436,0,6.4);scene.add(pelican);
 [[406,-8],[407,8.5],[435.5,-8.2],[425.5,8.6]].forEach(([x,z])=>{const v=treeVariants[1];const g=new THREE.PlaneGeometry(v.w,v.h);g.translate(0,v.h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});});
 // ---------- Victoria Park: Albany Highway ----------
@@ -2661,7 +2669,7 @@ const WEST={};
   signPost(62.5,5.6,makeSign(['PARKER POINT','SNORKEL TRAIL'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(70.6,5,makeSign(['LITTLE SALMON','BAY'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(82.6,5.4,makeSign(['STRICKLAND','BAY · SURF'],52,20,'#e8735a','#ffffff'),1,.5);
   WEST.snork=[[62.4,9.4],[63.6,9.8],[70,9.6],[71.4,10.2]].map(([x,z],i)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.14,8,8),M(['#f1c64a','#e8735a','#2f78a8','#c8344a'][i]));scene.add(m);const s=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.3,5),M('#f1c64a'));scene.add(s);return{m,s,x,z,ph:i};});
   const surfPal={o:'#1a1410',s:'#f1c7a0',w:'#2a2a30',b:'#f6f2e8',r:'#e8735a'};
-  WEST.surfers=[0,1].map(i=>{const m=spriteMesh([pix(["....oo....","...osso...","...osso....","....ww....","..owwwwo..","...wwww...","...w..w...","rrrrrrrrrr",".bbbbbbbb."],surfPal)],.9,.9,{shadow:false});scene.add(m);return{m,ph:i*3};});
+  WEST.surfers=[0,1].map(i=>{const m=spriteMesh([CHAR2_ON?surfer32(['#f1c7a0','#8d5a3b'][i],['#d9b25a','#1b1b2b'][i],'#1d2238'):pix(["....oo....","...osso...","...osso....","....ww....","..owwwwo..","...wwww...","...w..w...","rrrrrrrrrr",".bbbbbbbb."],surfPal)],.9,.9,{shadow:false});scene.add(m);return{m,ph:i*3};});
   [[70.6,7.4],[71.8,7.6]].forEach(([x,z],i)=>{const u=new THREE.Mesh(new THREE.ConeGeometry(.9,.4,8),M(i?'#f1c64a':'#e8735a'));u.position.set(x,1.8,z);u.castShadow=true;scene.add(u);box(.05,1.8,.05,legMat,x,.9,z);});
   // Cape Vlamingh boardwalk, memorial and the fur seals at Cathedral Rocks
   box(5.4,.14,1.2,lmat(deckC,[5,1]),93.9,.1,.4,{noCast:true});box(3,.14,3,lmat(deckC,[3,3]),97.4,.1,.4,{noCast:true});
@@ -2670,7 +2678,7 @@ const WEST={};
   box(.9,1,.5,lmat(stoneC,[1,1]),95.6,.5,-1.4);signPost(94.4,-1.4,makeSign(['VLAMINGH','MEMORIAL'],48,20,'#3a2a20','#f5ecd8'),1,.4);col(95.1,-1.7,96.1,-1.1);
   [[93.6,5.6],[95.2,6],[96.6,5.2],[94.4,6.8]].forEach(([x,z],i)=>{const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.7+i*.15),M('#8a8478'));r.position.set(x,-.15,z);r.scale.y=.5;scene.add(r);});
   const sealPal={o:'#1d1612',b:'#5a4a40',l:'#7a6656',e:'#0a0a0a',w:'#ffffff'};
-  WEST.seals=[[93.6,5.6],[95.2,6],[96.6,5.2]].map(([x,z],i)=>{const m=spriteMesh([pix(["............","......ooo...",".....oblbo..","....obblweo.","...obbbbbbo.","..obbbllbbo.",".obbbbbbbo..","obbbbbbbo...",".oooooooo...."],sealPal)],.9,.6);m.position.set(x,.25,z);if(i%2)m.scale.x=-1;scene.add(m);return{m,ph:i};});
+  WEST.seals=[[93.6,5.6],[95.2,6],[96.6,5.2]].map(([x,z],i)=>{const m=spriteMesh([CHAR2_ON?seal32():pix(["............","......ooo...",".....oblbo..","....obblweo.","...obbbbbbo.","..obbbllbbo.",".obbbbbbbo..","obbbbbbbo...",".oooooooo...."],sealPal)],.9,.6);m.position.set(x,.25,z);if(i%2)m.scale.x=-1;scene.add(m);return{m,ph:i};});
   signPost(47.2,-2.6,makeSign(['ISLAND LOOP','22 KM →'],48,20,'#c8344a','#ffffff'),1,.5);signPost(89.6,1.8,makeSign(['WEST END','CAPE VLAMINGH'],56,20,'#3a2a20','#f5ecd8'),1,.5);})();
 // Quokka Coach bus stops around the island
 const COACH=[{id:'settle',name:'Settlement',x:10.4,z:-1.8},{id:'basin',name:'The Basin',x:22,z:-6.6},{id:'light',name:'Rottnest Lighthouse',x:32.2,z:-4.6},{id:'geordie',name:'Geordie Bay',x:59.4,z:-2.6},{id:'salmon',name:'Little Salmon Bay',x:71.2,z:.8},{id:'west',name:'West End',x:89.6,z:-.6}];
@@ -5043,7 +5051,7 @@ function updateStaff(dt,t){const sick=evToday('sick')&&phase()==='cafe';staff.fo
   if(phase()==='explore'&&st.state==='idle'&&!st.job){const free=S.plots.findIndex((p,i)=>p&&!staff.some(o=>o.job&&o.job.i===i)&&(p.g>=CROPS[p.k].days||!p.w));if(free>=0)st.job={type:'plot',i:free};else{const si=staff.indexOf(st);st.job={type:'fish',...IW(-14.2-si*1.4,si%2?4.8:5.25),t:14+Math.random()*12};}}
   if(st.job&&phase()==='cafe'){st.job=null;}
   if(st.job&&st.state==='idle'){const j=st.job;if(j.type==='plot'){const P=PLOTS[j.i],p=S.plots[j.i];moving=!stepWalker(st,P.x,P.z+1.05,2.4,dt);if(!moving){j.w=(j.w||0)+dt;if(j.w>1.4){if(p){if(p.g>=CROPS[p.k].days){const C=CROPS[p.k];S.inv[p.k]=(S.inv[p.k]||0)+C.yield;S.plots[j.i]=null;popText('+'+C.yield+' '+C.plural,{x:P.x,y:1.5,z:P.z});}else if(!p.w){p.w=true;popText('Watered',{x:P.x,y:1.3,z:P.z});}refreshPlots();save();}st.job=null;}}}
-    else{moving=!stepWalker(st,j.x,j.z,2.4,dt);if(!moving){st.face=-1;j.t-=dt;if(!st.rod){st.rod=spriteMesh([pix(["....oooo.o..","..oobbbbooo.","oobwbbbbbbo.",".obbbbbbbo..","..oobbbbooo.","....oooo.o.."],{o:'#1d3a5a',b:'#6fa8d8',w:'#ffffff'})],.42,.22,{basic:true,shadow:false});st.rod.visible=false;scene.add(st.rod);}
+    else{moving=!stepWalker(st,j.x,j.z,2.4,dt);if(!moving){st.face=-1;j.t-=dt;if(!st.rod){st.rod=spriteMesh([CHAR2_ON?fish32():pix(["....oooo.o..","..oobbbbooo.","oobwbbbbbbo.",".obbbbbbbo..","..oobbbbooo.","....oooo.o.."],{o:'#1d3a5a',b:'#6fa8d8',w:'#ffffff'})],.42,.22,{basic:true,shadow:false});st.rod.visible=false;scene.add(st.rod);}
       if(j.t<=0){j.t=(16+Math.random()*16)*(S.buffs&&S.buffs.bait>0?.5:1);S.inv.fish=(S.inv.fish||0)+1;save();st.rod.visible=true;st.rodT=1.6;popText('+1 fish',{x:st.x,y:1.6,z:st.z});}}}}
   if(st.rod){st.rodT=(st.rodT||0)-dt;st.rod.visible=st.rodT>0;st.rod.position.set(st.x-.4,1.25+(1.6-st.rodT)*.2,st.z+.05);}
   if(st.state==='idle'&&!st.job){if(phase()==='cafe'){const nc=customers.find(q=>q.state==='wait'&&!q.claimed);if(nc){nc.claimed=st;st.c=nc;st.state='toStation';}}if(st.state==='idle'&&!st.job)moving=!stepWalker(st,st.home[0],st.home[1],2.4,dt);}

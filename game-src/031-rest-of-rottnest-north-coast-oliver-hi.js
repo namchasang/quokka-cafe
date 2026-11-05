@@ -23,7 +23,7 @@ const WEST={};
   signPost(62.5,5.6,makeSign(['PARKER POINT','SNORKEL TRAIL'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(70.6,5,makeSign(['LITTLE SALMON','BAY'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(82.6,5.4,makeSign(['STRICKLAND','BAY · SURF'],52,20,'#e8735a','#ffffff'),1,.5);
   WEST.snork=[[62.4,9.4],[63.6,9.8],[70,9.6],[71.4,10.2]].map(([x,z],i)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.14,8,8),M(['#f1c64a','#e8735a','#2f78a8','#c8344a'][i]));scene.add(m);const s=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.3,5),M('#f1c64a'));scene.add(s);return{m,s,x,z,ph:i};});
   const surfPal={o:'#1a1410',s:'#f1c7a0',w:'#2a2a30',b:'#f6f2e8',r:'#e8735a'};
-  WEST.surfers=[0,1].map(i=>{const m=spriteMesh([pix(["....oo....","...osso...","...osso....","....ww....","..owwwwo..","...wwww...","...w..w...","rrrrrrrrrr",".bbbbbbbb."],surfPal)],.9,.9,{shadow:false});scene.add(m);return{m,ph:i*3};});
+  WEST.surfers=[0,1].map(i=>{const m=spriteMesh([CHAR2_ON?surfer32(['#f1c7a0','#8d5a3b'][i],['#d9b25a','#1b1b2b'][i],'#1d2238'):pix(["....oo....","...osso...","...osso....","....ww....","..owwwwo..","...wwww...","...w..w...","rrrrrrrrrr",".bbbbbbbb."],surfPal)],.9,.9,{shadow:false});scene.add(m);return{m,ph:i*3};});
   [[70.6,7.4],[71.8,7.6]].forEach(([x,z],i)=>{const u=new THREE.Mesh(new THREE.ConeGeometry(.9,.4,8),M(i?'#f1c64a':'#e8735a'));u.position.set(x,1.8,z);u.castShadow=true;scene.add(u);box(.05,1.8,.05,legMat,x,.9,z);});
   // Cape Vlamingh boardwalk, memorial and the fur seals at Cathedral Rocks
   box(5.4,.14,1.2,lmat(deckC,[5,1]),93.9,.1,.4,{noCast:true});box(3,.14,3,lmat(deckC,[3,3]),97.4,.1,.4,{noCast:true});
@@ -32,7 +32,7 @@ const WEST={};
   box(.9,1,.5,lmat(stoneC,[1,1]),95.6,.5,-1.4);signPost(94.4,-1.4,makeSign(['VLAMINGH','MEMORIAL'],48,20,'#3a2a20','#f5ecd8'),1,.4);col(95.1,-1.7,96.1,-1.1);
   [[93.6,5.6],[95.2,6],[96.6,5.2],[94.4,6.8]].forEach(([x,z],i)=>{const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.7+i*.15),M('#8a8478'));r.position.set(x,-.15,z);r.scale.y=.5;scene.add(r);});
   const sealPal={o:'#1d1612',b:'#5a4a40',l:'#7a6656',e:'#0a0a0a',w:'#ffffff'};
-  WEST.seals=[[93.6,5.6],[95.2,6],[96.6,5.2]].map(([x,z],i)=>{const m=spriteMesh([pix(["............","......ooo...",".....oblbo..","....obblweo.","...obbbbbbo.","..obbbllbbo.",".obbbbbbbo..","obbbbbbbo...",".oooooooo...."],sealPal)],.9,.6);m.position.set(x,.25,z);if(i%2)m.scale.x=-1;scene.add(m);return{m,ph:i};});
+  WEST.seals=[[93.6,5.6],[95.2,6],[96.6,5.2]].map(([x,z],i)=>{const m=spriteMesh([CHAR2_ON?seal32():pix(["............","......ooo...",".....oblbo..","....obblweo.","...obbbbbbo.","..obbbllbbo.",".obbbbbbbo..","obbbbbbbo...",".oooooooo...."],sealPal)],.9,.6);m.position.set(x,.25,z);if(i%2)m.scale.x=-1;scene.add(m);return{m,ph:i};});
   signPost(47.2,-2.6,makeSign(['ISLAND LOOP','22 KM →'],48,20,'#c8344a','#ffffff'),1,.5);signPost(89.6,1.8,makeSign(['WEST END','CAPE VLAMINGH'],56,20,'#3a2a20','#f5ecd8'),1,.5);})();
 // Quokka Coach bus stops around the island
 const COACH=[{id:'settle',name:'Settlement',x:10.4,z:-1.8},{id:'basin',name:'The Basin',x:22,z:-6.6},{id:'light',name:'Rottnest Lighthouse',x:32.2,z:-4.6},{id:'geordie',name:'Geordie Bay',x:59.4,z:-2.6},{id:'salmon',name:'Little Salmon Bay',x:71.2,z:.8},{id:'west',name:'West End',x:89.6,z:-.6}];

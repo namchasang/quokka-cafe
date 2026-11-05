@@ -22,7 +22,7 @@ COTTAGES.forEach(cg=>{const g=new THREE.Group();const w=new THREE.Mesh(new THREE
 signPost(19.5,-8.4,makeSign(['THE BASIN'],48,12,'#7a5033','#f5ecd8'),1.5,.4);
 box(1.6,.08,.75,new THREE.MeshLambertMaterial({color:0xb98552}),17.2,.72,-8.6);[-.55,.55].forEach(o=>box(1.6,.06,.28,new THREE.MeshLambertMaterial({color:0xa8744a}),17.2,.42,-8.6+o));box(.12,.7,.5,legMat,16.6,.36,-8.6);box(.12,.7,.5,legMat,17.8,.36,-8.6);col(16.3,-9.1,18.1,-8.1);
 const SNORK=["......yy..","..oooo.y..",".ohhhhoy..",".obbbbbo..",".ossssso..","wwwwwwwwww",".w..ww..w."];
-const snorks=[[19,-12.4,'#6b4226','#f1c7a0'],[21.6,-12.9,'#d9b25a','#c68a5e']].map(([x,z,h,s])=>{const m=spriteMesh([pix(SNORK,{o:'#2a1d1a',h,b:'#2f6fb0',s,y:'#ffd34d',w:'#ffffff'})],.75,.52,{shadow:false});m.position.set(x,-.25,z);scene.add(m);return{m,x,z};});
+const snorks=[[19,-12.4,'#6b4226','#f1c7a0'],[21.6,-12.9,'#d9b25a','#c68a5e']].map(([x,z,h,s])=>{const m=spriteMesh([CHAR2_ON?snork32(h,s):pix(SNORK,{o:'#2a1d1a',h,b:'#2f6fb0',s,y:'#ffd34d',w:'#ffffff'})],.75,.52,{shadow:false});m.position.set(x,-.25,z);scene.add(m);return{m,x,z};});
 // quokka crossing sign
 (()=>{const c=mk(24,24),x=c.getContext('2d');x.fillStyle='#2a1d1a';x.beginPath();x.moveTo(12,0);x.lineTo(24,12);x.lineTo(12,24);x.lineTo(0,12);x.closePath();x.fill();x.fillStyle='#f1c64a';x.beginPath();x.moveTo(12,2);x.lineTo(22,12);x.lineTo(12,22);x.lineTo(2,12);x.closePath();x.fill();
   const q=pix(QK_TOP.concat(QK_LEGS.idle),{o:'#1a1410',b:'#1a1410',p:'#1a1410',e:'#1a1410',w:'#1a1410',n:'#1a1410',l:'#1a1410',c:'#1a1410',a:'#1a1410'});x.drawImage(q,4,4);

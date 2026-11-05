@@ -35,7 +35,7 @@ function epx2(src){const W=src.width,H=src.height,s=src.getContext('2d').getImag
     put(x*2,y*2,e0);put(x*2+1,y*2,e1);put(x*2,y*2+1,e2);put(x*2+1,y*2+1,e3);}cx.putImageData(id,0,0);return cv;}
 // every living thing (people, riders, birds, animals) gets the same pixel density as Kip (Paul, Nov 2026): HD pass, then smooth 2x steps
 // until the sprite has at least ~48 pixels per metre on screen (Kip has 56). The world width comes from spriteMesh (opts.__wm).
-const CHAR2_ON=/[?&#](char2|lab)\b/.test(location.search+location.hash);// Look Lab: people, cyclists, birds and animals at Kip's pixel density
+const CHAR2_ON=true||/[?&#](char2|lab)\b/.test(location.search+location.hash);// Look Lab: people, cyclists, birds and animals at Kip's pixel density
 const CHAR_PPM=CHAR2_ON?48:0;
 if(LOOK2.on){const _mk=mkFrame;mkFrame=function(f){const had=!!f.m;const r=_mk(f);const wm=f.o&&f.o.__wm;
   if(!had&&f.t&&f.c&&f.c.width<=128&&f.c.width>=4&&((f.c.width>=16&&f.c.height>=20)||(CHAR2_ON&&wm))){f.lo=f.c;let hi=PX4_ON?epx2(charHD(f.c)):charHD(f.c);if(wm)while(hi.width/wm<CHAR_PPM&&hi.width<512)hi=charHD(hi);f.hi=hi;f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};
