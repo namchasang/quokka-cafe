@@ -34,6 +34,13 @@
 .tMenu .langRow{justify-content:flex-start;margin:0}
 .tClose{padding:6px 12px;font-size:13px}
 .ovHome .tMenu{margin:0;box-sizing:border-box}
+.tFold{border-top:1px solid rgba(255,255,255,.14);margin-top:16px}
+.tFold summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-family:var(--display);font-size:15px;color:var(--cream)}
+.tFold summary::-webkit-details-marker{display:none}
+.tFold summary::after{content:'+';font-size:20px;line-height:1;color:var(--gold)}
+.tFold[open] summary::after{content:'\2212'}
+.tFold summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.tFold p,.tFold .keys{margin-top:0}
 @media (max-width:520px){.ovHome .tMenu{left:16px;right:16px;width:auto;max-width:none}}
 .eyebrow{font-family:var(--display);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--sea)}
 .title{font-family:var(--display);font-weight:700;font-size:clamp(38px,11vw,54px);line-height:.95;margin:8px 0 2px;color:var(--gold);text-shadow:0 3px 0 #3a2a12;text-wrap:balance}

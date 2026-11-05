@@ -79,9 +79,10 @@ body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
       <div class="tMenuHead"><div class="eyebrow">Settings</div><button class="btn ghost tClose" id="tClose" type="button">Close</button></div>
       <h3>Language</h3>
       <div class="langRow" data-notr><button class="btn ghost langBtn" data-l="en" type="button">English</button><button class="btn ghost langBtn" data-l="th" type="button">ภาษาไทย</button></div>
-      <h3>Story</h3>
+      <details class="tFold"><summary>Story</summary>
       <p>Fresh out of university, Kip the quokka has left his little home in Victoria Park to open a tiny café by the jetty on Rottnest. Serve the morning ferry crowd, explore the island after closing time, and save for everything on the wishlist so Mum and Dad can move in.</p>
-      <h3>How to play</h3>
+      </details>
+      <details class="tFold"><summary>How to play</summary>
       <div class="keys">
           <b>Move</b><span>Drag on the left of the screen · WASD / arrows</span>
           <b>Act</b><span>Round button · Space or E</span>
@@ -98,6 +99,7 @@ body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
           <b>Wishlist</b><span>Café HQ → Wishlist tab · I</span>
           <b>Guide</b><span>Guide button · H</span>
         </div>
+      </details>
     </div>
   </div>
 
