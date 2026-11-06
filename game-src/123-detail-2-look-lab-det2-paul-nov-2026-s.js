@@ -1,7 +1,7 @@
 // ---------- Detail 2 (Look Lab ?det2, Paul Nov 2026): sharp pixels, finer ground. Grass tufts everywhere on the island lawns,
 // soft ragged edges where lawn meets path or sand, pebbles and fallen leaves, soft contact shade under buildings, warm light with
 // cool shadows, and little motes of light drifting in the air. No blur. ----------
-var DET2_LIVE=false;const DET2_ON=DET2_LIVE||/[?&#]det2\b/.test(location.search+location.hash);
+var DET2_LIVE=true;const DET2_ON=DET2_LIVE||/[?&#]det2\b/.test(location.search+location.hash);
 function det2Build(){const r=mulberry32(8080);const ctex=c=>{const t=new THREE.CanvasTexture(c);t.magFilter=t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;return t;};
   const tuftTex=(cols,seed)=>{const c=document.createElement('canvas');c.width=24;c.height=16;const x=c.getContext('2d');const rr=mulberry32(seed);
     for(let i=0;i<14;i++){const bx=2+rr()*20,h=5+rr()*10,lean=(rr()-.5)*4,col=cols[rr()*cols.length|0];for(let k=0;k<h;k++){const t=k/h;x.fillStyle=k>h-2?cols[0]:col;x.fillRect(Math.round(bx+lean*t),15-k,1,1);}}

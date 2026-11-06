@@ -27,7 +27,7 @@ const post=new THREE.ShaderMaterial({
   'void main(){vec3 base=texture2D(tDiffuse,vUv).rgb;'+(PXB_ON?'if(outl>.5){vec2 o=1./res;float z=pxZ(vUv);float e=max(max(pxZ(vUv+vec2(o.x,0.)),pxZ(vUv-vec2(o.x,0.))),max(pxZ(vUv+vec2(0.,o.y)),pxZ(vUv-vec2(0.,o.y))))-z;base=mix(base,base*vec3(.34,.3,.4),smoothstep(.05+z*.05,.1+z*.1,e)*.85);}':'')+'vec3 bl0=box4(vUv,1.5);base=base+(base-bl0)*.3;float d=abs(vUv.y-focus);float b=smoothstep(.2,.68,d)*blurK;vec3 col=base;',
   'if(b>.01){col=mix(base,disc(vUv,b*6.*px),b);}',
   'vec3 wide=disc(vUv,15.*px);col+=max(wide-vec3(.62),0.)*1.05*bloomK;',
-  'col*=tint;'+(/[?&#]det2\b/.test(location.search+location.hash)?'{float L0=dot(col,vec3(.299,.587,.114));col*=mix(vec3(.96,.99,1.03),vec3(1.04,1.01,.95),smoothstep(.25,.7,L0));}':'')+'float l=dot(col,vec3(.299,.587,.114));col=mix(vec3(l),col,1.1);col=(col-.5)*1.08+.5;col=mix(col*vec3(.92,.97,1.08),col,smoothstep(.15,.6,l));',
+  'col*=tint;'+(true?'{float L0=dot(col,vec3(.299,.587,.114));col*=mix(vec3(.96,.99,1.03),vec3(1.04,1.01,.95),smoothstep(.25,.7,L0));}':'')+'float l=dot(col,vec3(.299,.587,.114));col=mix(vec3(l),col,1.1);col=(col-.5)*1.08+.5;col=mix(col*vec3(.92,.97,1.08),col,smoothstep(.15,.6,l));',
   'vec2 q=vUv-.5;col*=1.-dot(q,q)*.9;col=mix(col,vec3(.05,.06,.12),fade);gl_FragColor=vec4(col,1.);}'].join('\n'),
   depthTest:false,depthWrite:false});
 const postScene=new THREE.Scene();const postCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
