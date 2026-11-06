@@ -127,7 +127,8 @@ Find code: `grep -n 'name' game-src/*`.
 | 119-island-cottage-limestone-or-board-plas.js | 10742-10788 | 7 |  |
 | 120-ppl-lib-end.js | 10789-10828 | 4 | wel4Build |
 | 121-buildings-off-bike-lanes-paul-nov-2026.js | 10829-10947 | 17 | pxbLaneClear, pxFixDiamonds, SEA2_LIVE, whale32, spout32, BOAT, sea2Build, sea2Place, sea2Water, sea2Tick |
-| 122-rottnest-declutter-paul-nov-2026-littl.js | 10948-11130 | 28 | pxDeclutter, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick, tex3Scene |
-| 123-hd-pixel-set-on-rottnest-only-look-lab.js | 11131-11170 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 124-auth.js | 11171-11249 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 125-photo-mode-shot-x-z-hour-weather-zoom.js | 11250-11271 | 3 | SHOT |
+| 122-rottnest-declutter-paul-nov-2026-littl.js | 10948-11009 | 8 | pxDeclutter, SP2_LIVE, spBuild_sky |
+| 123-detail-2-look-lab-det2-paul-nov-2026-s.js | 11010-11223 | 34 | DET2_LIVE, det2Build, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick, tex3Scene |
+| 124-hd-pixel-set-on-rottnest-only-look-lab.js | 11224-11263 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 125-auth.js | 11264-11342 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 126-photo-mode-shot-x-z-hour-weather-zoom.js | 11343-11364 | 3 | SHOT |
