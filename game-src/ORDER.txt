@@ -1,5 +1,5 @@
 000-part.html
-001-map-opens-full-screen-with-back-in-top.css
+001-part.html
 002-phones-and-touch-screens-dialog-sits-i.css
 003-studio-mode-hide-every-panel-so-only-i.css
 004-part.html
