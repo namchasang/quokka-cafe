@@ -4575,7 +4575,7 @@ function updateWalkers(dt){const zone=walkerZone(),rain=wxC.rain>.5,night=NIGHT>
     const gy=groundY(w.x,w.z);w.m.position.set(w.x,gy+(w.bike?Math.abs(Math.sin(w.walkT*14))*.03:0),w.z);w.m.scale.x=w.face;w.sh.position.set(w.x,gy+.03,w.z);});}
 
 // ---------- zones ----------
-function zoneOf(x){return x>710&&AIR&&AIR.on?'air':x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
+function zoneOf(x){if(x>840&&typeof tripOf==='function'){const k=tripOf(x);if(k)return k;}return x>710&&AIR&&AIR.on?'air':x>590?'cbd':x>470?'vp':x>380?'hi':x>250?'freo':x>100?'sp':'island';}
 function hiWalk(x,z){return x>404.5&&x<435.5&&z>-9.6&&z<9.8;}
 function vpWalk(x,z){return x>489&&x<561&&z>-10.2&&z<12;}
 const HIB={x1:388,x2:452,z1:-12.75,z2:12.75},VPB={x1:488,x2:562,z1:-14.75,z2:14.75};
@@ -4606,7 +4606,7 @@ function zoneBase(z,big){const k=z+(big?'B':'m');if(zoneCache[k])return zoneCach
   if(z==='island')return draw();const snap=zoneSnap(ZONE_B(z),W,H);
   if(snap){const lab=labelsOnly(draw);const x=snap.getContext('2d');x.drawImage(lab,0,0);c=snap;}else c=draw();
   zoneCache[k]=c;return c;}
-const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB,air:typeof AIRB!=='undefined'?AIRB:VPB})[z];
+const ZONE_B=z=>({island:MM,sp:SPB,freo:FB,hi:HIB,vp:VPB,cbd:typeof CBDB!=='undefined'?CBDB:VPB,air:typeof AIRB!=='undefined'?AIRB:VPB})[z]||(ZONE_DEF[z]&&ZONE_DEF[z].B);
 // ---------- Phase 1 look on the mainland: same tussocks, wildflowers and pixel bushes as Rottnest ----------
 (()=>{const R2=mulberry32(4711);const areas=[];scene.traverse(o=>{if(!o.isMesh||!o.material||!o.material.map||o.material.map.image!==grassC||!o.geometry||o.geometry.type!=='PlaneGeometry')return;const wp=new THREE.Vector3();o.getWorldPosition(wp);if(wp.x<100||Math.abs(o.rotation.x+Math.PI/2)>.01||o.rotation.z)return;const w=o.geometry.parameters.width*o.scale.x,h=o.geometry.parameters.height*o.scale.y;if(w*h<6)return;areas.push({x1:wp.x-w/2,x2:wp.x+w/2,z1:wp.z-h/2,z2:wp.z+h/2,a:w*h});});
   const grassMeshes=new Set();scene.traverse(o=>{if(o.isMesh&&o.material&&o.material.map&&o.material.map.image===grassC)grassMeshes.add(o);});
@@ -5084,7 +5084,7 @@ function updateCustomers(dt){for(const c of customers.slice()){
 
 // ---------- movement ----------
 function groundY(x,z){if(x>286.9&&x<289.1&&z>-19&&z<-14.6)return .11;if(x>149.4&&x<150.6&&z>-9.4&&z<-3.8)return .11;if(x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2)return .16;if(x>JETTY.x1&&x<JETTY.x2+.4&&z>JETTY.z1&&z<JETTY.z2)return .11;if(x<100&&ISL_WALK.length&&ISL_WALK.some(r=>x>r.x1-.1&&x<r.x2+.1&&z>r.z1&&z<r.z2))return .13;return 0;}
-function blocked(x,z){const r=.28;const inLand=x>710?airWalk(x,z):x>590?cbdWalk(x,z):x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<12)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45&&!islGroundBlock(x,z);const inJ=(x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05)||(x<100&&ISL_WALK.some(r=>x>r.x1&&x<r.x2&&z>r.z1&&z<r.z2));if(!inLand&&!inJ)return true;
+function blocked(x,z){const r=.28;const inLand=x>840&&typeof tripOf==='function'&&tripOf(x)?tripWalk(x,z):x>710?airWalk(x,z):x>590?cbdWalk(x,z):x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<12)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45&&!islGroundBlock(x,z);const inJ=(x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05)||(x<100&&ISL_WALK.some(r=>x>r.x1&&x<r.x2&&z>r.z1&&z<r.z2));if(!inLand&&!inJ)return true;
   for(const b of colliders)if(x>b.x1-r&&x<b.x2+r&&z>b.z1-r&&z<b.z2+r)return true;
   if(S.wish.room&&x>HUT.x-1.8&&x<HUT.x+1.8&&z>HUT.z-1.6&&z<HUT.z+1.6)return true;return false;}
 function updatePlayer(dt){let mx=0,mz=0;
@@ -5409,7 +5409,7 @@ const camTarget=new THREE.Vector3(0,0,2.9),tmpV=new THREE.Vector3();
 const TITLE_SHOTS=[[0,.6,1.5,.35,.9],[-12,.6,5.5,-.5,.75],[2,.6,9,.2,.8],[18,.6,-.5,.6,.95],[31,.6,-2,-.3,.9],[-9.3,.6,0,.4,.7]];
 let MIR=false,flipT=0;
 function updateMirror(){const m=!running||zoneOf(player.x)==='island';flipT-=1/60;if(m&&flipT<=0&&typeof flipIslandSigns==='function'){flipT=2;flipIslandSigns();}if(m!==MIR){MIR=m;scene.scale.x=m?-1:1;scene.updateMatrixWorld(true);}if(typeof waveMat!=='undefined')waveMat.uniforms.uMir.value=MIR?-1:1;}
-function updateCamera(dt,snap){updateMirror();tmpV.set(player.x,.6,player.z);if(overlay==='title'||overlay==='slots'){const tt=performance.now()/1000/9,i=Math.floor(tt)%TITLE_SHOTS.length,f=tt%1,A=TITLE_SHOTS[i],B=TITLE_SHOTS[(i+1)%TITLE_SHOTS.length],e=f<.7?0:(f-.7)/.3;const k=e*e*(3-2*e);tmpV.set(lerp(A[0],B[0],k)+f*.8,.6,lerp(A[2],B[2],k));yawT=lerp(A[3],B[3],k)+f*.12;zm=lerp(A[4],B[4],k);S.time=1050;}
+function updateCamera(dt,snap){updateMirror();tmpV.set(player.x,.6+(player.x>840?groundY(player.x,player.z):0),player.z);if(overlay==='title'||overlay==='slots'){const tt=performance.now()/1000/9,i=Math.floor(tt)%TITLE_SHOTS.length,f=tt%1,A=TITLE_SHOTS[i],B=TITLE_SHOTS[(i+1)%TITLE_SHOTS.length],e=f<.7?0:(f-.7)/.3;const k=e*e*(3-2*e);tmpV.set(lerp(A[0],B[0],k)+f*.8,.6,lerp(A[2],B[2],k));yawT=lerp(A[3],B[3],k)+f*.12;zm=lerp(A[4],B[4],k);S.time=1050;}
   if(CINE&&RIDE){const f=CINE.focus;if(f){tmpV.x=lerp(player.x,f.x,.7);tmpV.z=lerp(player.z,f.z,.7);}yawT+=dt*.06*(MIR?-1:1);zm+=((f?2.1:1.6)-zm)*(1-Math.exp(-dt*1.2));}
   camTarget.lerp(tmpV,snap?1:1-Math.exp(-dt*(CINE?2:5)));yaw+=(yawT-yaw)*(snap?1:1-Math.exp(-dt*8));camOff.set(Math.sin(yaw)*CAM_DIR.z,CAM_DIR.y,Math.cos(yaw)*CAM_DIR.z);camera.position.copy(camTarget).addScaledVector(camOff,Math.min(52,camDist*zm));for(let i=0;i<BB.length;i++)BB[i].rotation.y=yaw;dir4Tick();if(MIR){camera.position.x=-camera.position.x;camera.lookAt(-camTarget.x,camTarget.y,camTarget.z);}else camera.lookAt(camTarget);
   tmpV.set(MIR?-camTarget.x:camTarget.x,.8,camTarget.z).project(camera);post.uniforms.focus.value=clamp((tmpV.y+1)/2,.25,.75);{const zq=zoneOf(player.x);const bk={island:.45,sp:.3,hi:.45,vp:.55,freo:.45,cbd:.5}[zq]||.5;post.uniforms.bloomK.value+=(bk-post.uniforms.bloomK.value)*.1;post.uniforms.blurK.value+=((zq==='sp'?.75:1)-post.uniforms.blurK.value)*.1;}}
@@ -9851,6 +9851,42 @@ function endTour(){if(!TOUR)return;const T=TOUR.T;TOUR=null;transit=true;fadeTar
     S.time+=T.hrs*60;const [x,z]=hqTpSpot(TOUR_DESK.x+.6,TOUR_DESK.z);player.x=x;player.z=z;updateCamera(0,true);fadeTarget=0;transit=false;toast('Back in Tudor Lane after a day at '+T.name,2.6);save();},700);}
 {const _h4=hideOverlays;hideOverlays=function(){if(TOUR){TOUR=null;const ov=document.getElementById('tourOv');if(ov){ov.hidden=true;document.getElementById('tourFr').srcdoc='';}}_h4();};}
 {const _tt=cbdTargets;cbdTargets=function(T){_tt(T);let zq;try{zq=zoneOf(player.x);}catch(e){return;}if(zq!=='cbd')return;T.push({x:TOUR_DESK.x+.5,z:TOUR_DESK.z,r:1.2,label:'Siam Sydney Services · day tours',act:()=>openTours()});};}
+// ---------- Day-trip places (Look Lab ?trip, Paul Nov 2026): Lancelin, the Pinnacles, Busselton Jetty and Esperance become walkable maps ----------
+// Each one sits far east of the airport in its own strip of x (zone ids lan / pin / bus / esp). The Siam Sydney Services van in Tudor Lane takes
+// Kip there; the van waits by the car park and brings him back to Tudor Lane by evening. Each place is built by TRIP_BUILD[id](G,K) into its own group:
+// it sets K.walk(x,z), K.h(x,z) (ground height), K.arrive [x,z], K.van [x,z], and may set K.targets(T), K.tick(dt,t), K.zone (map rects/labels).
+var TRIP_LIVE=false;var TRIP_ON=TRIP_LIVE||/[?&#](lab|trip)\b/.test(location.search+location.hash);
+var TRIPS={lan:{x1:850,x2:970,z1:-45,z2:45,tour:'lancelin',name:'Lancelin',title:'Lancelin Sand Dunes',bg:'#f2ede0'},
+  pin:{x1:1000,x2:1120,z1:-45,z2:45,tour:'pinnacles',name:'The Pinnacles',title:'The Pinnacles · Nambung',bg:'#e8b85a'},
+  bus:{x1:1150,x2:1270,z1:-45,z2:45,tour:'busselton',name:'Busselton',title:'Busselton Jetty',bg:'#5cc6d8'},
+  esp:{x1:1300,x2:1420,z1:-45,z2:45,tour:'esperance',name:'Esperance',title:'Esperance · Lucky Bay',bg:'#f6f3ea'}};
+var TRIP_BUILD=TRIP_BUILD||{};
+function tripOf(x){if(!TRIP_ON||x<840)return null;for(const k in TRIPS){const T=TRIPS[k];if(x>=T.x1-15&&x<T.x2+15)return k;}return null;}
+function tripWalk(x,z){const k=tripOf(x),T=k&&TRIPS[k];if(!T||!T.K||!T.K.walk)return false;return T.K.walk(x,z);}
+function tripH(x,z){const k=tripOf(x),T=k&&TRIPS[k];return T&&T.K&&T.K.h?T.K.h(x,z):0;}
+if(TRIP_ON)(()=>{
+  for(const k in TRIPS){const T=TRIPS[k];const G=new THREE.Group();G.name='trip_'+k;G.visible=false;scene.add(G);T.G=G;
+    const K={id:k,x1:T.x1,x2:T.x2,z1:T.z1,z2:T.z2,walk:(x,z)=>x>T.x1+2&&x<T.x2-2&&z>-20&&z<20,h:()=>0,arrive:[(T.x1+T.x2)/2,0],van:[(T.x1+T.x2)/2-3,2],targets:null,tick:null,
+      zone:{rects:[[T.x1,T.z1,T.x2,T.z2,T.bg]],labels:[[T.title,(T.x1+T.x2)/2,0,1]]}};T.K=K;
+    if(TRIP_BUILD[k])try{TRIP_BUILD[k](G,K);}catch(e){console.error('trip '+k,e);}
+    ZONE_DEF[k]={B:{x1:T.x1,x2:T.x2,z1:T.z1,z2:T.z2},title:T.title,eb:'Day tour · Siam Sydney Services',bg:T.bg,rects:K.zone.rects,labels:K.zone.labels};
+    SAFE_SPOTS[k]=[K.arrive];TOWN_NAME[k]=T.title;}
+  // the ground under Kip, people and the camera follows the place's own terrain
+  const _gy=groundY;groundY=function(x,z){if(x>840){const k=tripOf(x);if(k)return tripH(x,z);}return _gy(x,z);};
+  {const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);const zq=zoneOf(player.x);for(const k in TRIPS){const T=TRIPS[k],here=zq===k;if(T.G.visible!==here)T.G.visible=here;if(here&&T.K.tick)try{T.K.tick(dt,t);}catch(e){}}};}
+  {const _tg=cbdTargets;cbdTargets=function(T){_tg(T);const zq=zoneOf(player.x),P=TRIPS[zq];if(!P)return;const K=P.K;
+    T.push({x:K.van[0],z:K.van[1],r:1.6,label:'Tour van · back to Perth (Tudor Lane)',act:()=>endTour()});
+    if(TOUR&&TOUR.T)T.push({x:K.van[0]+1.4,z:K.van[1],r:1.3,label:'Ask the guide',act:()=>{TOUR.i=(TOUR.i+1)%TOUR.T.guide.length;say([TOUR.T.guide[TOUR.i]]);}});
+    if(K.targets)try{K.targets(T);}catch(e){console.error(e);}};}
+})();
+// a trip with a walkable map replaces the old diorama page for that tour
+function tripForTour(id){if(!TRIP_ON)return null;for(const k in TRIPS)if(TRIPS[k].tour===id&&TRIP_BUILD[k])return k;return null;}
+{const _st=startTour;startTour=function(id){const k=tripForTour(id);if(!k)return _st(id);if(transit||VISIT)return;const T=TOURS.find(t=>t.id===id);transit=true;fadeTarget=.95;toast('The tour van leaves Tudor Lane…',2);
+  setTimeout(()=>{const K=TRIPS[k].K;TOUR={T,i:0,trip:k,t0:S.time};player.bike=false;player.carry=null;player.x=K.arrive[0];player.z=K.arrive[1];S.time+=Math.round(T.hrs*60*.25);updateCamera(0,true);fadeTarget=0;transit=false;
+    S.tours=S.tours||{};S.tours[T.id]=(S.tours[T.id]||0)+1;S.seenZ=S.seenZ||{};S.seenZ[k]=1;save();say(['Guide: '+T.guide[0].replace(/^Guide: /,'')]);},900);};}
+{const _et=endTour;endTour=function(){if(TOUR&&TOUR.trip){const T=TOUR.T,t0=TOUR.t0;TOUR=null;transit=true;fadeTarget=.95;
+    setTimeout(()=>{S.time=Math.max(S.time,t0+T.hrs*60);const [x,z]=hqTpSpot(TOUR_DESK.x+.6,TOUR_DESK.z);player.x=x;player.z=z;updateCamera(0,true);fadeTarget=0;transit=false;toast('Back in Tudor Lane after a day at '+T.name,2.6);save();},700);return;}
+  return _et();};}
 // ---------- TEX3 on Rottnest: soft shade at the foot of every wall, and painted vehicles ----------
 
 

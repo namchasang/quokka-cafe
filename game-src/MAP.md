@@ -117,18 +117,19 @@ Find code: `grep -n 'name' game-src/*`.
 | 109-map-editor-look-lab-open-game-with-edi.js | 9701-9805 | 16 | EDIT_ON |
 | 110-stations-and-ports-paul-oct-2026-walk.js | 9806-9834 | 5 | HUBS, openHub, hubGo, TOURS, TOUR_DESK |
 | 111-const-tour-page-u003c-doctype-html-u00.js | 9835-9835 | 51 | embedded data, do not open |
-| 112-function-opentours-opentravel-day-tour.js | 9836-9910 | 12 | openTours, TOUR, startTour, endTour, PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace |
-| 113-people-and-animals-a-touch-brighter-th.js | 9911-10092 | 23 | pxPopTick, VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
-| 114-perth-station-pixel-look-1890s-front-i.js | 10093-10499 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
-| 115-paul-perth-library-shared-with-every-p.js | 10500-10563 | 3 | P |
-| 116-light-from-above-inside-a-blob-of-foli.js | 10564-10605 | 2 | MC, T |
-| 117-render-mode-default-srgb-output-meshst.js | 10606-10662 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
-| 118-cut-out-card-leaves-lace-grass-alpha-t.js | 10663-10753 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
-| 119-island-cottage-limestone-or-board-plas.js | 10754-10800 | 7 |  |
-| 120-ppl-lib-end.js | 10801-10840 | 4 | wel4Build |
-| 121-buildings-off-bike-lanes-paul-nov-2026.js | 10841-10961 | 17 | pxbLaneClear, pxFixDiamonds, SEA2_LIVE, whale32, spout32, BOAT, sea2Build, sea2Place, sea2Water, sea2Tick |
-| 122-rottnest-declutter-paul-nov-2026-littl.js | 10962-11023 | 8 | pxDeclutter, SP2_LIVE, spBuild_sky |
-| 123-detail-2-look-lab-det2-paul-nov-2026-s.js | 11024-11237 | 34 | DET2_LIVE, det2Build, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick, tex3Scene |
-| 124-hd-pixel-set-on-rottnest-only-look-lab.js | 11238-11277 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 125-auth.js | 11278-11356 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 126-photo-mode-shot-x-z-hour-weather-zoom.js | 11357-11378 | 3 | SHOT |
+| 112-function-opentours-opentravel-day-tour.js | 9836-9889 | 8 | openTours, TOUR, startTour, endTour, TRIP_LIVE, TRIPS, TRIP_BUILD, tripOf, tripWalk, tripH |
+| 113-tex3-on-rottnest-soft-shade-at-foot-of.js | 9890-9946 | 8 | PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace, PXGLASS, pxGlassy, pxOneLook |
+| 114-people-and-animals-a-touch-brighter-th.js | 9947-10128 | 23 | pxPopTick, VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
+| 115-perth-station-pixel-look-1890s-front-i.js | 10129-10535 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
+| 116-paul-perth-library-shared-with-every-p.js | 10536-10599 | 3 | P |
+| 117-light-from-above-inside-a-blob-of-foli.js | 10600-10641 | 2 | MC, T |
+| 118-render-mode-default-srgb-output-meshst.js | 10642-10698 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
+| 119-cut-out-card-leaves-lace-grass-alpha-t.js | 10699-10789 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
+| 120-island-cottage-limestone-or-board-plas.js | 10790-10836 | 7 |  |
+| 121-ppl-lib-end.js | 10837-10876 | 4 | wel4Build |
+| 122-buildings-off-bike-lanes-paul-nov-2026.js | 10877-10997 | 17 | pxbLaneClear, pxFixDiamonds, SEA2_LIVE, whale32, spout32, BOAT, sea2Build, sea2Place, sea2Water, sea2Tick |
+| 123-rottnest-declutter-paul-nov-2026-littl.js | 10998-11059 | 8 | pxDeclutter, SP2_LIVE, spBuild_sky |
+| 124-detail-2-look-lab-det2-paul-nov-2026-s.js | 11060-11273 | 34 | DET2_LIVE, det2Build, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick, tex3Scene |
+| 125-hd-pixel-set-on-rottnest-only-look-lab.js | 11274-11313 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 126-auth.js | 11314-11392 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 127-photo-mode-shot-x-z-hour-weather-zoom.js | 11393-11414 | 3 | SHOT |
