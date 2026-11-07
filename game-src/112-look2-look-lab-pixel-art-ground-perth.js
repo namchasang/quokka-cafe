@@ -32,7 +32,7 @@ function L2paint(mesh,gc){
     P(['#8a7a58','#a08e66','#b8a476','#ccb886','#dcc898','#e8d8aa','#f4e6be','#9aa070','#b0b47c']),// 3 sand and dune grass
     P(['#28382a','#324632','#3e5438','#4a6440','#58744a','#6a8456','#7e9666','#9c9468','#b0623e','#a86848']),// 4 heath on the hills
     P(['#2f4a24','#3c5e2c','#4a7232','#5a863a','#6e9a44','#86ae52','#a2c068','#5e5c32','#76703c','#8c8446','#a29a54','#b8ae66','#a8583c','#c06c48','#d4845a'])];// 5 turf, dry grass, red dirt
-  const BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+  const BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];L2.PAL=PAL;
   const cv=document.createElement('canvas');cv.width=CW;cv.height=CH;const g=cv.getContext('2d');const img=g.createImageData(CW,CH),D=img.data;
   const ASP=hx('#5c5e62'),KERB=hx('#c8c4b8'),WET=hx('#b4a47e'),FOAM=hx('#f4f4ec'),VERGE=P(['#b8ae8a','#a8a07c','#c8bc98','#9a9470']);
   for(let py=0;py<CH;py++){const z=(py+.5)/PU,cz=Math.min(WZ-2,Math.max(0,z-.5)),z0=cz|0,fz=cz-z0;

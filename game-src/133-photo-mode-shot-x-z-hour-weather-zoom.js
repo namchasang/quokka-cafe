@@ -10,7 +10,7 @@ if(SHOT){save=function(){};hasPass=function(){return true;};
 if(WORLD.on&&(WORLD3D_LIVE||OW3D_ON)){let OW=null,root=null;
   const close3=()=>{if(OW)OW.close();if(root)root.hidden=true;};
   const ensure=()=>{if(OW)return;const st=document.createElement('style');st.textContent=OW3D_CSS;document.head.appendChild(st);root=document.createElement('div');root.id='owRoot';root.hidden=true;root.innerHTML=OW3D_HTML;document.body.appendChild(root);
-    OW=OW3DBuild(root,{look2:OW_LOOK2_LIVE||/[?&#](lab|ow2)\b/.test(location.search+location.hash),enter:(id,side)=>{close3();WORLD.enter(id,side);},back:()=>hideOverlays(),
+    OW=OW3DBuild(root,{look2:OW_LOOK2_LIVE||/[?&#](lab|ow2)\b/.test(location.search+location.hash),enter:(id,side)=>{close3();if(typeof owTripEnter==='function'&&owTripEnter(id))return;WORLD.enter(id,side);},back:()=>hideOverlays(),
       carColor:()=>{const c=typeof carSel==='function'&&carSel();return c&&c!=='retro'&&typeof RRR!=='undefined'&&RRR.CARS[c]?RRR.CARS[c].color:null;}});};
   const _h3=hideOverlays;hideOverlays=function(){_h3();close3();};
   window.openWorld=function(from,side){if(transit||VISIT||(overlay&&overlay!=='wm'))return;transit=true;fadeTarget=.95;

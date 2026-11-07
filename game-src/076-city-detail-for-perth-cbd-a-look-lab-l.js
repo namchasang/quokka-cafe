@@ -413,7 +413,7 @@ if(CDET.on)(()=>{
   function picnic(x,z,c){const cv=mk(8,8),q=cv.getContext('2d');for(let i=0;i<8;i++)for(let j=0;j<8;j++){q.fillStyle=(i+j)%2?'#f6f2e8':c;q.fillRect(i,j,1,1);}paint(1.3,1,new THREE.MeshLambertMaterial({map:ctex(cv)}),x,z,.03);
     put(bx(.34,.2,.22),M('#b8864a'),x+.35,.1,z-.2);put(tor(.12,.015,Math.PI),M('#8a6030'),x+.35,.2,z-.2,{nc:1});put(cy(.05,.05,.16,6),M('#3e7d5c'),x-.3,.08,z+.2,{nc:1});}
   picnic(612.3,-1.8,'#c8344a');picnic(606.8,-9.0,'#2f6fb0');
-  [-18,-3,4.5].forEach(z=>bench(619.1,z,-Math.PI/2));[-21,-14.5,1.5,7].forEach(z=>oldLamp(619.3,z));
+  [-18,-3,-9.5].forEach(z=>bench(619.1,z,-Math.PI/2));[-21,-14.5,1.5,7].forEach(z=>oldLamp(619.3,z));
   {const x=616.9,z=-12.2;put(cy(.1,.13,.78,8),M('#9aa0a6'),x,.39,z);put(cy(.19,.12,.08,10),M('#c8ccd0'),x,.8,z);col(x-.15,z-.15,x+.15,z+.15);}binPair(619.3,-12.1);binPair(620.4,10.4);
   bushes(604,-19.5,2,1,5,['#f6f2e8']);bushes(615.5,-23.5,2.5,1,6,['#d8323a']);bushes(601.5,4.5,1.5,1.5,4);bushes(619.8,-15,1,2,4,['#ef9ab8']);
   kiosk(617.6,9.3,'PARK BREW','#3f7a5a','Iced latte',5);bistro(614.6,9.5,'#e8b04a');bistro(620.3,9.9,'#e8b04a');

@@ -6,7 +6,7 @@
 var WORLD_LIVE=true;
 // ---------- town links (Paul, Oct 2026): the 3D overworld stays in the Look Lab; out on the road, each sign leads to the next town ----------
 // CBD east -> Heirisson Island -> Victoria Park -> the airport; CBD west -> Fremantle; Fremantle west -> South Perth (Canning Hwy) -> Victoria Park.
-var OW3D_ON=/[?&#](lab|ow3d|ow2)\b/.test(location.search+location.hash);
+var OW3D_ON=/[?&#](lab|ow3d|ow2|owgo)\b/.test(location.search+location.hash);
 var TOWN_LINK={cbd:{w:'freo',e:'hi'},hi:{w:'cbd',e:'vp'},vp:{w:'hi',e:'air'},air:{w:'vp',e:null},freo:{w:'sp',e:'cbd'},sp:{w:'freo',e:'vp'}};
 var TOWN_NAME={sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport',island:'Rottnest Island'};
 function linkTo(zone,side){const L=TOWN_LINK[zone];return L?L[side]:null;}
