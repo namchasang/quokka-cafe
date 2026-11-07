@@ -77,6 +77,7 @@ function renderPerthMap(c){const x=c.getContext('2d'),W=c.width,H=c.height;x.ima
   place(1150,214,'hi','Heirisson Island','Kangaroos · bus',1230,150);
   place(1215,372,'vp','Victoria Park','Albany Hwy · bus',1230,440);
   route([[1010,262],[1035,215],[1058,172]],'#ffffff',[12,9]);place(1058,166,'cbd','Perth CBD','Ferry · City Loop bus',1000,68);
+  if(typeof AIR!=='undefined'&&AIR&&AIR.on){route([[1215,372],[1290,330],[1335,280]],'#3ec46a',[1,0]);x.font='30px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('\u2708\ufe0f',1372,262);place(1335,280,'air','Perth Airport','Flights · bus',1262,236);}
   txt('Indian Ocean',250,110,30,'#cfe6f7','700 ');txt('Swan River',740,206,26,'#e3f3fb','700 ');txt('Kings Park',935,175,18,'#e6f2d8','700 ');
   x.font='800 '+Math.round(9*2.6)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=8;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',16,26);x.fillStyle='#ffd34d';x.fillText('N↑',16,26);
   x.textAlign='left';x.textBaseline='alphabetic';x.font='700 26px "M PLUS Rounded 1c", sans-serif';x.lineWidth=6;[['- - -  Ferry','#f5ecd8',28],['━━  Bus','#3ec46a',210],['●  You are here','#ffd34d',360]].forEach(([t,col,px])=>{x.strokeText(t,px,532);x.fillStyle=col;x.fillText(t,px,532);});x.textAlign='right';x.fillStyle='#f5ecd8';x.strokeText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);x.fillText('Tap a town to fast travel \u00b7 '+FT_COST+' coins',W-24,532);}
@@ -86,7 +87,7 @@ function ftCheck(id){const nm={island:'Rottnest Island',sp:'South Perth',hi:'Hei
   return{ok:true,nm};}
 function ftSelect(id){ftSel=id;const c=ftCheck(id);const h=$('#ftHint'),g=$('#ftGo');h.hidden=false;g.hidden=!c.ok;if(c.ok){h.textContent='\u2708 Fast travel to '+c.nm+' for '+FT_COST+' coins? (you have '+S.coins+')';g.textContent='Fast travel \u00b7 '+FT_COST+' coins';g.disabled=S.coins<FT_COST;}else h.textContent=c.why;renderPerthMap($('#bigMap'));}
 function ftGo(){const id=ftSel;if(!id)return;if(id.startsWith('bus:')){const b=COACH.find(q=>'bus:'+q.id===id);if(!b||transit||VISIT)return;if(!pay(FARE_TP))return;hideOverlays();coachTo(b);return;}const c=ftCheck(id);if(!c.ok)return;if(PASS_ZONES.includes(id)&&!hasPass()){hideOverlays();needPass(id);return;}if(transit||VISIT)return;if(S.coins<FT_COST){toast('Fast travel costs '+FT_COST+' coins',2);return;}
-  S.coins-=FT_COST;hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2708 Fast travel to '+c.nm+'\u2026 \u2212'+FT_COST+' coins',2.2);
+  S.coins-=FT_COST;boatPark();hideOverlays();RIDE=null;transit=true;fadeTarget=.95;toast('\u2708 Fast travel to '+c.nm+'\u2026 \u2212'+FT_COST+' coins',2.2);
   setTimeout(()=>{const sp=freeNear(...(SAFE_SPOTS[id]||SAFE_SPOTS.island)[0]);player.bike=false;player.carry=null;player.lying=false;player.x=sp[0];player.z=sp[1];S.time+=20;updateCamera(0,true);fadeTarget=0;transit=false;save();},900);}
 function togglePerthMap(){ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;const c=$('#bigMap');mapMode=mapMode==='zone'?'perth':'zone';if(mapMode==='perth'){renderPerthMap(c);$('#mapOv .legend').hidden=true;$('#mapQuest').hidden=true;$('#mapOv h2').textContent='Perth';$('#mapOv .eyebrow').textContent='Kip’s Perth';$('#mapPerth').textContent='Back to local map';}else{overlay=null;mapMode='zone';openMap();}}
 

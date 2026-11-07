@@ -246,9 +246,20 @@ if(FREO5_ON&&FDET.on)(()=>{
     if(typeof trees!=='undefined')for(let i=trees.length-1;i>=0;i--){const t=trees[i];if(t.x>a-.6&&t.x<b+.6&&t.z>21.2&&t.z<25.5){t.m.visible=false;t.dead=1;}}
     for(let i=colliders.length-1;i>=0;i--){const c=colliders[i];if(c.x2>a&&c.x1<b&&c.z2>21.4&&c.z1<25.3&&c.x2-c.x1<1.2)colliders.splice(i,1);}});
   // the old dead-end stubs of the homes streets beside the new crossings are lawn again (footpath and verge kept)
-  [[302.4,304.2],[319.2,321.6],[334.6,337.8]].forEach(([a,b])=>{paint(a,b,22.1,23.83,tile(grassC,b-a,1.7,2.2),.037);paint(a,b,23.83,24.53,M('#cfcac0'),.037);paint(a,b,24.53,25.09,tile(grassC,b-a,.6,2.2),.037);});
   // crossings where the footpaths meet a road
   zebra(316,-7,0,1.2);zebra(320,-7,0,1.2);[297,318,331].forEach(x=>zebra(x,-5,1,1.2));zebra(318,-9,1,1.2);
+  // the short street down to the quay ends in a round turning circle (a cul-de-sac) with a little planted island (Paul, Nov 2026)
+  {const cx=318,cz=-12.5,r=2.1;put(C(r+.22,r+.22,.03,28),M('#cfcac0'),cx,.044,cz,{nc:1});put(C(r,r,.03,28),tile(asphC,2*r,2*r,3),cx,.05,cz,{nc:1});
+    for(let k=0;k<20;k++){const a=k/20*Math.PI*2;if(Math.sin(a)>.55)continue;put(B(.16,.02,.05),M('#f3f3ea'),cx+Math.cos(a)*(r-.25),.068,cz+Math.sin(a)*(r-.25),{ry:-a+Math.PI/2,nc:1});}
+    put(C(.72,.78,.16,18),M('#d8ccb0'),cx,.08,cz-.2);put(C(.62,.62,.02,18),tile(grassC,1.2,1.2,2),cx,.17,cz-.2,{nc:1});
+    if(FDET.bb&&typeof FHOME_PLANTS!=="undefined"&&FHOME_PLANTS.length)FDET.bb(FHOME_PLANTS[0],cx,cz-.2,.9,.7);block(cx-.75,cz-.95,cx+.75,cz+.55);}
+  // the fountain in the square plays: a crown of jets from the top of the column falls back into the basin, with a bubbling plume
+  {const cx=306.5,cz=3.5,sprM=new THREE.MeshBasicMaterial({color:0xe4f6ff,transparent:true,opacity:.85}),dropM=new THREE.MeshBasicMaterial({color:0xbfe8f8,transparent:true,opacity:.7});const J=[];
+    for(let k=0;k<12;k++)for(let q=0;q<5;q++){const m=put(B(.07,.07,.07),q%2?dropM:sprM,cx,1.5,cz,{nc:1});m.castShadow=false;J.push({m,a:k/12*Math.PI*2+(q%2)*.13,ph:q/5+k*.037,r1:.78,y0:1.45,hh:.42});}
+    for(let q=0;q<8;q++){const m=put(B(.09,.09,.09),sprM,cx,1.5,cz,{nc:1});m.castShadow=false;J.push({m,a:q*.8,ph:q/8,r1:.06,y0:1.42,hh:.75});}
+    const rip=[];for(let k=0;k<3;k++){const m=put(new THREE.RingGeometry(.3,.36,20),new THREE.MeshBasicMaterial({color:0xf2fbff,transparent:true,opacity:.6,side:THREE.DoubleSide}),cx,.48,cz,{rx:-Math.PI/2,nc:1});rip.push(m);}
+    window.FREO_FOUNTAIN=t=>{for(const j of J){const p=(t*.8+j.ph)%1,rr=j.r1*p;j.m.position.set(cx+Math.cos(j.a)*rr,j.y0+Math.sin(p*Math.PI)*j.hh-p*p*(j.y0-.5)*(j.r1>.1?1:.1),cz+Math.sin(j.a)*rr);}
+      rip.forEach((m,i)=>{const p=(t*.5+i/3)%1;const sc=1+p*1.6;m.scale.set(sc,sc,1);m.material.opacity=.55*(1-p);});};}
   {const _fw6=freoWalk;freoWalk=function(x,z){if(x>274.4&&x<357.5&&z>=21.4&&z<25.4)return true;return _fw6(x,z);};}
   if(typeof WALK_ROUTES!=='undefined')WALK_ROUTES.freo=[[[280,-9],[333,-9]],[[280,-5],[333,-5]],[[295,-5],[295,21]],[[299,-5],[299,21]],[[303.4,9],[303.4,21]],[[307.4,9],[307.4,21]],[[316,-14],[316,21]],[[320,-14],[320,21]],
     [[276,22.0],[356,22.0]],[[276,24.05],[356,24.05]],[[299,21],[299,22.0]],[[316,21],[316,24.05]],[[335,-5],[345,-5],[344.5,9.5],[356,9.5]],[[344.5,-5],[344.5,21]],[[334,9.5],[344.5,9.5]],[[282,3.6],[295,3.6]],[[300.5,0],[311,7.6]],[[283,8],[292,8],[292,14.6],[283,14.6],[283,8]],[[329,-5],[329,21]]];

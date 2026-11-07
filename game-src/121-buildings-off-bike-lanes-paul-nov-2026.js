@@ -76,7 +76,7 @@ function sea2Build(){if(sea2Build.done)return;sea2Build.done=true;
   const wake=new THREE.Mesh(new THREE.PlaneGeometry(2.4,.9),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}));wake.rotation.x=-Math.PI/2;wake.position.set(-2.4,-.13,0);g.add(wake);BOAT.wake=wake;
   g.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(g);BOAT.g=g;
   // moor it off the end of the main jetty, in water
-  const J=IW(-22.4,5);let bx=J.x,bz=J.z;for(let s=0;s<60&&landD(bx,bz)>-.9;s++){bx-=.4;}BOAT.x=bx;BOAT.z=bz;BOAT.h=Math.PI;BOAT.dock={x:J.x+.9,z:J.z};
+  const J=IW(-22.4,5);let bx=J.x,bz=J.z;for(let s=0;s<60&&landD(bx,bz)>-.9;s++){bx-=.4;}BOAT.x=bx;BOAT.z=bz;BOAT.h=Math.PI;BOAT.dock={x:J.x+.9,z:J.z};BOAT.home={x:bx,z:bz};
   // dolphins that ride the bow wave, whales off the west end
   for(let i=0;i<3;i++){const m=spriteMesh([dolphin32()],1.1,.5,{shadow:false});m.visible=false;scene.add(m);BOAT.dol.push(m);}
   [[-150,40],[-170,-48],[60,-60],[90,52]].forEach(([x,z],i)=>{const m=spriteMesh([whale32()],4.2,1.75,{shadow:false});m.position.set(x,-.4,z);scene.add(m);const sp=spriteMesh([spout32()],1.1,1.3,{shadow:false});sp.visible=false;scene.add(sp);BOAT.wh.push({m,sp,x,z,ph:i*2.3});});
@@ -112,6 +112,8 @@ function sea2Drive(dt){let mx=0,mz=0;if(keys.has('a')||keys.has('arrowleft'))mx-
   player.x=BOAT.x;player.z=BOAT.z;player.moving=false;player.face=Math.cos(BOAT.h)>=0?1:-1;
   player.mesh.visible=true;player.bikeMesh.visible=false;setFrame(player.mesh,0);
   player.mesh.position.set(BOAT.x-Math.cos(BOAT.h)*.15,.34+Math.sin(performance.now()/700)*.04,BOAT.z-Math.sin(BOAT.h)*.15);player.mesh.scale.x=player.face;player.blob.position.set(0,-50,0);}
+// leaving by fast travel or bus while out on the boat: the boat goes back to the jetty by itself and Kip travels on
+function boatPark(){if(typeof BOAT==='undefined'||!BOAT.on)return;BOAT.on=false;BOAT.v=0;if(BOAT.home){BOAT.x=BOAT.home.x;BOAT.z=BOAT.home.z;BOAT.h=Math.PI;}if(BOAT.g){BOAT.g.position.x=BOAT.x;BOAT.g.position.z=BOAT.z;BOAT.g.rotation.y=-BOAT.h;}player.x=BOAT.dock.x;player.z=BOAT.dock.z;}
 if(SEA2_ON){const _up=updatePlayer;updatePlayer=function(dt){if(BOAT.on){sea2Drive(dt);return;}_up(dt);};
   const _tg=cbdTargets;cbdTargets=function(T){_tg(T);if(!BOAT.g||zoneOf(player.x)!=='island')return;
     if(BOAT.on&&-landD(BOAT.x,BOAT.z)>6&&Math.abs(BOAT.v)<1.6)T.push({x:BOAT.x,z:BOAT.z,r:3,label:'Fish here for rare deep-water fish',act:()=>{BOAT.v=0;startFishing({name:'the deep water off Rottnest',zone:'island',boat:true});}});

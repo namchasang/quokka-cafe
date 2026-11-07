@@ -43,7 +43,7 @@ if(FDET.on&&FHOMES_ON)(()=>{const G=FDET.g;
   // roads: x1..x2 along x at z (w wide), with footpaths and grass nature strips
   const street=(x1,x2,z,w,lane)=>{const L=x2-x1,cx=(x1+x2)/2;paint(L,w,lane?'#8a8478':asphM,cx,z,.021);if(lane)return;for(let x=x1+1;x<x2;x+=2.4)paint(1,.06,'#f3f3ea',cx-L/2+(x-x1),z,.026);
     [-1,1].forEach(s=>{paint(L,.07,'#9a968e',cx,z+s*w/2,.027);paint(L,.55,grassM,cx,z+s*(w/2+.3),.022);paint(L,.7,'#cfcac0',cx,z+s*(w/2+.92),.023);});};
-  const cross=(x,z1,z2,w)=>{paint(w,z2-z1,asphM,x,(z1+z2)/2,.0215);[-1,1].forEach(s=>paint(.7,z2-z1,'#cfcac0',x+s*(w/2+.35),(z1+z2)/2,.0235));};
+  const cross=(x,z1,z2,w)=>{paint(w,z2-z1,asphM,x,(z1+z2)/2,.0215);const cut=[[25.1,26.9],[32.95,33.85],[39.9,41.7]];[-1,1].forEach(s=>{let a=z1;for(const[c1,c2]of cut.concat([[z2,z2]])){const b=Math.min(c1,z2);if(b-a>.05)paint(.7,b-a,'#cfcac0',x+s*(w/2+.35),(a+b)/2,.0235);a=Math.max(a,c2);}});};
   // a row of attached cottages; face: +1 faces +z (south, toward the camera), -1 faces -z
   function terrace(x1,x2,z,face){const W=1.7,n=Math.floor((x2-x1)/W),D=2.6,H=1.45;let x=x1;const fz=z+face*D/2;
     const tc=mk(16*n,16),tx=tc.getContext('2d');const cols=[];for(let i=0;i<n;i++){const c=pick(WALLS);cols.push(c);const ox=i*16;
@@ -68,9 +68,9 @@ if(FDET.on&&FHOMES_ON)(()=>{const G=FDET.g;
   const SZ1=26,SZ2=40.8,LANE=33.4;
   box(90,.5,24,lmat(paveC,[45,12]),313,-.27,33.4,{noCast:true});paint(90,22,grassM,313,33.4,.012);
   street(270,356,SZ1,1.8);street(270,356,SZ2,1.8);street(272,356,LANE,.9,1);
-  [[304,22.2,41.8],[320,22.2,41.8],[336.2,22.2,41.8]].forEach(([x,z1,z2])=>cross(x,z1,z2,1.6));
-  signPost(302.6,25.2,makeSign(['WRAY AVE'],48,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(302.6,39.6,makeSign(['HAMPTON RD'],52,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(318.6,32.6,makeSign(['LANE'],36,10,'#1d3a6e','#ffffff'),1.4,.3);
-  const blocks=[[272,302.2],[305.8,318.2],[321.8,334.4],[338,355]];
+  [[305.4,22.2,41.8],[317.9,22.2,41.8],[331,22.2,41.8]].forEach(([x,z1,z2])=>cross(x,z1,z2,2.0));
+  signPost(303.2,24.4,makeSign(['WRAY AVE'],48,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(302.6,39.6,makeSign(['HAMPTON RD'],52,10,'#1d3a6e','#ffffff'),1.6,.3);signPost(319.4,32.6,makeSign(['LANE'],36,10,'#1d3a6e','#ffffff'),1.4,.3);
+  const blocks=[[272,303.6],[307.2,316.1],[319.7,329.2],[332.8,355]];
   blocks.forEach(([a,b])=>{terrace(a+.3,b-.3,SZ1+5.35,-1);terrace(a+.3,b-.3,SZ2-5.35,1);});
   // back fences along the lane (corrugated iron and brush), bins out on the lane
   blocks.forEach(([a,b])=>{[-1,1].forEach(s=>{put(B(b-a-.4,.9,.06),M(s<0?'#9aa0a6':'#a89070'),(a+b)/2,.45,LANE+s*.75);});for(let x=a+1.5;x<b;x+=4.1){put(B(.32,.48,.34),M('#2f6a3a'),x,.24,LANE-.5);put(B(.34,.05,.36),M(pick(['#d8323a','#e8c430'])),x,.5,LANE-.5,{nc:1});}});
