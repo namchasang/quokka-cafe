@@ -7,26 +7,26 @@ function pxPopTick(){const now=performance.now();if(pxPopTick.t&&now-pxPopTick.t
 // so Kip can always cross to the night market.
 const VP2_ON=true||/[?&#]vp2\b/.test(location.search+location.hash);
 function vp2Build(){if(typeof VPB==='undefined')return;const X1=489,X2=561,V=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);const r=mulberry32(91);
-  const inVP=(o)=>{B.setFromObject(o);B.getCenter(V);scene.worldToLocal(V);return V.x>480&&V.x<570&&Math.abs(V.z)<2.2&&B.max.y<.06;};// world → scene-local (the scene is mirrored while Kip is on the island)
+  const inVP=(o)=>{B.setFromObject(o);B.getCenter(V);scene.worldToLocal(V);return V.x>480&&V.x<570&&V.z>-2.2&&V.z<3.5&&B.max.y<.06;};// world → scene-local (the scene is mirrored while Kip is on the island)
   // road recoloured red-brown, painted lanes hidden (the bays take their place), footpaths become red brick
   const brick=(()=>{const c=mk(32,32),x=c.getContext('2d');x.fillStyle='#7a4a3e';x.fillRect(0,0,32,32);for(let y=0;y<32;y+=4)for(let X=-(y/4%2)*4;X<32;X+=8){const f=.9+r()*.2;x.fillStyle=`rgb(${168*f|0},${92*f|0},${74*f|0})`;x.fillRect(X+1,y+1,7,3);x.fillStyle=`rgb(${188*f|0},${112*f|0},${92*f|0})`;x.fillRect(X+1,y+1,7,1);}return c;})();
   const flats=[];scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='PlaneGeometry')flats.push(o);});flats.forEach(o=>{if(!inVP(o))return;const p=o.geometry.parameters,c=o.material.color?o.material.color.getHexString():'';
-    if(p.width>60&&Math.abs(V.z)<.1){o.material=o.material.clone();o.material.color.set('#c89282');}
+    if(p.width>60&&p.height>3){o.material=o.material.clone();o.material.color.set('#c89282');}
     else if(p.width>60&&c==='c4573e')o.visible=false;
-    else if(p.width>60&&Math.abs(Math.abs(V.z)-1.6)<.1){o.material=o.material.clone();o.material.map=ctex(brick,{rep:[p.width*1.2,1]});o.material.color.set('#ffffff');}});
+    else if(p.width>60&&(Math.abs(V.z+1.6)<.1||Math.abs(V.z-3)<.1)){o.material=o.material.clone();o.material.map=ctex(brick,{rep:[p.width*1.2,1]});o.material.color.set('#ffffff');}});
   const W=new THREE.MeshBasicMaterial({color:'#f2efe6'}),flat=(w,d,x,z,m)=>{const q=new THREE.Mesh(new THREE.PlaneGeometry(w,d),m);q.rotation.x=-Math.PI/2;q.position.set(x,.031,z);scene.add(q);return q;};
   // bays: a line across every car length, a short tick along the kerb; parked cars in most of them
   const PCOL=['#f6f6f0','#c8ccd0','#2a2a30','#c8344a','#2f6fb0','#9aa4ac','#f6f6f0','#5a5e6a'];let nCars=0;
-  [-.92,.92].forEach(z=>{const n=Math.floor((X2-X1)/1.75);for(let k=0;k<=n;k++){const x=X1+k*(X2-X1)/n;flat(.05,.46,x,z,W);flat(.3,.05,x,z+(z<0?-.21:.21),W);}
+  [-.92,2.27].forEach(z=>{const n=Math.floor((X2-X1)/1.75);for(let k=0;k<=n;k++){const x=X1+k*(X2-X1)/n;flat(.05,.46,x,z,W);flat(.3,.05,x,z+(z<.7?-.21:.21),W);}
     for(let k=0;k<n;k++){if(k%3===1||r()>.8)continue;const x=X1+(k+.5)*(X2-X1)/n;const m=typeof CDET!=='undefined'&&CDET.makeCar?(r()<.3&&CDET.retroCar?CDET.retroCar():CDET.makeCar(r()<.25?'ute':r()<.5?'hatch':'sedan',PCOL[r()*PCOL.length|0])):null;if(!m)continue;
-      m.g.scale.setScalar(.86);m.g.position.set(x,0,z);m.g.rotation.y=z<0?Math.PI:0;scene.add(m.g);nCars++;col(x-.62,z-.3,x+.62,z+.3);}});
+      m.g.scale.setScalar(.86);m.g.position.set(x,0,z);m.g.rotation.y=z<.7?Math.PI:0;scene.add(m.g);nCars++;col(x-.62,z-.3,x+.62,z+.3);}});
   // banner poles on the south kerb and curved green street lamps (fictional banners, no real branding)
   const pm=new THREE.MeshLambertMaterial({color:'#2e5a3a'});
-  for(let x=494;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,3.4,6),new THREE.MeshLambertMaterial({color:'#8a7a5a'}));p.position.set(x,1.7,1.32);scene.add(p);col(x-.08,1.24,x+.08,1.4);
+  for(let x=494;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,3.4,6),new THREE.MeshLambertMaterial({color:'#8a7a5a'}));p.position.set(x,1.7,3.32);scene.add(p);col(x-.08,3.24,x+.08,3.4);
     const c=mk(16,40),g=c.getContext('2d');const cols=['#e84a7a','#f2a03a','#f4d04a','#5ab45a','#3a8ad8','#8a5ad8'];for(let y=0;y<40;y++){g.fillStyle=cols[Math.min(5,y/40*6|0)];g.fillRect(0,y,16,1);}
-    g.fillStyle='#ffffff';g.font='bold 5px monospace';g.textAlign='center';['ALL','ARE','WEL-','COME'].forEach((t,i)=>g.fillText(t,8,9+i*7));const b=new THREE.Mesh(new THREE.PlaneGeometry(.42,1.05),new THREE.MeshLambertMaterial({map:ctex(c),side:THREE.DoubleSide}));b.position.set(x+.24,2.75,1.32);scene.add(b);}
-  for(let x=500;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,3,6),pm);p.position.set(x,1.5,1.38);scene.add(p);const arm=new THREE.Mesh(new THREE.TorusGeometry(.35,.03,4,10,Math.PI/2),pm);arm.position.set(x,3,1.03);arm.rotation.y=Math.PI/2;scene.add(arm);
-    const hd=new THREE.Mesh(new THREE.BoxGeometry(.18,.08,.3),pm);hd.position.set(x,3.32,.7);scene.add(hd);const l=new THREE.Mesh(new THREE.BoxGeometry(.14,.03,.24),new THREE.MeshBasicMaterial({color:'#ffe2a0'}));l.position.set(x,3.27,.7);scene.add(l);if(typeof PXB_LAMPS!=='undefined')PXB_LAMPS.push(l);col(x-.07,1.31,x+.07,1.45);}
+    g.fillStyle='#ffffff';g.font='bold 5px monospace';g.textAlign='center';['ALL','ARE','WEL-','COME'].forEach((t,i)=>g.fillText(t,8,9+i*7));const b=new THREE.Mesh(new THREE.PlaneGeometry(.42,1.05),new THREE.MeshLambertMaterial({map:ctex(c),side:THREE.DoubleSide}));b.position.set(x+.24,2.75,3.32);scene.add(b);}
+  for(let x=500;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,3,6),pm);p.position.set(x,1.5,3.38);scene.add(p);const arm=new THREE.Mesh(new THREE.TorusGeometry(.35,.03,4,10,Math.PI/2),pm);arm.position.set(x,3,3.03);arm.rotation.y=Math.PI/2;scene.add(arm);
+    const hd=new THREE.Mesh(new THREE.BoxGeometry(.18,.08,.3),pm);hd.position.set(x,3.32,2.7);scene.add(hd);const l=new THREE.Mesh(new THREE.BoxGeometry(.14,.03,.24),new THREE.MeshBasicMaterial({color:'#ffe2a0'}));l.position.set(x,3.27,2.7);scene.add(l);if(typeof PXB_LAMPS!=='undefined')PXB_LAMPS.push(l);col(x-.07,3.31,x+.07,3.45);}
   vp2Build.cars=nCars;}
 // ---------- Landmarks rebuilt with the pixel kit by the builder team (Look Lab ?bld3, Oct 2026): Kingstown Barracks, Perth Station, the Moorings Hotel ----------
 const BLD3_ON=true||/[?&#](bld3|lab)\b/.test(location.search+location.hash);

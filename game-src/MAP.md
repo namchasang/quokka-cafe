@@ -33,7 +33,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 025-mill-point-road-continues-east-angelo.js | 2301-2374 | 11 | ANGELO, MILL, SWAN_ROWS, swanCv, SWANS, cardSwan, tom, spTick, SP_SIGHTS, paddleKayak |
 | 026-fremantle-second-half-of-story.js | 2375-2430 | 11 | winTex, bld, freoFerry, wheel, NP |
 | 027-painter-for-32px-creature-sprites.js | 2431-2471 | 5 | painter, RAMP, swan32, gull32, pelican32, dolphin32, dog32, bfly32, wren32, seal32 |
-| 028-heirisson-island.js | 2472-2523 | 9 | roos, swans, pelican, VP_SHOPS, vpTrain, NM, vpLights, BUS_STOPS, spBus |
+| 028-heirisson-island.js | 2472-2523 | 10 | roos, swans, pelican, VP_SHOPS, vpTrain, NM, vpLights, BUS_STOPS, spBus |
 | 029-quokka-village-inland-bush-where-quokk.js | 2524-2580 | 10 | VILLAGE, VILLAGE_ELDER, elder, REG, eftFlash, NM_AW, MUSEUM, digMeshes, bottle, whale |
 | 030-caf-levels-and-styles.js | 2581-2653 | 12 | CAFE_STYLES, CAFE_LV, texWall, texAwn, texDeck, texCounter, STYLE_DECOR, UP, upRoofMat, upper |
 | 031-rest-of-rottnest-north-coast-oliver-hi.js | 2654-2693 | 6 | WEST, COACH |

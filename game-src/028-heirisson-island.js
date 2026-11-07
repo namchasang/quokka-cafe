@@ -18,8 +18,8 @@ const pelican=spriteMesh([CHAR2_ON?pelican32():pix(["...ooo........","..owwwo...
 [[406,-8],[407,8.5],[435.5,-8.2],[425.5,8.6]].forEach(([x,z])=>{const v=treeVariants[1];const g=new THREE.PlaneGeometry(v.w,v.h);g.translate(0,v.h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});});
 // ---------- Victoria Park: Albany Highway ----------
 box(74,.5,30,lmat(paveC,[37,15]),525,-.26,0,{noCast:true});
-flat(74,2.4,lmat(asphC,[37,1.2]),525,.02,0);for(let x=490;x<562;x+=2.4)flat(1.1,.1,new THREE.MeshLambertMaterial({color:0xf3d24a}),x,.026,0);
-flat(74,.8,lmat(pathC,[37,.4]),525,.022,-1.6);flat(74,.8,lmat(pathC,[37,.4]),525,.022,1.6);
+flat(74,3.8,lmat(asphC,[37,1.9]),525,.02,.7);for(let x=490;x<562;x+=2.4)flat(1.1,.1,new THREE.MeshLambertMaterial({color:0xf3d24a}),x,.026,.6); /* Albany Hwy widened (Paul, Nov 2026): two lanes plus parking on both sides */
+flat(74,.8,lmat(pathC,[37,.4]),525,.022,-1.6);flat(74,.8,lmat(pathC,[37,.4]),525,.022,3.0);
 flat(54,7,lmat(deckC,[12,2]),525,.018,6.6);flat(6,6,lmat(grassC,[1,1]),494,.015,7);flat(6,6,lmat(grassC,[1,1]),556,.015,7);
 flat(74,.8,new THREE.MeshLambertMaterial({color:0x6a5a4a}),525,.02,-11);for(let x=489;x<562;x+=.9)flat(.18,1.2,new THREE.MeshLambertMaterial({color:0x4a3a2a}),x,.024,-11);
 const VP_SHOPS=[
@@ -41,7 +41,7 @@ const vpLights=[];for(let i=0;i<40;i++){const m=new THREE.Mesh(new THREE.SphereG
   const m=new THREE.Mesh(new THREE.PlaneGeometry(5,2.5),new THREE.MeshLambertMaterial({map:ctex(c),emissive:0x222222}));m.position.set(491,1.5,4.2);scene.add(m);box(5.2,3,.3,lmat(plasterC,[2,1]),491,1.5,4);col(488.4,3.8,493.6,4.2);})();
 [[489.5,8.4],[495.5,9.6],[553,9.2],[559,8.4]].forEach(([x,z])=>{const v=treeVariants[2];const g=new THREE.PlaneGeometry(v.w,v.h);g.translate(0,v.h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});});
 // bus stops
-const BUS_STOPS={sp:{x:158.6,z:20.3,name:'South Perth',land:[158.6,20.2]},hi:{x:432,z:-8.6,name:'Heirisson Island',land:[432,-8.4]},vp:{x:492,z:2.3,name:'Victoria Park',land:[492,2.4]}};
+const BUS_STOPS={sp:{x:158.6,z:20.3,name:'South Perth',land:[158.6,20.2]},hi:{x:432,z:-8.6,name:'Heirisson Island',land:[432,-8.4]},vp:{x:492,z:3.3,name:'Victoria Park',land:[492,3.4]}};
 Object.values(BUS_STOPS).forEach(b=>{box(.1,2.2,.1,new THREE.MeshLambertMaterial({color:0x2f9a5a}),b.x,1.1,b.z+.1);const s=new THREE.Mesh(new THREE.PlaneGeometry(.7,.7),new THREE.MeshBasicMaterial({map:makeSign(['BUS'],24,24,'#2f9a5a','#ffffff'),side:THREE.DoubleSide}));s.position.set(b.x,2,b.z+.16);scene.add(s);
 const spBus=window.__busProto.clone();spBus.position.set(BUS_STOPS.sp.x+.6,0,21.7);scene.add(spBus);fadeGroup(spBus);
   const sh=box(2.4,.08,1.2,new THREE.MeshLambertMaterial({color:0x8fb8c8,transparent:true,opacity:.6}),b.x+1.6,2.1,b.z+.4);box(.06,2.1,.06,fenceMat,b.x+.5,1.05,b.z+.9);box(.06,2.1,.06,fenceMat,b.x+2.7,1.05,b.z+.9);col(b.x-.12,b.z-.02,b.x+.12,b.z+.22);});

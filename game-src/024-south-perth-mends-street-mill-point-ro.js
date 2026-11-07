@@ -66,7 +66,7 @@ function carMesh(col){const g=new THREE.Group();const b=new THREE.Mesh(new THREE
   const hl=new THREE.Mesh(new THREE.BoxGeometry(.04,.1,.6),new THREE.MeshBasicMaterial({color:0xfff3c0}));hl.position.set(.86,.45,0);g.add(hl);scene.add(g);return g;}
 const CAR_COLS=['#f6f6f0','#2a2a30','#c8344a','#2f78a8','#9aa0a8','#e8a33a','#3e7d5c'];
 const CARS=[];
-[[1,21.6,114,169],[1,21.6,140,169],[-1,22.8,114,169],[-1,22.8,150,169],[1,-.6,489,561],[1,-.6,520,561],[-1,.6,489,561],[-1,.6,535,561]].forEach(([dir,z,x1,x2],i)=>{const m=carMesh(CAR_COLS[i%CAR_COLS.length]);const x=dir>0?x1:x2;m.rotation.y=dir>0?0:Math.PI;m.position.set(x,0,z);CARS.push({m,dir,z,a:x1>400?489:113,b:x1>400?561:199,x,sp:2.4+(i%3)*.5});});
+[[1,21.6,114,169],[1,21.6,140,169],[-1,22.8,114,169],[-1,22.8,150,169],[1,.15,489,561],[1,.15,520,561],[-1,1.05,489,561],[-1,1.05,535,561]].forEach(([dir,z,x1,x2],i)=>{const m=carMesh(CAR_COLS[i%CAR_COLS.length]);const x=dir>0?x1:x2;m.rotation.y=dir>0?0:Math.PI;m.position.set(x,0,z);CARS.push({m,dir,z,a:x1>400?489:113,b:x1>400?561:199,x,sp:2.4+(i%3)*.5});});
 [[151.9,12.4],[151.9,15.6],[148.1,18.2]].forEach(([x,z],i)=>{const m=carMesh(CAR_COLS[(i+3)%7]);m.rotation.y=Math.PI/2;m.position.set(x,0,z);col(x-.45,z-.85,x+.45,z+.85);});
 let tlT=0;
 function trafficTick(dt,t){tlT=(tlT+dt)%14;const ew=tlT<6?'g':tlT<7.5?'a':'r';const ns=tlT>=7.5&&tlT<12.5?'g':tlT>=12.5?'a':'r';

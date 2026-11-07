@@ -2286,7 +2286,7 @@ function carMesh(col){const g=new THREE.Group();const b=new THREE.Mesh(new THREE
   const hl=new THREE.Mesh(new THREE.BoxGeometry(.04,.1,.6),new THREE.MeshBasicMaterial({color:0xfff3c0}));hl.position.set(.86,.45,0);g.add(hl);scene.add(g);return g;}
 const CAR_COLS=['#f6f6f0','#2a2a30','#c8344a','#2f78a8','#9aa0a8','#e8a33a','#3e7d5c'];
 const CARS=[];
-[[1,21.6,114,169],[1,21.6,140,169],[-1,22.8,114,169],[-1,22.8,150,169],[1,-.6,489,561],[1,-.6,520,561],[-1,.6,489,561],[-1,.6,535,561]].forEach(([dir,z,x1,x2],i)=>{const m=carMesh(CAR_COLS[i%CAR_COLS.length]);const x=dir>0?x1:x2;m.rotation.y=dir>0?0:Math.PI;m.position.set(x,0,z);CARS.push({m,dir,z,a:x1>400?489:113,b:x1>400?561:199,x,sp:2.4+(i%3)*.5});});
+[[1,21.6,114,169],[1,21.6,140,169],[-1,22.8,114,169],[-1,22.8,150,169],[1,.15,489,561],[1,.15,520,561],[-1,1.05,489,561],[-1,1.05,535,561]].forEach(([dir,z,x1,x2],i)=>{const m=carMesh(CAR_COLS[i%CAR_COLS.length]);const x=dir>0?x1:x2;m.rotation.y=dir>0?0:Math.PI;m.position.set(x,0,z);CARS.push({m,dir,z,a:x1>400?489:113,b:x1>400?561:199,x,sp:2.4+(i%3)*.5});});
 [[151.9,12.4],[151.9,15.6],[148.1,18.2]].forEach(([x,z],i)=>{const m=carMesh(CAR_COLS[(i+3)%7]);m.rotation.y=Math.PI/2;m.position.set(x,0,z);col(x-.45,z-.85,x+.45,z+.85);});
 let tlT=0;
 function trafficTick(dt,t){tlT=(tlT+dt)%14;const ew=tlT<6?'g':tlT<7.5?'a':'r';const ns=tlT>=7.5&&tlT<12.5?'g':tlT>=12.5?'a':'r';
@@ -2489,8 +2489,8 @@ const pelican=spriteMesh([CHAR2_ON?pelican32():pix(["...ooo........","..owwwo...
 [[406,-8],[407,8.5],[435.5,-8.2],[425.5,8.6]].forEach(([x,z])=>{const v=treeVariants[1];const g=new THREE.PlaneGeometry(v.w,v.h);g.translate(0,v.h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});});
 // ---------- Victoria Park: Albany Highway ----------
 box(74,.5,30,lmat(paveC,[37,15]),525,-.26,0,{noCast:true});
-flat(74,2.4,lmat(asphC,[37,1.2]),525,.02,0);for(let x=490;x<562;x+=2.4)flat(1.1,.1,new THREE.MeshLambertMaterial({color:0xf3d24a}),x,.026,0);
-flat(74,.8,lmat(pathC,[37,.4]),525,.022,-1.6);flat(74,.8,lmat(pathC,[37,.4]),525,.022,1.6);
+flat(74,3.8,lmat(asphC,[37,1.9]),525,.02,.7);for(let x=490;x<562;x+=2.4)flat(1.1,.1,new THREE.MeshLambertMaterial({color:0xf3d24a}),x,.026,.6); /* Albany Hwy widened (Paul, Nov 2026): two lanes plus parking on both sides */
+flat(74,.8,lmat(pathC,[37,.4]),525,.022,-1.6);flat(74,.8,lmat(pathC,[37,.4]),525,.022,3.0);
 flat(54,7,lmat(deckC,[12,2]),525,.018,6.6);flat(6,6,lmat(grassC,[1,1]),494,.015,7);flat(6,6,lmat(grassC,[1,1]),556,.015,7);
 flat(74,.8,new THREE.MeshLambertMaterial({color:0x6a5a4a}),525,.02,-11);for(let x=489;x<562;x+=.9)flat(.18,1.2,new THREE.MeshLambertMaterial({color:0x4a3a2a}),x,.024,-11);
 const VP_SHOPS=[
@@ -2512,7 +2512,7 @@ const vpLights=[];for(let i=0;i<40;i++){const m=new THREE.Mesh(new THREE.SphereG
   const m=new THREE.Mesh(new THREE.PlaneGeometry(5,2.5),new THREE.MeshLambertMaterial({map:ctex(c),emissive:0x222222}));m.position.set(491,1.5,4.2);scene.add(m);box(5.2,3,.3,lmat(plasterC,[2,1]),491,1.5,4);col(488.4,3.8,493.6,4.2);})();
 [[489.5,8.4],[495.5,9.6],[553,9.2],[559,8.4]].forEach(([x,z])=>{const v=treeVariants[2];const g=new THREE.PlaneGeometry(v.w,v.h);g.translate(0,v.h/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);trees.push({x,z,m,v,fade:false});});
 // bus stops
-const BUS_STOPS={sp:{x:158.6,z:20.3,name:'South Perth',land:[158.6,20.2]},hi:{x:432,z:-8.6,name:'Heirisson Island',land:[432,-8.4]},vp:{x:492,z:2.3,name:'Victoria Park',land:[492,2.4]}};
+const BUS_STOPS={sp:{x:158.6,z:20.3,name:'South Perth',land:[158.6,20.2]},hi:{x:432,z:-8.6,name:'Heirisson Island',land:[432,-8.4]},vp:{x:492,z:3.3,name:'Victoria Park',land:[492,3.4]}};
 Object.values(BUS_STOPS).forEach(b=>{box(.1,2.2,.1,new THREE.MeshLambertMaterial({color:0x2f9a5a}),b.x,1.1,b.z+.1);const s=new THREE.Mesh(new THREE.PlaneGeometry(.7,.7),new THREE.MeshBasicMaterial({map:makeSign(['BUS'],24,24,'#2f9a5a','#ffffff'),side:THREE.DoubleSide}));s.position.set(b.x,2,b.z+.16);scene.add(s);
 const spBus=window.__busProto.clone();spBus.position.set(BUS_STOPS.sp.x+.6,0,21.7);scene.add(spBus);fadeGroup(spBus);
   const sh=box(2.4,.08,1.2,new THREE.MeshLambertMaterial({color:0x8fb8c8,transparent:true,opacity:.6}),b.x+1.6,2.1,b.z+.4);box(.06,2.1,.06,fenceMat,b.x+.5,1.05,b.z+.9);box(.06,2.1,.06,fenceMat,b.x+2.7,1.05,b.z+.9);col(b.x-.12,b.z-.02,b.x+.12,b.z+.22);});
@@ -4419,7 +4419,7 @@ function cineTick(dt){if(!CINE)return;CINE.t+=dt;CINE.cap-=dt;let best=null,bd=1
   if(RIDE)RIDE.slow=CINE.cap>0?.45:1;}
 function skipRide(){if(!RIDE)return;const R=RIDE;let rest=0;for(let i=R.i;i<R.pts.length-1;i++)rest+=Math.hypot(R.pts[i+1][0]-R.pts[i][0],R.pts[i+1][1]-R.pts[i][1]);S.time+=rest*R.minPer*(1-0);R.i=R.pts.length-1;R.t=0;fadeTarget=.9;setTimeout(()=>{fadeTarget=0;},350);}
 
-const SAFE_SPOTS={island:[[0,4.2],[-12.6,5],[10.4,-.8],[22,-5.6],[32.2,-3.6],[59.4,-1.6],[71.2,1.8],[89.6,.4],[14.2,-2.6],[54.6,1.2],[24,8.2]],sp:[[150,-2.6],[141,20.7],[158.6,20.7],[150,10.5],[178,20.7]],hi:[[432,-7.6],[420,5.2]],vp:[[492,3.2],[525,1.6],[525,4]],freo:[[290,-9],[300,6],[310,2]]};
+const SAFE_SPOTS={island:[[0,4.2],[-12.6,5],[10.4,-.8],[22,-5.6],[32.2,-3.6],[59.4,-1.6],[71.2,1.8],[89.6,.4],[14.2,-2.6],[54.6,1.2],[24,8.2]],sp:[[150,-2.6],[141,20.7],[158.6,20.7],[150,10.5],[178,20.7]],hi:[[432,-7.6],[420,5.2]],vp:[[492,3.6],[525,3.0],[525,4]],freo:[[290,-9],[300,6],[310,2]]};
 function freeNear(x,z){if(!blocked(x,z))return[x,z];for(let rr=.5;rr<=8;rr+=.5){for(let a=0;a<16;a++){const t=a/16*6.283,nx=x+Math.cos(t)*rr,nz=z+Math.sin(t)*rr;if(!blocked(nx,nz))return[nx,nz];}}return[x,z];}
 function unstuck(){RIDE=null;if(CINE)endCine();transit=false;fadeTarget=0;player.lying=false;player.brewing=0;dlgQ=[];ui.dlg.hidden=true;hideOverlays();if(player.mesh)player.mesh.visible=true;if(WEST)WEST.riding=false;
   const z=zoneOf(player.x);const L=SAFE_SPOTS[z]||SAFE_SPOTS.island;let best=L[0],bd=1e9;L.forEach(p=>{const d=Math.hypot(p[0]-player.x,p[1]-player.z);if(d<bd&&!blocked(p[0],p[1])){bd=d;best=p;}});{const f=freeNear(best[0],best[1]);player.x=f[0];player.z=f[1];}updateCamera(0,true);running=true;toast('Smoko\u2019s over! Kip hopped back to the nearest sign',2.6);}
@@ -4557,7 +4557,7 @@ const WALK_ROUTES={
  island:[[[5,.4],[31,.4]],[[30.6,-3.6],[26,-7.6],[21,-9.2]],[[35,-.2],[40.5,-2.4],[45.4,-3.8]],[[-6,10.6],[12,10.9]],[[36,7.4],[44.5,8.6]],[[13,0],[11.6,-4.8]],[[-5.4,-1],[-6.2,-6.4],[1.5,-6.6]],[[31,.2],[31,-5]]],
  sp:[[[115,-3.2],[168,-3.2]],[[115,20.7],[198,20.7]],[[170,23.7],[198,23.7]],[[178,11.5],[178,20.4]],[[125,11.5],[125,20.5]],[[140,11.5],[140,20.5]],[[147.6,11],[147.6,20.4]],[[152.4,11],[152.4,20.4]],[[146,.5],[155,.5]],[[132,5.8],[168,6.4]]],
  freo:[[[279,-2.2],[320,-2.2]],[[302.4,-1.5],[302.4,21]],[[305.6,-1.5],[305.6,21]],[[281,4.6],[303,4.6]],[[283,8],[298,8],[298,12.6],[283,12.6],[283,8]],[[306,20.6],[332,20.6]],[[307,-8.8],[316,-8.8]],[[293,13.6],[279,13.6]]]};
-WALK_ROUTES.hi=[[[407,5.2],[433,5.2]],[[433,5],[433,-8]],[[408,-8.6],[428,-8.6]]];WALK_ROUTES.vp=[[[490,-1.6],[560,-1.6]],[[490,1.6],[560,1.6]],[[500,4.6],[550,4.6]],[[500,9.4],[550,9.4]],[[492,-1.6],[492,-9.6],[556,-9.6]]];
+WALK_ROUTES.hi=[[[407,5.2],[433,5.2]],[[433,5],[433,-8]],[[408,-8.6],[428,-8.6]]];WALK_ROUTES.vp=[[[490,-1.6],[560,-1.6]],[[490,3.0],[560,3.0]],[[500,4.6],[550,4.6]],[[500,9.4],[550,9.4]],[[492,-1.6],[492,-9.6],[556,-9.6]]];
 const WALK_N={island:16,sp:10,freo:20,hi:6,vp:26};
 WALK_ROUTES.cbd=[[[624,-13.5],[698,-13.5]],[[626,7.4],[700,7.4]],[[624,-1.5],[698,-1.5]],[[667.3,-20],[667.3,4]],[[640,-20],[640,4]],[[605,-11],[618,-11],[618,3]]];WALK_N.cbd=24;
 const walkers=[];
@@ -4581,7 +4581,7 @@ function vpWalk(x,z){return x>489&&x<561&&z>-10.2&&z<12;}
 const HIB={x1:388,x2:452,z1:-12.75,z2:12.75},VPB={x1:488,x2:562,z1:-14.75,z2:14.75};
 const ZONE_DEF={
  hi:{B:HIB,title:'Heirisson Island',eb:'Swan River',bg:'#2f78a8',rects:[[404,-10,436,10,'#f6f1e3'],[405,-9,435,9,'#7aa356'],[410,-7,430,3,'#a9c46d'],[392,-12.8,448,-10.2,'#8a8f99'],[407,4.6,433,5.8,'#ddd3bd'],[432.4,-9,433.6,5,'#ddd3bd']],labels:[['Heirisson Island',420,8.4,1],['Kangaroo sanctuary',420,-2,1],['Kangaroo sculpture',412,9.6,0],['The Causeway',420,-11.5,1],['Swan River',398,4,0],['Bus stop',432,-7.2,0]]},
- vp:{B:VPB,title:'Victoria Park',eb:'Albany Highway · Asian food town',bg:'#d8ccb4',rects:[[488,-1.2,562,1.2,'#4a4d55'],[488,-2,562,-1.2,'#ddd3bd'],[488,1.2,562,2,'#ddd3bd'],[498,3.1,552,10.1,'#b98552'],[491,4,497,10,'#7aa356'],[553,4,559,10,'#7aa356'],[488,-11.4,562,-10.6,'#6a5a4a'],[555.9,-9.2,561.3,-6.8,'#dfe6ec']],shops:true,labels:[['Albany Highway',525,.1,1],['Night market',525,10.8,1],['Victoria Park Station',558.6,-12.6,1],['Street mural',491,2.8,0]]}};
+ vp:{B:VPB,title:'Victoria Park',eb:'Albany Highway · Asian food town',bg:'#d8ccb4',rects:[[488,-1.2,562,2.6,'#4a4d55'],[488,-2,562,-1.2,'#ddd3bd'],[488,2.6,562,3.4,'#ddd3bd'],[498,3.1,552,10.1,'#b98552'],[491,4,497,10,'#7aa356'],[553,4,559,10,'#7aa356'],[488,-11.4,562,-10.6,'#6a5a4a'],[555.9,-9.2,561.3,-6.8,'#dfe6ec']],shops:true,labels:[['Albany Highway',525,.1,1],['Night market',525,10.8,1],['Victoria Park Station',558.6,-12.6,1],['Street mural',491,2.8,0]]}};
 function renderZoneBase(id,W,H,s,all){const Z=ZONE_DEF[id],c=mk(W,H),x=c.getContext('2d'),m=mapper(W,H,Z.B);x.fillStyle=Z.bg;x.fillRect(0,0,W,H);
   const rect=(x1,z1,x2,z2,col)=>{x.fillStyle=col;x.fillRect(m.X(x1),m.Z(z1),m.X(x2)-m.X(x1),m.Z(z2)-m.Z(z1));};Z.rects.forEach(r=>rect(...r));
   if(Z.shops)VP_SHOPS.forEach(sh=>{rect(sh.x-2.6,sh.z-1.7,sh.x+2.6,sh.z+1.7,sh.col);});
@@ -4721,7 +4721,7 @@ const PCS=[
  ['roo','Western grey kangaroo','hi','animal',()=>roos.filter(r=>!r.joey).map(r=>[r.x,r.z]),3],['joey','Joey in the pouch','hi','animal',()=>roos.filter(r=>r.joey).map(r=>[r.x,r.z]),2.6],['swan','Black swans','hi','animal',()=>swans.map(s=>[s.m.position.x,s.m.position.z]),5],
  ['pelican','Australian pelican','hi','animal',at(436,6.4),3],['yagan','Kangaroo sculpture','hi','place',at(412,7.2),3],
  
- ['albany','Albany Highway','vp','place',at(525,1.6),6]].concat(VP_SHOPS.map(sh=>[sh.id,sh.name,'vp','food',at(sh.x,-1.8),2.8])).concat([
+ ['albany','Albany Highway','vp','place',at(525,3.0),6]].concat(VP_SHOPS.map(sh=>[sh.id,sh.name,'vp','food',at(sh.x,-1.8),2.8])).concat([
  ['station','Victoria Park Station','vp','place',at(558.6,-6.2),3.4],['train','Train to Perth','vp','place',()=>[[vpTrain.position.x+7,-11]],8],['nightmkt','Night market','vp','food',()=>S.time>=1050?[[525,8]]:[],7],
  ['mural','Street mural','vp','place',at(491,5),3],['busker','Albany Hwy busker','vp','people',()=>[[VP_BUSKER.x,VP_BUSKER.z]],2.4]]).concat([['f_swim','Channel Swim finish','island','festival',()=>{const f=festToday();return f&&f.id==='swim'?[[IWx(-17,5.6),IWz(-17,5.6)]]:[];},4],['f_lny','Lunar New Year lanterns','vp','festival',()=>{const f=festToday();return f&&f.id==='lny'?[[525,4]]:[];},6],['f_whale','Humpback whale','island','festival',()=>whale.visible?[[player.x,player.z]].filter(()=>player.x>IWx(38,0)):[],1],['f_fireworks','Swan River fireworks','sp','festival',()=>{const f=festToday();return f&&f.id==='fireworks'&&S.time>=1140?[[150,-2]]:[];},5],['f_quokkaday','Quokka Day campfire','island','festival',()=>{const f=festToday();return f&&f.id==='quokkaday'?[[VILLAGE.x,VILLAGE.z]]:[];},4],['f_wild','Wildflower Fair','sp','festival',()=>{const f=festToday();return f&&f.id==='wildflower'?[[150,4.6]]:[];},5],['f_arts','Street Arts Festival','freo','festival',()=>{const f=festToday();return f&&f.id==='streetarts'?[[300,6]]:[];},5]]).concat(STARS.map(st=>['star_'+st.id,st.name+' \u2605','island','star',()=>star&&star.s.id===st.id&&S.stars&&S.stars[st.id]>=3?[[star.x,star.z]]:[],3])).map(([id,name,zone,cat,pos,r])=>({id,name,zone,cat,pos,r}));
 const isSpecial=c=>c==='star'||c==='festival';let PC_TOTAL=PCS.filter(p=>!isSpecial(p.cat)).length;const pcCount=()=>PCS.filter(p=>!isSpecial(p.cat)&&S.pc&&S.pc[p.id]).length;
@@ -9917,26 +9917,26 @@ function pxPopTick(){const now=performance.now();if(pxPopTick.t&&now-pxPopTick.t
 // so Kip can always cross to the night market.
 const VP2_ON=true||/[?&#]vp2\b/.test(location.search+location.hash);
 function vp2Build(){if(typeof VPB==='undefined')return;const X1=489,X2=561,V=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);const r=mulberry32(91);
-  const inVP=(o)=>{B.setFromObject(o);B.getCenter(V);scene.worldToLocal(V);return V.x>480&&V.x<570&&Math.abs(V.z)<2.2&&B.max.y<.06;};// world → scene-local (the scene is mirrored while Kip is on the island)
+  const inVP=(o)=>{B.setFromObject(o);B.getCenter(V);scene.worldToLocal(V);return V.x>480&&V.x<570&&V.z>-2.2&&V.z<3.5&&B.max.y<.06;};// world → scene-local (the scene is mirrored while Kip is on the island)
   // road recoloured red-brown, painted lanes hidden (the bays take their place), footpaths become red brick
   const brick=(()=>{const c=mk(32,32),x=c.getContext('2d');x.fillStyle='#7a4a3e';x.fillRect(0,0,32,32);for(let y=0;y<32;y+=4)for(let X=-(y/4%2)*4;X<32;X+=8){const f=.9+r()*.2;x.fillStyle=`rgb(${168*f|0},${92*f|0},${74*f|0})`;x.fillRect(X+1,y+1,7,3);x.fillStyle=`rgb(${188*f|0},${112*f|0},${92*f|0})`;x.fillRect(X+1,y+1,7,1);}return c;})();
   const flats=[];scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='PlaneGeometry')flats.push(o);});flats.forEach(o=>{if(!inVP(o))return;const p=o.geometry.parameters,c=o.material.color?o.material.color.getHexString():'';
-    if(p.width>60&&Math.abs(V.z)<.1){o.material=o.material.clone();o.material.color.set('#c89282');}
+    if(p.width>60&&p.height>3){o.material=o.material.clone();o.material.color.set('#c89282');}
     else if(p.width>60&&c==='c4573e')o.visible=false;
-    else if(p.width>60&&Math.abs(Math.abs(V.z)-1.6)<.1){o.material=o.material.clone();o.material.map=ctex(brick,{rep:[p.width*1.2,1]});o.material.color.set('#ffffff');}});
+    else if(p.width>60&&(Math.abs(V.z+1.6)<.1||Math.abs(V.z-3)<.1)){o.material=o.material.clone();o.material.map=ctex(brick,{rep:[p.width*1.2,1]});o.material.color.set('#ffffff');}});
   const W=new THREE.MeshBasicMaterial({color:'#f2efe6'}),flat=(w,d,x,z,m)=>{const q=new THREE.Mesh(new THREE.PlaneGeometry(w,d),m);q.rotation.x=-Math.PI/2;q.position.set(x,.031,z);scene.add(q);return q;};
   // bays: a line across every car length, a short tick along the kerb; parked cars in most of them
   const PCOL=['#f6f6f0','#c8ccd0','#2a2a30','#c8344a','#2f6fb0','#9aa4ac','#f6f6f0','#5a5e6a'];let nCars=0;
-  [-.92,.92].forEach(z=>{const n=Math.floor((X2-X1)/1.75);for(let k=0;k<=n;k++){const x=X1+k*(X2-X1)/n;flat(.05,.46,x,z,W);flat(.3,.05,x,z+(z<0?-.21:.21),W);}
+  [-.92,2.27].forEach(z=>{const n=Math.floor((X2-X1)/1.75);for(let k=0;k<=n;k++){const x=X1+k*(X2-X1)/n;flat(.05,.46,x,z,W);flat(.3,.05,x,z+(z<.7?-.21:.21),W);}
     for(let k=0;k<n;k++){if(k%3===1||r()>.8)continue;const x=X1+(k+.5)*(X2-X1)/n;const m=typeof CDET!=='undefined'&&CDET.makeCar?(r()<.3&&CDET.retroCar?CDET.retroCar():CDET.makeCar(r()<.25?'ute':r()<.5?'hatch':'sedan',PCOL[r()*PCOL.length|0])):null;if(!m)continue;
-      m.g.scale.setScalar(.86);m.g.position.set(x,0,z);m.g.rotation.y=z<0?Math.PI:0;scene.add(m.g);nCars++;col(x-.62,z-.3,x+.62,z+.3);}});
+      m.g.scale.setScalar(.86);m.g.position.set(x,0,z);m.g.rotation.y=z<.7?Math.PI:0;scene.add(m.g);nCars++;col(x-.62,z-.3,x+.62,z+.3);}});
   // banner poles on the south kerb and curved green street lamps (fictional banners, no real branding)
   const pm=new THREE.MeshLambertMaterial({color:'#2e5a3a'});
-  for(let x=494;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,3.4,6),new THREE.MeshLambertMaterial({color:'#8a7a5a'}));p.position.set(x,1.7,1.32);scene.add(p);col(x-.08,1.24,x+.08,1.4);
+  for(let x=494;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,3.4,6),new THREE.MeshLambertMaterial({color:'#8a7a5a'}));p.position.set(x,1.7,3.32);scene.add(p);col(x-.08,3.24,x+.08,3.4);
     const c=mk(16,40),g=c.getContext('2d');const cols=['#e84a7a','#f2a03a','#f4d04a','#5ab45a','#3a8ad8','#8a5ad8'];for(let y=0;y<40;y++){g.fillStyle=cols[Math.min(5,y/40*6|0)];g.fillRect(0,y,16,1);}
-    g.fillStyle='#ffffff';g.font='bold 5px monospace';g.textAlign='center';['ALL','ARE','WEL-','COME'].forEach((t,i)=>g.fillText(t,8,9+i*7));const b=new THREE.Mesh(new THREE.PlaneGeometry(.42,1.05),new THREE.MeshLambertMaterial({map:ctex(c),side:THREE.DoubleSide}));b.position.set(x+.24,2.75,1.32);scene.add(b);}
-  for(let x=500;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,3,6),pm);p.position.set(x,1.5,1.38);scene.add(p);const arm=new THREE.Mesh(new THREE.TorusGeometry(.35,.03,4,10,Math.PI/2),pm);arm.position.set(x,3,1.03);arm.rotation.y=Math.PI/2;scene.add(arm);
-    const hd=new THREE.Mesh(new THREE.BoxGeometry(.18,.08,.3),pm);hd.position.set(x,3.32,.7);scene.add(hd);const l=new THREE.Mesh(new THREE.BoxGeometry(.14,.03,.24),new THREE.MeshBasicMaterial({color:'#ffe2a0'}));l.position.set(x,3.27,.7);scene.add(l);if(typeof PXB_LAMPS!=='undefined')PXB_LAMPS.push(l);col(x-.07,1.31,x+.07,1.45);}
+    g.fillStyle='#ffffff';g.font='bold 5px monospace';g.textAlign='center';['ALL','ARE','WEL-','COME'].forEach((t,i)=>g.fillText(t,8,9+i*7));const b=new THREE.Mesh(new THREE.PlaneGeometry(.42,1.05),new THREE.MeshLambertMaterial({map:ctex(c),side:THREE.DoubleSide}));b.position.set(x+.24,2.75,3.32);scene.add(b);}
+  for(let x=500;x<560;x+=12.6){const p=new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,3,6),pm);p.position.set(x,1.5,3.38);scene.add(p);const arm=new THREE.Mesh(new THREE.TorusGeometry(.35,.03,4,10,Math.PI/2),pm);arm.position.set(x,3,3.03);arm.rotation.y=Math.PI/2;scene.add(arm);
+    const hd=new THREE.Mesh(new THREE.BoxGeometry(.18,.08,.3),pm);hd.position.set(x,3.32,2.7);scene.add(hd);const l=new THREE.Mesh(new THREE.BoxGeometry(.14,.03,.24),new THREE.MeshBasicMaterial({color:'#ffe2a0'}));l.position.set(x,3.27,2.7);scene.add(l);if(typeof PXB_LAMPS!=='undefined')PXB_LAMPS.push(l);col(x-.07,3.31,x+.07,3.45);}
   vp2Build.cars=nCars;}
 // ---------- Landmarks rebuilt with the pixel kit by the builder team (Look Lab ?bld3, Oct 2026): Kingstown Barracks, Perth Station, the Moorings Hotel ----------
 const BLD3_ON=true||/[?&#](bld3|lab)\b/.test(location.search+location.hash);
