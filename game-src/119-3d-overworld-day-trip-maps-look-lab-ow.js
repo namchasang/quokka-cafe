@@ -68,7 +68,7 @@ function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new
   // calm the background: every remaining canvas texture (ground, walls, roofs, signs too) leans toward the palette; sprites are left alone so people and plants stay vivid
   const BBset=new Set(typeof BB!=='undefined'?BB:[]);
   scene.traverse(o=>{if(!o.isMesh||BBset.has(o)||!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{const t=m&&m.map;if(!t||done.has(t))return;done.add(t);const im=t.image;
-      if(im&&im.getContext&&im.width*im.height<=1100000&&!(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))){pxSnapCanvas(im);t.needsUpdate=true;snapped++;}
+      if(im&&im.getContext&&!t.__t2&&im.width*im.height<=1100000&&!(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))){pxSnapCanvas(im);t.needsUpdate=true;snapped++;}
       // sharp at a distance: nearest pixels with mipmaps between levels instead of blur
       if(t.magFilter!==THREE.NearestFilter||t.minFilter===THREE.LinearMipmapLinearFilter||t.minFilter===THREE.LinearFilter){t.magFilter=THREE.NearestFilter;t.minFilter=t.generateMipmaps?THREE.NearestMipmapLinearFilter:THREE.NearestFilter;t.needsUpdate=true;sharp++;}});});
   pxOneLook.stats={props,snapped,sharp,faces:fm.size};}

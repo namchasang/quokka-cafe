@@ -1,7 +1,8 @@
 // ---------- Phase 1: 32px pixel sprites ----------
 function hex(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
 function shade(rgb,f){return rgb.map(v=>clamp(Math.round(v*f),0,255));}
-function kip32(step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
+function kip32(step,apronHex,furTint,ow){const c=kip32o(step,apronHex,furTint,ow);if(TOWN2_ON)try{c.__hd=town2Quokka(-1,step,apronHex,furTint,ow);}catch(e){console.error(e);}return c;}
+function kip32o(step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
   const fl=step===1?[11,29.6,21.5,30.4]:step===2?[12.5,30.4,20,29.6]:[12,30.2,20.5,30.2];
   P.ell(8,26,3.6,2.4,fur);P.ell(fl[0],fl[1],3.4,1.7,fur);P.ell(fl[2],fl[3],3.4,1.7,fur);P.ell(16,23,7.6,7,fur);P.ell(17.4,24.5,4.6,5,belly);
   if(apronHex){const a=hex(apronHex),apron=[shade(a,.62),shade(a,.82),a,shade(a,1.18)];
@@ -26,7 +27,8 @@ function human32(v,step){const P=painter(32,44);const skin=hex(v.skin),hair=hex(
   if(v.bag){const bc=hex(v.bag);P.ell(25.6,27,2.4,3.4,S3(bc));}
   return P.done([38,26,22]);}
 // Kip / quokkas seen from the front (dir 0) or back (dir 1); step 0 stand, 1-2 stride
-function kipFB(dir,step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
+function kipFB(dir,step,apronHex,furTint,ow){const c=kipFBo(dir,step,apronHex,furTint,ow);if(TOWN2_ON)try{c.__hd=town2Quokka(dir,step,apronHex,furTint,ow);}catch(e){console.error(e);}return c;}
+function kipFBo(dir,step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
   const ap=apronHex?(a=>[shade(a,.62),shade(a,.82),a,shade(a,1.18)])(hex(apronHex)):null;const h=step===1?-1:step===2?-.5:0;const H=j=>Math.round(j+h);
   const fy=step===1?[29.4,30.4]:step===2?[30.4,29.4]:[30.2,30.2];
   if(dir===1)P.ell(16,29+h,2.8,2.4,fur);

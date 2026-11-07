@@ -908,6 +908,7 @@ function ctex(c,o){o=o||{};const t=new THREE.CanvasTexture(c);t.magFilter=THREE.
    PXK.roof(w,h,{base,kind:'tile'|'slate'|'tin',seed,across}) -> canvas (rows run along x unless across)
    PXK.window(lit) / PXK.door(col) -> small canvases for separate panes
    Colours: give the building's own colour as base; the kit lights the tops and shades the bottoms of every block. */
+var TOWN2_LIVE=false;const TOWN2_ON=TOWN2_LIVE||/[?&#]town2\b/.test(location.search+location.hash);// Look Lab: towns with room to breathe, richer pixel houses, HD quokkas (Paul, Nov 2026)
 var PXK=(function(){
 const PPM=32;
 let S=1;const rnd=()=>(S=(S*16807)%2147483647)/2147483647,seed=s=>{S=(s|0)%2147483646+1;};
@@ -1371,7 +1372,7 @@ function epx2(src){const W=src.width,H=src.height,s=src.getContext('2d').getImag
 const CHAR2_ON=true||/[?&#](char2|lab)\b/.test(location.search+location.hash);// Look Lab: people, cyclists, birds and animals at Kip's pixel density
 const CHAR_PPM=CHAR2_ON?48:0;
 if(LOOK2.on){const _mk=mkFrame;mkFrame=function(f){const had=!!f.m;const r=_mk(f);const wm=f.o&&f.o.__wm;
-  if(!had&&f.t&&f.c&&f.c.width<=128&&f.c.width>=4&&((f.c.width>=16&&f.c.height>=20)||(CHAR2_ON&&wm))){f.lo=f.c;let hi=PX4_ON?epx2(charHD(f.c)):charHD(f.c);if(wm)while(hi.width/wm<CHAR_PPM&&hi.width<512)hi=charHD(hi);f.hi=hi;f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};
+  if(!had&&f.t&&f.c&&f.c.width<=128&&f.c.width>=4&&((f.c.width>=16&&f.c.height>=20)||(CHAR2_ON&&wm))){f.lo=f.c;let hi=f.c.__hd||(PX4_ON?epx2(charHD(f.c)):charHD(f.c));if(wm)while(hi.width/wm<CHAR_PPM&&hi.width<512)hi=charHD(hi);f.hi=hi;f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};
   const _sm=spriteMesh;spriteMesh=function(cv,w,h,o){return _sm(cv,w,h,Object.assign({},o||{},{__wm:w}));};}
 // ---- apply to every plant: replaces the v1 HD pass when the layer is on ----
 function plant2Apply(){if(!LOOK2.on)return;const tset=new Set(trees.map(t=>t.m.material&&t.m.material.map));const seen=new Map();const season=typeof S!=='undefined'&&S.day?seasonOf(S.day):0;
@@ -1446,7 +1447,8 @@ function blob(s){const m=new THREE.Mesh(new THREE.PlaneGeometry(s,s*.55),new THR
 // ---------- Phase 1: 32px pixel sprites ----------
 function hex(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
 function shade(rgb,f){return rgb.map(v=>clamp(Math.round(v*f),0,255));}
-function kip32(step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
+function kip32(step,apronHex,furTint,ow){const c=kip32o(step,apronHex,furTint,ow);if(TOWN2_ON)try{c.__hd=town2Quokka(-1,step,apronHex,furTint,ow);}catch(e){console.error(e);}return c;}
+function kip32o(step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
   const fl=step===1?[11,29.6,21.5,30.4]:step===2?[12.5,30.4,20,29.6]:[12,30.2,20.5,30.2];
   P.ell(8,26,3.6,2.4,fur);P.ell(fl[0],fl[1],3.4,1.7,fur);P.ell(fl[2],fl[3],3.4,1.7,fur);P.ell(16,23,7.6,7,fur);P.ell(17.4,24.5,4.6,5,belly);
   if(apronHex){const a=hex(apronHex),apron=[shade(a,.62),shade(a,.82),a,shade(a,1.18)];
@@ -1471,7 +1473,8 @@ function human32(v,step){const P=painter(32,44);const skin=hex(v.skin),hair=hex(
   if(v.bag){const bc=hex(v.bag);P.ell(25.6,27,2.4,3.4,S3(bc));}
   return P.done([38,26,22]);}
 // Kip / quokkas seen from the front (dir 0) or back (dir 1); step 0 stand, 1-2 stride
-function kipFB(dir,step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
+function kipFB(dir,step,apronHex,furTint,ow){const c=kipFBo(dir,step,apronHex,furTint,ow);if(TOWN2_ON)try{c.__hd=town2Quokka(dir,step,apronHex,furTint,ow);}catch(e){console.error(e);}return c;}
+function kipFBo(dir,step,apronHex,furTint,ow){const P=painter(32,32);let fur=[[84,52,32],[118,78,48],[150,104,66],[184,136,92],[210,168,122]];if(furTint)fur=fur.map(c=>shade(c,furTint));const belly=[[196,156,114],[222,188,146],[242,214,176]],pink=[[214,128,128],[238,164,164]];
   const ap=apronHex?(a=>[shade(a,.62),shade(a,.82),a,shade(a,1.18)])(hex(apronHex)):null;const h=step===1?-1:step===2?-.5:0;const H=j=>Math.round(j+h);
   const fy=step===1?[29.4,30.4]:step===2?[30.4,29.4]:[30.2,30.2];
   if(dir===1)P.ell(16,29+h,2.8,2.4,fur);
@@ -10216,7 +10219,7 @@ function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new
   // calm the background: every remaining canvas texture (ground, walls, roofs, signs too) leans toward the palette; sprites are left alone so people and plants stay vivid
   const BBset=new Set(typeof BB!=='undefined'?BB:[]);
   scene.traverse(o=>{if(!o.isMesh||BBset.has(o)||!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{const t=m&&m.map;if(!t||done.has(t))return;done.add(t);const im=t.image;
-      if(im&&im.getContext&&im.width*im.height<=1100000&&!(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))){pxSnapCanvas(im);t.needsUpdate=true;snapped++;}
+      if(im&&im.getContext&&!t.__t2&&im.width*im.height<=1100000&&!(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))){pxSnapCanvas(im);t.needsUpdate=true;snapped++;}
       // sharp at a distance: nearest pixels with mipmaps between levels instead of blur
       if(t.magFilter!==THREE.NearestFilter||t.minFilter===THREE.LinearMipmapLinearFilter||t.minFilter===THREE.LinearFilter){t.magFilter=THREE.NearestFilter;t.minFilter=t.generateMipmaps?THREE.NearestMipmapLinearFilter:THREE.NearestFilter;t.needsUpdate=true;sharp++;}});});
   pxOneLook.stats={props,snapped,sharp,faces:fm.size};}
@@ -11389,7 +11392,387 @@ function det2Build(){const r=mulberry32(8080);const ctex=c=>{const t=new THREE.C
        float v=(h<.1?-.09:(h>.92?.08:0.))*(gr+sd*.7)+(hb>.94?-.11:(hb<.03?.07:0.))*gr;
        if(sd>.3&&h2>.982)v-=.22;diffuseColor.rgb*=1.+v;}`);};m.needsUpdate=true;});
   det2Build.stats.grain=ng;window.__det2=det2Build.stats;}
-function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{spBuild_sky();}catch(e){console.error(e);}try{pxDeclutter();}catch(e){console.error(e);}if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}try{pxFixDiamonds();}catch(e){console.error(e);}try{pxbLaneClear();}catch(e){console.error(e);}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+// ---------- Towns with room to breathe (Look Lab ?town2, Paul Nov 2026) ----------
+// Paul: the town streets felt packed. Fewer filler houses in South Perth and Fremantle (the gaps become little
+// gardens with a tree, a bench, a veggie patch or a water tank), and much richer pixel painting on what stays:
+// windows with frames, sills, lintels, glazing bars, glints, curtains, blinds and pot plants; panelled doors with
+// fanlights, brass knobs, house numbers, steps and mats; roofs with tile courses, ridge caps, gutters and moss;
+// 6-step colour ramps (cool shadows, warm lights) and a different wall colour and trim on every house.
+// Quokkas (Kip and friends) are painted natively at twice the pixels with fur strands, glossy eyes, inner ears,
+// blush, a shiny nose and toes. The flag TOWN2_LIVE / TOWN2_ON is declared near the top of the file (the quokka
+// painters run before this point). Hooks: town2Thin() and town2Skin() are called from pxbScene().
+const T2=(function(){
+  const PPM=32,INK='#2a2230';
+  let S=1;const rnd=()=>(S=(S*16807)%2147483647)/2147483647,seed=s=>{S=(Math.abs(s|0))%2147483646+1;rnd();};
+  const rgb=c=>{if(Array.isArray(c))return c;if(c[0]==='r'){return c.match(/[\d.]+/g).slice(0,3).map(Number);}const n=parseInt(c.replace('#',''),16);return[(n>>16)&255,(n>>8)&255,n&255];};
+  const hx=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+  const sh=(c,f)=>{const a=rgb(c);return hx([a[0]*f,a[1]*f,a[2]*f]);};
+  const mix=(a,b,t)=>{a=rgb(a);b=rgb(b);return hx([0,1,2].map(i=>a[i]+(b[i]-a[i])*t));};
+  const lum=c=>{const a=rgb(c);return(a[0]*.3+a[1]*.59+a[2]*.11)/255;};
+  // six tones: cool purple shadows, warm cream lights (more colours than the old three-step shading)
+  const RC=new Map();
+  function ramp(b){let r=RC.get(b);if(r)return r;r=[mix(sh(b,.5),'#2a2440',.3),mix(sh(b,.68),'#3a3860',.16),mix(sh(b,.85),'#504868',.05),b,mix(sh(b,1.09),'#fff0c8',.16),mix(sh(b,1.18),'#fff8e6',.42)];RC.set(b,r);return r;}
+  const hash=(x,y,s)=>{let h=(x*374761393+y*668265263+(s|0)*1442695041)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
+  function cv(w,h){const c=document.createElement('canvas');c.width=Math.max(2,w|0);c.height=Math.max(2,h|0);const x=c.getContext('2d');x.imageSmoothingEnabled=false;return[c,x];}
+  const P=(x,c,X,Y,W=1,H=1)=>{if(W<=0||H<=0)return;x.fillStyle=c;x.fillRect(X|0,Y|0,W|0,H|0);};
+  const pick=a=>a[rnd()*a.length|0];
+  /* ---------- palettes (Fremantle / South Perth heritage colours, fictional, no brands) ---------- */
+  const WALLS=['#efe3c4','#b9c8a8','#b8d4d8','#e8b8b0','#f2dc96','#d8a07a','#e8e4d8','#c8d0e0','#d8c0a0','#c4d8b8','#f0c8a0','#a8c0c8','#e0cce0','#f4e8b0'];
+  const TRIMS=['#f6f2e8','#fffaf0','#2f5a46','#6a2a2a','#1d3a6e','#e8dcc0','#3d7a78','#f2e6c8'];
+  const DOORS=['#2c4a3a','#8a2a2a','#1d3a6e','#5a3a22','#c8a040','#3a5a6a','#6a3a6a','#2f6a74','#a8402a','#3a6a3a'];
+  const CURT=['#e8dcc8','#c9473f','#3d7a78','#e8b860','#9478d4','#f2a0c0','#7ab454','#f4ecd8','#5a7ab0'];
+  const ROOFS={tile:['#b8562e','#a84a2a','#c8643a','#8a3a2e','#9a5a3a'],tin:['#3e6a52','#8a3a2e','#2f5a7a','#a8acb0','#b8562e','#6a7a5a','#5a4a7a','#9a6a3e'],slate:['#4e5a6a','#5a6470','#46505e']};
+  /* ---------- wall surfaces ---------- */
+  function board(x,W,H,base,y0=0){const r=ramp(base);for(let y=y0,k=0;y<H;y+=5,k++){const v=hash(k,7,S);const b=v<.2?r[2]:v>.85?r[4]:r[3];P(x,b,0,y,W,5);P(x,r[4],0,y,W,1);if(v>.6)P(x,r[5],0,y,W>>1,1);P(x,r[2],0,y+3,W,1);P(x,r[1],0,y+4,W,1);
+      for(let X=(hash(k,3,S)*9|0);X<W;X+=6+(hash(X,k,S)*11|0)){const L=2+(hash(X,k+1,S)*5|0);P(x,hash(X,k,9)<.5?r[2]:r[4],X,y+1+(hash(X,k,5)*2|0),L,1);}
+      if(hash(k,11,S)<.3){const X=hash(k,12,S)*W|0;P(x,r[1],X,y+1,1,3);}}}
+  function brick(x,W,H,base,y0=0){const r=ramp(base),m=ramp(mix(base,'#e8dcc8',.62));P(x,m[2],0,y0,W,H-y0);
+    for(let y=y0,row=0;y<H;y+=4,row++)for(let X=-(row%2)*4;X<W;X+=8){const v=hash(X,row,S);const f=v<.08?r[1]:v<.3?r[2]:v>.9?r[5]:v>.7?r[4]:r[3];P(x,f,X,y,7,3);P(x,v>.5?r[5]:r[4],X,y,7,1);P(x,r[1],X+6,y+1,1,2);if(v>.45&&v<.5)P(x,r[0],X+2,y+1,2,1);}}
+  function stone(x,W,H,base,y0=0){const r=ramp(base),m=mix(base,'#fff8e8',.3);P(x,sh(base,.7),0,y0,W,H-y0);
+    for(let y=y0,row=0;y<H;y+=7,row++){const bh=Math.min(7,H-y);let X=-((row*5)%9);while(X<W){const bw=9+(hash(X,row,S)*8|0),v=hash(X+1,row,S),f=v<.25?r[2]:v>.8?r[4]:r[3];
+        P(x,f,X+1,y+1,bw-1,bh-1);P(x,r[5],X+1,y+1,bw-1,1);P(x,r[4],X+1,y+1,1,bh-2);P(x,r[1],X+1,y+bh-1,bw-1,1);P(x,r[2],X+bw-1,y+1,1,bh-1);
+        for(let k=0;k<3;k++)if(hash(X,row,k+S)<.6)P(x,hash(X,k,row)<.5?r[2]:m,X+2+(hash(X,k,1)*(bw-4)|0),y+2+(hash(X,k,2)*Math.max(1,bh-4)|0));X+=bw;}}}
+  function render(x,W,H,base,y0=0){const r=ramp(base);P(x,r[3],0,y0,W,H-y0);
+    for(let y=y0;y<H;y++)for(let X=0;X<W;X++){const v=hash(X,y,S);if(v<.06)P(x,r[2],X,y);else if(v>.95)P(x,r[4],X,y);}
+    for(let y=H-10;y<H;y++)for(let X=0;X<W;X++)if(((X+y)&1)&&hash(X,y,3)<(y-(H-10))/14)P(x,r[2],X,y);}
+  function surface(x,W,H,base,kind){if(kind==='brick')brick(x,W,H,base);else if(kind==='stone')stone(x,W,H,base);else if(kind==='board')board(x,W,H,base);else render(x,W,H,base);}
+  /* ---------- trims ---------- */
+  function eave(x,W){P(x,'rgba(30,20,40,.34)',0,0,W,2);P(x,'rgba(30,20,40,.2)',0,2,W,2);P(x,'rgba(30,20,40,.1)',0,4,W,2);}
+  function plinth(x,W,H,base){const r=ramp(base);P(x,r[2],0,H-6,W,6);P(x,r[4],0,H-6,W,1);P(x,r[1],0,H-2,W,1);P(x,r[0],0,H-1,W,1);for(let X=3;X<W;X+=10+(hash(X,1,S)*5|0))P(x,r[1],X,H-5,1,3);}
+  function cornice(x,W,base){const r=ramp(base);P(x,r[5],0,0,W,1);P(x,r[4],0,1,W,2);P(x,r[2],0,3,W,1);P(x,r[0],0,4,W,1);for(let X=1;X<W;X+=4){P(x,r[3],X,5,2,2);P(x,r[1],X+1,6,1,1);}}
+  function quoins(x,W,H,base){const r=ramp(base);[0,1].forEach(s=>{for(let y=7,k=0;y<H-8;y+=6,k++){const w=k%2?4:6,X=s?W-w:0;P(x,r[1],X,y,w,6);P(x,r[4],X,y,w,5);P(x,r[5],X,y,w,1);P(x,r[2],s?X:X+w-1,y+1,1,4);}});}
+  function pipe(x,X,Y0,Y1,col){const r=ramp(col);P(x,r[1],X,Y0,3,Y1-Y0);P(x,r[3],X,Y0,2,Y1-Y0);P(x,r[5],X,Y0,1,Y1-Y0);for(let y=Y0+6;y<Y1-3;y+=12){P(x,r[0],X-1,y,5,1);P(x,r[4],X-1,y-1,5,1);}P(x,r[2],X-1,Y1-3,5,3);P(x,r[4],X-1,Y1-3,5,1);}
+  function vent(x,X,Y){P(x,INK,X-1,Y-1,7,5);P(x,'#c8643a',X,Y,5,3);for(let i=0;i<5;i+=2)P(x,'#5a2a1a',X+i,Y+1,1,1);P(x,'#e8906a',X,Y,5,1);}
+  const DIG=['111101101101111','010110010010111','111001111100111','111001111001111','101101111001001','111100111001111','111100111101111','111001010010010','111101111101111','111101111001111'];
+  function num(x,X,Y,n,bg='#f4ecd8',fg='#2a2230'){const s=String(n);const w=s.length*4+2;P(x,INK,X-1,Y-1,w+2,9);P(x,bg,X,Y,w,7);P(x,mix(bg,'#ffffff',.5),X,Y,w,1);
+    for(let k=0;k<s.length;k++){const d=DIG[+s[k]];for(let i=0;i<15;i++)if(d[i]==='1')P(x,fg,X+1+k*4+(i%3),Y+1+(i/3|0));}}
+  function ivy(x,X0,W,H){const top=H*(.3+rnd()*.35);for(let i=0;i<W*H*.1;i++){const X=X0+rnd()*W|0,Y=H-(Math.pow(rnd(),.8)*(H-top))|0;P(x,['#2f6a2e','#3f7a34','#5a9a40','#78b050','#4a8a3a'][rnd()*5|0],X,Y,2,2);if(rnd()<.25)P(x,'#a8d070',X,Y);if(rnd()<.04)P(x,'#f2a0c0',X+1,Y);}}
+  /* ---------- a window: lintel, frame with bevel, glass ramp, the room behind, glazing bars, glints, sill, flower box ---------- */
+  function win(x,X,Y,w,h,o={}){X|=0;Y|=0;w|=0;h|=0;const lit=!!o.lit,fr=o.frame||'#f6f2e8',F=ramp(fr),wall=o.wall||'#e4d2a8';
+    const glass=lit?['#fff2c0','#ffdc84','#f8b850','#f09a3a','#d8782a']:['#cfe6f4','#a8cce4','#86aed0','#6a90b4','#4c6e94'];
+    const room=o.room!=null?o.room:(X*7+Y*13+w)%5;const curt=o.curtain||CURT[(X*3+Y*7)%CURT.length];
+    // lintel / arch head
+    if(o.arch&&w>=8){const rr=w/2+1;for(let k=-rr;k<=rr;k++){const yy=Math.round(Math.sqrt(Math.max(0,rr*rr-k*k))*.55);P(x,INK,X+w/2+k-1,Y-3-yy,1,1);P(x,F[3],X+w/2+k-1,Y-2-yy,1,yy+2);P(x,F[5],X+w/2+k-1,Y-2-yy,1,1);}
+      P(x,F[2],X+(w>>1)-2,Y-4-Math.round(rr*.55),4,3);P(x,F[5],X+(w>>1)-2,Y-4-Math.round(rr*.55),4,1);}
+    else if(w>=8&&o.lintel!==false){P(x,INK,X-3,Y-6,w+6,1);P(x,F[3],X-3,Y-5,w+6,3);P(x,F[5],X-3,Y-5,w+6,1);P(x,F[1],X-3,Y-2,w+6,1);if(w>=12){P(x,F[2],X+(w>>1)-2,Y-6,4,4);P(x,F[5],X+(w>>1)-2,Y-6,4,1);}}
+    // shutters behind the frame
+    if(o.shutter){const S2=ramp(o.shutter),sw=Math.max(3,w*.3|0);[X-2-sw,X+w+2].forEach((sx,si)=>{P(x,INK,sx-1,Y-2,sw+2,h+4);P(x,S2[3],sx,Y-1,sw,h+2);P(x,S2[4],sx,Y-1,1,h+2);for(let j=0;j<h+2;j+=2){P(x,S2[1],sx,Y-1+j,sw,1);P(x,S2[4],sx+1,Y+j,sw-2,1);}P(x,'#d8b860',si?sx:sx+sw-1,Y+3,1,1);P(x,'#d8b860',si?sx:sx+sw-1,Y+h-3,1,1);});}
+    // frame
+    P(x,INK,X-2,Y-2,w+4,h+4);P(x,F[3],X-1,Y-1,w+2,h+2);P(x,F[5],X-1,Y-1,w+2,1);P(x,F[4],X-1,Y,1,h);P(x,F[1],X+w,Y,1,h+1);P(x,F[2],X-1,Y+h,w+2,1);
+    // glass ramp (sky top, deeper below)
+    for(let j=0;j<h;j++)P(x,glass[Math.min(4,(j/h*5)|0)],X,Y+j,w,1);
+    // the room behind
+    if(w>=8&&h>=9){const C=ramp(curt);
+      if(room===0||room===1){const cw=Math.max(2,w/4|0);for(let j=0;j<h-1;j++){const t=j/h,ww=Math.max(1,Math.round(cw*(t<.5?1:1.5-t*.9)));P(x,lit?C[2]:C[3],X,Y+j,ww,1);P(x,lit?C[1]:C[2],X+ww-1,Y+j,1,1);P(x,lit?C[2]:C[3],X+w-ww,Y+j,ww,1);P(x,lit?C[1]:C[2],X+w-ww,Y+j,1,1);}
+        P(x,C[5],X,Y,w,1);P(x,C[1],X+cw-1,Y+(h*.5|0),2,1);P(x,C[1],X+w-cw-1,Y+(h*.5|0),2,1);}
+      else if(room===2){const bh=Math.max(3,h*(.3+((X+Y)%3)*.12)|0);for(let j=0;j<bh;j++)P(x,j%2?(lit?'#e8c080':'#e8dcc4'):(lit?'#d0a060':'#d4c8b0'),X,Y+j,w,1);P(x,'#8a7a5a',X,Y+bh,w,1);P(x,'#b8a88c',X+(w>>1),Y+bh+1,1,2);}
+      else if(room===3){for(let j=0;j<h;j++)for(let i=0;i<w;i++)if(((i+j)&1)&&j<h*.7)P(x,lit?'#ffe8b0':'rgba(244,240,232,.55)',X+i,Y+j);}
+      if(lit){P(x,'#fff8d8',X+(w>>1)-1,Y+1,3,2);P(x,'#8a5a36',X+(w>>1),Y,1,1);}
+      // a pot plant or a vase on the inside sill
+      if((X+Y*3)%4!==1){const px=X+(((X*5+Y)%3)+1)*w/4|0;P(x,'#a8583a',px-1,Y+h-4,3,3);P(x,'#c8784a',px-1,Y+h-4,3,1);P(x,'#3f7a34',px-2,Y+h-7,5,3);P(x,'#5a9a40',px-1,Y+h-8,3,2);P(x,'#8ac060',px,Y+h-8,1,1);if((X+Y)%3===0)P(x,'#f2a0c0',px+1,Y+h-8,1,1);}
+      P(x,lit?'#8a5a2a':'#3e5068',X,Y+h-1,w,1);}
+    // glazing bars (sash: meeting rail + a bar; casement: a cross; small: one bar)
+    const bar=F[3],bs=F[1];const kind=o.kind||(h>w*1.15?'sash':'case');
+    if(w>=6){if(kind==='sash'){P(x,bar,X,Y+(h>>1)-1,w,2);P(x,F[5],X,Y+(h>>1)-1,w,1);P(x,bs,X,Y+(h>>1)+1,w,1);P(x,bar,X+(w>>1),Y,1,h);if(h>=18){P(x,bar,X,Y+(h>>2),w,1);P(x,bar,X,Y+(3*h>>2),w,1);}}
+      else{P(x,bar,X+(w>>1),Y,1,h);P(x,bs,X+(w>>1)+1,Y,1,h);P(x,bar,X,Y+(h/3|0),w,1);if(w>=16){P(x,bar,X+(w>>2),Y,1,h/3|0);P(x,bar,X+(3*w>>2),Y,1,h/3|0);}}}
+    // glints on day glass
+    if(!lit&&w>=5&&h>=5){for(let k=0;k<Math.min(w,h)*.55;k++){P(x,'#f4fbff',X+1+k,Y+(h*.6|0)-k,1,1);P(x,'#e0f0fa',X+2+k,Y+(h*.6|0)-k,1,1);if(k%2===0)P(x,'#e8f4fc',X+5+k,Y+(h*.6|0)-k,1,1);}P(x,'#ffffff',X+1,Y+1,1,1);}
+    // sill with a drop shadow
+    P(x,INK,X-3,Y+h+1,w+6,4);P(x,F[4],X-3,Y+h+1,w+6,1);P(x,F[3],X-3,Y+h+2,w+6,1);P(x,F[1],X-3,Y+h+3,w+6,1);P(x,'rgba(30,20,40,.3)',X-2,Y+h+5,w+4,1);P(x,'rgba(30,20,40,.14)',X-2,Y+h+6,w+4,1);
+    // flower box
+    if(o.box){const bc=o.boxCol||pick(['#6a4028','#2f5a46','#f6f2e8','#8a2a2a']),B=ramp(bc),by=Y+h+5;P(x,INK,X-2,by,w+4,5);P(x,B[3],X-1,by,w+2,3);P(x,B[5],X-1,by,w+2,1);P(x,B[1],X-1,by+3,w+2,1);
+      const fl=[['#e05a6a','#ff9aa8'],['#f4d04a','#fff0a0'],['#f8f8f0','#ffffff'],['#c070e0','#e0b0f8'],['#f08a3a','#ffc080']];
+      for(let k=0;k<w+2;k+=2){const L=['#2f6a2e','#4f8a3a','#6aa848'][(k+X)%3];P(x,L,X-1+k,by-2,2,2);if(rnd()<.8){const f=pick(fl);P(x,f[0],X-1+k,by-3-(rnd()*2|0),1,1);P(x,f[1],X+k,by-3,1,1);}if(rnd()<.35)P(x,L,X-1+k,by+5,1,1+(rnd()*3|0));}}}
+  /* ---------- a front door: architrave, fanlight, panels, brass, number, step, wall lantern ---------- */
+  function door(x,X,Y,w,h,o={}){X|=0;Y|=0;w|=0;h|=0;const col=o.col||'#2f6a74',C=ramp(col),fr=o.frame||'#f6f2e8',F=ramp(fr),lit=!!o.lit;
+    P(x,INK,X-3,Y-4,w+6,h+4);P(x,F[3],X-2,Y-3,w+4,h+3);P(x,F[5],X-2,Y-3,w+4,1);P(x,F[4],X-2,Y-3,1,h+3);P(x,F[1],X+w+1,Y-2,1,h+2);
+    const fl=o.fan===false?0:Math.max(3,Math.min(7,h/6|0));
+    if(fl){const g=lit?['#fff2c0','#ffd070']:['#c8e0f0','#8aaed0'];for(let j=0;j<fl;j++)P(x,g[j<fl/2?0:1],X,Y-1+j,w,1);for(let k=1;k<w;k+=3)P(x,F[3],X+k,Y-1,1,fl);P(x,F[4],X,Y-1+fl,w,1);if(!lit)P(x,'#ffffff',X+1,Y,1,1);}
+    const y0=Y+fl,dh=h-fl;P(x,C[1],X,y0,w,dh);P(x,C[3],X+1,y0+1,w-2,dh-2);P(x,C[4],X+1,y0+1,1,dh-2);
+    // panels: 2 x 2 (or 2 x 3 on tall doors), recessed: dark top-left edge, light bottom-right
+    const rows=dh>=34?3:2,pw=Math.max(2,(w-5)>>1),ph=Math.max(2,((dh-4-(rows+1))/rows)|0);
+    for(let r=0;r<rows;r++)for(let c=0;c<2;c++){const a=X+2+c*(pw+1),b=y0+2+r*(ph+1)+(r===rows-1?1:0);if(pw<2||ph<2)continue;P(x,C[2],a,b,pw,ph);P(x,C[1],a,b,pw,1);P(x,C[1],a,b,1,ph);P(x,C[4],a,b+ph-1,pw,1);P(x,C[4],a+pw-1,b,1,ph);if(pw>3&&ph>4)P(x,C[3],a+1,b+1,pw-2,ph-2);}
+    // brass: knob, letter slot, kick plate
+    const kx=o.hinge?X+2:X+w-3;P(x,'#7a5a20',kx,Y+(h*.55|0),2,2);P(x,'#f2c04a',kx,Y+(h*.55|0),1,1);P(x,'#fff0a0',kx,Y+(h*.55|0)-1,1,1);
+    P(x,'#7a5a20',X+(w>>1)-2,y0+(dh*.5|0),5,2);P(x,'#e8b848',X+(w>>1)-2,y0+(dh*.5|0),5,1);
+    if(dh>20){P(x,'#b89048',X+1,Y+h-4,w-2,3);P(x,'#e8c870',X+1,Y+h-4,w-2,1);}
+    // number plaque and lantern beside the door
+    if(o.n!=null){const right=o.hinge?X-12:X+w+4;num(x,right,Y+fl+2,o.n,o.plate||'#f4ecd8',o.plateInk||INK);}
+    if(o.lamp!==false){const lx=o.hinge?X+w+4:X-8;P(x,INK,lx,Y+1,5,8);P(x,lit?'#fff4c8':'#ffd98a',lx+1,Y+2,3,5);P(x,lit?'#ffffff':'#fff4c8',lx+1,Y+2,1,2);P(x,INK,lx+2,Y-2,1,3);P(x,'#5a4a3a',lx,Y+9,5,1);}
+    // step(s)
+    if(o.step!==false){const s=ramp('#c8bca4');P(x,s[3],X-4,Y+h-2,w+8,2);P(x,s[5],X-4,Y+h-2,w+8,1);P(x,INK,X-4,Y+h,w+8,1);P(x,'#8a5a3a',X+1,Y+h-2,w-2,1);}}
+  /* ---------- whole wall face (same options as PXK.wall, so it can stand in for it on town houses) ---------- */
+  function wall(w,h,o={}){seed((o.seed||7)*31+7);const W=Math.max(8,Math.round(w*PPM)),H=Math.max(8,Math.round(h*PPM));const[c,x]=cv(W,H);
+    const base=o.base||'#e4d2a8';let kind=o.kind||(lum(base)>.84?'stone':'plaster');if(kind==='plaster'&&o.house&&rnd()<.45)kind='board';
+    surface(x,W,H,base,kind);
+    const tb=o.trim||(kind==='stone'?mix(base,'#ffffff',.2):pick(TRIMS));
+    if(o.quoins!==false&&kind!=='stone'&&kind!=='board'&&W>40&&rnd()<.6)quoins(x,W,H,mix(base,'#e8dcc0',.6));
+    if(o.plinth!==false)plinth(x,W,H,kind==='stone'?sh(base,.85):'#b8a88c');
+    if(o.cornice!==false&&H>40)cornice(x,W,tb);else eave(x,W);
+    const n=o.win==null?Math.max(0,Math.floor((W-16)/44)):o.win;const rows=o.rows||Math.max(1,Math.round(h/2.9)),band=H/rows;
+    if(rows>1)for(let r=1;r<rows;r++){const Y=Math.round(r*band),T=ramp(tb);P(x,T[5],0,Y-3,W,1);P(x,T[3],0,Y-2,W,1);P(x,T[1],0,Y,W,1);}
+    const dcol=o.doorCol||DOORS[(o.seed||0)%DOORS.length];const sh2=o.shutter||(rnd()<.3?pick(['#3d7a78','#2f5a46','#6a2a2a','#1d3a6e','#c8a040']):null);
+    const room0=(o.seed||0)%5,curt=CURT[((o.seed||0)*3)%CURT.length];let pipeAt=-1;
+    if(n||o.door)for(let r=0;r<rows;r++){const top=r*band,bottom=r===rows-1,doorRow=bottom&&o.door;const slots=n+(doorRow?1:0);if(!slots)continue;const step=W/slots;const dIdx=doorRow?Math.min(slots-1,Math.round((o.doorAt!=null?o.doorAt:.5)*(slots-1))):-1;
+      for(let i=0;i<slots;i++){const cx=step*(i+.5);if(i===dIdx){const dw=Math.min(22,step-10|0),dh=Math.min(band-12,40);if(dw>8)door(x,cx-dw/2,H-dh-3,dw,dh,{col:dcol,frame:tb,lit:o.lit,n:o.num!=null?o.num:((o.seed||1)*7)%89+3,lamp:true});}
+        else{const ww=Math.min(o.winW||20,step-14|0),wh=Math.min(o.winH||24,band-26);if(ww>6&&wh>8)win(x,cx-ww/2,Math.max(top+9,top+band*.44-wh/2),ww,wh,{arch:o.arch&&r===0,shutter:sh2&&ww<18?sh2:null,lit:o.lit,box:o.box!==false&&bottom&&rows<=2,frame:tb,wall:base,room:(room0+i+r)%5,curtain:curt});}}}
+    if(W>40&&rnd()<.7){pipeAt=rnd()<.5?2:W-5;pipe(x,pipeAt,3,H-3,kind==='brick'?'#e8e4d8':sh(tb,.9));}
+    if(o.vents!==false&&H<=96)for(let X=12;X<W-10;X+=30)vent(x,X,H-11);
+    if(o.moss!==false){for(let i=0;i<W*.5;i++){const X=rnd()*W|0,Y=H-1-(Math.pow(rnd(),2.4)*H*.2|0);P(x,rnd()<.5?'#5d7a3a':'#7a9a48',X,Y);}}
+    if(o.ivy)ivy(x,o.ivy[0]*W,o.ivy[1]*W,H);
+    return c;}
+  /* ---------- roofs: courses with a lit top row and a dark lap, per-tile tones, moss, ridge cap and gutter ---------- */
+  function roofRows(x,W,H,base,kind,y0=0){const r=ramp(base);
+    if(kind==='tin'){for(let X=0;X<W;X++){const p=X%5;P(x,p===0?r[5]:p===1?r[4]:p===2?r[3]:p===3?r[2]:r[1],X,y0,1,H-y0);}
+      for(let y=y0+12;y<H;y+=16){P(x,r[0],0,y,W,1);P(x,r[4],0,y+1,W,1);for(let X=1;X<W;X+=8)P(x,'#e8e4dc',X,y-2,1,1);}
+      for(let i=0;i<W/10;i++){const X=rnd()*W|0,Y0=y0+(rnd()*H|0),L=3+(rnd()*8|0);for(let k=0;k<L;k++)if(((X+k)&1)===0)P(x,'rgba(150,80,40,.45)',X+(k%2),Y0+k);}return;}
+    const tw=kind==='slate'?7:kind==='shingle'?6:8,th=kind==='slate'?5:kind==='shingle'?5:6;P(x,r[0],0,y0,W,H-y0);
+    for(let y=y0,row=0;y<H;y+=th,row++)for(let X=-(row%2)*(tw>>1);X<W;X+=tw){const v=hash(X,row,S),f=v<.15?r[2]:v>.88?r[5]:v>.62?r[4]:r[3];
+      P(x,f,X,y,tw-1,th-1);P(x,v>.5?r[5]:r[4],X,y,tw-1,1);if(kind==='tile'){P(x,r[5],X+1,y+1,1,th-3);P(x,r[2],X+tw-3,y+1,1,th-2);}P(x,r[1],X,y+th-2,tw-1,1);P(x,r[2],X+tw-2,y+1,1,th-2);
+      if(v>.3&&v<.33)P(x,'#6f8a44',X+2,y+2,2,1);if(v>.33&&v<.345)P(x,'#c8c070',X+3,y+1,1,1);}}
+  function roof(w,h,o={}){seed((o.seed||11)*17+3);const W=Math.max(8,Math.round(w*PPM)),H=Math.max(8,Math.round(h*PPM));const base=o.base||'#b85434',kind=o.kind||'tile';
+    const paint=(x,W,H)=>{roofRows(x,W,H,base,kind,0);const r=ramp(base);
+      if(o.ridge){const R=ramp(kind==='tin'?sh(base,.95):mix(base,'#8a3a2e',.2));P(x,R[0],0,0,W,6);P(x,R[3],0,0,W,4);P(x,R[5],0,0,W,1);P(x,R[4],0,1,W,1);for(let X=0;X<W;X+=10){P(x,R[1],X,0,1,5);P(x,R[5],X+1,1,1,2);}P(x,'rgba(30,20,40,.3)',0,6,W,1);}
+      if(o.gutter){const G=ramp(o.gutterCol||'#e8e4d8');P(x,G[1],0,H-4,W,4);P(x,G[3],0,H-4,W,2);P(x,G[5],0,H-4,W,1);P(x,G[0],0,H-1,W,1);}
+      if(o.moss!==false&&kind!=='tin')for(let i=0;i<W*H/90;i++){const X=rnd()*W|0,Y=(o.ridge?7:0)+(rnd()*(H-12)|0);P(x,rnd()<.5?'#6f8a44':'#8aa858',X,Y,1+(rnd()*2|0),1);}
+      if(o.vent){const vx=W*.7|0,vy=o.ridge?10:4;P(x,INK,vx-1,vy-1,8,7);P(x,'#9aa0a6',vx,vy,6,5);P(x,'#c8ccd0',vx,vy,6,1);P(x,'#5a5e6a',vx+1,vy+2,4,1);}};
+    if(!o.across){const[c,x]=cv(W,H);paint(x,W,H);return c;}
+    const[t,tx]=cv(H,W);paint(tx,H,W);const[c,x]=cv(W,H);x.translate(W,0);x.rotate(Math.PI/2);x.drawImage(t,0,0);return c;}
+  /* ---------- small pieces for the rebuilt cottages ---------- */
+  function chimney(w,h,base){seed(91);const W=Math.max(6,Math.round(w*PPM)),H=Math.max(6,Math.round(h*PPM));const[c,x]=cv(W,H);brick(x,W,H,base);const r=ramp('#e8dcc8');P(x,r[3],0,0,W,3);P(x,r[5],0,0,W,1);P(x,r[1],0,3,W,1);return c;}
+  function stripes(w,d,a,b){const W=Math.round(w*PPM),H=Math.round(d*PPM);const[c,x]=cv(W,H);const A=ramp(a),B=ramp(b);for(let X=0;X<W;X++){const s=((X/6)|0)%2?B:A,p=X%3;P(x,p===0?s[5]:p===1?s[3]:s[2],X,0,1,H);}P(x,A[0],0,H-2,W,2);return c;}
+  function lace(w,h,col='#f6f6f2'){const W=Math.round(w*PPM),H=Math.round(h*PPM);const[c,x]=cv(W,H);const r=ramp(col);P(x,r[3],0,0,W,2);P(x,r[5],0,0,W,1);
+    for(let X=0;X<W;X++)for(let y=2;y<H;y++){const u=X%8,v=y-2;const on=(v===0)||(u===0&&v<H-3)||(Math.abs(u-4)===(v%5))&&v<H-2||(v===H-3&&u%2===0);if(on)P(x,v>H*.5?r[2]:r[3],X,y);}return c;}
+  function tiles(w,d){const W=Math.round(w*PPM),H=Math.round(d*PPM);const[c,x]=cv(W,H);for(let y=0;y<H;y+=4)for(let X=0;X<W;X+=4){const k=((X>>2)+(y>>2))%2;P(x,k?'#a8402a':'#efe3c4',X,y,4,4);P(x,k?'#c8603a':'#fff8e6',X,y,4,1);}P(x,'#5a3a22',0,0,W,1);return c;}
+  function gable(W,H,base,o={}){seed(o.seed||5);const w=Math.round(W*PPM),h=Math.round(H*PPM);const[c,x]=cv(w,h);board(x,w,h,base);const r=ramp(o.trim||'#f6f2e8');
+    // a round vent and the bargeboards follow the triangle edges (the triangle uses the canvas: base along the bottom, apex at the top middle)
+    const vx=w/2|0,vy=h*.45|0;for(let j=-3;j<=3;j++)for(let i=-3;i<=3;i++)if(i*i+j*j<=10)P(x,i*i+j*j>=6?INK:(j%2?'#5a4a3a':'#8a7a5a'),vx+i,vy+j);
+    for(let y=0;y<h;y++){const half=(w/2)*(y/h);P(x,r[3],w/2-half-1|0,y,3,1);P(x,r[5],w/2-half-1|0,y,1,1);P(x,r[3],w/2+half-2|0,y,3,1);P(x,r[1],w/2+half|0,y,1,1);}
+    P(x,r[3],vx-1,0,3,3);P(x,r[5],vx-1,0,1,3);return c;}
+  function veg(w,d){const W=Math.round(w*PPM),H=Math.round(d*PPM);const[c,x]=cv(W,H);P(x,'#6a4a2a',0,0,W,H);for(let y=0;y<H;y++)for(let X=0;X<W;X++)if(hash(X,y,4)<.2)P(x,'#5a3a22',X,y);
+    for(let y=3;y<H-2;y+=6)for(let X=2;X<W-2;X+=4){P(x,'#3f7a34',X,y,3,3);P(x,'#5a9a40',X,y,2,2);P(x,'#8ac060',X,y,1,1);if(hash(X,y,2)<.3)P(x,'#e05a3a',X+1,y+2,1,1);}return c;}
+  function pave(w,d,base='#cfc4b0'){seed(77);const W=Math.max(4,Math.round(w*PPM)),H=Math.max(4,Math.round(d*PPM));const[c,x]=cv(W,H);const r=ramp(base);P(x,r[1],0,0,W,H);
+    for(let y=0,row=0;y<H;y+=5,row++)for(let X=-(row%2)*3;X<W;X+=6){const v=hash(X,row,1);P(x,v<.3?r[2]:v>.8?r[4]:r[3],X,y,5,4);P(x,r[5],X,y,5,1);}return c;}
+  function mat(w,d){const W=Math.max(4,Math.round(w*PPM)),H=Math.max(3,Math.round(d*PPM));const[c,x]=cv(W,H);const col=pick(['#8a2a2a','#3a5a3a','#5a3a22','#2f4a6e']),r=ramp(col);P(x,r[1],0,0,W,H);P(x,r[3],1,1,W-2,H-2);for(let X=2;X<W-2;X+=2)P(x,r[4],X,2,1,H-4);return c;}
+  function wood(w,d,base='#8a5a36'){const W=Math.max(4,Math.round(w*PPM)),H=Math.max(2,Math.round(d*PPM));const[c,x]=cv(W,H);const r=ramp(base);for(let y=0;y<H;y+=3){P(x,r[3],0,y,W,3);P(x,r[5],0,y,W,1);P(x,r[1],0,y+2,W,1);}return c;}
+  function tank(w,h,base='#9aa0a6'){const W=Math.max(8,Math.round(w*PPM)),H=Math.max(8,Math.round(h*PPM));const[c,x]=cv(W,H);roofRows(x,W,H,base,'tin',0);const r=ramp(base);for(let y=4;y<H;y+=7){P(x,r[0],0,y,W,1);P(x,r[5],0,y+1,W,1);}return c;}
+  return{PPM,INK,ramp,mix,sh,lum,hash,seed,rnd,cv,P,pick,WALLS,TRIMS,DOORS,ROOFS,CURT,board,brick,stone,render,surface,eave,plinth,cornice,quoins,pipe,vent,num,win,door,wall,roof,roofRows,chimney,stripes,lace,tiles,gable,veg,pave,mat,wood,tank,cur:null};
+})();
+// glow at night: lit minus day leaves the glass only (like CAFE_PX's litMat). Textures marked __t2 keep their extra tones.
+function t2Tex(c,rep){const t=ctex(c);t.__t2=1;t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;if(rep){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep[0],rep[1]);}return t;}
+function t2Lit(day,lit,o){const m=new THREE.MeshLambertMaterial(Object.assign({map:t2Tex(day),emissive:0xffffff,emissiveIntensity:0,emissiveMap:t2Tex(PXK.glowDiff(day,lit))},o||{}));PXB_GLOW.push(m);return m;}
+const T2M=new Map();function t2Mat(key,make,o){let m=T2M.get(key);if(!m){m=new THREE.MeshLambertMaterial(Object.assign({map:t2Tex(make())},o||{}));T2M.set(key,m);}return m;}
+function t2Col(key,c){let m=T2M.get('c|'+key);if(!m){m=new THREE.MeshLambertMaterial({color:new THREE.Color(c)});T2M.set('c|'+key,m);}return m;}
+// the pixel kit's wall painter hands town houses to T2.wall while pxbScene skins them (T2.cur is set per wall)
+if(TOWN2_ON){const _pw=PXK.wall;PXK.wall=function(w,h,o){const W=T2.cur;if(W&&W.__t2){const k=o&&o.seed!=null?Math.round(((o.seed-13-((w*10)|0))/7)):0;const small=!!W.__small;
+    return T2.wall(w,h,Object.assign({},o,{house:small,door:o.door||(small&&!W.faces.some(f=>f>0)&&(k===0||k===2)&&w>=2.4),doorAt:(W.__s%3)/2,seed:(o.seed||7)+W.__s*13,num:W.__s%89+2}));}return _pw(w,h,o);};}
+function t2Zone(x){return x>100&&x<250?'sp':x>=250&&x<380?'freo':x>=470&&x<590?'vp':x>=590&&x<=710?'cbd':null;}
+const T2V=new THREE.Vector3();function t2Local(o){o.getWorldPosition(T2V);scene.worldToLocal(T2V);return T2V;}
+// pxbScene marks which walls are town houses (plain kit walls, house height, in the four mainland towns) and gives each its own colour
+function town2Mark(walls){let n=0;const B=new THREE.Box3(),signs=[];scene.traverse(o=>{if(o.isMesh&&o.visible&&o.material&&!Array.isArray(o.material)&&o.material.map&&SIGN_TEX.has(o.material.map)){B.setFromObject(o);if(!B.isEmpty())signs.push(B.clone());}});
+  walls.forEach(W=>{if(W.o.__pxSkip)return;const p=t2Local(W.o);const z=t2Zone(p.x);if(!z||W.h>6.6||Math.max(W.w,W.d)>14)return;W.__t2=z;W.__s=(Math.round(p.x*3)*7+Math.round(p.z*5)*13)>>>0;
+    B.setFromObject(W.o);B.expandByScalar(.5);W.__sign=signs.some(q=>q.intersectsBox(B));W.__small=W.h<3.4&&W.w*W.d<16&&!W.__sign;n++;});town2Mark.n=n;}
+T2.base=function(W,b){if(!W.__t2||!W.__small)return b;const l=T2.lum(b);if(l<.3)return b;// bricks stay brick; plain renders get a heritage colour, nudged so the kit's cache never shares it
+  const c=T2.WALLS[W.__s%T2.WALLS.length];const a=new THREE.Color(T2.mix(b,c,.75));return'#'+a.getHexString().slice(0,5)+((parseInt(a.getHexString().slice(5),16)|1).toString(16));};
+/* ---------- 1. fewer houses: South Perth bungalows and Fremantle terraces ---------- */
+function town2Thin(){const out={sp:0,freo:0,vp:0,cbd:0,cottages:0,kept:0,gaps:[]};town2Thin.out=out;window.__town2=out;scene.updateMatrixWorld(true);
+  const B=new THREE.Box3(),L=new THREE.Box3(),V=new THREE.Vector3();
+  const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
+  // everything the story or a shop needs stays: interaction spots in every town, homes for sale, shop people
+  let T=[];const px=player.x,pz=player.z;for(const zx of[150,300,520,650]){player.x=zx;try{T=T.concat(buildTargets().map(t=>[t.x,t.z]));}catch(e){}}player.x=px;player.z=pz;
+  try{PROP_LIST.forEach(p=>T.push([p.x,p.z]));}catch(e){}try{FREO_NPCS.forEach(n=>T.push([n.x,n.z]));}catch(e){}try{VP_SHOPS.forEach(s=>T.push([s.npc.x,s.npc.z]));}catch(e){}
+  const signs=[];scene.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)&&o.material.map&&SIGN_TEX.has(o.material.map)){const b=lbox(o);if(b)signs.push(b);}});
+  const used=(b,pad)=>T.some(([x,z])=>x>b.min.x-pad&&x<b.max.x+pad&&z>b.min.z-pad&&z<b.max.z+pad)||signs.some(q=>q.max.x>b.min.x-.4&&q.min.x<b.max.x+.4&&q.max.z>b.min.z-.4&&q.min.z<b.max.z+.4);
+  const BBs=new Set(BB);const G=new THREE.Group();G.name='town2';G.__pxSkip=1;scene.add(G);town2Thin.g=G;
+  const killCols=b=>colliders.forEach(c=>{if(c.x1<1e8&&c.x1>=b.min.x-.35&&c.x2<=b.max.x+.35&&c.z1>=b.min.z-.35&&c.z2<=b.max.z+.35){c.x1=c.z1=c.x2=c.z2=1e9;}});
+  // hide a house and every loose part that belongs to it (doors, panes, posts, pickets), never plants or people
+  const hideIn=(b,keep)=>{scene.traverse(o=>{if(!o.isMesh||!o.visible||keep.has(o)||BBs.has(o)||(o.userData&&o.userData.frames)||o.isInstancedMesh)return;for(let p=o.parent;p&&p!==scene;p=p.parent)if(p===G)return;const q=lbox(o);if(!q||q.max.x-q.min.x>6||q.max.z-q.min.z>6)return;
+      if(q.min.x>=b.min.x-.05&&q.max.x<=b.max.x+.05&&q.min.z>=b.min.z-.05&&q.max.z<=b.max.z+.05&&q.max.y<=b.max.y+.2&&q.max.y>.07){o.visible=false;o.__t2gone=1;}});};
+  /* --- South Perth: little houses in tight rows (plain box + roof, or the bungalows) --- */
+  const cand=[];scene.children.forEach(g=>{if(!g.isGroup||!g.visible||g.__pxSkip||g===G)return;const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;
+    if(cx<100||cx>250||cz<8||cz>32)return;const w=b.max.x-b.min.x,d=b.max.z-b.min.z,h=b.max.y-b.min.y;if(w>5.2||d>5||h>3.6||h<1.6)return;
+    let wall=0,glassy=0;g.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='BoxGeometry'&&o.geometry.parameters.height>1.2)wall++;});if(!wall)return;
+    const core=b.clone();core.expandByScalar(-.2);cand.push({g,b,cx,cz,w,keep:used(core,1.2)});});
+  const rows=new Map();cand.forEach(c=>{const k=Math.round(c.cz);let r=rows.get(k);if(!r){r=[];rows.set(k,r);}r.push(c);});
+  // a house squeezed against one that must stay goes; in a row of free houses every third one goes
+  rows.forEach(r=>{r.sort((a,b)=>a.cx-b.cx);let run=[];const flush=()=>{const free=run.filter(c=>!c.keep);run.forEach((c,i)=>{if(c.keep)return;const nb=[run[i-1],run[i+1]].filter(Boolean);if(nb.some(n=>n.keep&&Math.abs(n.cx-c.cx)-(n.w+c.w)/2<1.6))c.go=1;});
+      if(free.length>=3)free.forEach((c,i)=>{if(i%3===1)c.go=1;});run=[];};
+    r.forEach(c=>{if(run.length&&c.cx-run[run.length-1].cx>9)flush();run.push(c);});flush();});
+  cand.filter(c=>c.go).forEach(c=>{const b=c.b.clone();b.max.z+=1.9;b.min.z-=1.9;b.min.x-=.3;b.max.x+=.3;// the picket fences stand up to 1.7 m in front (or behind)
+    c.g.visible=false;killCols(c.b);const ins=new Set();c.g.traverse(o=>ins.add(o));hideIn(b,ins);out.sp++;out.gaps.push(['sp',+c.cx.toFixed(1),+c.cz.toFixed(1)]);t2Garden(G,c.cx,c.cz,c.w,(c.cx*7|0)%3,'sp');});
+  /* --- Fremantle: the terrace rows on Wray Ave / Hampton Rd are rebuilt as pairs of detailed cottages with gardens between --- */
+  if(typeof FDET!=='undefined'&&FDET.g){const FG=FDET.g;const rowsF=[];FG.children.forEach(o=>{if(!o.isMesh||!o.visible||!o.geometry||o.geometry.type!=='BoxGeometry'||!Array.isArray(o.material))return;const p=o.geometry.parameters;
+      if(Math.abs(p.height-1.45)>.01||Math.abs(p.depth-2.6)>.01||p.width<3)return;const face=o.material[4]&&o.material[4].map?1:-1;rowsF.push({o,L:p.width,x1:o.position.x-p.width/2,z:o.position.z,face});});
+    FG.children.forEach(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='BoxGeometry'||Array.isArray(o.material))return;const p=o.geometry.parameters;if(Math.abs(p.height-.9)>.01||Math.abs(p.depth-.06)>.01||p.width<3||Math.abs(o.position.z-33.4)>1)return;
+      const brush=o.position.z>33.4,c=brush?'#a89070':'#9aa0a6';const m=t2Mat('lanef|'+c+'|'+Math.round(p.width),()=>{const W=Math.round(p.width*32),H=29;const[cc,x]=T2.cv(W,H);if(brush){const r=T2.ramp(c);for(let X=0;X<W;X++){T2.P(x,r[2+(T2.hash(X,1,3)*3|0)],X,0,1,H);if(T2.hash(X,2,3)<.3)T2.P(x,r[5],X,(T2.hash(X,3,3)*6|0),1,3);}T2.P(x,r[0],0,H*.45|0,W,1);T2.P(x,r[4],0,(H*.45|0)+1,W,1);T2.P(x,r[1],0,0,W,2);}
+        else{T2.roofRows(x,W,H,c,'tin',0);const r=T2.ramp('#6a4a2a');for(let X=0;X<W;X+=48){T2.P(x,r[2],X,0,3,H);T2.P(x,r[4],X,0,1,H);}const R=T2.ramp(c);T2.P(x,R[5],0,0,W,1);}return cc;});
+      const side=t2Col('lanes|'+c,T2.sh(c,.7));o.material=[side,side,side,side,m,m];o.__pxSkip=1;});
+    const FC=new THREE.Group();FC.name='town2freo';FC.__pxSkip=1;FG.add(FC);
+    rowsF.forEach((R,ri)=>{const W=1.7,n=Math.round(R.L/W),D=2.6,H=1.45,fz=R.z+R.face*D/2;
+      const za=R.face<0?fz-1.97:R.z-D/2-.06,zb=R.face<0?R.z+D/2+.06:fz+1.97;const box=new THREE.Box3(new THREE.Vector3(R.x1-.08,-1,Math.min(za,zb)),new THREE.Vector3(R.x1+R.L+.08,H+2,Math.max(za,zb)));
+      // the old row: the body, roofs, chimneys, verandahs, posts and pickets (not the long lane fences, the gardens or the plants)
+      R.o.visible=false;FG.children.forEach(o=>{if(o===R.o||o===FC||!o.isMesh||!o.visible||BBs.has(o))return;const q=lbox(o);if(!q||q.max.y<.07)return;const w=q.max.x-q.min.x;if(w>2.2)return;
+        const cx=(q.min.x+q.max.x)/2,cz=(q.min.z+q.max.z)/2;if(cx>box.min.x&&cx<box.max.x&&cz>box.min.z&&cz<box.max.z){o.visible=false;o.__t2gone=1;}});
+      const zc1=R.z-D/2,zc2=R.z+D/2;colliders.forEach(c=>{if(c.x1<1e8&&Math.abs(c.x1-R.x1)<.06&&Math.abs(c.z1-zc1)<.06&&Math.abs(c.z2-zc2)<.06){c.x1=c.z1=c.x2=c.z2=1e9;}});
+      // keep two, leave one (pairs of semis with a garden between); short rows lose one in the middle
+      const keep=[];for(let i=0;i<n;i++)keep.push(n<=3?true:n<=5?i!==2:(i%3)!==2);
+      for(let i=0;i<n;){if(!keep[i]){const hx=R.x1+W/2+i*W;t2Garden(FC,hx,fz+R.face*.2,W,(ri*3+i)%4,'freo',R.face,R.z);out.freo++;out.gaps.push(['freo',+hx.toFixed(1),+R.z.toFixed(1)]);i++;continue;}
+        let j=i;while(j<n&&keep[j])j++;const a=R.x1+i*W,b=R.x1+j*W;col(a,zc1,b,zc2);for(let k=i;k<j;k++){t2Cottage(FC,R.x1+W/2+k*W,R.z,R.face,{seed:ri*31+k*7+3,left:k===i,right:k===j-1,num:((ri*17+k*2)%60)+1,hinge:(k-i)%2===1});out.cottages++;}i=j;}});}
+  out.ms=0;return out;}
+/* ---------- a rebuilt Fremantle cottage: every face painted, bullnose verandah, lace, tiles, fence, gate, path, mat ---------- */
+function t2Cottage(G,hx,z,face,o){const W=1.7,D=2.6,H=1.45,fz=z+face*D/2;T2.seed(o.seed);const R=T2.rnd;
+  const base=T2.WALLS[(o.seed*5+3)%T2.WALLS.length],trim=T2.TRIMS[(o.seed*3)%T2.TRIMS.length],dcol=T2.DOORS[(o.seed*7)%T2.DOORS.length];const kind=['board','board','stone','brick','render'][o.seed%5];
+  const trimC=T2.lum(trim)<.4&&T2.lum(base)<.5?'#f6f2e8':trim;
+  // front: door on the outer side of each pair, a sash window with a flower box, number, lantern
+  const front=lit=>{T2.seed(o.seed);const Wp=Math.round(W*32),Hp=Math.round(H*32);const[c,x]=T2.cv(Wp,Hp);T2.surface(x,Wp,Hp,base,kind);T2.eave(x,Wp);T2.plinth(x,Wp,Hp,kind==='stone'?T2.sh(base,.85):'#c8bca4');
+    const dl=o.hinge;const dx=dl?Wp-18:4;T2.door(x,dx,Hp-34,14,31,{col:dcol,frame:trimC,lit,n:o.num,hinge:dl,lamp:false,step:true});
+    const wx=dl?6:Wp-24;T2.win(x,wx,12,17,18,{kind:'sash',lit,box:true,frame:trimC,room:o.seed%5,shutter:o.seed%4===0?T2.pick(['#2f5a46','#6a2a2a','#1d3a6e']):null});
+    T2.num(x,dl?dx-11:dx+16,Hp-30,o.num,'#f4ecd8');if(o.left&&!dl)T2.pipe(x,1,3,Hp-2,trimC);if(o.right&&dl)T2.pipe(x,Wp-4,3,Hp-2,trimC);return c;};
+  const back=lit=>{T2.seed(o.seed+1);const Wp=Math.round(W*32),Hp=Math.round(H*32);const[c,x]=T2.cv(Wp,Hp);T2.surface(x,Wp,Hp,mix2(base),kind==='stone'?'stone':'board');T2.eave(x,Wp);T2.plinth(x,Wp,Hp,'#b8a88c');
+    T2.win(x,o.hinge?8:Wp-20,12,12,12,{kind:'case',lit,frame:'#f6f2e8',room:(o.seed+2)%5,lintel:false});T2.door(x,o.hinge?Wp-17:5,Hp-30,12,27,{col:T2.sh(dcol,1.1),frame:'#f6f2e8',lit,fan:false,lamp:false,hinge:!o.hinge});
+    // a meter box and a tap
+    T2.P(x,T2.INK,o.hinge?2:Wp-8,Hp-26,6,8);T2.P(x,'#d8d4c8',o.hinge?3:Wp-7,Hp-25,4,6);T2.P(x,'#3a3e48',o.hinge?4:Wp-6,Hp-23,2,2);T2.P(x,'#c8a040',o.hinge?4:Wp-6,Hp-10,2,2);return c;};
+  const side=lit=>{T2.seed(o.seed+2);const Wp=Math.round(D*32),Hp=Math.round(H*32);const[c,x]=T2.cv(Wp,Hp);T2.surface(x,Wp,Hp,base,kind);T2.eave(x,Wp);T2.plinth(x,Wp,Hp,'#c8bca4');T2.win(x,(Wp>>1)-6,12,12,15,{kind:'sash',lit,frame:trimC,room:(o.seed+4)%5});T2.pipe(x,4,3,Hp-2,trimC);T2.vent(x,Wp-16,Hp-11);T2.vent(x,14,Hp-11);return c;};
+  function mix2(b){return T2.mix(b,'#e8e0d0',.25);}
+  const fm=t2Lit(front(false),front(true)),bm=t2Lit(back(false),back(true));
+  const sm=(o.left||o.right)?t2Lit(side(false),side(true)):t2Col('party|'+base,T2.sh(base,.9));const top=t2Col('top|'+base,T2.sh(base,.7));
+  const mats=face>0?[o.right?sm:top,o.left?sm:top,top,top,fm,bm]:[o.right?sm:top,o.left?sm:top,top,top,bm,fm];
+  const body=new THREE.Mesh(new THREE.BoxGeometry(W,H,D),mats);body.position.set(hx,H/2,z);add(body);
+  // the front face of a -1 row looks north: the texture order above already swaps front/back; mirror the side lists for it
+  // gable roof: two sloped slabs (ridge cap at the top of each texture, gutter at the bottom), corrugated tin or tiles
+  const rk=o.seed%4===1?'tile':'tin',rb=rk==='tile'?T2.ROOFS.tile[o.seed%5]:T2.ROOFS.tin[(o.seed*3)%8],ov=.14,run=D/2+ov,rise=.85,sl=Math.hypot(run,rise),pitch=Math.atan2(rise,run);
+  const rm=t2Mat('cr|'+rk+'|'+rb+'|'+(o.seed%3),()=>T2.roof(W+.02,sl,{base:rb,kind:rk,ridge:true,gutter:true,seed:o.seed%3+1,vent:o.seed%3===0}));const edge=t2Col('re|'+rb,T2.sh(rb,.55));
+  [1,-1].forEach(s=>{const g=new THREE.Group();g.position.set(hx,H-.05,z);g.rotation.y=s>0?0:Math.PI;const m=new THREE.Mesh(new THREE.BoxGeometry(W+.02,.04,sl),[edge,edge,rm,edge,edge,edge]);m.rotation.x=pitch;
+    // place the slab so its low edge sits at the eave (z = +run) and its high edge at the ridge (z = 0)
+    m.position.set(0,rise/2+.02,run/2);g.add(m);
+    const gut=new THREE.Mesh(new THREE.BoxGeometry(W+.04,.06,.07),t2Col('gut',  '#e8e4d8'));gut.position.set(0,.0,run+.01);g.add(gut);G.add(g);g.traverse(q=>{if(q.isMesh){q.castShadow=q.receiveShadow=true;q.__pxSkip=1;}});});
+  // exposed ends get a painted gable triangle with a vent and bargeboards
+  [[o.left,-1],[o.right,1]].forEach(([on,s])=>{if(!on)return;const gw=D+2*ov,gh=rise;const geo=new THREE.BufferGeometry();const X=hx+s*(W/2+.001);
+    geo.setAttribute('position',new THREE.Float32BufferAttribute([X,H-.05,z-run, X,H-.05,z+run, X,H+gh-.05,z],3));geo.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,.5,1],2));geo.computeVertexNormals();
+    const gm=t2Mat('gab|'+base+'|'+trimC,()=>T2.gable(gw,gh,base,{trim:trimC,seed:o.seed}),{side:THREE.DoubleSide});add(new THREE.Mesh(geo,gm));});
+  // chimney on the party wall of every other cottage, two pots
+  if(o.seed%2===0){const cxp=hx+(o.hinge?-1:1)*(W/2-.18),c=new THREE.Mesh(new THREE.BoxGeometry(.24,.62,.24),t2Mat('chim',()=>T2.chimney(.24,.62,'#a8583e')));c.position.set(cxp,H+.62,z-face*.35);add(c);
+    [-.05,.05].forEach(d=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.03,.035,.1,6),t2Col('pot','#c8643a'));p.position.set(cxp+d,H+.98,z-face*.35);add(p);});}
+  // bullnose verandah: a flat run and a curved lip, striped tin, posts with brackets, lace frieze, tiled floor
+  const vd=.95,vz=fz+face*vd/2,stp=[['#2f5a46','#f2e6c8'],['#8a2a2a','#f2e6c8'],['#1d3a6e','#f6f2e8'],['#c8ccd0','#9aa0a6'],['#3d7a78','#f4ecd8']][o.seed%5];
+  const vm=t2Mat('ver|'+stp[0],()=>T2.stripes(W,vd,stp[0],stp[1]));const ve=t2Col('ve|'+stp[0],T2.sh(stp[0],.6));
+  const v1=new THREE.Mesh(new THREE.BoxGeometry(W-.02,.04,vd*.62),[ve,ve,vm,ve,ve,ve]);v1.position.set(hx,1.12,fz+face*vd*.31);v1.rotation.x=face*.12;add(v1);
+  const v2=new THREE.Mesh(new THREE.BoxGeometry(W-.02,.04,vd*.42),[ve,ve,vm,ve,ve,ve]);v2.position.set(hx,1.0,fz+face*vd*.8);v2.rotation.x=face*.55;add(v2);
+  const postM=t2Col('post|'+trimC,T2.lum(trimC)>.6?'#f6f2e8':trimC);[-W/2+.1,W/2-.1].forEach(dx=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.05,.96,.05),postM);p.position.set(hx+dx,.48,fz+face*.9);add(p);
+    const br=new THREE.Mesh(new THREE.BoxGeometry(.18,.05,.04),postM);br.position.set(hx+dx-Math.sign(dx)*.08,.86,fz+face*.9);br.rotation.z=Math.sign(dx)*.5;add(br);});
+  const lm=t2Mat('lace|'+trimC,()=>T2.lace(W-.2,.16,T2.lum(trimC)>.6?'#f6f6f2':trimC),{transparent:false,alphaTest:.5,side:THREE.DoubleSide});const lc=new THREE.Mesh(new THREE.PlaneGeometry(W-.2,.16),lm);lc.position.set(hx,.86,fz+face*.91);if(face<0)lc.rotation.y=Math.PI;add(lc);
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(W-.04,vd-.05),t2Mat('tiles',()=>T2.tiles(W-.04,vd-.05)));fl.rotation.x=-Math.PI/2;fl.position.set(hx,.035,fz+face*vd/2);add(fl,true);
+  const ds=(o.hinge?1:-1)*(face>0?1:-1),dxm=ds*(W/2-.36);const mt=new THREE.Mesh(new THREE.PlaneGeometry(.34,.18),t2Mat('mat|'+(o.seed%4),()=>{T2.seed(o.seed);return T2.mat(.34,.18);}));mt.rotation.x=-Math.PI/2;mt.position.set(hx+dxm,.04,fz+face*.14);add(mt,true);
+  // front path to a gate in the picket fence, a letterbox on the fence
+  const gz=fz+face*1.88;const pv=new THREE.Mesh(new THREE.PlaneGeometry(.42,.95),t2Mat('path',()=>T2.pave(.42,.95)));pv.rotation.x=-Math.PI/2;pv.position.set(hx+dxm,.034,fz+face*1.4);add(pv,true);
+  t2Fence(G,hx-W/2+.05,hx+W/2-.05,gz,[hx+dxm-.24,hx+dxm+.24]);
+  const lb=new THREE.Mesh(new THREE.BoxGeometry(.16,.14,.12),t2Col('lb|'+dcol,dcol));lb.position.set(hx+dxm-ds*.36,.42,gz);add(lb);const lp=new THREE.Mesh(new THREE.BoxGeometry(.05,.36,.05),t2Col('lbp','#6a4028'));lp.position.set(lb.position.x,.18,gz);add(lp);
+  function add(m,flat){m.castShadow=!flat;m.receiveShadow=true;m.__pxSkip=1;G.add(m);return m;}}
+// a picket fence from x1 to x2 at z, with an opening [g1,g2] for a gate
+function t2Fence(G,x1,x2,z,gap){const m=t2Col('picket','#f6f6f2');for(let x=x1;x<=x2+.001;x+=.19){if(gap&&x>gap[0]&&x<gap[1])continue;const p=new THREE.Mesh(new THREE.BoxGeometry(.035,.36,.035),m);p.position.set(x,.18,z);p.castShadow=true;p.__pxSkip=1;G.add(p);}
+  const segs=gap?[[x1,gap[0]],[gap[1],x2]]:[[x1,x2]];segs.forEach(([a,b])=>{if(b-a<.05)return;const r=new THREE.Mesh(new THREE.BoxGeometry(b-a,.04,.04),m);r.position.set((a+b)/2,.3,z);r.__pxSkip=1;G.add(r);});}
+// a plant sprite the plant look already repainted: the nearest street tree (tall) or bush (low) in the same town
+function t2Like(x,z,tall,k){const V=new THREE.Vector3();let best=null,bd=1e9;for(const o of BB){if(!o.isMesh||(o.userData&&o.userData.frames)||!o.geometry||!o.geometry.parameters||o.geometry.type!=='PlaneGeometry'||!o.material||!o.material.map||(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(o.material.map)))continue;
+    const h=o.geometry.parameters.height*Math.abs(o.scale.y);if(tall?(h<2||h>6):(h<.35||h>1.3))continue;o.getWorldPosition(V);scene.worldToLocal(V);const d=Math.hypot(V.x-x,V.z-z)+((o.id*7+k*13)%5);if(d<bd&&d<60){bd=d;best=o;}}return best;}
+// the gap where a house was: a little garden (tree + flower bed, bench + bushes, veggie patch + tank, or a side path with a bike)
+function t2Garden(G,x,z,w,kind,zone,face,rz){T2.seed((x*13|0)+kind);const add=(m,flat)=>{m.castShadow=!flat;m.receiveShadow=true;m.__pxSkip=1;G.add(m);return m;};
+  const bb=(tall,X,Z,s)=>{const src=t2Like(X,Z,tall,kind);if(!src)return null;const p=src.geometry.parameters,ww=p.width*Math.abs(src.scale.x)*s,hh=p.height*Math.abs(src.scale.y)*s;const g=new THREE.PlaneGeometry(ww,hh);g.translate(0,hh/2,0);
+    const m=new THREE.Mesh(g,src.material);if(src.customDepthMaterial)m.customDepthMaterial=src.customDepthMaterial;m.castShadow=true;m.receiveShadow=true;m.position.set(X,0,Z);G.add(m);BB.push(m);
+    try{const tr=trees.find(t=>t.m===src);if(tr)trees.push(Object.assign({},tr,{x:X,z:Z,m,fade:false}));}catch(e){}return m;};
+  const lawn=new THREE.Mesh(new THREE.PlaneGeometry(w-.1,zone==='freo'?4.3:2.4),t2Mat('lawn',()=>{const[c,x]=T2.cv(48,48);const r=T2.ramp('#6e9446');T2.P(x,r[3],0,0,48,48);for(let i=0;i<420;i++)T2.P(x,T2.rnd()<.55?r[2]:T2.mix(r[3],r[4],.5),T2.rnd()*48,T2.rnd()*48,1,T2.rnd()<.3?2:1);for(let i=0;i<10;i++)T2.P(x,['#f4d04a','#f8f8f0','#e05a6a'][i%3],T2.rnd()*48,T2.rnd()*48);return c;}));
+  lawn.rotation.x=-Math.PI/2;const cz=zone==='freo'?rz+face*.94:z;lawn.position.set(x,.036,cz);add(lawn,true);
+  const bush=(X,Z,s)=>bb(false,X,Z,s);
+  if(kind===0){bb(true,x,cz,zone==='freo'?.62:.8);const fb=new THREE.Mesh(new THREE.BoxGeometry(w*.7,.12,.4),t2Mat('bed',()=>T2.veg(1.2,.4)));fb.position.set(x,.06,cz+(face||1)*.9);add(fb);}
+  else if(kind===1){const bz=zone==='freo'?cz+(face||1)*1.1:z+.4;const seat=new THREE.Mesh(new THREE.BoxGeometry(1,.06,.3),t2Mat('bench',()=>T2.wood(1,.3)));seat.position.set(x,.32,bz);add(seat);const bk=new THREE.Mesh(new THREE.BoxGeometry(1,.26,.05),t2Mat('bench',()=>T2.wood(1,.3)));bk.position.set(x,.5,bz-(face||1)*.14);add(bk);
+    [-.42,.42].forEach(d=>{const l=new THREE.Mesh(new THREE.BoxGeometry(.06,.3,.28),t2Col('iron','#2a2230'));l.position.set(x+d,.15,bz);add(l);});col(x-.5,bz-.18,x+.5,bz+.18);bush(x-w*.3,cz-(face||1)*.6,.55);bush(x+w*.3,cz-(face||1)*.5,.5);if(zone!=='freo')bb(true,x+.9,z-.6,.7);}
+  else if(kind===2){const vp=new THREE.Mesh(new THREE.BoxGeometry(w*.75,.16,1.2),t2Mat('veg',()=>T2.veg(1.2,1.2)));vp.position.set(x,.08,cz);add(vp);
+    const tk=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.8,10),t2Mat('tank',()=>T2.tank(2,.8)));tk.position.set(x+(w/2-.42)*((x|0)%2?1:-1),.4,cz-(face||1)*.9);add(tk);const tl=new THREE.Mesh(new THREE.CylinderGeometry(.33,.33,.04,10),t2Col('tankl','#c8ccd0'));tl.position.set(tk.position.x,.82,tk.position.z);add(tl);}
+  else{const pv=new THREE.Mesh(new THREE.PlaneGeometry(.5,zone==='freo'?3.4:2),t2Mat('path',()=>T2.pave(.42,.95)));pv.rotation.x=-Math.PI/2;pv.position.set(x,.034,cz);add(pv,true);bush(x-.55,cz,.5);bush(x+.55,cz+.4,.45);bb(true,x+.5,cz-(face||1)*1.1,zone==='freo'?.5:.7);}
+  if(zone==='freo'){const gz=rz+face*(1.3+1.88);t2Fence(G,x-w/2+.05,x+w/2-.05,gz,kind===3?[x-.3,x+.3]:null);}}
+/* ---------- 2. richer roofs, doors and windows on the town houses the kit skinned ---------- */
+function town2Skin(walls,roofs,panes,glow){T2.cur=null;const out={walls:0,hips:0,roofs:0,panes:0,doors:0,chim:0};town2Skin.out=out;
+  const tw=walls.filter(W=>W.__t2&&W.o.visible);out.walls=tw.length;const inT=p=>tw.find(W=>p.x>W.box.min.x-.35&&p.x<W.box.max.x+.35&&p.z>W.box.min.z-.35&&p.z<W.box.max.z+.35&&p.y<W.box.max.y+.4);
+  const roofKind=c=>{const a=new THREE.Color(c);const h={};a.getHSL(h);return h.s<.22?'slate':(h.h>.18&&h.h<.5)?'tin':(h.h>.5&&h.h<.75)?'slate':'tile';};
+  const avg=im=>{try{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;let r=0,g=0,b=0,n=0;for(let q=0;q<d.length;q+=16){r+=d[q];g+=d[q+1];b+=d[q+2];n++;}return'#'+new THREE.Color(r/n/255*1.08,g/n/255*1.08,b/n/255*1.08).getHexString();}catch(e){return'#b8562e';}};
+  // hip roofs (made by pxbScene on the house walls): new tile courses, plus a chimney on most houses
+  tw.forEach(W=>{W.o.children.forEach(m=>{if(!m.isMesh||!m.__pxSkip||!m.geometry||m.geometry.type!=='BufferGeometry'||!m.material||!m.material.map)return;const base=avg(m.material.map.image),k=roofKind(base);
+      const nm=t2Mat('hip|'+base+'|'+k,()=>T2.roof(2,2,{base,kind:k,seed:W.__s%4+1}),{side:THREE.DoubleSide});nm.map.wrapS=nm.map.wrapT=THREE.RepeatWrapping;m.material=nm;out.hips++;
+      if(W.h<3.4&&W.__s%3!==0){const p=W.o.geometry.parameters,sx=W.w/p.width,sy=W.h/p.height,sz=W.d/p.depth;const c=new THREE.Mesh(new THREE.BoxGeometry(.26/sx,.8/sy,.26/sz),t2Mat('chim',()=>T2.chimney(.24,.62,'#a8583e')));
+        c.position.set((W.__s%2?1:-1)*p.width*.22,p.height/2+.45/sy,-p.depth*.12);c.castShadow=true;c.__pxSkip=1;W.o.add(c);out.chim++;}});});
+  // gable prisms, cone and flat roofs that sit on town houses
+  const zw=walls.filter(W=>W.__t2||(W.o.visible&&W.box&&t2Zone(t2Local(W.o).x)));zw.forEach(W=>{if(W.__s==null)W.__s=(Math.round(W.box.min.x*3)*7+Math.round(W.box.min.z*5)*13)>>>0;});
+  zw.forEach(W=>{const b=W.box;roofs.forEach(R=>{if(!R.o.visible||R.__t2)return;const q=new THREE.Box3().setFromObject(R.o),c=q.getCenter(new THREE.Vector3());if(c.x<b.min.x||c.x>b.max.x||c.z<b.min.z||c.z>b.max.z||q.min.y<b.max.y-.6)return;R.__t2=1;
+      const ms=Array.isArray(R.o.material)?R.o.material:[R.o.material];const m0=ms[0];if(!m0||!m0.map||!m0.map.image)return;const base=avg(m0.map.image),k=roofKind(base),im=m0.map.image,ww=im.width/32,hh=im.height/32;
+      const nm=t2Mat(['rp',base,k,ww.toFixed(1),hh.toFixed(1),R.kind].join('|'),()=>T2.roof(ww,hh,{base,kind:k,across:R.kind==='prism',seed:W.__s%4+2}));if(Array.isArray(R.o.material)){const a=R.o.material.slice();a[R.kind==='flat'?2:0]=nm;R.o.material=a;}else R.o.material=nm;out.roofs++;
+      if(W.__small&&R.kind!=='flat'&&W.__s%3!==0&&R.o.parent){const sz=q.getSize(new THREE.Vector3()),wp=new THREE.Vector3(c.x+(W.__s%2?1:-1)*sz.x*.2,q.min.y+sz.y*.62,c.z-sz.z*.12);const ch=new THREE.Mesh(new THREE.BoxGeometry(.26,.8,.26),t2Mat('chim',()=>T2.chimney(.24,.62,'#a8583e')));
+        const par=R.o.parent;par.updateMatrixWorld(true);par.worldToLocal(wp);ch.position.copy(wp);const ws=new THREE.Vector3();par.getWorldScale(ws);ch.scale.set(1/Math.abs(ws.x),1/Math.abs(ws.y),1/Math.abs(ws.z));ch.castShadow=true;ch.__pxSkip=1;par.add(ch);out.chim++;}});});
+  // South Perth's little houses fade when Kip walks behind them (SP_FADE), so the kit left them alone: paint them here
+  if(typeof SP_FADE!=='undefined')SP_FADE.forEach((f,fi)=>{const cx=(f.x1+f.x2)/2;if(!(cx>100&&cx<250))return;
+    const ms=[];f.mats.forEach(m=>ms.push(m));let wall=null,roofM=null;scene.traverse(o=>{if(!o.isMesh||!o.material||Array.isArray(o.material)||!ms.includes(o.material))return;if(o.geometry.type==='BoxGeometry'&&o.geometry.parameters.height>1.2)wall=o;else if(o.material.map&&o.material.map.image&&o.material.map.image.width===64)roofM=o.material;});
+    if(!wall||wall.geometry.parameters.height>2.6||Math.max(wall.geometry.parameters.width,wall.geometry.parameters.depth)>5)return;let nm=0,sg=false;(wall.parent||wall).traverse(q=>{if(q.isMesh){nm++;if(q.material&&q.material.map&&SIGN_TEX.has(q.material.map))sg=true;}});if(nm>3||sg)return;// plain little houses only: landmarks with signs keep their own look
+    let vis=true;for(let p=wall;p;p=p.parent)if(p.visible===false)vis=false;if(!vis)return;const p=wall.geometry.parameters,s=(Math.round(cx*3)*7+fi*13)>>>0;const base=T2.WALLS[s%T2.WALLS.length];
+    const face=(fw,k)=>{const o={base,kind:s%3===0?'brick':s%3===1?'board':'plaster',house:true,win:fw>3?2:1,door:k===2||k===0&&fw>3,doorAt:k===2?.5:0,seed:13+k*7+s,num:s%60+1,rows:1,cornice:false,box:k===2};const d=T2.wall(fw,p.height,o),l=T2.wall(fw,p.height,Object.assign({},o,{lit:true}));
+      const m=new THREE.MeshLambertMaterial({map:t2Tex(d),emissive:0xffffff,emissiveIntensity:0,emissiveMap:t2Tex(PXK.glowDiff(d,l)),transparent:true,opacity:f.o});PXB_GLOW.push(m);return m;};
+    const top=new THREE.MeshLambertMaterial({color:new THREE.Color(T2.sh(base,.7)),transparent:true});const A=[face(p.depth,1),face(p.depth,3),top,top,face(p.width,0),face(p.width,2)];
+    const i=f.mats.indexOf(wall.material);if(i>=0)f.mats.splice(i,1);f.mats.push(...A);wall.material=A;wall.__pxSkip=1;out.spRow=(out.spRow||0)+1;
+    if(roofM){const old=roofM.map,base2=avg(old.image),k=roofKind(base2);const t=t2Tex(T2.roof(2,2,{base:base2,kind:k,seed:s%4+1}),[old.repeat.x,old.repeat.y]);t.offset.copy(old.offset);roofM.map=t;roofM.needsUpdate=true;}});
+  // window and door planes on those walls
+  const pm=new Map();panes.forEach(P=>{if(!P.o.visible||!inT(P.pos))return;const W=inT(P.pos);const s=W.__s;
+    if(P.door){const w=Math.max(10,Math.round(P.w*32)-6),h=Math.max(16,Math.round(P.h*32)-4),col=T2.DOORS[s%T2.DOORS.length],key='d|'+w+'|'+h+'|'+col+'|'+(s%7);let m=pm.get(key);
+      if(!m){const mk=lit=>{const[c,x]=T2.cv(w+6,h+4);T2.P(x,'#e8dcc0',0,0,w+6,h+4);T2.door(x,3,4,w,h-2,{col,lit,lamp:false,step:false,n:null,frame:T2.TRIMS[s%T2.TRIMS.length]});return c;};m=t2Lit(mk(false),mk(true));pm.set(key,m);}P.o.material=m;out.doors++;}
+    else{const w=Math.max(8,Math.round(P.w*32)-6),h=Math.max(8,Math.round(P.h*32)-6),key='p|'+w+'|'+h+'|'+(s%5);let m=pm.get(key);
+      if(!m){const mk=lit=>{const[c,x]=T2.cv(w+8,h+10);T2.P(x,T2.INK,0,0,w+8,h+10);T2.win(x,4,3,w,h,{lit,room:s%5,lintel:false,frame:T2.TRIMS[s%T2.TRIMS.length]});return c;};m=t2Lit(mk(false),mk(true));pm.set(key,m);}P.o.material=m;out.panes++;}});
+  return out;}
+/* ---------- 3. quokkas at twice the pixels (Kip, staff, villagers, wild quokkas; every pose and outfit) ----------
+   kip32 / kipFB keep their 32 px canvas (menus and previews use it) and hang a 64 px one on it as .__hd, which the
+   character pass (mkFrame) uses instead of the automatic 2x. The same drawing code runs on a painter at double size,
+   so round volumes are drawn smoothly at 64 px with in-between tones; then fur strands, rim light, glossy eyes,
+   blush, a shiny nose, inner ears and toes are added at the finer size. Same world size, same frames. */
+function town2Painter(W,H){const S=2,W2=W*S,H2=H*S;const c=document.createElement('canvas');c.width=W2;c.height=H2;const x=c.getContext('2d'),img=x.createImageData(W2,H2),D=img.data,TAG=new Uint8Array(W2*H2);
+  const put=(i,j,col,t)=>{if(i<0||j<0||i>=W2||j>=H2)return;const k=(j*W2+i)*4;D[k]=col[0];D[k+1]=col[1];D[k+2]=col[2];D[k+3]=255;TAG[j*W2+i]=t||0;};
+  const set=(i,j,col)=>{i|=0;j|=0;for(let b=0;b<2;b++)for(let a=0;a<2;a++)put(i*2+a,j*2+b,col,9);};
+  const ell=(cx,cy,rx,ry,pal)=>{if(!(rx>0&&ry>0))return;const tag=pal.length===5?1:pal.length===3?2:pal.length===2?3:4;const n=pal.length-1;
+    const j0=Math.max(0,Math.floor((cy-ry)*2)),j1=Math.min(H2-1,Math.ceil((cy+ry)*2)),i0=Math.max(0,Math.floor((cx-rx)*2)),i1=Math.min(W2-1,Math.ceil((cx+rx)*2));
+    for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const dx=((i+.5)/2-cx)/rx,dy=((j+.5)/2-cy)/ry,d=dx*dx+dy*dy;if(d>1)continue;const l=(-dx*.5-dy*.8)*.55+(1-d)*.55;let kf=clamp((l+.35)/1.3*n,0,n);
+      if(d>.8&&((i+j)&1))kf=Math.max(0,kf-.6);let k=Math.floor(kf),f=kf-k;let col=pal[k];
+      // in-between tones: the middle of each step blends the two neighbours, the edge of the band is dithered
+      if(k<n){if(f>.62)col=pal[k+1];else if(f>.38)col=[0,1,2].map(q=>(pal[k][q]+pal[k+1][q])>>1);else if(f>.3&&((i^j)&1))col=[0,1,2].map(q=>(pal[k][q]*3+pal[k+1][q])>>2);}
+      put(i,j,col,tag);}};
+  return{set,ell,done:o=>{town2QDetail(D,TAG,W2,H2);x.putImageData(img,0,0);outlineCanvas(c,o||[40,32,28]);town2QRim(c,o||[40,32,28]);return c;}};}
+function town2QDetail(D,TAG,W,H){const at=(i,j)=>(j*W+i)*4,op=(i,j)=>i>=0&&j>=0&&i<W&&j<H&&D[at(i,j)+3]>0,col=(i,j)=>{const k=at(i,j);return(D[k]<<16)|(D[k+1]<<8)|D[k+2];};
+  const setc=(i,j,c)=>{if(i<0||j<0||i>=W||j>=H)return;const k=at(i,j);D[k]=c[0];D[k+1]=c[1];D[k+2]=c[2];D[k+3]=255;};const mul=(i,j,f,warm)=>{const k=at(i,j);D[k]=Math.min(255,D[k]*f+(warm||0));D[k+1]=Math.min(255,D[k+1]*f+(warm||0)*.6);D[k+2]=Math.min(255,D[k+2]*f);};
+  const hs=(i,j)=>{let h=(i*374761393+j*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
+  const EYE=0x1a1010,WHT=0xffffff,EYB=0x5a3c32,NOSE=0x281812,MOUTH=0x5a3228,CHEEK=0xe89282;
+  // fur strands: short darker strokes running down, lighter flecks on the lit side (fur pixels only, never clothes)
+  for(let j=1;j<H-1;j++)for(let i=1;i<W-1;i++){if(TAG[j*W+i]!==1)continue;const h=hs(i,j);if(h<.085){mul(i,j,.86);if(TAG[(j+1)*W+i]===1)mul(i,j+1,.92);}else if(h>.93&&!op(i-2,j-2))mul(i,j,1.1,6);else if(h>.965)mul(i,j,1.06,3);}
+  // rim light along the top-left of the fur, a warm bounce under the belly
+  for(let j=1;j<H-1;j++)for(let i=1;i<W-1;i++){const t=TAG[j*W+i];if(t!==1&&t!==2)continue;if(!op(i-1,j)||!op(i,j-1))mul(i,j,1.14,8);else if(!op(i+1,j)||!op(i,j+1))mul(i,j,.84);}
+  // find the painted features (they were set as 2x2 blocks): eyes, nose, mouth, blush
+  const seen=new Uint8Array(W*H);const blobs=[];
+  for(let j=0;j<H;j++)for(let i=0;i<W;i++){if(seen[j*W+i]||TAG[j*W+i]!==9||D[at(i,j)+3]===0)continue;const c0=col(i,j);if(c0!==EYE&&c0!==NOSE&&c0!==CHEEK&&c0!==MOUTH)continue;
+    const q=[[i,j]];seen[j*W+i]=1;const b={c:c0,x0:i,x1:i,y0:j,y1:j,n:0};while(q.length){const[a,e]=q.pop();b.n++;b.x0=Math.min(b.x0,a);b.x1=Math.max(b.x1,a);b.y0=Math.min(b.y0,e);b.y1=Math.max(b.y1,e);
+      for(const[da,de]of[[1,0],[-1,0],[0,1],[0,-1]]){const A=a+da,E=e+de;if(A<0||E<0||A>=W||E>=H||seen[E*W+A]||TAG[E*W+A]!==9)continue;const cc=col(A,E);const ok=c0===EYE?(cc===EYE||cc===WHT||cc===EYB):cc===c0;if(ok){seen[E*W+A]=1;q.push([A,E]);}}}
+    blobs.push(b);}
+  blobs.forEach(b=>{const w=b.x1-b.x0+1,h=b.y1-b.y0+1;
+    if(b.c===EYE&&b.n>=8&&w<=6&&h<=8){// glossy eye: dark brown iris, a two-pixel shine, a small lower glint, a lid line and soft corners
+      for(let j=b.y0;j<=b.y1;j++)for(let i=b.x0;i<=b.x1;i++)setc(i,j,[30,18,16]);for(let i=b.x0+1;i<b.x1;i++)setc(i,b.y1,[96,58,40]);for(let i=b.x0;i<=b.x1;i++)setc(i,b.y1-1,i===b.x0||i===b.x1?[30,18,16]:[70,42,30]);
+      setc(b.x0+1,b.y0+1,[255,255,255]);setc(b.x0+2,b.y0+1,[255,255,255]);setc(b.x0+1,b.y0+2,[255,250,240]);setc(b.x1-1,b.y1-1,[220,190,160]);
+      [[b.x0,b.y0],[b.x1,b.y0],[b.x0,b.y1],[b.x1,b.y1]].forEach(([i,j])=>{const k=at(i,j);if(op(i,j))setc(i,j,[Math.min(255,D[k]*0+70),44,30]);});
+      for(let i=b.x0;i<=b.x1;i++)if(op(i,b.y0-1)&&TAG[(b.y0-1)*W+i]===1)mul(i,b.y0-1,.66);}
+    else if(b.c===NOSE){setc(b.x0,b.y0,[120,84,72]);if(w>2)setc(b.x0+1,b.y0,[90,60,50]);for(let i=b.x0;i<=b.x1;i++)if(op(i,b.y1+1)&&TAG[(b.y1+1)*W+i]!==9)mul(i,b.y1+1,.9);}
+    else if(b.c===CHEEK){const cx=(b.x0+b.x1)/2,cy=(b.y0+b.y1)/2;for(let j=Math.floor(cy-3);j<=cy+3;j++)for(let i=Math.floor(cx-4);i<=cx+4;i++){if(!op(i,j))continue;const t=TAG[j*W+i];if(t!==1&&t!==2&&!(i>=b.x0&&i<=b.x1&&j>=b.y0&&j<=b.y1))continue;
+        const d=((i-cx)/4.2)**2+((j-cy)/3)**2;if(d>1)continue;const k=at(i,j),a=d<.35?.55:.3;D[k]=D[k]*(1-a)+240*a;D[k+1]=D[k+1]*(1-a)+140*a;D[k+2]=D[k+2]*(1-a)+130*a;}setc(Math.round(cx)-1,Math.round(cy)-1,[255,200,190]);}});
+  // inner ears: the pink gets a deep shadow at the bottom and a light top
+  for(let j=1;j<H-1;j++)for(let i=1;i<W-1;i++){if(TAG[j*W+i]!==3)continue;if(TAG[(j+1)*W+i]!==3)mul(i,j,.72);else if(TAG[(j-1)*W+i]!==3)mul(i,j,1.08,10);}
+  // toes: the bottom row of each foot gets little dark splits
+  for(let i=1;i<W-1;i++){let j=H-1;while(j>0&&!op(i,j))j--;if(j<H*.82||TAG[j*W+i]!==1)continue;if(i%3===0){mul(i,j,.6);mul(i,j-1,.78);}else if(i%3===1)mul(i,j-1,1.08,4);}}
+// a softer outline: the outline pixel that touches the body takes the body colour, darkened (like the character pass)
+function town2QRim(c,o){const x=c.getContext('2d'),W=c.width,H=c.height,img=x.getImageData(0,0,W,H),d=img.data,src=new Uint8ClampedArray(d);const isO=k=>src[k+3]&&src[k]===o[0]&&src[k+1]===o[1]&&src[k+2]===o[2];
+  for(let j=1;j<H-1;j++)for(let i=1;i<W-1;i++){const k=(j*W+i)*4;if(!isO(k))continue;const up=((j-1)*W+i)*4;if(src[up+3]&&!isO(up)&&j>H*.08){const f=.62;d[k]=src[up]*f;d[k+1]=src[up+1]*f;d[k+2]=src[up+2]*f;}}
+  x.putImageData(img,0,0);}
+function town2Quokka(dir,step,ap,tint,ow){const real=painter;let c=null;painter=function(W,H){return town2Painter(W,H);};
+  try{c=dir<0?kip32o(step,ap,tint,ow):kipFBo(dir,step,ap,tint,ow);}finally{painter=real;}return c;}
+function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{spBuild_sky();}catch(e){console.error(e);}try{pxDeclutter();}catch(e){console.error(e);}if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}try{pxFixDiamonds();}catch(e){console.error(e);}try{pxbLaneClear();}catch(e){console.error(e);}if(TOWN2_ON)try{town2Thin();}catch(e){console.error(e);}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
   const isl=o=>{const m=o.material,im=m&&m.map&&m.map.image;return!im||im.width<=32;};// plain walls get the kit; walls with their own picture keep it (redrawn below)// every map; faces that already carry a painted picture keep it
   const hex=m=>m&&m.color?'#'+m.color.getHexString():'#e4d2a8';const r1=v=>Math.round(v*2)/2;
   const cache=new Map();const tm=(key,make,o)=>{let m=cache.get(key);if(!m){const c=make();m=new THREE.MeshLambertMaterial(Object.assign({map:ctex(c)},o||{}));m.map.minFilter=THREE.NearestFilter;m.map.generateMipmaps=false;cache.set(key,m);}return m;};
@@ -11437,7 +11820,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
   // the wall's own colour: material colour times the most common colour of its little tile (so a teal tower stays teal)
   const avgC=new Map();const tileCol=m=>{const im=m.map&&m.map.image;if(!im)return hex(m);if(avgC.has(im))return avgC.get(im);let out=hex(m);try{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;const cnt=new Map();let best=0,bk=0;
       for(let q=0;q<d.length;q+=4){const k=((d[q]>>3)<<10)|((d[q+1]>>3)<<5)|(d[q+2]>>3);const n=(cnt.get(k)||0)+1;cnt.set(k,n);if(n>best){best=n;bk=q;}}const col=new THREE.Color(d[bk]/255,d[bk+1]/255,d[bk+2]/255).multiply(m.color);out='#'+col.getHexString();}catch(e){}avgC.set(im,out);return out;};
-  walls.forEach((W,i)=>{const base=tileCol(W.o.material),lum=PXK.lum(base);const kind=lum>.84?'stone':lum<.3?'brick':'plaster';
+  if(TOWN2_ON)try{town2Mark(walls);}catch(e){console.error(e);}walls.forEach((W,i)=>{if(TOWN2_ON)T2.cur=W;const base=TOWN2_ON&&W.__t2?T2.base(W,tileCol(W.o.material)):tileCol(W.o.material),lum=PXK.lum(base);const kind=lum>.84?'stone':lum<.3?'brick':'plaster';
     const big=W.w*W.d>4.5;const face=(fw,has,k)=>{const n=has||fw<1.7||W.h<1.25||Math.min(W.w,W.d)<.4?0:Math.max(1,Math.floor((fw-.6)/1.5));const key=['w',base,r1(fw),r1(W.h),n,k%2].join('|');
       const opt={base:lum>.95?'#ece0c2':base,kind,win:n,door:false,shutter:k%2?'#3d7a78':null,arch:big&&k%2===0,seed:13+k*7+(fw*10|0),ivy:fw>2.4&&(i%4===1)?[.05,.28]:null};
       if(W.h>6.6||fw>14){const mw=fw>14?6:Math.max(1.6,r1(fw)),mh=2.9,nx=Math.max(1,Math.round(fw/mw)),ny=Math.max(1,Math.round(W.h/mh)),k2=['m',base,mw,nx,ny,k%2].join('|');let mm=cache.get(k2);if(mm)return mm;
@@ -11453,7 +11836,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
       em.getContext('2d').putImageData(e,0,0);m=new THREE.MeshLambertMaterial({map:ctex(day),emissive:0xffffff,emissiveIntensity:0,emissiveMap:ctex(em)});cache.set(key,m);glowMats.push(m);return m;};
     const top=tm('t|'+base,()=>{const[c,x]=PXK.cv(16,16);PXK.P(x,PXK.sh(base,.86),0,0,16,16);return c;});
     const flat=W.w*W.d>6&&W.h>=1.8?tm(['tf',r1(W.w),r1(W.d)].join('|'),()=>PXK.roof(W.w,W.d,{base:'#b8bcc0',kind:'tin',seed:5})):top;
-    W.o.material=[face(W.d,W.faces[0],1),face(W.d,W.faces[1],3),flat,top,face(W.w,W.faces[4],0),face(W.w,W.faces[5],2)];W.o.castShadow=W.o.receiveShadow=true;nw++;});
+    W.o.material=[face(W.d,W.faces[0],1),face(W.d,W.faces[1],3),flat,top,face(W.w,W.faces[4],0),face(W.w,W.faces[5],2)];W.o.castShadow=W.o.receiveShadow=true;nw++;});if(TOWN2_ON)T2.cur=null;
   // a four-sided cone roof is replaced by a proper hip roof cut to the wall it sits on (same footprint plus a small overhang, a gentle pitch)
   walls.forEach(W=>{W.box=new THREE.Box3().setFromObject(W.o);});const RB=new THREE.Box3(),RC=new THREE.Vector3();
   function pxHip(R,base,k){RB.setFromObject(R.o);RB.getCenter(RC);let best=null,bd=1e9;
@@ -11496,7 +11879,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
     scene.updateMatrixWorld(true);const DB=new THREE.Box3(),DC=new THREE.Vector3();const allW=[];scene.traverse(o=>{if(o.isMesh&&vis(o)&&o.geometry&&(o.geometry.type==='BoxGeometry'||o.geometry.type==='CylinderGeometry')){DB.setFromObject(o);const sz=DB.getSize(DC);if(sz.y>1.2&&Math.max(sz.x,sz.z)>1.4){const bb=DB.clone();bb.__o=o;allW.push(bb);}}});
     let nd=0;scene.traverse(o=>{if(!o.isMesh||!vis(o)||!o.geometry||o.geometry.type!=='PlaneGeometry'||(o.userData&&o.userData.frames&&o.userData.frames.length>1))return;DB.setFromObject(o);const sz=DB.getSize(DC);if(sz.y<.8||sz.y>1.7||Math.max(sz.x,sz.z)>1.3||DB.min.y>.9||Math.min(sz.x,sz.z)>.6||!(o.material&&o.material.map&&o.material.map.image&&o.material.map.image.height>o.material.map.image.width))return;
       const c=DB.getCenter(new THREE.Vector3());if(scene.worldToLocal(c.clone()).x>100)return;const w=allW.find(b=>c.x>b.min.x-.35&&c.x<b.max.x+.35&&c.z>b.min.z-.35&&c.z<b.max.z+.35);if(!w){o.visible=false;nd++;}else PXB_DOORS.push([o,w.__o,w.__o.getWorldPosition(new THREE.Vector3())]);});window.__orphanDoors=nd;}
-  PXB_GLOW.push(...glowMats);pxbScene.glow=PXB_GLOW;try{pxOneLook();}catch(e){console.error(e);}pxbScene.stats={walls:nw,roofs:nr,panes:np,mats:cache.size,hd:nh,ms:Math.round(performance.now()-T0),one:pxOneLook.stats,hips:pxbScene.hips};window.__pxbStats=pxbScene.stats;if(typeof CBD!=='undefined'&&CBD.cut)CBD.cut.forEach(e=>{e.ready=false;});
+  if(TOWN2_ON)try{town2Skin(walls,roofs,panes,glowMats);}catch(e){console.error(e);}PXB_GLOW.push(...glowMats);pxbScene.glow=PXB_GLOW;try{pxOneLook();}catch(e){console.error(e);}pxbScene.stats={walls:nw,roofs:nr,panes:np,mats:cache.size,hd:nh,ms:Math.round(performance.now()-T0),one:pxOneLook.stats,hips:pxbScene.hips};window.__pxbStats=pxbScene.stats;if(typeof CBD!=='undefined'&&CBD.cut)CBD.cut.forEach(e=>{e.ready=false;});
   // Victoria Park shop fronts (painted from Paul's photos): real shop glass with goods behind it and a panelled door, both lit at night
   if(typeof VP_SHOPS!=='undefined'&&typeof REF_ON!=='undefined'&&REF_ON)VP_SHOPS.forEach((sh,i)=>{if(sh.id==='bkk'||sh.id==='pub')return;const h=sh.id==='kmax'?4.4:3,w=5.2,z=sh.z+1.71+.015;
     const gw=w*.58,gh=h*.5-.42,gx=sh.x-w/2+w*.08+gw/2,gy=.3+gh/2;const gm=pxGlassMat(['#4a6a86','#5a7a86','#4e6a7e'][i%3],gw,gh);const g=new THREE.Mesh(new THREE.PlaneGeometry(gw,gh),gm);g.position.set(gx,gy,z);g.__pxSkip=1;scene.add(g);

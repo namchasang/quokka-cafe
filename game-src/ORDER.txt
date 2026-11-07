@@ -129,6 +129,10 @@
 128-buildings-off-bike-lanes-paul-nov-2026.js
 129-rottnest-declutter-paul-nov-2026-littl.js
 130-detail-2-look-lab-det2-paul-nov-2026-s.js
-131-hd-pixel-set-on-rottnest-only-look-lab.js
-132-auth.js
-133-photo-mode-shot-x-z-hour-weather-zoom.js
+131-towns-with-room-to-breathe-look-lab-to.js
+132-1-fewer-houses-south-perth-bungalows-a.js
+133-a-rebuilt-fremantle-cottage-every-face.js
+134-2-richer-roofs-doors-and-windows-on-to.js
+135-hd-pixel-set-on-rottnest-only-look-lab.js
+136-auth.js
+137-photo-mode-shot-x-z-hour-weather-zoom.js

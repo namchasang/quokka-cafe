@@ -5,6 +5,7 @@
    PXK.roof(w,h,{base,kind:'tile'|'slate'|'tin',seed,across}) -> canvas (rows run along x unless across)
    PXK.window(lit) / PXK.door(col) -> small canvases for separate panes
    Colours: give the building's own colour as base; the kit lights the tops and shades the bottoms of every block. */
+var TOWN2_LIVE=false;const TOWN2_ON=TOWN2_LIVE||/[?&#]town2\b/.test(location.search+location.hash);// Look Lab: towns with room to breathe, richer pixel houses, HD quokkas (Paul, Nov 2026)
 var PXK=(function(){
 const PPM=32;
 let S=1;const rnd=()=>(S=(S*16807)%2147483647)/2147483647,seed=s=>{S=(s|0)%2147483646+1;};
