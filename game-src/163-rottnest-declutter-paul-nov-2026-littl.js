@@ -23,7 +23,7 @@ function pxDeclutter(){const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THRE
     for(let s=0;s<12&&nb&&near(nb,0)[0]<1;s++){g.position.x+=ux*.3;g.position.z+=uz*.3;moved+=.3;nb.min.x+=ux*.3;nb.max.x+=ux*.3;nb.min.z+=uz*.3;nb.max.z+=uz*.3;}
     cols.forEach(c=>{c.x1+=ux*moved;c.x2+=ux*moved;c.z1+=uz*moved;c.z2+=uz*moved;});out.shrunk++;});
   pxDeclutter.out=out;window.__declut=out;}
-var SP2_LIVE=false;const SP2_ON=SP2_LIVE||/[?&#]sp2\b/.test(location.search+location.hash);// Look Lab: South Perth phases 1-5 (Paul, Nov 2026)
+var SP2_LIVE=true;const SP2_ON=SP2_LIVE||/[?&#]sp2\b/.test(location.search+location.hash);// Look Lab: South Perth phases 1-5 (Paul, Nov 2026)
 // ---------- South Perth phase 3: the city across the river as pixel towers that light up at night ----------
 function spBuild_sky(){if(typeof SKY==='undefined')return;const B=new THREE.Box3(),C=new THREE.Vector3();scene.updateMatrixWorld(true);
   // the old plain boxes go

@@ -13,7 +13,7 @@ function hubGo(mode,z){if(transit||VISIT)return;const H=HUBS[mode],D=H.stops[z];
 // and Airport Central. It runs in, stops with its doors open, waits and runs out again. Kip walks to an open door, boards, picks a
 // town in the old station menu (same fares and Perth Pass rules as hubGo), rides out, and steps off the train at that platform.
 // Built lazily on the first frame after the pixel pass, so the scene passes never touch it. Ferries keep the old menu path.
-var MTR_LIVE=false;var MTR_ON=MTR_LIVE||/[?&#](lab|trip|train)\b/.test(location.search+location.hash);
+var MTR_LIVE=true;var MTR_ON=MTR_LIVE||/[?&#](lab|trip|train)\b/.test(location.search+location.hash);
 const MTR={on:MTR_ON,built:false,st:{},ride:null,
   // tz track centre, stop = train centre when stopped, inDir/outDir travel direction (+1 = east), px1..px2 platform, pd platform depth,
   // tx1..tx2 track length, walk = extra walkable rect, hop = where the station door sends Kip, D = run-in / run-out distance
