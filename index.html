@@ -468,11 +468,13 @@ var HOME2_LIVE=false;
 .home2 .ovTitle .card>p,.home2 .ovTitle .langRow,.home2 .ovTitle .keys{display:none}
 .home2 .ovTitle .eyebrow,.home2 .ovTitle .title,.home2 .ovTitle .subtitle{text-shadow:0 2px 0 #0f1426,0 0 12px rgba(10,14,28,.7)}
 .home2 .ovTitle .btns{position:fixed;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom,0px));justify-content:center;flex-wrap:wrap;gap:10px;padding:0 16px}
-.home2 .ovTitle .btns .btn{box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.home2 .ovTitle .btns .btn{box-shadow:0 4px 14px rgba(0,0,0,.35);font-size:18px;padding:14px 22px;min-width:150px;opacity:1}
+.home2 .ovTitle .btns .btn.ghost{background:rgba(20,26,46,.85);color:#f5ecd8;border-color:#f5ecd8}
+.home2 .ovTitle .title{font-size:clamp(40px,11vw,72px)}.home2 .ovTitle .eyebrow{font-size:13px;color:#cfe6f7}
 #homeGear{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));z-index:3;width:46px;height:46px;border-radius:12px;border:2px solid #3a4670;background:rgba(20,26,46,.82);color:#f5ecd8;font-size:22px;cursor:pointer}
 #homeGear:focus-visible{outline:2px solid #ffd34d}
 #homeSet{position:fixed;inset:auto 12px calc(12px + env(safe-area-inset-bottom,0px)) 12px;top:calc(68px + env(safe-area-inset-top,0px));z-index:3;overflow:auto;background:rgba(15,20,38,.94);border:2px solid #3a4670;border-radius:10px;padding:16px;max-width:560px;margin:0 auto;text-align:left}
-#homeSet .langRow,#homeSet .keys,#homeSet>p{display:revert}
+#homeSet .langRow{display:flex;gap:8px;justify-content:center;margin:10px 0}#homeSet>p{display:block}#homeSet .keys{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:10px}
 #homeSet h3{margin:0 0 10px;font-family:"Pixelify Sans",monospace;color:#ffd34d}`;
   document.head.appendChild(st);
   const ov=document.getElementById('titleOv'),card=ov.querySelector('.card');
