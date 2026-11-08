@@ -118,6 +118,7 @@ float b4(vec2 p){return 4.*b2(mod(p,2.))+b2(mod(floor(p/2.),2.));}
     const sb=box(g,.2,1.6,.6,'#e8c84a',2.8,.8,3);sb.rotation.z=.25;});// a sandboard leaning on the sign
   gate('pin','The Pinnacles','Park and walk at the Pinnacles','Thousands of limestone spires in yellow sand',...N.gates.pin,g=>{
     box(g,4,2,3,'#d8b880',-6,1,-3);box(g,4.6,.25,3.6,'#8a6a4a',-6,2.1,-3);for(let k=0;k<3;k++)cone(g,.4,1.6+k*.5,'#d8a456',5+k*1.2,.8+k*.25,-3+k,5);});
+  if(N.gates.cer)gate('cer','Cervantes','Park at Nok’s Thai Kitchen','Crayfish town on the coast · Nok’s restaurant by the beach',...N.gates.cer,g=>{box(g,4,2.2,3,'#f4ecd8',-6,1.1,-3);box(g,4.6,.25,3.6,'#c9473f',-6,2.3,-3);box(g,2.4,.6,.1,'#f4d04a',-6,1.9,-1.45);});
   // ---- the Pinnacles: limestone spires (low-poly, pixel skin), thousands in the yellow sand ----
   {const pinT=(()=>{const c=document.createElement('canvas');c.width=16;c.height=32;const x=c.getContext('2d');const C=['#b88a4a','#c89a56','#d8ac64','#e4bc74','#a87a42','#9a7040'];
       for(let j=0;j<32;j++)for(let i=0;i<16;i++){const n=L2hash(i*3.1,j*1.7),band=Math.sin(j*.9+L2hash(j,1))*.5+.5;x.fillStyle=C[Math.min(5,(n*2+band*2+(i>10?1.5:0))|0)];x.fillRect(i,j,1,1);}

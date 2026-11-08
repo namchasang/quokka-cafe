@@ -54,4 +54,3 @@ function storyQuests(){return STORY_ORDER.map(a=>{const D=STORY_DEF()[a];const n
   if(!c)return{id:'story_'+a,title:D.short+' story · complete',giver:D.name,desc:'Every chapter of the '+D.name+' story is done. Thanks for exploring!',steps:D.chapters.map((ch,i)=>['Chapter '+(i+1)+': '+ch.title,true]),reward:'All chapter rewards collected',open:storyOpen(a)};
   return{id:'story_'+a,title:D.short+' · Ch '+(n+1)+'/'+tot+': '+c.title,giver:'Story · '+c.giver,desc:c.intro,steps:chapSteps(c).map(st=>[st[0],stepDone(st)]),reward:rw(c.coins)+' coins'+(n+1<tot?' and the next chapter':' and the '+D.name+' story is complete'),open:storyOpen(a)};});}
 function storyTarget(a){if(zoneOf(player.x)!==a)return null;const c=storyChap(a);if(!c)return null;const st=chapSteps(c).find(x=>!stepDone(x));return st?stepTarget(st):null;}
-

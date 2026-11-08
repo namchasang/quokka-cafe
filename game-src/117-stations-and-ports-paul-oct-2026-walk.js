@@ -4,7 +4,7 @@ const HUBS={train:{word:'Train',many:'Trains',fare:5,mins:25,stops:{cbd:{n:'Pert
 function openHub(mode,from){const H=HUBS[mode],F=H.stops[from];const lockedFreo=typeof freoUnlocked==='function'&&!freoUnlocked();
   openTravel('Where to?',F.n+' · '+H.many.toLowerCase(),Object.keys(H.stops).map(z=>({id:z,name:TOWN_NAME[z]+' · '+H.stops[z].n,here:z===from,
     note:z===from?'':'About '+H.mins+' min',fare:H.fare,lock:z!==from&&(z==='freo'||from==='island'&&z!=='island')&&mode==='ferry'&&lockedFreo?'Locked (see Quests)':null,ride:()=>hubGo(mode,z)})),mode==='train'?'Pick a town and step off at its station. One fare, any stop on the line.':'Pick a town and step off at its jetty. One fare, any jetty on the route.');}
-function hubGo(mode,z){if(transit||VISIT)return;const H=HUBS[mode],D=H.stops[z];transit=true;fadeTarget=.95;toast(H.word+' to '+D.n+'…',1.8);
+function hubGo(mode,z){if(transit||VISIT)return;const H=HUBS[mode],D=H.stops[z];if(typeof rideLog==='function')rideLog(mode,z);transit=true;fadeTarget=.95;toast(H.word+' to '+D.n+'…',1.8);
   setTimeout(()=>{S.time+=H.mins;player.bike=false;player.carry=null;const [x,zz]=hqTpSpot(D.x,D.z);player.x=x;player.z=zz;updateCamera(0,true);hideOverlays();fadeTarget=0;transit=false;
     S.seenZ=S.seenZ||{};S.seenZ[z]=1;if(z==='cbd'&&typeof cbdArrive==='function')cbdArrive('cbd');save();},900);}
 {const _th=cbdTargets;cbdTargets=function(T){_th(T);let zq;try{zq=zoneOf(player.x);}catch(e){return;}

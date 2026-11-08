@@ -16,31 +16,38 @@ function endTour(){if(!TOUR)return;const T=TOUR.T;TOUR=null;transit=true;fadeTar
     S.time+=T.hrs*60;const [x,z]=hqTpSpot(TOUR_DESK.x+.6,TOUR_DESK.z);player.x=x;player.z=z;updateCamera(0,true);fadeTarget=0;transit=false;toast('Back in Tudor Lane after a day at '+T.name,2.6);save();},700);}
 {const _h4=hideOverlays;hideOverlays=function(){if(TOUR){TOUR=null;const ov=document.getElementById('tourOv');if(ov){ov.hidden=true;document.getElementById('tourFr').srcdoc='';}}_h4();};}
 {const _tt=cbdTargets;cbdTargets=function(T){_tt(T);let zq;try{zq=zoneOf(player.x);}catch(e){return;}if(zq!=='cbd')return;T.push({x:TOUR_DESK.x+.5,z:TOUR_DESK.z,r:1.2,label:'Siam Sydney Services · day tours',act:()=>openTours()});};}
-// ---------- Day-trip places (Look Lab ?trip, Paul Nov 2026): Lancelin, the Pinnacles, Busselton Jetty and Esperance become walkable maps ----------
-// Each one sits far east of the airport in its own strip of x (zone ids lan / pin / bus / esp). The Siam Sydney Services van in Tudor Lane takes
-// Kip there; the van waits by the car park and brings him back to Tudor Lane by evening. Each place is built by TRIP_BUILD[id](G,K) into its own group:
-// it sets K.walk(x,z), K.h(x,z) (ground height), K.arrive [x,z], K.van [x,z], and may set K.targets(T), K.tick(dt,t), K.zone (map rects/labels).
-var TRIP_LIVE=false;var TRIP_ON=TRIP_LIVE||/[?&#](lab|trip|ow3d|ow2)\b/.test(location.search+location.hash);
-var TRIPS={lan:{x1:850,x2:970,z1:-45,z2:45,tour:'lancelin',name:'Lancelin',title:'Lancelin Sand Dunes',bg:'#f2ede0'},
-  pin:{x1:1000,x2:1120,z1:-45,z2:45,tour:'pinnacles',name:'The Pinnacles',title:'The Pinnacles · Nambung',bg:'#e8b85a'},
-  bus:{x1:1150,x2:1270,z1:-45,z2:45,tour:'busselton',name:'Busselton',title:'Busselton Jetty',bg:'#5cc6d8'},
-  esp:{x1:1300,x2:1420,z1:-45,z2:45,tour:'esperance',name:'Esperance',title:'Esperance · Lucky Bay',bg:'#f6f3ea'}};
+// ---------- Day trip: The Pinnacles (Look Lab ?trip, Paul Nov 2026, built from Paul's own photos) ----------
+// A golden sand plain with about two thousand limestone spires (shapes sculpted in Blender, ambient occlusion baked per vertex),
+// the one-way desert loop edged with lines of small stones, the Discovery Centre with its lookout deck, the Desert View walk trail
+// through the heath, interpretive boards, emus at dusk, kangaroos in the heath, tourists and cars on the loop, and the tour van.
 var TRIP_BUILD=TRIP_BUILD||{};
-function tripOf(x){if(!TRIP_ON||x<840)return null;for(const k in TRIPS){const T=TRIPS[k];if(x>=T.x1-15&&x<T.x2+15)return k;}return null;}
-function tripWalk(x,z){const k=tripOf(x),T=k&&TRIPS[k];if(!T||!T.K||!T.K.walk)return false;return T.K.walk(x,z);}
-function tripH(x,z){const k=tripOf(x),T=k&&TRIPS[k];return T&&T.K&&T.K.h?T.K.h(x,z):0;}
-if(TRIP_ON)(()=>{
-  for(const k in TRIPS){const T=TRIPS[k];const G=new THREE.Group();G.name='trip_'+k;G.visible=false;scene.add(G);T.G=G;
-    const K={id:k,x1:T.x1,x2:T.x2,z1:T.z1,z2:T.z2,walk:(x,z)=>x>T.x1+2&&x<T.x2-2&&z>-20&&z<20,h:()=>0,arrive:[(T.x1+T.x2)/2,0],van:[(T.x1+T.x2)/2-3,2],targets:null,tick:null,
-      zone:{rects:[[T.x1,T.z1,T.x2,T.z2,T.bg]],labels:[[T.title,(T.x1+T.x2)/2,0,1]]}};T.K=K;
-    if(TRIP_BUILD[k])try{TRIP_BUILD[k](G,K);}catch(e){console.error('trip '+k,e);}
-    ZONE_DEF[k]={B:{x1:T.x1,x2:T.x2,z1:T.z1,z2:T.z2},title:T.title,eb:'Day tour · Siam Sydney Services',bg:T.bg,rects:K.zone.rects,labels:K.zone.labels};
-    SAFE_SPOTS[k]=[K.arrive];TOWN_NAME[k]=T.title;}
-  // the ground under Kip, people and the camera follows the place's own terrain
-  const _gy=groundY;groundY=function(x,z){if(x>840){const k=tripOf(x);if(k)return tripH(x,z);}return _gy(x,z);};
-  {const _zt=zoneTick;zoneTick=function(dt,t){_zt(dt,t);const zq=zoneOf(player.x);for(const k in TRIPS){const T=TRIPS[k],here=zq===k;if(T.G.visible!==here)T.G.visible=here;if(here&&T.K.tick)try{T.K.tick(dt,t);}catch(e){}}};}
-  {const _tg=cbdTargets;cbdTargets=function(T){_tg(T);const zq=zoneOf(player.x),P=TRIPS[zq];if(!P)return;const K=P.K;
-    T.push({x:K.van[0],z:K.van[1],r:1.6,label:'Tour van · back to Perth (Tudor Lane)',act:()=>endTour()});
-    if(TOUR&&TOUR.T)T.push({x:K.van[0]+1.4,z:K.van[1],r:1.3,label:'Ask the guide',act:()=>{TOUR.i=(TOUR.i+1)%TOUR.T.guide.length;say([TOUR.T.guide[TOUR.i]]);}});
-    if(K.targets)try{K.targets(T);}catch(e){console.error(e);}};}
-})();
+TRIP_BUILD.pin=function(G,K){
+const X1=1000,X2=1120,Z1=-45,Z2=45;
+const R=mulberry32(1302),rr=(a,b)=>a+(b-a)*R(),pick=a=>a[(R()*a.length)|0];
+const cl=(v,a,b)=>v<a?a:v>b?b:v,ss=t=>{t=cl(t,0,1);return t*t*(3-2*t);};
+const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
+const put=(geo,mat,x,y,z,o)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(o){if(o.rx)m.rotation.x=o.rx;if(o.ry)m.rotation.y=o.ry;if(o.rz)m.rotation.z=o.rz;if(o.s)m.scale.set(...o.s);}
+  m.castShadow=!(o&&o.nc);m.receiveShadow=true;m.__pxSkip=1;((o&&o.to)||G).add(m);return m;};
+const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d),CY=(a,b,h,s)=>new THREE.CylinderGeometry(a,b,h,s||8);
+const cvs=(W,H)=>{const c=mk(W,H);return[c,c.getContext('2d')];};
+const texM=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({map:ctex(c)},o||{}));
+const hx=(h,f)=>{const n=parseInt(h.slice(1),16);return'rgb('+Math.min(255,((n>>16)&255)*f|0)+','+Math.min(255,((n>>8)&255)*f|0)+','+Math.min(255,(n&255)*f|0)+')';};
+const ph=(a,b,s)=>{let h=(a*374761393+b*668265263+(s|0)*2246822519)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
+// value noise that repeats every P cells (for seamless tiles)
+const pn=(x,y,s,P,seed)=>{const gx=Math.floor(x/s),gy=Math.floor(y/s),fx=x/s-gx,fy=y/s-gy,w=v=>((v%P)+P)%P,a=ph(w(gx),w(gy),seed),b=ph(w(gx+1),w(gy),seed),c=ph(w(gx),w(gy+1),seed),d=ph(w(gx+1),w(gy+1),seed),u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;};
+const nz=(x,z,s,seed)=>pn(x,z,s,1e6,seed);
+const PIN={G,K,mats:[],npcs:[],roos:[],emus:[],cars:[],read:{},glowM:[],sandM:null};window.__pin=PIN;
+// ===== the land: gentle dunes, a low rise for the Discovery Centre, a flat car park =====
+const DUNES=[[1078,-17,12,9,3.2],[1050,-31,14,8,2.0],[1099,7,12,10,2.4],[1036,-3,9,8,1.2],[1066,19,12,7,1.4],[1112,-35,10,10,2.8],
+  [1007,-19,8,8,3.8],[1111,25,10,9,2.2],[1022,-35,12,8,2.4],[1088,35,14,7,1.6],[1004,6,6,10,1.6],[1060,-42,18,6,2.4],[1118,-6,6,12,2.2]];
+const CEN={x1:1006,x2:1018.4,z1:27.6,z2:34.4},DECK={x1:1018.4,x2:1027,z1:25.4,z2:33},CP={x1:1031,x2:1049,z1:30.4,z2:41};
+const FLATS=[[1005,1028,25,36.5,1.4,7],[CP.x1,CP.x2,CP.z1,CP.z2,.5,6]];
+function rawH(x,z){let h=0;for(const [cx,cz,rx,rz,a] of DUNES){const dx=(x-cx)/rx,dz=(z-cz)/rz,d=dx*dx+dz*dz;if(d<5)h+=a*Math.exp(-d*1.3);}
+  h+=.16*Math.sin(x*.21+z*.07)*Math.sin(z*.17-x*.05)+.1*Math.sin(x*.47+z*.31)+.25*(nz(x,z,7,4)-.5);
+  for(const [a,b,c,d,fh,bl] of FLATS){const px=Math.max(a-x,0,x-b),pz=Math.max(c-z,0,z-d),t=1-ss(Math.hypot(px,pz)/bl);h=h*(1-t)+fh*t;}
+  return h;}
+const HG={x0:X1-12,z0:Z1-10,s:.5,nx:0,nz:0,a:null};HG.nx=Math.round((X2-X1+24)/HG.s)+1;HG.nz=Math.round((Z2-Z1+20)/HG.s)+1;HG.a=new Float32Array(HG.nx*HG.nz);
+for(let j=0;j<HG.nz;j++)for(let i=0;i<HG.nx;i++)HG.a[j*HG.nx+i]=rawH(HG.x0+i*HG.s,HG.z0+j*HG.s);
+function H(x,z){let fx=(x-HG.x0)/HG.s,fz=(z-HG.z0)/HG.s;fx=cl(fx,0,HG.nx-1.001);fz=cl(fz,0,HG.nz-1.001);const i=fx|0,j=fz|0,u=fx-i,v=fz-j,A=HG.a,n=HG.nx,k=j*n+i;
+  return(A[k]*(1-u)+A[k+1]*u)*(1-v)+(A[k+n]*(1-u)+A[k+n+1]*u)*v;}
+K.h=H;PIN.H=H;
