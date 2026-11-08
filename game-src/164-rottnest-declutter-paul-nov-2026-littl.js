@@ -27,7 +27,7 @@ var SP2_LIVE=true;const SP2_ON=SP2_LIVE||/[?&#]sp2\b/.test(location.search+locat
 // ---------- South Perth phase 3: the city across the river as pixel towers that light up at night ----------
 function spBuild_sky(){if(typeof SKY==='undefined')return;const B=new THREE.Box3(),C=new THREE.Vector3();scene.updateMatrixWorld(true);
   // the old plain boxes go
-  scene.children.forEach(o=>{if(!o.isMesh||!o.material||o.material.fog!==false)return;B.setFromObject(o);B.getCenter(C);if(C.x>105&&C.x<200&&C.z<-10.5&&C.z>-19)o.visible=false;});
+  {const rm=[];scene.children.forEach(o=>{if(!o.isMesh||!o.geometry||!/^(Box|Cone|Cylinder)/.test(o.geometry.type))return;B.setFromObject(o);if(B.isEmpty()||B.max.y<2.5)return;B.getCenter(C);scene.worldToLocal(C);if(C.x>105&&C.x<200&&C.z<-10.5&&C.z>-19)rm.push(o);});rm.forEach(o=>scene.remove(o));spBuild_sky.removed=rm.length;}
   const r=mulberry32(4711),G=new THREE.Group();G.__pxSkip=1;scene.add(G);
   const tower=(W,H,glass,frame,seed,lit)=>{const w=Math.round(W*32),h=Math.round(H*32),c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');const rr=mulberry32(seed);
     x.fillStyle=frame;x.fillRect(0,0,w,h);const fl=8;
@@ -47,7 +47,7 @@ function spBuild_sky(){if(typeof SKY==='undefined')return;const B=new THREE.Box3
     else{const s=new THREE.Mesh(new THREE.BoxGeometry(W+.1,.25,D+.1),new THREE.MeshLambertMaterial({color:'#e8e4dc',fog:false}));s.position.set(x,H+.12,z);G.add(s);}};
   // back row tall, front row lower, a few landmark towers
   for(let i=0;i<16;i++){const x=114+i*5+(r()-.5)*1.4,H=9+r()*r()*14;add(x,-17.2-r()*1.4,2.2+r()*1.4,2+r()*1.2,H,i);}
-  for(let i=0;i<14;i++){const x=116+i*5.6+(r()-.5)*1.6,H=4+r()*6;add(x,-13.6-r()*.8,2+r()*1.8,1.8+r()*1,H,i+3);}
+  for(let i=0;i<14;i++){r();r();r();r();r();}// (Paul, Nov 2026: no low front row, only the glass towers)
   add(152,-16.4,2.6,2.6,22,0);add(168,-17.6,3,2.6,19,6);add(132,-17.4,2.8,2.4,17,9);
   // the bell tower by the water: glass spire on a copper-green base (kept, restyled)
   {const base=new THREE.Mesh(new THREE.CylinderGeometry(.55,.85,4.4,8),new THREE.MeshLambertMaterial({color:'#7fc4d0',fog:false}));base.position.set(143,2.2,-11.6);G.add(base);

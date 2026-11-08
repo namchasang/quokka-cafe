@@ -170,7 +170,7 @@ if(FDET.on)(()=>{
       [[-.5,.33],[.5,.33],[-.5,-.33],[.5,-.33]].forEach(([a,b])=>put(C(.13,.13,.08,10),M('#1a1a1a'),a,.13,b,{rx:Math.PI/2},g));put(B(.03,.07,.5),new THREE.MeshBasicMaterial({color:0xd83030}),-.76,.32,0,{nc:1},g);col(294.7+i*1.4-.38,18.8,294.7+i*1.4+.38,20.4);});
     [[293.2,21],[300.8,21]].forEach(([x,z])=>{const g=new THREE.Group();g.position.set(x,0,z);G.add(g);put(B(1.6,.05,1.6),M('#f6f6f0'),0,1.7,0,null,g);put(new THREE.ConeGeometry(1.15,.5,4),M('#f6f6f0'),0,1.98,0,{ry:Math.PI/4},g);[[-.75,-.75],[.75,-.75],[-.75,.75],[.75,.75]].forEach(([a,b])=>put(C(.03,.03,1.7,5),M('#c8ccd0'),a,.85,b,null,g));});
     bb(palm,302,19.6,2.2,4.4);
-    person({hair:'#3a2a1a',skin:'#f1c7a0',shirt:'#1b1b2b',pants:'#2a3a5a',hat:'#d8c08a'},296.4,18.4,1);person({hair:'#1a1a1a',skin:'#e8b892',shirt:'#1b1b2b',pants:'#5a6a8a',hat:'#1b1b2b'},297,18.5,-1);
+    person({hair:'#3a2a1a',skin:'#f1c7a0',shirt:'#1b1b2b',pants:'#2a3a5a',hat:'#d8c08a'},294.7,18.3,1);person({hair:'#1a1a1a',skin:'#e8b892',shirt:'#1b1b2b',pants:'#5a6a8a',hat:'#1b1b2b'},295.3,18.5,-1);
     // trawlers in the harbour
     function trawler(x,z,ry,hull){const g=new THREE.Group();g.position.set(x,-.12,z);g.rotation.y=ry;G.add(g);put(B(3.4,.7,1.2),M(hull),0,.35,0,null,g);put(B(3.4,.12,1.24),M('#f6f6f0'),0,.72,0,null,g);put(B(1.1,.8,.9),M('#f6f6f0'),.5,1.2,0,null,g);put(B(1.1,.12,.94),M('#2a3a58'),.5,1.4,0,null,g);
       put(C(.04,.04,2.2,5),M('#e8e8ec'),-.3,1.8,0,null,g);put(B(1.6,.04,.04),M('#e8e8ec'),-.6,2.4,0,{rz:.5},g);put(B(.5,.3,.4),M('#e8582a'),-1.2,.95,0,null,g);}

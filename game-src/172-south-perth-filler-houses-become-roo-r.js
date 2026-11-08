@@ -16,6 +16,103 @@ function town3Houses(){const out={brick:0,cottage:0,fed:0,where:[]};town3Houses.
     L.g.visible=false;L.g.__t3gone=1;if(fadeEntry)SP_FADE.push({mats:r.mats,x1:L.x-L.W/2,x2:L.x+L.W/2,z1:L.z-L.D/2,z2:L.z+L.D/2,h:3,o:1});// its own fade box: the exact footprint
     out[kind]++;out.where.push([kind,L.x,L.z]);});
   return out;}
+// ---------- Map fixes (Paul, Nov 2026): South Perth is one full rectangle of land, and the Fremantle street by the
+// market square gets a row of little shops. Runs at the end of pxbScene, after every other pass has painted the ground. ----------
+function mapfixBuild(){const st={};scene.updateMatrixWorld(true);
+  try{st.sp=mapfixSquareSP();}catch(e){console.error(e);}
+  try{st.freo=mapfixFreoShops();}catch(e){console.error(e);}
+  st.sky=typeof spBuild_sky!=='undefined'?spBuild_sky.removed:null;window.__mapfix=st;}
+// South Perth: copy the finished ground strips (lawn, footpath, Mill Point Rd, cycle lanes, kerbs, limestone base) out to the
+// map edge wherever the land was notched, so the land is a clean rectangle. The walkable area is widened in blocked().
+function mapfixSquareSP(){const B=new THREE.Box3(),n={w:0,s:0,e:0,dash:0};const ground=[];
+  scene.children.forEach(o=>{if(!o.isMesh||!o.visible||Array.isArray(o.material)||!o.geometry)return;const t=o.geometry.type;if(t!=='PlaneGeometry'&&t!=='BoxGeometry')return;
+    B.setFromObject(o);if(B.isEmpty()||B.max.y>.1||B.min.y<-.6)return;const a=scene.worldToLocal(B.min.clone()),b=scene.worldToLocal(B.max.clone());
+    const x0=Math.min(a.x,b.x),x1=Math.max(a.x,b.x),z0=Math.min(a.z,b.z),z1=Math.max(a.z,b.z);if(x0<95||x1>205||z1<-6||z0>36)return;ground.push({o,x0,x1,z0,z1,box:t==='BoxGeometry'});});
+  // a copy of ground strip g covering [X0,X1] x [Z0,Z1] (scene-local), same look, texture repeat scaled to the new size
+  const copy=(g,X0,X1,Z0,Z1)=>{const W=X1-X0,D=Z1-Z0;if(W<.05||D<.05)return null;const o=g.o,m=o.material,p=o.geometry.parameters;
+    let geo,W0,D0;if(g.box){geo=new THREE.BoxGeometry(W,p.height,D);W0=p.width;D0=p.depth;}else{geo=new THREE.PlaneGeometry(W,D);W0=p.width;D0=p.height;}
+    const m2=m.clone();if(m.map){const t=m.map.clone();t.needsUpdate=true;t.repeat.set(m.map.repeat.x*W/W0,m.map.repeat.y*D/D0);m2.map=t;}
+    const c=new THREE.Mesh(geo,m2);c.rotation.copy(o.rotation);c.position.set((X0+X1)/2,o.position.y,(Z0+Z1)/2);c.receiveShadow=true;c.castShadow=false;c.renderOrder=o.renderOrder;c.__pxSkip=1;scene.add(c);return c;};
+  // 1. the west notch: the lawn, Mill Point Rd and the south gardens run on to the west edge (x 100)
+  ground.forEach(g=>{if(g.x0<111.5||g.x0>113.5||g.z1<11.9||g.z0>33.5)return;const z0=Math.max(g.z0,g.box?12:11.85),z1=Math.min(g.z1,33.5);if(copy(g,100,g.x0,z0,z1))n.w++;});
+  // 2. the east foreshore stopped short of the east edge (x 199) while the land south of it reaches 200.5
+  ground.forEach(g=>{if(g.x1<198.6||g.x1>199.4||g.z1>10.5||g.z0<-4.5)return;if(copy(g,g.x1,200.5,g.z0,g.z1))n.e++;});
+  // 3. the white centre dashes of Mill Point Rd
+  {let d=null;scene.children.forEach(o=>{if(d||!o.isMesh||!o.geometry||o.geometry.type!=='PlaneGeometry')return;const p=o.position;if(Math.abs(p.z-22.2)<.05&&Math.abs(p.x-114)<.05&&Math.abs(o.geometry.parameters.width-1.1)<.01)d=o;});
+    if(d)for(let x=111.6;x>100.5;x-=2.4){const c=d.clone();c.position.x=x;c.__pxSkip=1;scene.add(c);n.dash++;}}
+  return n;}
+// Fremantle, the short street between High St and the market square (x 296): the backs of the four blocks on its east side were
+// plain flat colour. Each gets a painted pixel shopfront facing the street (window of goods, door, upper windows, cornice),
+// a striped awning on brackets, a name board and a lamp; lit windows glow at night. Footprints and colliders stay the same.
+function mapfixFreoShops(){const SH=[
+    {name:'CRUST & CRUMB',sub:'BAKERY',bg:'#7a3a22',fg:'#f6e6c0',aw:['#c9473f','#f4ecd8'],tint:'#c8a070',door:'#7a3a22',kind:'render'},
+    {name:'DOG-EAR BOOKS',sub:'NEW & USED',bg:'#2f5a46',fg:'#f2e6c8',aw:['#3f7a5a','#efe3c4'],tint:'#8a7a5a',door:'#2f5a46',kind:'brick'},
+    {name:'GELATO LUNA',sub:'',bg:'#f4b8c8',fg:'#6a2a4a',aw:['#e88aa8','#f6f2e8'],tint:'#d8a8c0',door:'#4a8a8a',kind:'render'},
+    {name:'SALT & SWELL',sub:'SURF SHOP',bg:'#1d3a6e',fg:'#f2f2ea',aw:['#2f6a9e','#f6f6f2'],tint:'#5a8ab0',door:'#1d3a6e',kind:'board'}];
+  const FISH={name:'HARBOUR CATCH',sub:'FISH MARKET',bg:'#f2f2ea',fg:'#1d4a6e',aw:['#2f5a8a','#f6f6f2'],tint:'#7aa0b8',door:'#2f5a8a',kind:'render'};
+  const B=new THREE.Box3(),found=[];scene.updateMatrixWorld(true);
+  scene.traverse(o=>{if(!o.isMesh||!o.visible||!o.geometry||o.geometry.type!=='BoxGeometry')return;B.setFromObject(o);const a=scene.worldToLocal(B.min.clone()),b=scene.worldToLocal(B.max.clone());
+    const x0=Math.min(a.x,b.x),x1=Math.max(a.x,b.x),z0=Math.min(a.z,b.z),z1=Math.max(a.z,b.z),h=B.max.y-B.min.y;
+    if(Math.abs(x0-299.8)>.25||Math.abs(x1-302)>.3||z0<8.5||z1>21.5||z1-z0<2.4||z1-z0>3.5||h<2.2||h>4||B.min.y>.1)return;
+    const mm=Array.isArray(o.material)?(o.material[1]||o.material[0]):o.material;found.push({o,x0,z0,z1,h:B.max.y,col:mm&&mm.color?'#'+mm.color.getHexString():'#f2dc96'});});
+  found.sort((p,q)=>p.z0-q.z0);if(!found.length){console.warn('mapfix: Freo blocks not found');return 0;}
+  const P=PXK.P,PPM=32,px=m=>Math.max(2,Math.round(m*PPM));
+  const T=c=>ctex(c);const MC={};const M=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
+  const litMat=paint=>{const a=paint(false),b=paint(true);const m=new THREE.MeshLambertMaterial({map:T(a),emissive:0xffffff,emissiveIntensity:0,emissiveMap:T(PXK.glowDiff(a,b))});PXB_GLOW.push(m);return m;};
+  const base=c=>{const l=PXK.lum(c);return l>.86?PXK.mix(c,'#d8c49a',.25):c;};
+  // the painted face: shop on the ground floor, a row of windows upstairs on the two-storey blocks
+  const paintFace=(w,h,col,S,seed,lit)=>{const W=px(w),H=px(h),[c,x]=T2.cv(W,H);T2.seed(seed);T2.surface(x,W,H,base(col),S.kind);
+    const r=T2.ramp(base(col));P(x,r[1],0,0,2,H);P(x,r[1],W-2,0,2,H);P(x,r[4],2,0,1,H);P(x,r[4],W-3,0,1,H);// pilasters
+    const gf=px(2.3);// ground floor
+    // fascia band where the name board goes
+    if(h>3)P(x,PXK.sh(S.bg,.7),3,H-gf-2,W-6,px(.38));
+    // shopfront: timber frame, big window of goods, a stall riser, a door at one side
+    const dw=px(.78),dh=px(1.92),dX=W-dw-px(.32),wX=px(.28),wW=dX-wX-px(.22),wY=H-px(1.95),wH=px(1.32);
+    P(x,'#2a2230',wX-3,wY-3,wW+6,H-wY);P(x,PXK.sh(S.door,1.05),wX-2,wY-2,wW+4,H-wY-1);
+    const g=PXK.glass(wW,wH,{lit,tint:S.tint,seed});x.drawImage(g,wX,wY);
+    P(x,PXK.sh(S.door,.8),wX,wY+wH,wW,H-wY-wH-3);P(x,PXK.sh(S.door,1.2),wX,wY+wH,wW,1);for(let X=wX+4;X<wX+wW-4;X+=10)P(x,PXK.sh(S.door,.62),X,wY+wH+3,6,H-wY-wH-9);
+    T2.door(x,dX,H-dh-2,dw,dh,{col:S.door,frame:'#f6f2e8',lit});
+    // a little hanging price card and a chalk menu in the window
+    P(x,'#f6f2e8',wX+4,wY+4,8,6);P(x,'#2a2230',wX+5,wY+6,6,1);P(x,'#2a2230',wX+5,wY+8,4,1);
+    if(h>3){const uY=px(.32),uH=Math.min(px(.82),H-gf-uY-px(.5)),n=w>2.85?2:2,step=W/n;for(let i=0;i<n;i++){const ww=px(.55);T2.win(x,step*(i+.5)-ww/2,uY+px(.12),ww,uH,{lit:lit&&((seed+i)%3!==0),frame:'#f6f2e8',wall:base(col)});}
+      T2.cornice(x,W,PXK.mix(base(col),'#f6f2e8',.5));}
+    T2.plinth(x,W,H,'#b8a88c');return c;};
+  // a plain upper wall (the side of a taller block showing above a lower one)
+  const paintUpper=(w,h,col,seed,lit)=>{const W=px(w),H=px(h),[c,x]=T2.cv(W,H);T2.seed(seed);T2.surface(x,W,H,base(col),'render');const ww=px(.5),wh=Math.min(px(.7),H-px(.45));
+    T2.win(x,(W-ww)/2,px(.2),ww,wh,{lit,frame:'#f6f2e8',wall:base(col)});T2.cornice(x,W,PXK.mix(base(col),'#f6f2e8',.5));return c;};
+  const host=found[0].o.parent||scene;const G=new THREE.Group();G.name='mapfix_freo';host.add(G);G.matrixAutoUpdate=false;
+  G.matrix.copy(new THREE.Matrix4().copy(host.matrixWorld).invert().multiply(scene.matrixWorld));G.updateMatrixWorld(true);
+  const mesh=(geo,mat,x,y,z,o={})=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(o.ry)m.rotation.y=o.ry;if(o.rz)m.rotation.z=o.rz;if(o.rx)m.rotation.x=o.rx;m.castShadow=!o.nc;m.receiveShadow=true;m.__pxSkip=1;G.add(m);return m;};
+  const Bx=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+  const signMat=(S,W,H)=>{const t=makeSign(S.sub?[S.name,S.sub]:[S.name],W,H,S.bg,S.fg);const m=new THREE.MeshLambertMaterial({map:t,emissive:0xffffff,emissiveIntensity:0,emissiveMap:t});m.__dim=.3;PXB_GLOW.push(m);return m;};
+  const lampM=()=>{const l=new THREE.MeshBasicMaterial({color:'#e8d8a8'});return l;};
+  const iron=M('#2c3036');
+  // shopfront on a wall: face normal along -x (west face at x=X) or +z (south face at z=Z); u runs along the wall
+  const shop=(S,i,f)=>{const L=f.L,h=f.h;const mat=litMat(lit=>paintFace(L,h,f.col,S,31+i*17,lit));
+    const at=(u,y,d)=>f.side==='w'?[f.X-d,y,f.U0+u]:[f.U0+u,y,f.Z+d];const ry=f.side==='w'?-Math.PI/2:0;
+    const fc=mesh(new THREE.PlaneGeometry(L,h),mat,...at(L/2,h/2,.014),{ry,nc:1});
+    // awning: striped canvas sloping out over the footpath, a valance, two iron brackets
+    const aw=new THREE.MeshLambertMaterial({map:T(T2.stripes(Math.max(.6,L-.3),.9,S.aw[0],S.aw[1]))});const awL=L-.3,dep=.85,yA=Math.min(2.32,h-.12),tilt=.36;
+    const a=mesh(f.side==='w'?Bx(dep,.03,awL):Bx(awL,.03,dep),aw,...at(L/2,yA-Math.sin(tilt)*dep/2,dep/2*Math.cos(tilt)),f.side==='w'?{rz:tilt}:{rx:tilt});
+    const vl=new THREE.MeshLambertMaterial({map:T(T2.stripes(Math.max(.6,awL),.16,S.aw[0],S.aw[1]))});
+    mesh(f.side==='w'?Bx(.025,.16,awL):Bx(awL,.16,.025),vl,...at(L/2,yA-Math.sin(tilt)*dep-.08,dep*Math.cos(tilt)),{nc:1});
+    [.2,L-.2].forEach(u=>{mesh(f.side==='w'?Bx(.66,.035,.035):Bx(.035,.035,.66),iron,...at(u,yA-.32,.34),f.side==='w'?{rz:-.55,nc:1}:{rx:-.55,nc:1});});
+    // name board on the fascia, above the awning
+    // (on a single-storey block the board stands on the parapet above the roofline instead)
+    const sw=Math.min(L-.4,2.6),sy=h>3?2.52:h+.2,sb=mesh(new THREE.PlaneGeometry(sw,.3),signMat(S,Math.round(sw*40),12),...at(L/2,sy,.03),{ry,nc:1});
+    mesh(f.side==='w'?Bx(.04,.36,sw+.08):Bx(sw+.08,.36,.04),M(PXK.sh(S.bg,.6)),...at(L/2,sy,.008),{nc:1});
+    if(h<=3)[.3,sw-.3].forEach(u=>mesh(Bx(.04,.3,.04),iron,...at(L/2-sw/2+u,h+.05,.03),{nc:1}));
+    // a wall lamp beside the door, under the awning
+    const lu=L-.32-.78-.12;const lm=mesh(Bx(.1,.14,.1),lampM(),...at(lu,Math.min(2.0,h-.5),.08),{nc:1});mesh(f.side==='w'?Bx(.08,.03,.03):Bx(.03,.03,.08),iron,...at(lu,Math.min(2.0,h-.5)+.09,.04),{nc:1});PXB_LAMPS.push(lm);
+    return fc;};
+  let n=0;found.forEach((b,i)=>{const S=SH[i%SH.length];shop(S,i,{side:'w',X:b.x0,U0:b.z0,L:b.z1-b.z0,h:b.h,col:b.col});n++;});
+  // the last block's south end faces the cross street: a fish market there
+  {const b=found[found.length-1];if(b.h>3){const L=2.2;shop(FISH,9,{side:'s',Z:b.z1,U0:b.x0,L,h:b.h,col:b.col});n++;}}
+  // where a two-storey block stands beside the low one, its bare side wall above the roofline gets a window and cornice
+  for(let i=0;i<found.length;i++){const b=found[i],lo=found.find(q=>q!==b&&q.h<b.h-.8&&(Math.abs(q.z0-b.z1)<.05||Math.abs(q.z1-b.z0)<.05));if(!lo)continue;
+    const southSide=Math.abs(lo.z0-b.z1)<.05;if(!southSide)continue;const h=b.h-lo.h,L=2.2;const mat=litMat(lit=>paintUpper(L,h,b.col,70+i,lit));
+    mesh(new THREE.PlaneGeometry(L,h),mat,b.x0+L/2,lo.h+h/2,b.z1+.014,{nc:1});n++;}
+  return n;}
 function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{spBuild_sky();}catch(e){console.error(e);}try{pxDeclutter();}catch(e){console.error(e);}if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}try{pxFixDiamonds();}catch(e){console.error(e);}try{pxbLaneClear();}catch(e){console.error(e);}if(TOWN2_ON)try{town2Thin();}catch(e){console.error(e);}if(TOWN2_ON)try{// the old terrace rows' gable ends were left standing as white triangles where town2 rebuilt the cottages
   scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isMesh&&o.parent&&o.parent.name==='freoDetail'&&o.geometry&&o.geometry.type==='PlaneGeometry'){const B=new THREE.Box3().setFromObject(o),c=scene.worldToLocal(B.getCenter(new THREE.Vector3())),sz=B.getSize(new THREE.Vector3());if(sz.y>2.5&&Math.max(sz.x,sz.z)<3&&Math.min(sz.x,sz.z)<.05&&c.x>270&&c.x<358&&(Math.abs(c.z-27.2)<.6||Math.abs(c.z-39.6)<.6))o.visible=false;}});}catch(e){}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
   const isl=o=>{const m=o.material,im=m&&m.map&&m.map.image;return!im||im.width<=32;};// plain walls get the kit; walls with their own picture keep it (redrawn below)// every map; faces that already carry a painted picture keep it
@@ -135,7 +232,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
     walls.forEach(W=>{if(inCut(W.o))return;const par=W.o.parent;const root=par&&par!==scene&&par.children.length<=40?par:W.o;if(seen.has(root))return;seen.add(root);
       const objs=[root];if(root===W.o)roofs.forEach(R=>{RB.setFromObject(R.o);RB.getCenter(RC);if(RC.x>W.box.min.x&&RC.x<W.box.max.x&&RC.z>W.box.min.z&&RC.z<W.box.max.z&&RC.y>W.box.max.y-.5)objs.push(R.o);});
       const box=new THREE.Box3();objs.forEach(o=>box.expandByObject(o));PXB_SEE.push({objs,box,a:1,mats:null});});}
-  if(rt.depthTexture&&post.uniforms.outl){post.uniforms.tDepth.value=rt.depthTexture;post.uniforms.outl.value=1;post.uniforms.nf.value.set(camera.near,camera.far);}}
+  if(rt.depthTexture&&post.uniforms.outl){post.uniforms.tDepth.value=rt.depthTexture;post.uniforms.outl.value=1;post.uniforms.nf.value.set(camera.near,camera.far);}try{mapfixBuild();}catch(e){console.error(e);}}
 const PXB_DOORS=[],PXB_SEE=[],_pxR=new THREE.Ray(),_pxP=new THREE.Vector3(),_pxV=new THREE.Vector3();
 function pxbSee(dt){if(!PXB_SEE.length||typeof player==='undefined')return;const k=Math.min(1,(dt||.016)*6);
   for(const e of PXB_SEE){const c=e.box;_pxP.set(player.x,0,player.z);scene.localToWorld(_pxP);if(_pxP.x<c.min.x-30||_pxP.x>c.max.x+30||_pxP.z<c.min.z-30||_pxP.z>c.max.z+30){if(e.a===1)continue;}

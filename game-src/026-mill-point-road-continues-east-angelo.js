@@ -19,6 +19,9 @@ box(88,.5,9,lmat(stoneC,[40,4]),156,-.26,28.4,{noCast:true});flat(88,8.4,lmat(gr
 // ---------- South Perth detail pass: Mill Point and the Old Mill, east foreshore, Coode St Jetty, swans, new locals ----------
 box(14,.5,15.7,lmat(stoneC,[7,1]),107,-.25,4.15,{noCast:true});flat(14,13.8,lmat(grassC,[2.3,2.3]),107,.01,4.95);flat(14,1.6,lmat(pathC,[7,.8]),107,.015,-3.2);
 flat(1.6,9,lmat(pathC,[.8,4.5]),110.4,.016,3.3);
+// the lawn west of Mill Point Rd's sign runs on to the river wall (Paul, Nov 2026: the map is one full rectangle)
+[[103.2,14.4],[109.8,13.6],[105.8,18.6]].forEach(([x,z],i)=>{const v=treeVariants[i%3];const gg=new THREE.PlaneGeometry(v.w||3,v.h||4);gg.translate(0,(v.h||4)/2,0);const m=new THREE.Mesh(gg,v.m);if(v.d)m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);col(x-.3,z-.3,x+.3,z+.3);});
+[[101.8,16.6,.9],[106.8,15.8,.8],[110.4,14.6,.85],[102.6,19.4,.8],[108.8,19.2,.9]].forEach(([x,z,s])=>shrub(x,z,s));
 box(30,.5,13.3,lmat(stoneC,[15,1]),184,-.25,2.95,{noCast:true});flat(30,11.6,lmat(grassC,[5,2]),184,.01,3.8);flat(30,1.6,lmat(pathC,[15,.8]),184,.015,-3.2);
 flat(1.6,12,lmat(pathC,[.8,6]),178,.016,4.4);
 // the Old Mill (Shenton's Mill, 1835): white tower, dark cap, turning lattice sails
