@@ -436,7 +436,7 @@ var TRIP_BUILD=TRIP_BUILD||{};TRIP_BUILD.cer=function(G,K){
     lampHead(1.01,.5,.32,.08,g);lampHead(1.01,.5,-.32,.08,g);col(x-.55,z-1.05,x+.55,z+1.05);
     const tag=signP(['KIP’S HIRE CAR'],'#2f6fb0','#ffffff',1.2,.22,x,TOWN+1.45,z,0,null,1);return g;})();
   [[1523.6,19.6,'#f4f0e6'],[1534.8,19.6,'#2a2a30'],[1540.4,19.6,'#9aa4ac']].forEach(([x,z,c])=>{const g=ute(x,z,Math.PI/2,c);col(x-.55,z-1.2,x+.55,z+1.2);});
-  {const g=grp(1537.6,TOWN,23.2);const tr=pb(5,.1,1.6,'metal','#9aa0a6',0,.5,0,{par:g});const b=crayBoat(0,0,0,'#f4f0e6',null);G.remove(b);b.scale.set(.7,.7,.7);b.position.set(0,1.0,0);g.add(b);boats.pop();col(1534.8,22.2,1540.6,24.2);}
+  // (the boat on a trailer in the car park was taken out, Paul Nov 2026)
   signP(['P','CAR PARK'],'#2f6fb0','#ffffff',.7,.6,1520.2,TOWN+1.5,15.4,0,null,1);pb(.06,1.3,.06,'metal','#9aa0a6',1520.2,TOWN+.65,15.38);
 
   // ===== houses of the town: weatherboard and fibro, tin roofs, picket fences =====
