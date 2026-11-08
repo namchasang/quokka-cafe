@@ -4,6 +4,10 @@
 // from uni who opened a restaurant in Cervantes; rent a car in Victoria Park, drive the coast road north, meet Nok, then she shows Kip around.
 function rideLog(kind,to){S.rides=S.rides||{};S.rides[kind]=(S.rides[kind]||0)+1;if(to){S.rideTo=S.rideTo||{};S.rideTo[kind+':'+to]=1;}}
 const CARHIRE={x:584.2,z:2.2};// Vic Park Car Hire kiosk, by the east end of Albany Hwy
+// the outer world opens once the Perth story is done (Paul, Nov 2026); the Look Lab and the Game Master can always go
+const PERTH_STORY=['sp','hi','freo','vp','cbd'];
+function perthStoryDone(){const D=STORY_DEF();return PERTH_STORY.every(a=>D[a]&&S.story&&(S.story[a]||0)>=D[a].chapters.length);}
+function owUnlocked(){return perthStoryDone()||/[?&#](lab|ow2|ow3d|owgo)\b/.test(location.search+location.hash)||(typeof isGM==='function'&&isGM());}
 function roadOn(){return typeof OW3D_ON!=='undefined'&&OW3D_ON&&typeof TRIP_ON!=='undefined'&&TRIP_ON;}
 {const _sd=STORY_DEF;STORY_DEF=function(){const s=_sd();if(s.perth)return s;
   const ats=(lbl,list)=>()=>{const z=zoneOf(player.x),p=list[z]||list.any;return p?{x:p[0],z:p[1],label:lbl}:null;};
@@ -28,7 +32,7 @@ function roadOn(){return typeof OW3D_ON!=='undefined'&&OW3D_ON&&typeof TRIP_ON!=
   return s;};}
 STORY_ORDER.push('perth','road');
 // a story line can open in several zones: intro and the quest arrow follow those zones too
-{const _so=storyOpen;storyOpen=function(a){if(a==='perth'){S.seenZ=S.seenZ||{};return !!(S.seenZ.sp||S.seenZ.cbd||S.seenZ.vp);}if(a==='road')return roadOn()&&!!(S.story&&S.story.perth>=1)&&!!(S.seenZ&&S.seenZ.vp);return _so(a);};}
+{const _so=storyOpen;storyOpen=function(a){if(a==='perth'){S.seenZ=S.seenZ||{};return !!(S.seenZ.sp||S.seenZ.cbd||S.seenZ.vp);}if(a==='road')return roadOn()&&perthStoryDone();return _so(a);};}
 {const _st=storyTarget;storyTarget=function(a){const D=STORY_DEF()[a];if(D&&D.zones){if(!D.zones.includes(zoneOf(player.x))||!storyOpen(a))return null;const c=storyChap(a);if(!c)return null;const st=chapSteps(c).find(x=>!stepDone(x));return st?stepTarget(st):null;}return _st(a);};}
 {let tt=0;const _tk=storyTick;storyTick=function(dt){_tk(dt);tt-=dt;if(tt>0||VISIT||!running||dlgOpen()||overlay||transit)return;tt=.7;const z=zoneOf(player.x);S.storyIntro=S.storyIntro||{};
   for(const a of ['perth','road']){const D=STORY_DEF()[a];if(!D.zones.includes(z)||!storyOpen(a))continue;const c=storyChap(a);if(!c)continue;const key=a+':'+(S.story[a]||0);
@@ -44,7 +48,7 @@ STORY_ORDER.push('perth','road');
   if(typeof col==='function')col(CARHIRE.x-1.25,CARHIRE.z-1.45,CARHIRE.x+1.25,CARHIRE.z+.25);
   const _tg=cbdTargets;cbdTargets=function(T){_tg(T);if(zoneOf(player.x)!=='vp')return;
     T.push({x:CARHIRE.x,z:CARHIRE.z+1.1,r:1.6,label:S.road&&S.road.car?'Vic Park Car Hire · drive out (outer world)':'Vic Park Car Hire · rent a car (40 coins a day)',act:()=>{
-      if(!roadOn()){say([{who:'Vic Park Car Hire',text:'Sorry love, all our cars are booked out today. Try again soon!'}]);return;}
+      if(!roadOn()||!owUnlocked()){say([{who:'Vic Park Car Hire',text:'Sorry love, all our cars are booked out today. Try again soon!'}]);return;}
       if(!(S.road&&S.road.car)){if(!pay(40))return;S.road=S.road||{};S.road.car=1;save();say([{who:'Vic Park Car Hire',text:'Here are the keys! Little red hatch out the front. Head out east to Albany Hwy, then follow the signs north to the coast road. Drive safe!'}]);return;}
       if(typeof openWorld==='function')openWorld('vp','e');}});};})();
 
