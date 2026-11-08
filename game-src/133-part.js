@@ -1,0 +1,2 @@
+};
+var TRIP_BUILD=TRIP_BUILD||{};

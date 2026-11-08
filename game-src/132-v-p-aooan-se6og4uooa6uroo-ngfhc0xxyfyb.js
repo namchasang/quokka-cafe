@@ -607,4 +607,3 @@ TRIP_BUILD.esp=function(G,K){const __t0=performance.now();
     {const h=ground(px,pz),s=pz-shoreZ(px);const dry=h>.22&&h<1.3&&s>1&&gT(px,pz)<.3&&!(px>BW.x1&&px<BW.x2&&pz>BW.z1);const mvd=Math.hypot(px-ESP.lx,pz-ESP.lz);ESP.lx=px;ESP.lz=pz;
       if(dry&&mvd<1){ESP.sq+=mvd;if(ESP.sq>2.6){ESP.sq=0;popText(pick(['squeak','squeak!','squeak squeak','eek!']),{x:px,y:h+1.7,z:pz});}}}
   };
-};

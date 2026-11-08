@@ -26,6 +26,7 @@ function objective(){{const e=evCur();if(e&&phase()==='cafe'&&zoneOf(player.x)==
   if((S.stamina==null?100:S.stamina)<=20)return'Kip is very hungry! Buy food at the General Store in the Settlement before stamina hits 0.';
   {const zz=zoneOf(player.x);if(zz==='hi')return'Heirisson Island \u00b7 Photograph the kangaroos and swans. Bus back from the stop by the Causeway.';if(zz==='vp')return'Victoria Park \u00b7 Eat your way down Albany Highway. Bus stop at the west end.';if(zz==='cbd')return'Perth CBD \u00b7 Ferry from Mends St Jetty, City Loop bus on Wellington St.';}
   if(zoneOf(player.x)==='freo'){const n=FREO_STOPS.filter(f=>S.fq&&S.fq[f.id]).length;return'Fremantle \u00b7 A day out in Freo ('+n+'/'+FREO_STOPS.length+'). Ferry back from B-Shed.';}
+  if(player.x>840&&typeof tripOf==='function'&&tripOf(player.x)){const P=TRIPS[tripOf(player.x)];return P.title+' \u00b7 '+(TOUR&&TOUR.trip?'The tour van waits in the car park.':'Your car waits in the car park.');}
   if(player.x>100)return basketCount()?'South Perth · Sell your harvest to Mei at the Swan River Grocer.':'South Perth · Take the ferry back to Rottnest from the jetty.';
   if(phase()==='cafe')return'Serve tourists until 16:00. Ferries from Fremantle bring a new wave about every hour.';
   if(S.track){const q=QUESTS().find(x=>x.id===S.track);if(q&&q.open&&!questDone(q)){const nx=q.steps.find(x=>!x[1]);return'\u2605 '+q.title+': '+nx[0];}}
