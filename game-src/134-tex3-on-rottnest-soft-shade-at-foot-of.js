@@ -1,20 +1,3 @@
-// ---------- 3D overworld <-> day-trip maps (Look Lab ?ow3d / ?ow2): park the car at Lancelin or the Pinnacles and walk; drive back from the van spot ----------
-var OWTRIP=null;
-function owTripEnter(id){if(!TRIP_ON||!TRIPS[id]||!TRIPS[id].K)return false;const T=TRIPS[id],K=T.K;overlay=null;transit=true;fadeTarget=.95;toast('Parking at '+T.name+'…',1.6);
-  setTimeout(()=>{player.bike=false;player.carry=null;player.x=K.arrive[0];player.z=K.arrive[1];S.time+=20;updateCamera(0,true);hideOverlays();fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[id]=1;OWTRIP=id;save();toast(T.title+' · your car waits by the road',2.6);},700);return true;}
-function owTripBack(){const k=OWTRIP;OWTRIP=null;if(typeof openWorld==='function')openWorld(k);}
-{const _tg=cbdTargets;cbdTargets=function(T){_tg(T);if(!OWTRIP||TOUR)return;const zq=zoneOf(player.x);if(zq!==OWTRIP)return;const P=TRIPS[zq];if(!P||!P.K)return;
-  let hit=false;for(const t of T)if(/^Tour van/.test(t.label||'')){t.label='Drive back · your car on the coast road';t.act=owTripBack;hit=true;}
-  if(!hit)T.push({x:P.K.van[0],z:P.K.van[1],r:1.6,label:'Drive back · your car on the coast road',act:owTripBack});};}
-{const _et=endTour;endTour=function(){if(OWTRIP&&!TOUR){owTripBack();return;}return _et.apply(this,arguments);};}
-// a trip with a walkable map replaces the old diorama page for that tour
-function tripForTour(id){if(!TRIP_ON)return null;for(const k in TRIPS)if(TRIPS[k].tour===id&&TRIP_BUILD[k])return k;return null;}
-{const _st=startTour;startTour=function(id){const k=tripForTour(id);if(!k)return _st(id);if(transit||VISIT)return;const T=TOURS.find(t=>t.id===id);transit=true;fadeTarget=.95;toast('The tour van leaves Tudor Lane…',2);
-  setTimeout(()=>{const K=TRIPS[k].K;TOUR={T,i:0,trip:k,t0:S.time};player.bike=false;player.carry=null;player.x=K.arrive[0];player.z=K.arrive[1];S.time+=Math.round(T.hrs*60*.25);updateCamera(0,true);fadeTarget=0;transit=false;
-    S.tours=S.tours||{};S.tours[T.id]=(S.tours[T.id]||0)+1;S.seenZ=S.seenZ||{};S.seenZ[k]=1;save();say(['Guide: '+T.guide[0].replace(/^Guide: /,'')]);},900);};}
-{const _et=endTour;endTour=function(){if(TOUR&&TOUR.trip){const T=TOUR.T,t0=TOUR.t0;TOUR=null;transit=true;fadeTarget=.95;
-    setTimeout(()=>{S.time=Math.max(S.time,t0+T.hrs*60);const [x,z]=hqTpSpot(TOUR_DESK.x+.6,TOUR_DESK.z);player.x=x;player.z=z;updateCamera(0,true);fadeTarget=0;transit=false;toast('Back in Tudor Lane after a day at '+T.name,2.6);save();},700);return;}
-  return _et();};}
 // ---------- TEX3 on Rottnest: soft shade at the foot of every wall, and painted vehicles ----------
 
 
