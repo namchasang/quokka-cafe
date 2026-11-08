@@ -1,4 +1,12 @@
-  const NC=ND.NW+1,NRW=ND.NR+1,NN=NC*NRW,CE=ND.CELL,X0=ND.NX0,X1=X0+ND.NW*CE,ZMIN=-ND.NR*CE;
+  // Paul (Nov 2026): country drives 50% shorter. Past the northern suburbs (z < -250) every distance along the coast is halved:
+// the height/land grid and the Blender bake are resampled, roads, towns, dunes and gates move with it. The city keeps its scale.
+{const ZK=250,ZF=.5,f=z=>z>-ZK?z:-ZK+(z+ZK)*ZF,fi=z=>z>-ZK?z:-ZK+(z+ZK)/ZF,CE0=ND.CELL,NC0=ND.NW+1,NR0=ND.NR+1,b=atob(ND.b64),NR1=Math.ceil(-f(-ND.NR*CE0)/CE0);
+  const row=r=>Math.max(0,Math.min(NR0-1,Math.round(-fi(-r*CE0)/CE0)));let o='';for(let r=0;r<=NR1;r++){const r0=row(r);o+=b.substr(r0*NC0,NC0);}ND.b64=btoa(o);ND.NR=NR1;
+  const bk=OWBK.north;if(bk&&bk.w===NC0){const sb=atob(bk.b64),get=i=>{const v=sb.charCodeAt(i>>1);return(i&1)?v&15:v>>4;},n1=NC0*(NR1+1),arr=new Uint8Array(Math.ceil(n1/2));
+    for(let r=0;r<=NR1;r++){const r0=Math.min(bk.h-1,row(r));for(let c=0;c<NC0;c++){const i=r*NC0+c,q=get(r0*NC0+c);arr[i>>1]|=(i&1)?q:(q<<4);}}
+    let t='';for(let i=0;i<arr.length;i+=4096)t+=String.fromCharCode.apply(null,arr.subarray(i,i+4096));OWBK.north={w:NC0,h:NR1+1,b64:btoa(t)};}
+  ND.roads.forEach(r=>r.p.forEach(p=>{p[1]=f(p[1]);}));ND.towns.forEach(t=>{t[2]=f(t[2]);});ND.dunes.forEach(d=>{if(d[1]<-ZK)d[3]*=ZF;d[1]=f(d[1]);});for(const k in ND.gates)ND.gates[k][1]=f(ND.gates[k][1]);ND.ZF={ZK,ZF};}
+const NC=ND.NW+1,NRW=ND.NR+1,NN=NC*NRW,CE=ND.CELL,X0=ND.NX0,X1=X0+ND.NW*CE,ZMIN=-ND.NR*CE;
   const HB=new Float32Array(NN),LN=new Uint8Array(NN);{const b=atob(ND.b64);for(let i=0;i<NN;i++){const v=b.charCodeAt(i);LN[i]=v?1:0;HB[i]=v*.025;}}
   const bfs=src=>{const D=new Float32Array(NN).fill(1e9),q=new Int32Array(NN);let t=0;for(let i=0;i<NN;i++)if(src(i)){D[i]=0;q[t++]=i;}
     for(let h=0;h<t;h++){const i=q[h],c=i%NC,r=(i/NC)|0,d=D[i]+1;if(c>0&&D[i-1]>d){D[i-1]=d;q[t++]=i-1;}if(c<NC-1&&D[i+1]>d){D[i+1]=d;q[t++]=i+1;}if(r>0&&D[i-NC]>d){D[i-NC]=d;q[t++]=i-NC;}if(r<NRW-1&&D[i+NC]>d){D[i+NC]=d;q[t++]=i+NC;}}return D;};
@@ -39,23 +47,9 @@
       base=[.6,.6,.62,.62,.48,.46,.52,.56,.52][k]+big*.08;}
     CL[i]=k;SH[i]=Math.max(0,Math.min(255,base*255));}
   const clsAt=(x,z)=>{const c=Math.round((x-X0)/CE),r=Math.round(-z/CE);if(c<0||r<0||c>=NC||r>=NRW)return 0;return CL[r*NC+c];};
-  NORTH={X0,X1,ZMIN,CE,NC,NRW,roads:NR2,main:MR,cityRoad,town:TOWN,dest:DEST,dunes:DUN,gates:ND.gates,cls:clsAt,sd:(x,z)=>bil(SD,x,z),KM,sOf,
+  NORTH={ZF:ND.ZF,X0,X1,ZMIN,CE,NC,NRW,roads:NR2,main:MR,cityRoad,town:TOWN,dest:DEST,dunes:DUN,gates:ND.gates,cls:clsAt,sd:(x,z)=>bil(SD,x,z),KM,sOf,
     H:nH,land:(x,z)=>x>X0+1&&x<X1-1&&z>ZMIN+2&&bil(SD,x,z)>0,
     onRoad:(x,z,w)=>!!segNear(x,z,w),roadAt:(x,z,w)=>segNear(x,z,w),
     data:{CL,SH,SD,BKN,HB}};
 }
 // minimap that scrolls with Kip once he is north of the city (same scale as the map: 1 px = 4 units)
-NORTH.miniBase=null;
-NORTH.mini=function(ctx,px,pz){const N=NORTH;if(!N.miniBase){const c=document.createElement('canvas'),w=N.NC,h=N.NRW;c.width=w;c.height=h;const x=c.getContext('2d'),id=x.createImageData(w,h);
-    const C=[[34,84,110],[214,200,150],[238,236,228],[226,178,96],[112,126,92],[84,108,70],[160,150,92],[170,166,156],[120,150,84]];
-    for(let r=0;r<h;r++)for(let i=0;i<w;i++){const k=N.data.CL[r*w+i],o=((h-1-r)*w+i)*4,v=N.data.SD[r*w+i]<0?C[0]:C[k];id.data.set([v[0],v[1],v[2],255],o);}x.putImageData(id,0,0);
-    x.strokeStyle='#e8e0c8';x.lineWidth=1;N.roads.forEach(rd=>{x.beginPath();rd.p.forEach((p,i)=>{const X=(p[0]-N.X0)/4,Y=h-1+p[1]/4;i?x.lineTo(X,Y):x.moveTo(X,Y);});x.stroke();});
-    N.town.forEach(t=>{x.fillStyle='#ffd34d';x.fillRect((t.x-N.X0)/4-1,h-1+t.z/4-1,3,3);});N.miniBase=c;}
-  ctx.fillStyle='#22546e';ctx.fillRect(0,0,150,100);const ox=75-px/4,oy=50-pz/4;ctx.drawImage(mmBase,ox,oy);ctx.drawImage(N.miniBase,ox+N.X0/4,oy-(N.NRW-1)-.5);
-  ctx.fillStyle='rgba(20,26,46,.75)';ctx.fillRect(0,88,150,12);ctx.fillStyle='#ffd34d';ctx.font='9px monospace';const km=Math.max(0,Math.round(N.KM(N.sOf(px,pz))));const nx=N.dest.find(d=>d.km>km+1);ctx.fillText(nx?`${km} km · ${nx.n} ${nx.km-km} km`:`${km} km from Perth`,4,97);};
-NORTH.place=function(x,z){const N=NORTH;if(z>-2)return null;const sd=N.sd(x,z);if(sd<0)return['Indian Ocean','Turquoise water off the coast'];
-  const t=N.town.find(t=>Math.hypot(x-t.x,z-t.z)<t.r+6);if(t)return[t.n,t.n==='Lancelin'?'Fishing town · white dunes to the north':t.n==='Cervantes'?'Crayfish town · the Pinnacles are close':'Coast town · '+Math.round(N.KM(N.sOf(t.x,t.z)))+' km from Perth'];
-  const c=N.cls(x,z);if(c===3)return['The Pinnacles','Limestone spires in yellow sand'];if(c===2)return[Math.abs(z-N.gates.lan[1])<260?'Lancelin sand dunes':'White sand dunes','Bright white dunes shaped by the sea wind'];
-  const r=N.roadAt(x,z,2.8);if(r){const km=Math.round(N.KM(N.sOf(x,z))),nx=N.dest.find(d=>d.km>km+1);return[r.main?(z>-1500?'Mitchell Fwy · Wanneroo Rd':'Indian Ocean Drive'):r.n,nx?`${km} km from Perth · ${nx.n} ${nx.km-km} km`:'Driving the coast road'];}
-  return [['Beach','Indian Ocean'],['Beach','Soft sand and shells'],['White sand dunes',''],['The Pinnacles',''],['Coastal heath','Banksia, grass trees and wildflowers'],['Banksia scrub','Grass trees and banksias'],['Paddocks','Dry grass and old gums'],['Town',''],['Northern suburbs','Lawns, pools and wide streets']][c]||null;};
-

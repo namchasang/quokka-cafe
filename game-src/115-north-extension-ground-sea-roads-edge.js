@@ -181,5 +181,3 @@ float b4(vec2 p){return 4.*b2(mod(p,2.))+b2(mod(floor(p/2.),2.));}
 // clouds also drift over the coast to the north
 function NORTHpost(){window.__OWsnap=()=>{camInit=false;};if(!NORTH||!L2||!L2.clouds||!L2.clouds.length)return;const m=L2.clouds[0].material,RR=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(77);
   for(let k=0;k<34;k++){const s3=new THREE.Sprite(m);const sc=36+RR()*30;s3.scale.set(sc,sc*.375,1);s3.position.set(RR()*WX*1.4-WX*.2,48+RR()*26,NORTH.ZMIN*RR());s3.layers.mask=L2.clouds[0].layers.mask;s3.userData.L='lights';scene.add(s3);L2.clouds.push(s3);}}
-try{NORTHbuild();}catch(e){console.error('north',e);}L2objects();try{OWBAKE2();NORTHpost();}catch(e){console.error('owbake',e);}sortLayers();LAYERS.forEach(([id,n,c],i)=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" checked id="ly${i}"><i style="background:${c}"></i><span>${i+1}. ${n}</span><small>${LCOUNT[i]}</small>`;$('ow_laylist').appendChild(l);l.querySelector('input').onchange=e=>{layOn[i]=e.target.checked;applyLayers();};});applyLayers();
-

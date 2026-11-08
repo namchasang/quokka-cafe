@@ -1,20 +1,3 @@
-// ---------- roads and the railway ----------
-const CBDP=G(115.858,-31.953),FRP=G(115.748,-32.054),KPP=G(115.833,-31.961);
-const ROADS=[
- {n:'Stirling Hwy',p:[G(115.752,-32.047),G(115.758,-32.03),G(115.763,-32.005),G(115.77,-31.985),G(115.79,-31.981),G(115.81,-31.979),G(115.822,-31.972),G(115.835,-31.965),G(115.852,-31.955)]},
- {n:'Canning Hwy',p:[G(115.757,-32.04),G(115.775,-32.035),G(115.8,-32.025),G(115.83,-32.01),G(115.85,-31.99),G(115.865,-31.978),G(115.879,-31.966)]},
- {n:'Kwinana Fwy',p:[G(115.852,-31.955),G(115.85,-31.962),G(115.851,-31.968),G(115.855,-31.985),G(115.857,-32.01),G(115.858,-32.07)]},
- {n:'Riverside Dr',p:[G(115.852,-31.958),G(115.865,-31.96),G(115.879,-31.962)]},
- {n:'Great Eastern Hwy',p:[G(115.879,-31.962),G(115.89,-31.957),G(115.915,-31.95),G(115.94,-31.945),G(115.965,-31.942)]},
- {n:'Albany Hwy',p:[G(115.884,-31.966),G(115.896,-31.978),G(115.91,-31.995),G(115.93,-32.02)]},
- {n:'Leach Hwy',p:[G(115.775,-32.035),G(115.8,-32.045),G(115.84,-32.05),G(115.857,-32.05)]}];
-if(NORTH)ROADS.push(NORTH.cityRoad);// the coast road's first stretch through the city
-const RAIL=[G(115.747,-32.053),G(115.754,-32.036),G(115.758,-31.995),G(115.785,-31.98),G(115.823,-31.948),G(115.861,-31.951),G(115.9,-31.94),G(115.94,-31.937),G(115.967,-31.938)];
-const segDist=(px,pz,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz;let t=L?((px-a[0])*dx+(pz-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(a[0]+dx*t),pz-(a[1]+dz*t));};
-const onRoad=(x,z,w=2.4)=>(z<80&&NORTH&&NORTH.onRoad(x,z,w))||ROADS.some(r=>r.p.some((a,i)=>i&&segDist(x,z,r.p[i-1],a)<w));
-const deckH=(x,z)=>Math.max(H(x,z),1.4);// bridges carry the road over the water
-const groundAt=(x,z)=>onRoad(x,z,2.6)?deckH(x,z):Math.max(H(x,z),-.2);
-let BLOCK=null;const canGo=(x,z)=>(landAt(x,z)&&!(BLOCK&&BLOCK[(z|0)*WX+(x|0)]))||onRoad(x,z,2.4);
 // ---------- three.js ----------
 const cv=$('ow_c'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:false});renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.physicallyCorrectLights=false;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const PIX=.5;// draw at half resolution, scaled up: chunky pixels

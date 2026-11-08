@@ -2,7 +2,7 @@ const G=(lon,lat)=>[(lon-115.73)/.25*WX,(lat+31.928)/-.144*WZ];
 const LAND=new Uint8Array(WX*WZ);{const b=atob(REAL.land);for(let i=0;i<WX*WZ;i++)LAND[i]=(b.charCodeAt(i>>3)>>(7-(i&7)))&1;}
 const ELEV=new Float32Array(REAL.hw*REAL.hh);{const b=atob(REAL.elev);for(let i=0;i<ELEV.length;i++)ELEV[i]=b.charCodeAt(i)/2-40;}
 const elevAt=(x,z)=>{x=Math.max(0,Math.min(REAL.hw-1.001,x/2-.5));z=Math.max(0,Math.min(REAL.hh-1.001,z/2-.5));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*REAL.hw+x0,W2=REAL.hw;return (ELEV[i]*(1-fx)+ELEV[i+1]*fx)*(1-fz)+(ELEV[i+W2]*(1-fx)+ELEV[i+W2+1]*fx)*fz;};
-const landAt=(x,z)=>{if(z<0&&NORTH)return NORTH.land(x,z);x|=0;z|=0;return x>=0&&z>=0&&x<WX&&z<WZ&&LAND[z*WX+x]===1;};
+const landAt=(x,z)=>{if(z<0&&NORTH)return NORTH.land(x,z);if(z>=WZ&&SOUTH)return SOUTH.land(x,z);x|=0;z|=0;return x>=0&&z>=0&&x<WX&&z<WZ&&LAND[z*WX+x]===1;};
 // distance to the shore (both sides)
 const DL=new Float32Array(WX*WZ).fill(1e9),DW=new Float32Array(WX*WZ).fill(1e9);
 (()=>{const bfs=(D,src)=>{const q=[];for(let i=0;i<WX*WZ;i++)if(src(i)){D[i]=0;q.push(i);}for(let h=0;h<q.length;h++){const i=q[h],x=i%WX,z=(i/WX)|0;for(const[dx,dz]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,nz=z+dz;if(nx<0||nz<0||nx>=WX||nz>=WZ)continue;const j=nz*WX+nx;if(D[j]>D[i]+1){D[j]=D[i]+1;q.push(j);}}}};
@@ -20,7 +20,7 @@ for(let z=0;z<WZ;z++)for(let x=0;x<WX;x++){const i=z*WX+x;let h;
   if(LAND[i]){const d=DL[i],m=Math.max(0,elevAt(x,z));h=.45+Math.min(d,3)*.1+Math.min(m,70)*.045*ss(0,4,d)+(fbm(x*.03,z*.03))*.15;}// real ground, 1 m ≈ .045 units: hills stay gentle
   else{h=-.8-Math.min(DW[i],12)*.12;}
   HG[i]=h;}
-const H=(x,z)=>{if(z<0&&NORTH)return NORTH.H(x,z);x=Math.max(0,Math.min(WX-1.001,x));z=Math.max(0,Math.min(WZ-1.001,z));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*WX+x0;return lerp(lerp(HG[i],HG[i+1],fx),lerp(HG[i+WX],HG[i+WX+1],fx),fz);};
+const H=(x,z)=>{if(z<0&&NORTH)return NORTH.H(x,z);if(z>WZ&&SOUTH)return SOUTH.H(x,z);x=Math.max(0,Math.min(WX-1.001,x));z=Math.max(0,Math.min(WZ-1.001,z));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*WX+x0;return lerp(lerp(HG[i],HG[i+1],fx),lerp(HG[i+WX],HG[i+WX+1],fx),fz);};
 // ---------- North extension (Look Lab, Paul Nov 2026): drive from Perth CBD up the coast to Lancelin, the Pinnacles and Cervantes ----------
 // Real coastline and elevation (Terrain Tiles on AWS, z12) in a straightened corridor joined to the north edge of the map (z<0):
 // real scale (1 unit = 40 m) to Lancelin, 1.25x stretched beyond it, so the drive is about 2.5 min to Lancelin and 1.5 min more to the Pinnacles.
