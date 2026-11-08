@@ -3,7 +3,7 @@
 // Hay Street Mall, shops, Wellington Street and the station. Kings Park on the west, the Gold Exchange and food trucks on the east.
 const CBDB={x1:598,x2:702,z1:-27,z2:24};
 const CBD={npcs:[],acts:[],P:{},cut:[]};
-function cbdWalk(x,z){if(x>600.2&&x<699.8&&z>-25.6&&z<11.8&&!(x>640&&x<660&&z>6.2))return true;if(x>668.2&&x<670.8&&z>11&&z<19.6)return true;if(x>639&&x<661&&z>9.4&&z<11.2)return true;return false;}
+function cbdWalk(x,z){if(CW_ON&&cwWalk(x,z))return true;if(x>600.2&&x<699.8&&z>-25.6&&z<11.8&&!(x>640&&x<660&&z>6.2))return true;if(x>668.2&&x<670.8&&z>11&&z<19.6)return true;if(x>639&&x<661&&z>9.4&&z<11.2)return true;return false;}
 (()=>{const M=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c)});
   // every building is registered so it can fold down when Kip walks behind it (the camera looks north)
   const cb=(x,z,w,d,h,c,o)=>{const g=bld(x,z,w,d,h,c,o);CBD.cut.push({g,x1:x-w/2,x2:x+w/2,z1:z-d/2,h:h+((o&&o.roofH)||0)});return g;};

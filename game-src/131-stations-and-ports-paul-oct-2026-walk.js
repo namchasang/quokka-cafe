@@ -1,5 +1,5 @@
 // ---------- stations and ports (Paul, Oct 2026): walk in, pick a town, step off at its station or jetty ----------
-const HUBS={train:{word:'Train',many:'Trains',fare:5,mins:25,stops:{cbd:{n:'Perth Station',x:680,z:WEL4_ON?-24.45:-21.6},freo:{n:'Fremantle Station',x:297.5,z:-9.9},vp:{n:'Victoria Park Station',x:558.6,z:-6.4},air:{n:'Airport Central',x:726,z:12.4}}},
+const HUBS={train:{word:'Train',many:'Trains',fare:5,mins:25,stops:{cbd:{n:'Perth Station',x:680,z:WEL4_ON?(CW_ON?-27.5:-24.45):-21.6},freo:{n:'Fremantle Station',x:297.5,z:-9.9},vp:{n:'Victoria Park Station',x:558.6,z:-6.4},air:{n:'Airport Central',x:726,z:12.4}}},
   ferry:{word:'Ferry',many:'Ferries',fare:8,mins:35,stops:{cbd:{n:'Barrack St Jetty',x:670.6,z:17.2},sp:{n:'Mends St Jetty',x:SPX+.4,z:-8.2},freo:{n:'B-Shed ferry terminal',x:285,z:-9.6},island:{n:'Thomson Bay jetty',x:IW(-16,4.4).x+1.6,z:IW(-16,4.4).z+1.2}}}};
 function openHub(mode,from){const H=HUBS[mode],F=H.stops[from];const lockedFreo=typeof freoUnlocked==='function'&&!freoUnlocked();
   openTravel('Where to?',F.n+' · '+H.many.toLowerCase(),Object.keys(H.stops).map(z=>({id:z,name:TOWN_NAME[z]+' · '+H.stops[z].n,here:z===from,
@@ -18,7 +18,7 @@ const MTR={on:MTR_ON,built:false,st:{},ride:null,
   // tz track centre, stop = train centre when stopped, inDir/outDir travel direction (+1 = east), px1..px2 platform, pd platform depth,
   // tx1..tx2 track length, walk = extra walkable rect, hop = where the station door sends Kip, D = run-in / run-out distance
   DEF:{cbd:{tz:-48.6,stop:678,inDir:1,outDir:1,px1:652,px2:704,pd:3.45,tx1:600,tx2:724,name:'PERTH',walk:[652.4,-47.42,703.6,-44.5],hop:[678.5,-45.6],D:36,island:1,
-      exits:[{x:667.2,z:-45.2,label:'Exit · Wellington St',to:[680,-23.3]}]},
+      exits:[{x:667.2,z:-45.2,label:'Exit · Wellington St',to:[680,CW_ON?-27.3:-23.3]}]},
     freo:{tz:-19.75,stop:303.6,inDir:-1,outDir:1,px1:293.2,px2:333.4,pd:4.6,tx1:292.6,tx2:372,name:'FREMANTLE',walk:[293.5,-18.55,333.3,-14.3],hop:[301,-16.6],D:56,buffer:292.9},
     vp:{tz:-11,stop:545,inDir:1,outDir:1,px1:531.5,px2:555.6,pd:1.75,tx1:470,tx2:612,name:'VICTORIA PARK',walk:null,hop:[546.5,-8.9],D:56},
     air:{tz:17.95,stop:745,inDir:1,outDir:1,px1:729,px2:761,pd:2.75,tx1:678,tx2:812,name:'AIRPORT CENTRAL',walk:[729.3,19.12,760.7,21.42],hop:[745.5,20.3],D:56,
@@ -138,7 +138,7 @@ function mtrBuild(){MTR.built=true;const P=PXK.P,sh=PXK.sh,mix=PXK.mix,cv=PXK.cv
   // ===================== Perth Station: an island platform behind the towers, with Northbridge across the tracks =====================
   {const D=MTR.DEF.cbd,g=groupFor('cbd');
     put(g,B(126,.5,29),groundM('#8f887c',['#7e776c','#a19a8e','#6f685e','#9a9386'],[126/8,29/8]),661,-.25,-49.7,{noShadow:1});
-    track(g,D.tx1,D.tx2,D.tz,true);track(g,D.tx1,D.tx2,mtrPZ(D)+D.pd+.95,true);
+    track(g,D.tx1,D.tx2,D.tz,true);if(CW_ON){const z2=mtrPZ(D)+D.pd+.95,a=671,b=679;track(g,D.tx1,a,z2,true);track(g,b,D.tx2,z2,true);const bs=LM((()=>{const[c,x]=cv(8,40);for(let Y=0;Y<40;Y+=8){P(x,'#d8343a',0,Y,8,4);P(x,'#f6f2ea',0,Y+4,8,4);}return c;})());[[a,1],[b,-1]].forEach(([bx,s])=>{put(g,B(.5,.7,1.9),CM('#5a5f66'),bx-s*.3,.4,z2);put(g,B(.12,.26,1.4),bs,bx-s*.02,.62,z2);put(g,B(.06,.12,.12),lamp('#ff3a30'),bx,.95,z2,{noShadow:1});put(g,B(.06,.06,1.7),CM('#3a4048'),bx-s*.3,.6,z2-.95);});}else track(g,D.tx1,D.tx2,mtrPZ(D)+D.pd+.95,true);
     platform(g,D,{island:1,h:.1});
     // the exit stairs: a glass hood over steps down to the subway under the towers
     {const ex=D.exits[0];put(g,B(1.6,.08,2.0),CM('#2e3a48'),ex.x,2.25,ex.z-.2);[-.75,.75].forEach(d=>put(g,new THREE.PlaneGeometry(1.9,2.1),glassM,ex.x+d,1.1,ex.z-.2,{ry:Math.PI/2,noShadow:1}));

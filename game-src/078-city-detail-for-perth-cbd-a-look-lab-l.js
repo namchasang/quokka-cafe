@@ -104,14 +104,14 @@ if(CDET.on)(()=>{
     return{g,len:.75,wid:.32};}
 
   // routes (keep left): St Georges Tce, Riverside Dr, Wellington St (one way) and turns through Barrack and William streets
-  const SGe=-3.65,SGw=-2.55,RVe=4.99,RVw=5.77,WL=WEL4_ON?-21.35:-21.7,BRs=667.85,WMn=638.55,BKe=4.07,BKw=4.43;
+  const SGe=-3.65,SGw=-2.55,RVe=4.99,RVw=5.77,WL=WEL4_ON?-21.35+CW_RD:-21.7,BRs=667.85,WMn=638.55,BKe=4.07,BKw=4.43;
   const ROUTES=[
     {p:[[621,SGe],[701,SGe]],n:3,bus:.18},{p:[[701,SGw],[621,SGw]],n:3,bus:.18},
     {p:[[621,RVe],[701,RVe]],n:2},{p:[[701,RVw],[621,RVw]],n:2},
     {p:[[621,WL],[701,WL]],n:2,bus:.4,stopX:661.4},
-    ...(WEL4_ON?[{p:[[621,-21.95],[701,-21.95]],n:2},{p:[[701,-23.35],[621,-23.35]],n:2},{p:[[701,-23.95],[621,-23.95]],n:2}]:[]),
-    {p:[[621,WL],[BRs,WL],[BRs,RVe],[701,RVe]],n:1},
-    {p:[[701,RVw],[WMn,RVw],[WMn,WL],[701,WL]],n:1},
+    ...(WEL4_ON?[{p:[[621,-21.95+CW_RD],[701,-21.95+CW_RD]],n:2},{p:[[701,-23.35+CW_RD],[621,-23.35+CW_RD]],n:2},{p:[[701,-23.95+CW_RD],[621,-23.95+CW_RD]],n:2}]:[]),
+    (CW_ON?{p:[[701,SGw],[BRs,SGw],[BRs,RVe],[701,RVe]],n:1}:{p:[[621,WL],[BRs,WL],[BRs,RVe],[701,RVe]],n:1}),
+    (CW_ON?{p:[[701,RVw],[WMn,RVw],[WMn,SGe],[701,SGe]],n:1}:{p:[[701,RVw],[WMn,RVw],[WMn,WL],[701,WL]],n:1}),
     {p:[[621,SGe],[BRs,SGe],[BRs,RVw],[621,RVw]],n:1},
     {p:[[621,BKe],[701,BKe]],n:2,bike:1},{p:[[701,BKw],[621,BKw]],n:2,bike:1}];
   function at(R,s){s=Math.max(0,Math.min(R.L,s));let i=1;while(i<R.S.length-1&&R.S[i]<s)i++;const a=R.P[i-1],b=R.P[i],t=(s-R.S[i-1])/Math.max(1e-6,R.S[i]-R.S[i-1]);const dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1;return{x:a[0]+dx*t,z:a[1]+dz*t,dx:dx/l,dz:dz/l};}

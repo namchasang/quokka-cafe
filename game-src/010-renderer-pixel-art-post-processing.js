@@ -14,7 +14,8 @@ let camDist=14,yaw=0,yawT=0,zm=1;
 const camOff=new THREE.Vector3();
 const rt=new THREE.WebGLRenderTarget(2,2,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat});
 var CINE_LIVE=false;const CINE_ON=CINE_LIVE||/[?&#](lab|cine|r3)\b/.test(location.search+location.hash);// Look Lab: Cinematic camera, Rottnest first
-var WEL4_LIVE=true;const WEL4_ON=WEL4_LIVE||/[?&#]wel4\b/.test(location.search+location.hash);// Look Lab: Wellington St in front of Perth Station, four lanes and a median (Paul, Nov 2026)
+var CW_LIVE=true;var WEL4_LIVE=true;const WEL4_ON=WEL4_LIVE||/[?&#]wel4\b/.test(location.search+location.hash);// Look Lab: Wellington St in front of Perth Station, four lanes and a median (Paul, Nov 2026)
+const CW_ON=WEL4_ON&&CW_LIVE,CW_RD=CW_ON?-1.4:0,CW_DN=CW_ON?-3.6:0;// CBD footpaths: the road moves 1.4 m north, the north side 3.6 m more
 var PXB_LIVE=true;const PXB_ON=PXB_LIVE||/[?&#]pxb\b/.test(location.search+location.hash);// Look Lab: pixel buildings (3d shapes, pixel skins), Rottnest first
 if(CINE_ON||PXB_ON){rt.depthTexture=new THREE.DepthTexture(2,2);rt.depthTexture.type=THREE.UnsignedIntType;}
 const post=new THREE.ShaderMaterial({
