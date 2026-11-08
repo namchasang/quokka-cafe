@@ -6,7 +6,7 @@
 // cool shade) on top of the Blender bake, and the red outback desert inland (the little car can't go off-road into it).
 var OWT=null;
 function OWTOWN(){if(!LOOK2||/[?&#]noowt\b/.test(location.search+location.hash))return;
-const O={S:SOUTH,scene,renderer,towns:TOWNS,glow:[],chunks:[],t:0,glowK:0,warnT:0,lastX:ST.x,lastZ:ST.z,dir:[0,-1]};OWT=O;
+const O={S:SOUTH,towns:TOWNS,glow:[],chunks:[],t:0,glowK:0,warnT:0,lastX:ST.x,lastZ:ST.z,dir:[0,-1]};OWT=O;
 const mkc=(w,h)=>{const c=document.createElement('canvas');c.width=Math.max(1,w|0);c.height=Math.max(1,h|0);const x=c.getContext('2d');x.imageSmoothingEnabled=false;return c;};
 const TX=(c,rep)=>{const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;t.encoding=THREE.sRGBEncoding;if(rep){t.wrapS=t.wrapT=THREE.RepeatWrapping;}return t;};
 const PP=(x,c,X,Y,W=1,Hh=1)=>{x.fillStyle=c;x.fillRect(X|0,Y|0,W|0,Hh|0);};

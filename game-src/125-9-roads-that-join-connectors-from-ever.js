@@ -4,12 +4,23 @@
   const pad=(x,z,r)=>{const g=new THREE.CircleGeometry(r,20);g.rotateX(-Math.PI/2);const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*r/2,uv.getY(i)*r/2);const m=new THREE.Mesh(g,padM);m.position.set(x,deckH(x,z)+.19,z);m.receiveShadow=true;m.userData.L='roads';scene.add(m);(O.pads||(O.pads=[])).push([x,z]);(O.padMeshes||(O.padMeshes=[])).push(m);};
   const ALL=[];ROADS.forEach(r=>ALL.push(r.p));if(SOUTH&&SOUTH.road)ALL.push(SOUTH.road);if(N)N.roads.forEach(r=>ALL.push(r.draw||r.p));
   const nearest=(x,z,skip)=>{let b=null,bd=1e9;ALL.forEach((P,j)=>{if(j===skip)return;for(let i=1;i<P.length;i++){const a=P[i-1],c=P[i],dx=c[0]-a[0],dz=c[1]-a[1],L=dx*dx+dz*dz;let t=L?((x-a[0])*dx+(z-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));const px=a[0]+dx*t,pz=a[1]+dz*t,d=Math.hypot(x-px,z-pz);if(d<bd){bd=d;b=[px,pz];}}});return[b,bd];};
-  let nc=0,np=0;ALL.forEach((P,j)=>{[P[0],P[P.length-1]].forEach(e=>{const[b,d]=nearest(e[0],e[1],j);if(!b||d>14)return;if(d>.4){ribbon([e,b],4,roadM,.185,true);nc++;}pad(b[0],b[1],3);np++;});});
+  let nc=0,np=0;ALL.forEach((P,j)=>{[P[0],P[P.length-1]].forEach(e=>{const[b,d]=nearest(e[0],e[1],j);if(!b||d>14)return;if(d>.4){ribbon([e,b],4,roadM,.185,true);(O.conns||(O.conns=[])).push([e,b]);nc++;}pad(b[0],b[1],3);np++;});});
   // crossings
   const segs=[];ALL.forEach((P,j)=>{for(let i=1;i<P.length;i++)segs.push([P[i-1],P[i],j]);});
   for(let a=0;a<segs.length;a++)for(let b=a+1;b<segs.length;b++){const s=segs[a],t=segs[b];if(s[2]===t[2])continue;const p=s[0],r=[s[1][0]-p[0],s[1][1]-p[1]],q=t[0],u=[t[1][0]-q[0],t[1][1]-q[1]],den=r[0]*u[1]-r[1]*u[0];if(Math.abs(den)<1e-6)continue;
     const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;pad(p[0]+r[0]*tt,p[1]+r[1]*tt,3.2);np++;}
   O.roadFix=[nc,np];
+// fix 2 (Paul, Nov 2026): landmarks never stand on a road. Parts that sit together move together, to the nearest clear spot on land (west first), and get a collider.
+{const RDX=(x,z,w)=>onRoad(x,z,w)||(O.conns||[]).some(c=>segDist(x,z,c[0],c[1])<w);const moved=[];['cbd','freo','sp','vp','air','hi'].forEach(id=>{const t=T[id];if(!t)return;const g=t.g;g.updateMatrixWorld(true);const kids=g.children.filter(c=>c.visible&&c!==t.rg&&c!==O.cbdDet);
+  const info=kids.map(c=>{const b=new THREE.Box3().setFromObject(c);const h=b.max.y-b.min.y,w1=b.max.x-b.min.x,w2=b.max.z-b.min.z;return{c,x:(b.min.x+b.max.x)/2,z:(b.min.z+b.max.z)/2,r:(h>.6?Math.min(w1,w2):Math.max(w1,w2)*.8)/2,h};}).filter(q=>isFinite(q.x));
+  const par=info.map((_,i)=>i),f=i=>par[i]===i?i:(par[i]=f(par[i]));info.forEach((a,i)=>info.forEach((b,j)=>{if(j>i&&Math.hypot(a.x-b.x,a.z-b.z)<1.8)par[f(i)]=f(j);}));
+  const CLS={};info.forEach((q,i)=>(CLS[f(i)]||(CLS[f(i)]=[])).push(q));
+  Object.values(CLS).forEach(cl=>{const tall=cl.filter(q=>q.h>.6),solid=cl.filter(q=>q.h>.3&&q.r<6);if(!tall.length)return;const hit=q=>RDX(q.x,q.z,Math.max(.4,q.r)+2.2);if(!solid.some(hit))return;
+    let best=null;for(let rr=1;rr<=18&&!best;rr+=.5)for(let a=0;a<16;a++){const k=(a+1>>1)*(a%2?1:-1),an=Math.PI+k*Math.PI/8,dx=Math.cos(an)*rr,dz=Math.sin(an)*rr;if(solid.every(q=>!RDX(q.x+dx,q.z+dz,Math.max(.4,q.r)+2.6)&&(q.h<=.6||landAt(q.x+dx,q.z+dz)))){best=[dx,dz];break;}}
+    if(!best)return;cl.forEach(q=>{q.c.position.x+=best[0];q.c.position.z+=best[1];});moved.push([id,cl.length,best.map(v=>+v.toFixed(1))]);
+    if(BLOCK)tall.forEach(q=>{if(q.r>3)return;const cx=q.x+best[0],cz=q.z+best[1],R=Math.max(.6,q.r);for(let z=Math.floor(cz-R);z<=cz+R;z++)for(let x=Math.floor(cx-R);x<=cx+R;x++)if(x>=0&&z>=0&&x<WX&&z<WZ&&Math.hypot(x+.5-cx,z+.5-cz)<=R+.3&&!RDX(x+.5,z+.5,2.4))BLOCK[z*WX+x]=1;});});});
+  O.landmarksMoved=moved;}
+
 
   // ---- fix 1 (Paul, Nov 2026): city junctions become signalised crossroads; green signs move off the carriageway onto the verge ----
   {const PADS=O.pads||[],CL=[];PADS.forEach(p=>{if(p[1]<2||p[1]>WZ-2||p[0]<2||p[0]>WX-2)return;const c=CL.find(c=>Math.hypot(c.x-p[0],c.z-p[1])<9);if(c){c.n++;c.x+=(p[0]-c.x)/c.n;c.z+=(p[1]-c.z)/c.n;c.m.push(p[2]);}else CL.push({x:p[0],z:p[1],n:1,m:[p[2]]});});
@@ -53,7 +64,7 @@ if(MP){const off=(P,o)=>P.map((p,i)=>{const q=P[Math.min(P.length-1,i+1)],r=P[Ma
       [-1,1].forEach(s2=>{v.push(cx-dz*w/2*s2,y,cz+dx*w/2*s2);uv.push(s2<0?0:1,p[2]/(uScale||4));});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';scene.add(m);return m;};
   const lane1=(()=>{const c=mkc(16,32),x=c.getContext('2d');PP(x,'#56585d',0,0,16,32);for(let k=0;k<50;k++)PP(x,['#4a4c50','#606268','#6a6c70'][k%3],HSH(k,31)*16,HSH(k,32)*32);PP(x,'#4c4e52',7,0,3,32);PP(x,'#f4f2e8',1,0,1,32);PP(x,'#f4f2e8',14,0,1,32);return new THREE.MeshLambertMaterial({map:TX(c,true),side:THREE.DoubleSide});})();
-  const mainP=dense.filter(p=>p[2]<=TZ0+60),tailP=dense.filter(p=>p[2]>=TZ0+58);
+  const mainP=dense.filter(p=>p[2]<=TZ0+60),tailP=[mainP[mainP.length-1]].concat(dense.filter(p=>p[2]>TZ0+60));
   [1,-1].forEach(sd=>{vrib(mainP,s=>sd*mo(s),mw,lane,.2);vrib(tailP,s=>sd*mo(s),mw,lane1,.2);});
   vrib(dense.filter(p=>p[2]<=TZ0-40),()=>0,()=>3.2,gravel,.205,8);
   const chev=(()=>{const c=mkc(16,16),x=c.getContext('2d');PP(x,'#56585d',0,0,16,16);for(let y=0;y<16;y++)for(let X=0;X<16;X++){if(((X>>1)+Math.abs(y-8)+40)%6===0)PP(x,'#f4f2e8',X,y,1,1);}PP(x,'#f4f2e8',0,0,1,16);PP(x,'#f4f2e8',15,0,1,16);return new THREE.MeshLambertMaterial({map:TX(c,true)});})();
