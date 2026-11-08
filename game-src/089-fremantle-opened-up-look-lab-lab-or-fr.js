@@ -222,7 +222,7 @@ if(FREO5_ON&&FDET.on)(()=>{
     put(C(1.3,1.3,.25,8),M('#efe3c4'),345,.42,4);for(let k=0;k<8;k++){const a=k/8*Math.PI*2;put(C(.06,.06,1.8,6),M('#f6f6f2'),345+Math.cos(a)*1.1,1.45,4+Math.sin(a)*1.1);}put(new THREE.ConeGeometry(1.5,.9,8),M('#2c4a3a'),345,2.8,4);block(343.6,2.6,346.4,5.4);
     if(FDET.bb&&typeof treeVariants!=='undefined')[[337,-3],[338,15],[350,-2],[352,12],[340,19],[355,4],[348,17]].forEach(([x,z],i)=>{const v=treeVariants[i%treeVariants.length];FDET.bb(v,x,z,v.w*.85,v.h*.85,0,true);});}
   // street trees along the footpaths (sprites) and lamp posts
-  if(FDET.bb&&typeof treeVariants!=='undefined'){[[284,-4.6],[290,-4.6],[323,-4.6],[300,-9.6],[296.6,12],[296.6,18],[299.4,6],[316,13],[320.4,12.6],[316,2],[329,14],[329,3]].forEach(([x,z],i)=>{const v=treeVariants[(i+1)%treeVariants.length];FDET.bb(v,x,z,v.w*.62,v.h*.62,0,true);});}
+  if(FDET.bb&&typeof treeVariants!=='undefined'){[[284,-4.6],[290,-4.6],[323,-4.6],[300,-9.6],[294.3,15],[294.3,19.5],[300.2,6],[316,13],[320.4,12.6],[316,2],[329,14],[329,3]].forEach(([x,z],i)=>{const v=treeVariants[(i+1)%treeVariants.length];FDET.bb(v,x,z,v.w*.62,v.h*.62,0,true);});}
   [[281,-4.4],[293,-4.4],[303,-4.4],[319.6,-4.4],[333,-4.4],[294.4,8],[294.4,16],[299.6,14],[302.8,15],[308,14],[315.4,6],[320.6,-1],[328.4,2]].forEach(([x,z])=>{put(C(.05,.07,2.4,6),M('#2e3236'),x,1.2,z);put(new THREE.SphereGeometry(.13,8,6),M('#f6efd8'),x,2.45,z,{nc:1});});
   {// a grand old hotel on the William St corner of Phillimore St: two storeys of arches, a parapet, an octagonal corner tower with a dome
     const x1=310.8,x2=315.0,z1=-13.6,z2=-10.4,h=3.8,cx=(x1+x2)/2,cz=(z1+z2)/2,col='#8a9890',wh='#f2f2ea';
