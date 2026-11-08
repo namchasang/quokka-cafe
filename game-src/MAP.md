@@ -160,7 +160,10 @@ Find code: `grep -n 'name' game-src/*`.
 | 152-towns-with-room-to-breathe-look-lab-to.js | 14649-14830 | 23 | T2, t2Tex, t2Lit, T2M, t2Col, t2Zone, T2V, town2Mark |
 | 153-1-fewer-houses-south-perth-bungalows-a.js | 14831-14875 | 6 | town2Thin |
 | 154-a-rebuilt-fremantle-cottage-every-face.js | 14876-14945 | 11 | t2Cottage, t2Fence, t2Like, t2Garden |
-| 155-2-richer-roofs-doors-and-windows-on-to.js | 14946-15186 | 38 | town2Skin, town2Painter, town2QDetail, town2QRim, town2Quokka, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick |
-| 156-hd-pixel-set-on-rottnest-only-look-lab.js | 15187-15226 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 157-auth.js | 15227-15305 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 158-photo-mode-shot-x-z-hour-weather-zoom.js | 15306-15327 | 3 | SHOT |
+| 155-2-richer-roofs-doors-and-windows-on-to.js | 14946-15028 | 13 | town2Skin, town2Painter, town2QDetail, town2QRim, town2Quokka |
+| 156-perth-houses-from-roo-road-rescue-look.js | 15029-15085 | 5 | T3H |
+| 157-build-one-house-kind-brick-cottage-fed.js | 15086-15197 | 13 | t3House, t3Plant |
+| 158-south-perth-filler-houses-become-roo-r.js | 15198-15373 | 27 | town3Houses, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick, tex3Scene |
+| 159-hd-pixel-set-on-rottnest-only-look-lab.js | 15374-15413 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 160-auth.js | 15414-15492 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 161-photo-mode-shot-x-z-hour-weather-zoom.js | 15493-15514 | 3 | SHOT |
