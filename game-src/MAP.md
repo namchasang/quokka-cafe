@@ -143,23 +143,24 @@ Find code: `grep -n 'name' game-src/*`.
 | 135-const-lan-data-x0-830-z0-75-nx-161-nz.js | 11509-11509 | 82 | embedded data, do not open |
 | 136-const-d-lan-data-x0-d-x0-z0-d-z0-nx-d.js | 11510-12078 | 73 |  |
 | 137-day-trip-busselton-jetty-zone-bus-x-11.js | 12079-12807 | 103 | TRIP_BUILD |
-| 138-day-trip-places-look-lab-trip-paul-nov.js | 12808-12853 | 5 | TRIP_LIVE, TRIPS, TRIP_BUILD, tripOf, tripWalk, tripH, OWTRIP, owTripEnter, owTripBack, tripForTour |
-| 139-tex3-on-rottnest-soft-shade-at-foot-of.js | 12854-12910 | 8 | PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace, PXGLASS, pxGlassy, pxOneLook |
-| 140-people-and-animals-a-touch-brighter-th.js | 12911-13092 | 23 | pxPopTick, VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
-| 141-perth-station-pixel-look-1890s-front-i.js | 13093-13499 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
-| 142-paul-perth-library-shared-with-every-p.js | 13500-13563 | 3 | P |
-| 143-light-from-above-inside-a-blob-of-foli.js | 13564-13605 | 2 | MC, T |
-| 144-render-mode-default-srgb-output-meshst.js | 13606-13662 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
-| 145-cut-out-card-leaves-lace-grass-alpha-t.js | 13663-13753 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
-| 146-island-cottage-limestone-or-board-plas.js | 13754-13800 | 7 |  |
-| 147-ppl-lib-end.js | 13801-13840 | 4 | wel4Build |
-| 148-buildings-off-bike-lanes-paul-nov-2026.js | 13841-13961 | 17 | pxbLaneClear, pxFixDiamonds, SEA2_LIVE, whale32, spout32, BOAT, sea2Build, sea2Place, sea2Water, sea2Tick |
-| 149-rottnest-declutter-paul-nov-2026-littl.js | 13962-14023 | 8 | pxDeclutter, SP2_LIVE, spBuild_sky |
-| 150-detail-2-look-lab-det2-paul-nov-2026-s.js | 14024-14079 | 9 | DET2_LIVE, det2Build |
-| 151-towns-with-room-to-breathe-look-lab-to.js | 14080-14261 | 23 | T2, t2Tex, t2Lit, T2M, t2Col, t2Zone, T2V, town2Mark |
-| 152-1-fewer-houses-south-perth-bungalows-a.js | 14262-14306 | 6 | town2Thin |
-| 153-a-rebuilt-fremantle-cottage-every-face.js | 14307-14376 | 11 | t2Cottage, t2Fence, t2Like, t2Garden |
-| 154-2-richer-roofs-doors-and-windows-on-to.js | 14377-14617 | 38 | town2Skin, town2Painter, town2QDetail, town2QRim, town2Quokka, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick |
-| 155-hd-pixel-set-on-rottnest-only-look-lab.js | 14618-14657 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 156-auth.js | 14658-14736 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 157-photo-mode-shot-x-z-hour-weather-zoom.js | 14737-14758 | 3 | SHOT |
+| 138-day-trip-cervantes-zone-cer-x-1450-157.js | 12808-13376 | 80 | TRIP_BUILD |
+| 139-day-trip-places-look-lab-trip-paul-nov.js | 13377-13422 | 5 | TRIP_LIVE, TRIPS, TRIP_BUILD, tripOf, tripWalk, tripH, OWTRIP, owTripEnter, owTripBack, tripForTour |
+| 140-tex3-on-rottnest-soft-shade-at-foot-of.js | 13423-13479 | 8 | PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxSnapHex, pxFace, PXGLASS, pxGlassy, pxOneLook |
+| 141-people-and-animals-a-touch-brighter-th.js | 13480-13661 | 23 | pxPopTick, VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
+| 142-perth-station-pixel-look-1890s-front-i.js | 13662-14068 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
+| 143-paul-perth-library-shared-with-every-p.js | 14069-14132 | 3 | P |
+| 144-light-from-above-inside-a-blob-of-foli.js | 14133-14174 | 2 | MC, T |
+| 145-render-mode-default-srgb-output-meshst.js | 14175-14231 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
+| 146-cut-out-card-leaves-lace-grass-alpha-t.js | 14232-14322 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
+| 147-island-cottage-limestone-or-board-plas.js | 14323-14369 | 7 |  |
+| 148-ppl-lib-end.js | 14370-14409 | 4 | wel4Build |
+| 149-buildings-off-bike-lanes-paul-nov-2026.js | 14410-14530 | 17 | pxbLaneClear, pxFixDiamonds, SEA2_LIVE, whale32, spout32, BOAT, sea2Build, sea2Place, sea2Water, sea2Tick |
+| 150-rottnest-declutter-paul-nov-2026-littl.js | 14531-14592 | 8 | pxDeclutter, SP2_LIVE, spBuild_sky |
+| 151-detail-2-look-lab-det2-paul-nov-2026-s.js | 14593-14648 | 9 | DET2_LIVE, det2Build |
+| 152-towns-with-room-to-breathe-look-lab-to.js | 14649-14830 | 23 | T2, t2Tex, t2Lit, T2M, t2Col, t2Zone, T2V, town2Mark |
+| 153-1-fewer-houses-south-perth-bungalows-a.js | 14831-14875 | 6 | town2Thin |
+| 154-a-rebuilt-fremantle-cottage-every-face.js | 14876-14945 | 11 | t2Cottage, t2Fence, t2Like, t2Garden |
+| 155-2-richer-roofs-doors-and-windows-on-to.js | 14946-15186 | 38 | town2Skin, town2Painter, town2QDetail, town2QRim, town2Quokka, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick |
+| 156-hd-pixel-set-on-rottnest-only-look-lab.js | 15187-15226 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 157-auth.js | 15227-15305 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 158-photo-mode-shot-x-z-hour-weather-zoom.js | 15306-15327 | 3 | SHOT |
