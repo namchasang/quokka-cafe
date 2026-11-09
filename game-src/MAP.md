@@ -179,7 +179,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 171-perth-houses-from-roo-road-rescue-look.js | 16004-16060 | 5 | T3H |
 | 172-build-one-house-kind-brick-cottage-fed.js | 16061-16172 | 13 | t3House, t3Plant |
 | 173-south-perth-filler-houses-become-roo-r.js | 16173-16418 | 35 | town3Houses, mapfixBuild, mapfixSquareSP, mapfixFreoShops, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick |
-| 174-home3-look-lab-home2-paul-nov-2026-hom.js | 16419-16513 | 10 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
-| 175-hd-pixel-set-on-rottnest-only-look-lab.js | 16514-16553 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 176-auth.js | 16554-16632 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 177-photo-mode-shot-x-z-hour-weather-zoom.js | 16633-16654 | 3 | SHOT |
+| 174-home3-look-lab-home2-paul-nov-2026-hom.js | 16419-16524 | 12 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
+| 175-hd-pixel-set-on-rottnest-only-look-lab.js | 16525-16564 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 176-auth.js | 16565-16643 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 177-photo-mode-shot-x-z-hour-weather-zoom.js | 16644-16665 | 3 | SHOT |

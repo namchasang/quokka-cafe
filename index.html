@@ -460,7 +460,7 @@ body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
 
   <script>
 // ---------- Home screen 2 (Look Lab ?home2, Paul Nov 2026): only the title, the place and New / Load game; everything else sits behind a settings icon so the game scene behind is clear ----------
-var HOME2_LIVE=false;
+var HOME2_LIVE=true;
 (function(){if(!(HOME2_LIVE||/[?&#]home2\b/.test(location.search+location.hash)))return;document.documentElement.classList.add('home2');
   const st=document.createElement('style');st.textContent=`
 .home2 .ovTitle{background:linear-gradient(180deg,rgba(10,14,28,.55) 0%,rgba(10,14,28,0) 34%,rgba(10,14,28,0) 72%,rgba(10,14,28,.45) 100%);place-items:start center;padding:calc(28px + env(safe-area-inset-top,0px)) 16px 0}
@@ -16453,10 +16453,21 @@ function h3Enter(i){const L=H3.L,s=L[i];H3.i=i;H3.st=0;H3.snap=true;if(s.enter)t
   if(player.mesh)player.mesh.visible=!s.away;if(player.blob)player.blob.visible=!s.away;}
 function h3Exit(){const s=H3.L[H3.i];if(s&&s.exit)try{s.exit(s);}catch(e){console.error(e);}}
 // big pieces are built in the background, spread out so the title keeps moving (Lancelin first: it paints its sand bit by bit)
+// pixel faces for one group only (the home screen builds the boat and the train before the game's full pixel pass runs)
+function pxFaceRoot(root){if(!root||typeof pxFace!=='function')return 0;const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3();const fm=pxFaceRoot.fm||(pxFaceRoot.fm=new Map());
+  const bucket=m=>{const px=m*32;return Math.max(4,Math.min(128,Math.pow(2,Math.round(Math.log2(Math.max(4,px))))));};
+  const face=(col,w,h,top)=>{const W=bucket(w),H=bucket(h),k=col+'|'+W+'|'+H+'|'+(top?1:0);let m=fm.get(k);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(pxFace(col,W,H,top))});fm.set(k,m);}return m;};
+  let n=0;root.updateMatrixWorld(true);root.traverse(o=>{if(!o.isMesh||o.__pxSkip||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material))return;const m=o.material,t=o.geometry.type,p=o.geometry.parameters||{};
+    if(m.map||m.vertexColors||m.transparent||m.isMeshBasicMaterial||m.isShaderMaterial||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial||m.isMeshPhongMaterial))return;
+    if(m.emissive&&(m.emissive.r+m.emissive.g+m.emissive.b)>.3)return;
+    o.matrixWorld.decompose(V,Q,SC);const sx=Math.abs(SC.x),sy=Math.abs(SC.y),sz=Math.abs(SC.z);const col='#'+m.color.getHexString();
+    if(t==='BoxGeometry'){const w=p.width*sx,h=p.height*sy,d=p.depth*sz;if(Math.max(w,h,d)>24)return;const side=face(col,d,h),top=face(col,w,d,true),front=face(col,w,h);o.material=[side,side,top,top,front,front];o.__pxSkip=1;n++;}
+    else if(t==='CylinderGeometry'||t==='ConeGeometry'){const r=(p.radiusBottom!=null?Math.max(p.radiusTop,p.radiusBottom):p.radius)*Math.max(sx,sz),h=p.height*sy;if(r>12||h>24)return;const sd=face(col,2*Math.PI*r,h),c=face(col,2*r,2*r,true);o.material=t==='ConeGeometry'?[sd,c]:[sd,c,c];o.__pxSkip=1;n++;}});
+  return n;}
 function h3Builds(){const T=H3.T,B=H3.b;
-  if(!B.sea&&T>2.5){B.sea=1;if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}}
+  if(!B.sea&&T>2.5){B.sea=1;if(SEA2_ON)try{sea2Build();if(BOAT.g)pxFaceRoot(BOAT.g);}catch(e){console.error(e);}}
   if(!B.lan&&T>4){B.lan=1;if(TRIP_ON)try{tripEnsure('lan');}catch(e){console.error(e);}}
-  if(!B.mtr&&T>9){B.mtr=1;if(MTR.on&&!MTR.built)try{mtrBuild();}catch(e){console.error(e);MTR.on=false;}}
+  if(!B.mtr&&T>9){B.mtr=1;if(MTR.on&&!MTR.built)try{mtrBuild();for(const k in MTR.st){const st=MTR.st[k];if(st&&st.sg)pxFaceRoot(st.sg);}}catch(e){console.error(e);MTR.on=false;}}
   if(!B.pin&&T>14){B.pin=1;if(TRIP_ON)try{tripEnsure('pin');}catch(e){console.error(e);}}
   // paint Lancelin's sand a little each frame (nearest the title shot first) until it is done
   const cur=H3.L[H3.i];if(h3Trip('lan')&&h3LanPaint()<1&&!(cur.k==='lan')){const LS=TRIP_BUILD.lan.S,ob=LS.budget,px=player.x,pz=player.z,sh=H3.L.find(s=>s.k==='lan');
