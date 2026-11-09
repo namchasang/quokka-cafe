@@ -8,7 +8,7 @@ const WALK_N={island:16,sp:10,freo:20,hi:6,vp:26};
 WALK_ROUTES.cbd=[[[624,-13.5],[698,-13.5]],[[626,7.4],[700,7.4]],[[624,-1.5],[698,-1.5]],[[667.3,-20],[667.3,4]],[[640,-20],[640,4]],[[605,-11],[618,-11],[618,3]]];WALK_N.cbd=24;if(CW_ON){WALK_ROUTES.cbd.push([[624,-27.4],[698,-27.4]],[[662,-27.1],[677,-27.1],[677,-36],[676.2,-44.9],[690,-45.8]],[[626,-21.5],[698,-21.5]]);WALK_N.cbd=30;}
 const walkers=[];
 (()=>{const r=mulberry32(4242);const looks=()=>({skin:SKINS[r()*SKINS.length|0],hair:HAIRS[r()*HAIRS.length|0],shirt:SHIRTS[r()*SHIRTS.length|0],pants:PANTS[r()*PANTS.length|0],hat:HATS[r()*HATS.length|0]});
-  Object.keys(WALK_ROUTES).forEach(zone=>{const R=WALK_ROUTES[zone];for(let i=0;i<WALK_N[zone];i++){const route=R[i%R.length];const bike=zone==='island'&&i%4===3;
+  Object.keys(WALK_ROUTES).forEach(zone=>{const R=WALK_ROUTES[zone];for(let i=0;i<WALK_N[zone];i++){const route=R[i%R.length];const bike=false;// island cyclists only ride out from the bike hire along the bike lane (riders), never across the café deck (Paul, Nov 2026)
     const m=bike?spriteMesh([riderCv[i%4]],1.6,1.8):spriteMesh(humanFrames(looks()),.95,1.58);m.visible=false;scene.add(m);const sh=blob(.8);sh.visible=false;
     const seg=r()*(route.length-1)|0,t=r();const a=route[seg],b=route[seg+1];const w={zone,m,sh,route,seg,dir:r()<.5?1:-1,x:lerp(a[0],b[0],t),z:lerp(a[1],b[1],t),sp:bike?3.2:(1+r()*.8),off:(r()-.5)*.9,walkT:r()*5,face:1,bike,pause:0};walkers.push(w);}});})();
 function walkerZone(){return zoneOf(player.x);}

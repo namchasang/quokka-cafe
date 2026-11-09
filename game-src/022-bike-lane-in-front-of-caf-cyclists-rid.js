@@ -29,7 +29,7 @@ const BIKE_LANE=[[-12.5,4.6],[-6.6,4.6],[-5,6.5],[5,6.5],[6.4,4.6],[9.6,4.6],[13
   run([[302.95,-3],[302.95,21]],.36,false,.03);run([[305.05,-3],[305.05,21]],.36,false,.03);
   // Victoria Park: painted lanes on both sides of Albany Highway
   run([[489,-.92],[561,-.92]],.46,false,.03);run([[489,.92],[561,.92]],.46,false,.03);})();
-function spawnRider(){if(riders.length>=6)return;const m=spriteMesh([riderCv[riders.length%4]],1.6,1.8);scene.add(m);riders.push({m,...IW(-12.5,4.6),path:[[9.6,4.6],[13,1.2],[18,.9],[31,.3],[35,3.5]].map(([a,b])=>[IWx(a,b),IWz(a,b)]),walkT:0,face:1});}
+function spawnRider(){if(riders.length>=6)return;const m=spriteMesh([riderCv[riders.length%4]],1.6,1.8);scene.add(m);riders.push({m,...IW(-12.5,4.6),path:BIKE_LANE.slice(1).concat([[31,.3],[35,3.5]]).map(([a,b])=>[IWx(a,b),IWz(a,b)]),walkT:0,face:1});}
 
 // ---------- beach hammock with orange juice ----------
 const BEACH=LOTS.beach;let juiceMesh;
