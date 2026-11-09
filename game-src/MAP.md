@@ -178,7 +178,8 @@ Find code: `grep -n 'name' game-src/*`.
 | 170-2-richer-roofs-doors-and-windows-on-to.js | 15921-16003 | 13 | town2Skin, town2Painter, town2QDetail, town2QRim, town2Quokka |
 | 171-perth-houses-from-roo-road-rescue-look.js | 16004-16060 | 5 | T3H |
 | 172-build-one-house-kind-brick-cottage-fed.js | 16061-16172 | 13 | t3House, t3Plant |
-| 173-south-perth-filler-houses-become-roo-r.js | 16173-16446 | 39 | town3Houses, mapfixBuild, mapfixSquareSP, mapfixFreoShops, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick, pxbTick, tex3Scene |
-| 174-hd-pixel-set-on-rottnest-only-look-lab.js | 16447-16486 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 175-auth.js | 16487-16565 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 176-photo-mode-shot-x-z-hour-weather-zoom.js | 16566-16587 | 3 | SHOT |
+| 173-south-perth-filler-houses-become-roo-r.js | 16173-16418 | 35 | town3Houses, mapfixBuild, mapfixSquareSP, mapfixFreoShops, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick |
+| 174-home3-look-lab-home2-paul-nov-2026-hom.js | 16419-16513 | 10 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
+| 175-hd-pixel-set-on-rottnest-only-look-lab.js | 16514-16553 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 176-auth.js | 16554-16632 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 177-photo-mode-shot-x-z-hour-weather-zoom.js | 16633-16654 | 3 | SHOT |
