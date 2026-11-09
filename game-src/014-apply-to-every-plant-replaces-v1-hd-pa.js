@@ -46,7 +46,7 @@ function plant2Tick(dt){if(!LOOK2.on)return;dt=Math.min(dt||0,.1);
   const h=(typeof S!=='undefined'?S.time:720)/60,g=Math.max(Math.exp(-Math.pow((h-7)/1.3,2)),Math.exp(-Math.pow((h-18)/1.2,2))),n=typeof NIGHT==='number'?NIGHT:0;
   const k=LOOK2.plants?(.16+.38*g)*(1-n*.85):.12;for(const m of LOOK2.mats)m.emissive.setRGB(k,k*(.9-g*.08),k*(.78-g*.2));
   if(typeof S!=='undefined'&&S.day){const s=seasonOf(S.day);if(s!==LOOK2.season)plant2Season(s);}
-  plant2Leaves();const L=LOOK2.leaves;L.p.visible=LOOK2.plants&&running;if(!L.p.visible)return;
+  plant2Leaves();const L=LOOK2.leaves;L.p.visible=LOOK2.plants&&(running||!!(H3&&H3.act));if(!L.p.visible)return;
   const wind=typeof wxC!=='undefined'?wxC.wind:.3,season=Math.max(0,LOOK2.season),want=Math.round((season===1?55:season===3?30:12)+wind*40),C=L2_LEAFCOL[season];
   const px=player.x,pz=player.z,t=performance.now()/1000;
   for(let i=0;i<L.st.length;i++){const q=L.st[i];const active=i<want;

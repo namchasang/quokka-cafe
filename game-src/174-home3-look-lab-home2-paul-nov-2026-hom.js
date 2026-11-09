@@ -4,13 +4,13 @@ var H3=null;// stays undefined until this point of the script runs (the camera r
 function h3Away(){return!!(H3&&H3.act&&H3.away);}
 function h3Init(){const R=TITLE_SHOTS.map((A,j)=>({k:'r'+j,x:A[0],z:A[2],yaw:A[3],zm:A[4],d:[.8,0,.12,0],rott:1}));
   const L=[R[0],R[1],
-    {k:'boat',away:0,dur:10,ready:()=>!!BOAT.g,enter:h3BoatIn,tick:h3BoatTick,exit:h3BoatOut,zm:.8,yaw:.5,d:[0,0,.25,0]},
+    {k:'boat',away:0,dur:10,ready:()=>!!BOAT.g,enter:h3BoatIn,tick:h3BoatTick,exit:h3BoatOut,zm:.8,zo:1.5,yaw:.5,d:[0,0,.25,0]},
     R[2],R[3],
     {k:'lan',away:1,x:912,z:-8,yaw:1.2,zm:1.3,d:[0,6,.1,0],time:1070,trip:'lan',ready:()=>h3Trip('lan')&&h3LanPaint()>.85},
     {k:'pin',away:1,x:1066,z:6,yaw:-.45,zm:.9,d:[-3,-2,-.12,0],time:1060,trip:'pin',ready:()=>h3Trip('pin')},
     R[4],
     {k:'cbd',away:1,x:656,z:-12,yaw:.3,zm:1.6,d:[-8,0,-.12,0],time:1080,ready:()=>true},
-    {k:'stn',away:1,x:686,z:-48.4,yaw:.5,zm:.75,d:[-2.5,0,-.08,0],time:1020,dur:10,ready:()=>MTR.on&&MTR.built&&!!MTR.st.cbd,enter:h3StnIn},
+    {k:'stn',away:1,x:686,z:-48.4,yaw:.5,zm:.75,zo:1.35,d:[-2.5,0,-.08,0],time:1020,dur:10,ready:()=>MTR.on&&MTR.built&&!!MTR.st.cbd,enter:h3StnIn},
     R[5]];
   return L;}
 function h3Trip(k){return TRIP_ON&&TRIPS[k]&&TRIPS[k].built;}
@@ -26,7 +26,9 @@ function h3BoatTick(s,f){const p=h3BoatPos(s,f);BOAT.x=p.x;BOAT.z=p.z;BOAT.h=p.h
 function h3BoatOut(s){const v=s.sv;if(!v)return;Object.assign(BOAT,v);BOAT.v=0;if(BOAT.wake)BOAT.wake.material.opacity=0;sea2Place();s.sv=null;}
 // a train pulls in and opens its doors while the shot plays
 function h3StnIn(){const s=MTR.st.cbd;if(!s)return;s.hold=false;s.door=0;s.ph='in';s.t=MTR.TIN*.75;}
-function h3Pose(s,f){const d=s.d||[0,0,0,0];return{x:s.x+d[0]*f,z:s.z+d[1]*f,yaw:s.yaw+d[2]*f,zm:s.zm+d[3]*f};}
+// HOME4 (Paul Nov 2026): every shot about 1.8x further out (the camera stops at the in-game zoom-out limit); H3_ZO per shot via s.zo
+const H3_ZO=1.8;
+function h3Pose(s,f){const d=s.d||[0,0,0,0];return{x:s.x+d[0]*f,z:s.z+d[1]*f,yaw:s.yaw+d[2]*f,zm:Math.min(1.7,(s.zm+d[3]*f)*(s.zo||H3_ZO))};}
 function h3Ready(s){try{return!s.ready||s.ready();}catch(e){return false;}}
 function h3Next(i){const L=H3.L;for(let j=1;j<=L.length;j++){const n=(i+j)%L.length;if(h3Ready(L[n]))return n;}return i;}
 function h3Far(a,b){return!(a.rott&&b.rott);}
@@ -35,28 +37,17 @@ function h3Enter(i){const L=H3.L,s=L[i];H3.i=i;H3.st=0;H3.snap=true;if(s.enter)t
   if(player.mesh)player.mesh.visible=!s.away;if(player.blob)player.blob.visible=!s.away;}
 function h3Exit(){const s=H3.L[H3.i];if(s&&s.exit)try{s.exit(s);}catch(e){console.error(e);}}
 // big pieces are built in the background, spread out so the title keeps moving (Lancelin first: it paints its sand bit by bit)
-// pixel faces for one group only (the home screen builds the boat and the train before the game's full pixel pass runs)
-function pxFaceRoot(root){if(!root||typeof pxFace!=='function')return 0;const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3();const fm=pxFaceRoot.fm||(pxFaceRoot.fm=new Map());
-  const bucket=m=>{const px=m*32;return Math.max(4,Math.min(128,Math.pow(2,Math.round(Math.log2(Math.max(4,px))))));};
-  const face=(col,w,h,top)=>{const W=bucket(w),H=bucket(h),k=col+'|'+W+'|'+H+'|'+(top?1:0);let m=fm.get(k);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(pxFace(col,W,H,top))});fm.set(k,m);}return m;};
-  let n=0;root.updateMatrixWorld(true);root.traverse(o=>{if(!o.isMesh||o.__pxSkip||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material))return;const m=o.material,t=o.geometry.type,p=o.geometry.parameters||{};
-    if(m.map||m.vertexColors||m.transparent||m.isMeshBasicMaterial||m.isShaderMaterial||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial||m.isMeshPhongMaterial))return;
-    if(m.emissive&&(m.emissive.r+m.emissive.g+m.emissive.b)>.3)return;
-    o.matrixWorld.decompose(V,Q,SC);const sx=Math.abs(SC.x),sy=Math.abs(SC.y),sz=Math.abs(SC.z);const col='#'+m.color.getHexString();
-    if(t==='BoxGeometry'){const w=p.width*sx,h=p.height*sy,d=p.depth*sz;if(Math.max(w,h,d)>24)return;const side=face(col,d,h),top=face(col,w,d,true),front=face(col,w,h);o.material=[side,side,top,top,front,front];o.__pxSkip=1;n++;}
-    else if(t==='CylinderGeometry'||t==='ConeGeometry'){const r=(p.radiusBottom!=null?Math.max(p.radiusTop,p.radiusBottom):p.radius)*Math.max(sx,sz),h=p.height*sy;if(r>12||h>24)return;const sd=face(col,2*Math.PI*r,h),c=face(col,2*r,2*r,true);o.material=t==='ConeGeometry'?[sd,c]:[sd,c,c];o.__pxSkip=1;n++;}});
-  return n;}
 function h3Builds(){const T=H3.T,B=H3.b;
-  if(!B.sea&&T>2.5){B.sea=1;if(SEA2_ON)try{sea2Build();if(BOAT.g)pxFaceRoot(BOAT.g);}catch(e){console.error(e);}}
+  if(!B.sea&&T>2.5){B.sea=1;if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}}
   if(!B.lan&&T>4){B.lan=1;if(TRIP_ON)try{tripEnsure('lan');}catch(e){console.error(e);}}
-  if(!B.mtr&&T>9){B.mtr=1;if(MTR.on&&!MTR.built)try{mtrBuild();for(const k in MTR.st){const st=MTR.st[k];if(st&&st.sg)pxFaceRoot(st.sg);}}catch(e){console.error(e);MTR.on=false;}}
+  if(!B.mtr&&T>9){B.mtr=1;if(MTR.on&&!MTR.built)try{mtrBuild();}catch(e){console.error(e);MTR.on=false;}}
   if(!B.pin&&T>14){B.pin=1;if(TRIP_ON)try{tripEnsure('pin');}catch(e){console.error(e);}}
   // paint Lancelin's sand a little each frame (nearest the title shot first) until it is done
   const cur=H3.L[H3.i];if(h3Trip('lan')&&h3LanPaint()<1&&!(cur.k==='lan')){const LS=TRIP_BUILD.lan.S,ob=LS.budget,px=player.x,pz=player.z,sh=H3.L.find(s=>s.k==='lan');
     LS.budget=4;player.x=sh.x;player.z=sh.z;try{TRIPS.lan.K.tick(1/60,performance.now()/1000);}catch(e){}player.x=px;player.z=pz;LS.budget=ob;}}
 function h3Cam(dt){if(H3===undefined)return false;if(!H3){H3={on:(typeof HOME2_LIVE!=='undefined'&&HOME2_LIVE)||/[?&#]home2\b/.test(location.search+location.hash)};}if(!H3.on)return false;
   if(!H3.act){H3.act=true;if(!H3.L)H3.L=h3Init();H3.T=0;H3.b=H3.b||{};H3.px=player.x;H3.pz=player.z;H3.away=false;h3Enter(0);H3.snap=false;}
-  dt=Math.min(dt||0,.1);H3.T+=dt;h3Builds();
+  dt=Math.min(dt||0,.1);if(h4Busy()){h4Step();dt=0;}else{H3.T+=dt;h3Builds();}
   if(H3.force!=null){const n=H3.force;H3.force=null;h3Exit();h3Enter(n);}
   let s=H3.L[H3.i];const dur=s.dur||9,FO=.9;H3.st+=dt;
   if(H3.st>=dur){const n=h3Next(H3.i);const far=h3Far(s,H3.L[n]);h3Exit();h3Enter(n);if(!far)H3.snap=false;H3.inFade=far;s=H3.L[n];}
@@ -66,41 +57,10 @@ function h3Cam(dt){if(H3===undefined)return false;if(!H3){H3={on:(typeof HOME2_L
   // close Rottnest shots glide into each other as before; far ones fade through dark
   if(!far&&f>.7){const e=(f-.7)/.3,k=e*e*(3-2*e),Q=h3Pose(nx,0);P={x:lerp(P.x,Q.x,k),z:lerp(P.z,Q.z,k),yaw:lerp(P.yaw,Q.yaw,k),zm:lerp(P.zm,Q.zm,k)};}
   let fd=0;const left=(s.dur||9)-H3.st;if(far&&left<FO)fd=Math.max(fd,1-left/FO);if(H3.inFade&&H3.st<FO)fd=Math.max(fd,1-H3.st/FO);if(H3.inFade&&H3.st>=FO)H3.inFade=false;
-  fd=fd*fd*(3-2*fd)*.97;fadeTarget=fd;post.uniforms.fade.value=fd;
+  if(h4Busy())fd=1;fd=fd*fd*(3-2*fd)*.97;fadeTarget=fd;post.uniforms.fade.value=fd;
   tmpV.set(P.x,.6+(P.x>840?groundY(P.x,P.z):0),P.z);yawT=P.yaw;zm=P.zm;S.time=s.time||1050;
   if(H3.snap){H3.snap=false;camTarget.copy(tmpV);yaw=yawT;}
   if(BOAT.g&&!running)try{sea2Tick(dt);}catch(e){}
   return true;}
 function h3End(){if(!H3||!H3.act)return;H3.act=false;h3Exit();H3.away=false;if(!running){player.x=H3.px;player.z=H3.pz;}
   if(player.mesh)player.mesh.visible=true;if(player.blob)player.blob.visible=true;fadeTarget=0;post.uniforms.fade.value=0;H3.inFade=false;}
-window.__h3={lan:()=>h3LanPaint(),go:i=>{if(H3&&H3.L){const s=H3.L[i];if(s&&s.trip)tripEnsure(s.trip);if(s&&s.k==='boat'&&SEA2_ON)sea2Build();if(s&&s.k==='stn'&&MTR.on&&!MTR.built)mtrBuild();H3.force=i;}},get H3(){return H3;}};
-{const _sg=startGame;startGame=function(){h3End();return _sg.apply(this,arguments);};}
-{const _am=ambient;ambient=function(dt,t){if(H3&&H3.act&&overlay!=='title'&&overlay!=='slots')h3End();return _am(dt,t);};}
-function pxbTick(){if(!window.__owgo&&running&&!overlay&&typeof openWorld==='function'&&/[?&#]owgo\b/.test(location.search+location.hash)){window.__owgo=1;setTimeout(()=>{const z=zoneOf(player.x);openWorld(z==='island'?'freo':z,'e');},1500);}if(window.FREO_FOUNTAIN&&zoneOf(player.x)==='freo')try{FREO_FOUNTAIN(performance.now()/1000);}catch(e){}if(DET2_ON&&!det2Build.done){det2Build.done=1;try{det2Build();}catch(e){console.error(e);}}if(DET2_ON&&det2Build.tick)try{det2Build.tick(performance.now()/1000);}catch(e){}pxbDoorsTick();if(SP2_ON&&spBuild_sky.tick)try{spBuild_sky.tick(performance.now()/1000);}catch(e){}if(SEA2_ON)try{sea2Tick(1/60);}catch(e){}if(!pxbScene.glow)return;pxbSee(1/60);post.uniforms.blurK.value=0;post.uniforms.bloomK.value=Math.min(post.uniforms.bloomK.value,.7);pxPopTick();if(post.uniforms.outl)post.uniforms.outl.value=1;const n=typeof NIGHT==='number'?NIGHT:0,h=(typeof S!=='undefined'?S.time%1440:720)/60,dusk=Math.max(0,Math.min(1,(h-17.6)/1.2)),k=Math.max(n,dusk*.6);
-  if(CAFE_PX)CAFE_PX.tick(performance.now()/1000);if(pxbScene._k===k)return;pxbScene._k=k;pxbScene.glow.forEach(m=>m.emissiveIntensity=k*(m.__dim||1.35));PXB_LAMPS.forEach(l=>l.material.color.set(k>.3?'#ffd070':'#e8d8a8'));
-}
-
-function tex3Scene(){tex3Scene.done=true;const V3=new THREE.Vector3(),cache=new Map(),vcache=new Map();let walls=0,cars=0;
-  const islandAt=o=>{o.getWorldPosition(V3);scene.worldToLocal(V3);try{return zoneOf(V3.x)==='island';}catch(e){return false;}};
-  // vehicles: a group with three or more wheels; its biggest box is the body, dark boxes are glass
-  const groups=new Set();scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='CylinderGeometry'&&o.parent&&o.parent!==scene){const p=o.parent;p.__wheels=(p.__wheels||0)+1;if(p.__wheels>=3)groups.add(p);}});
-  const paint=(col,kind)=>{const key=col+kind;if(vcache.has(key))return vcache.get(key);const c=mk(32,16),x=c.getContext('2d');const B=T3.hex(col);const sh=k=>`rgb(${B.map(v=>Math.max(0,Math.min(255,Math.round(v*k)))).join(',')})`;
-    if(kind==='glass'){x.fillStyle=sh(1);x.fillRect(0,0,32,16);x.fillStyle='rgba(190,220,250,.45)';for(let i=0;i<3;i++){x.beginPath();x.moveTo(4+i*11,0);x.lineTo(8+i*11,0);x.lineTo(2+i*11,16);x.lineTo(-2+i*11,16);x.fill();}x.fillStyle='rgba(255,255,255,.25)';x.fillRect(0,0,32,1);}
-    else{for(let y=0;y<16;y++){const k=y<2?1.16:y<5?1.06:y>12?.82:1;x.fillStyle=sh(k);x.fillRect(0,y,32,1);}
-      x.fillStyle=sh(.7);x.fillRect(11,3,1,10);x.fillRect(21,3,1,10);x.fillRect(0,9,32,1);x.fillStyle=sh(1.25);x.fillRect(0,2,32,1);
-      x.fillStyle='#d8d8d4';x.fillRect(14,7,2,1);x.fillRect(24,7,2,1);
-      for(let y=11;y<16;y++)for(let xx=0;xx<32;xx++)if(l2hash(xx,y,91)<(y-10)*.12){x.fillStyle=l2hash(xx,y,92)<.5?'rgba(150,92,56,.55)':'rgba(120,80,52,.5)';x.fillRect(xx,y,1,1);}}
-    const t=ctex(c);const m=new THREE.MeshLambertMaterial({map:t});vcache.set(key,m);return m;};
-  groups.forEach(g=>{if(!islandAt(g))return;let body=null,bv=0;g.children.forEach(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='BoxGeometry'||!o.material||o.material.map)return;const p=o.geometry.parameters,v=p.width*p.height*p.depth;
-      const col='#'+o.material.color.getHexString(),l=o.material.color.r+o.material.color.g+o.material.color.b;
-      if(l<.5&&p.height<.6){o.material=paint(col,'glass');return;}if(v>bv){bv=v;body=o;}});
-    if(body){body.material=paint('#'+body.material.color.getHexString(),'body');cars++;}});
-  // walls: darker at the foot, lighter up high, like light bouncing off the ground (soft contact shade)
-  scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.geometry||o.geometry.type!=='BoxGeometry'||!o.material||Array.isArray(o.material))return;const p=o.geometry.parameters;if(p.height<1.1||p.width<.6&&p.depth<.6)return;
-    if(o.parent&&o.parent.__wheels>=3)return;if(!islandAt(o))return;const m=o.material;if(m.vertexColors||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial))return;
-    let mc=cache.get(m);if(!mc){mc=m.clone();mc.vertexColors=true;cache.set(m,mc);}
-    const g=o.geometry.clone(),pos=g.attributes.position,col=new Float32Array(pos.count*3),h=p.height;
-    for(let i=0;i<pos.count;i++){const y=pos.getY(i)+h/2;const k=.7+.3*Math.min(1,y/Math.min(1.4,h*.55));col[i*3]=k;col[i*3+1]=k*.99;col[i*3+2]=k*.97;}
-    g.setAttribute('color',new THREE.BufferAttribute(col,3));o.geometry=g;o.material=mc;walls++;});
-  tex3Scene.stats={walls,cars};}
-

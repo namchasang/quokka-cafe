@@ -173,6 +173,7 @@
 172-build-one-house-kind-brick-cottage-fed.js
 173-south-perth-filler-houses-become-roo-r.js
 174-home3-look-lab-home2-paul-nov-2026-hom.js
-175-hd-pixel-set-on-rottnest-only-look-lab.js
-176-auth.js
-177-photo-mode-shot-x-z-hour-weather-zoom.js
+175-home4-paul-nov-2026-home-screen-shows.js
+176-hd-pixel-set-on-rottnest-only-look-lab.js
+177-auth.js
+178-photo-mode-shot-x-z-hour-weather-zoom.js

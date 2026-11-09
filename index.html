@@ -1450,7 +1450,7 @@ function plant2Tick(dt){if(!LOOK2.on)return;dt=Math.min(dt||0,.1);
   const h=(typeof S!=='undefined'?S.time:720)/60,g=Math.max(Math.exp(-Math.pow((h-7)/1.3,2)),Math.exp(-Math.pow((h-18)/1.2,2))),n=typeof NIGHT==='number'?NIGHT:0;
   const k=LOOK2.plants?(.16+.38*g)*(1-n*.85):.12;for(const m of LOOK2.mats)m.emissive.setRGB(k,k*(.9-g*.08),k*(.78-g*.2));
   if(typeof S!=='undefined'&&S.day){const s=seasonOf(S.day);if(s!==LOOK2.season)plant2Season(s);}
-  plant2Leaves();const L=LOOK2.leaves;L.p.visible=LOOK2.plants&&running;if(!L.p.visible)return;
+  plant2Leaves();const L=LOOK2.leaves;L.p.visible=LOOK2.plants&&(running||!!(H3&&H3.act));if(!L.p.visible)return;
   const wind=typeof wxC!=='undefined'?wxC.wind:.3,season=Math.max(0,LOOK2.season),want=Math.round((season===1?55:season===3?30:12)+wind*40),C=L2_LEAFCOL[season];
   const px=player.x,pz=player.z,t=performance.now()/1000;
   for(let i=0;i<L.st.length;i++){const q=L.st[i];const active=i<want;
@@ -5577,7 +5577,7 @@ function loop(now){requestAnimationFrame(loop);if(overlay==='wm'){last=now;retur
   safeRun('world',()=>{applyTime();updateWilds(dt,t);if(!overlay||overlay==='title')updateWalkers(dt);});
   if(!running||overlay){player.mesh.position.set(player.x,groundY(player.x,player.z),player.z);player.blob.position.set(player.x,.03+groundY(player.x,player.z),player.z);}
   safeRun('ambient',()=>ambient(dt,t));safeRun('camera',()=>updateCamera(dt));safeRun('hud',()=>{updateHud();updateQuestUI(dt,t);updateTrackBar(dt);updateActButton();});
-  safeRun('engine',()=>engTick(dt));safeRun('ground',gtTick);try{if(TEX3_ON&&!tex3Scene.done&&running)safeRun('tex3',tex3Scene);if(PXB_ON&&running){if(!pxbScene.done)safeRun('pxb',pxbScene);pxbTick();}if(CINE_ON)safeRun('cine',cineTick);renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}
+  safeRun('engine',()=>engTick(dt));safeRun('ground',gtTick);try{if(TEX3_ON&&!tex3Scene.done&&running)safeRun('tex3',tex3Scene);if(PXB_ON&&running){if(!pxbScene.done)safeRun('pxb',pxbScene);else if(typeof H4!=='undefined'&&H4&&H4.need)safeRun('pxb2',pxbCatchUp);pxbTick();}else if(PXB_ON&&(overlay==='title'||overlay==='slots')&&typeof H4!=='undefined'&&H4){if(!pxbScene.done&&H4.ready)h4Pass();if(pxbScene.done)safeRun('pxbT',pxbTick);}if(CINE_ON)safeRun('cine',cineTick);renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);captureThumb();}catch(e){reportErr('render',e);}}
 // ---------- Island Scale Wave A: Settlement heritage, Kingstown and Army Jetty, four more salt lakes, golf course and airstrip ----------
 // Built straight onto the bigger island. Spots were planned on the first bigger island (v1) and WAV1() moves them onto the real-shaped one;
 // the salt lakes sit where the real lakes are. Each place looks for a clear patch near its planned spot.
@@ -14263,7 +14263,10 @@ const PXSNAP=new Map();
 function pxSnap(r,g,b,amt=.55,desat=.08){const k=((r>>3)<<10)|((g>>3)<<5)|(b>>3),kk=k*4+Math.round(amt*3);let v=PXSNAP.get(kk);if(v)return v;
   let best=1e9,bp=PXPAL[0];for(const p of PXPAL){const dr=r-p[0],dg=g-p[1],db=b-p[2],d=dr*dr*.3+dg*dg*.59+db*db*.11;if(d<best){best=d;bp=p;}}
   let R=r+(bp[0]-r)*amt,G=g+(bp[1]-g)*amt,B=b+(bp[2]-b)*amt;const l=R*.3+G*.59+B*.11;R+=(l-R)*desat;G+=(l-G)*desat;B+=(l-B)*desat;v=[R|0,G|0,B|0];PXSNAP.set(kk,v);return v;}
-function pxSnapCanvas(c){try{const x=c.getContext('2d'),id=x.getImageData(0,0,c.width,c.height),d=id.data;for(let q=0;q<d.length;q+=4){if(d[q+3]<8)continue;const v=pxSnap(d[q],d[q+1],d[q+2]);d[q]=v[0];d[q+1]=v[1];d[q+2]=v[2];}x.putImageData(id,0,0);}catch(e){}return c;}
+function pxSnapCanvas(c){try{const x=c.getContext('2d'),id=x.getImageData(0,0,c.width,c.height),d=id.data;for(let q=0;q<d.length;q+=4){if(d[q+3]<8)continue;const v=pxSnap(d[q],d[q+1],d[q+2]);d[q]=v[0];d[q+1]=v[1];d[q+2]=v[2];}x.putImageData(id,0,0);c.__snapH=pxImgHash(d);}catch(e){}return c;}
+// opaque pixels only (they survive a put/get round trip unchanged)
+function pxImgHash(d){let h=0;for(let q=0;q<d.length;q+=4)if(d[q+3]===255)h=(Math.imul(h,31)+d[q]+(d[q+1]<<8)+(d[q+2]<<16))|0;return h;}
+function pxRedrawn(t){const im=t.image;if(!im||!im.getContext||im.__snapH===undefined){t.__snapV=t.version;return false;}let hh;try{hh=pxImgHash(im.getContext('2d').getImageData(0,0,im.width,im.height).data);}catch(e){return false;}if(hh===im.__snapH){t.__snapV=t.version;return false;}return true;}
 function pxSnapHex(h){const c=new THREE.Color(h);const v=pxSnap(c.r*255|0,c.g*255|0,c.b*255|0);return'#'+v.map(n=>n.toString(16).padStart(2,'0')).join('');}
 /* a pixel face for a plain-coloured prop: W×H px (32 px per metre, buckets keep the count of textures small) */
 function pxFace(col,W,H,top){const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const base=new THREE.Color(pxSnapHex(col));
@@ -14277,7 +14280,7 @@ const PXGLASS=new Map();function pxGlassMat(col,w,h){const c=new THREE.Color(col
   let m=PXGLASS.get(k);if(m)return m;const seed=(W*7+H*3)%97+1;const day=PXK.glass(W,H,{tint,seed}),lit=PXK.glass(W,H,{tint,seed,lit:true});
   m=new THREE.MeshLambertMaterial({map:ctex(day),emissive:0xffffff,emissiveIntensity:0,emissiveMap:ctex(PXK.glowDiff(day,lit))});PXGLASS.set(k,m);PXB_GLOW.push(m);return m;}
 const pxGlassy=c=>{const l=c.r*.3+c.g*.59+c.b*.11;return(c.b>c.r+.05&&c.b>=c.g-.02)||l<.28;};
-function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3();const bucket=m=>{const px=m*32;return px<12?8:px<24?16:px<48?32:64;};// four sizes only: textures are shared widely (phones)
+function pxOneLook(only){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3();const bucket=m=>{const px=m*32;return px<12?8:px<24?16:px<48?32:64;};// four sizes only: textures are shared widely (phones)
   const fm=new Map();const big=(col,w,h)=>{{const c=new THREE.Color(col),v=pxSnap(c.r*255|0,c.g*255|0,c.b*255|0,1,.08);col='#'+v.map(n=>n.toString(16).padStart(2,'0')).join('');}
     // big faces (ground slabs, car parks, long walls): a 2 m tile repeated, plain grain without rims, so the pixels stay 32 per metre
     const rx=Math.max(1,Math.round(w/2)),ry=Math.max(1,Math.round(h/2)),k='B|'+col+'|'+rx+'|'+ry;let m=fm.get(k);if(m)return m;
@@ -14285,8 +14288,8 @@ function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new
       for(let y=0;y<64;y++)for(let X=0;X<64;X++){const hh=((X*73856093)^(y*19349663))>>>0;if(hh%9===0){x.fillStyle='#'+cc.clone().multiplyScalar(hh%2?.95:1.05).getHexString();x.fillRect(X,y,1,1);}}base={c};fm.set('Bt|'+col,base);}
     const t=ctex(base.c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);m=new THREE.MeshLambertMaterial({map:t});fm.set(k,m);return m;};
   const face=(col,w,h,top)=>{if(w>3||h>3)return big(col,w,h);{const c=new THREE.Color(col),v=pxSnap(c.r*255|0,c.g*255|0,c.b*255|0,1,.08);col='#'+v.map(n=>n.toString(16).padStart(2,'0')).join('');}const W=bucket(w),H=bucket(h),k=col+'|'+W+'|'+H+'|'+(top?1:0);let m=fm.get(k);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(pxFace(col,W,H,top))});fm.set(k,m);}return m;};
-  let props=0,snapped=0,sharp=0;const done=new Set();
-  scene.traverse(o=>{if(!o.isMesh||o.__pxSkip||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material))return;const m=o.material,t=o.geometry.type,p=o.geometry.parameters||{};
+  let props=0,snapped=0,sharp=0;const done=pxOneLook.done||(pxOneLook.done=new Set());
+  (only?f=>only.forEach(f):f=>scene.traverse(f))(o=>{if(!o.isMesh||o.__pxSkip||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material))return;const m=o.material,t=o.geometry.type,p=o.geometry.parameters||{};
     if(m.map||m.vertexColors||m.transparent||m.isMeshBasicMaterial||m.isShaderMaterial||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial||m.isMeshPhongMaterial))return;
     if(m.emissive&&(m.emissive.r+m.emissive.g+m.emissive.b)>.3)return;// lamps and glowing things keep their glow
     o.matrixWorld.decompose(V,Q,SC);const sx=Math.abs(SC.x),sy=Math.abs(SC.y),sz=Math.abs(SC.z);const col='#'+m.color.getHexString();
@@ -14298,10 +14301,10 @@ function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new
     else if(t==='SphereGeometry'||t==='IcosahedronGeometry'||t==='DodecahedronGeometry'||t==='OctahedronGeometry'||t==='TorusGeometry'){const r=(p.radius||.3)*Math.max(sx,sy,sz);if(r>8)return;o.material=face(col,2*Math.PI*r,Math.PI*r);props++;}});
   // calm the background: every remaining canvas texture (ground, walls, roofs, signs too) leans toward the palette; sprites are left alone so people and plants stay vivid
   const BBset=new Set(typeof BB!=='undefined'?BB:[]);
-  scene.traverse(o=>{if(!o.isMesh||BBset.has(o)||!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{const t=m&&m.map;if(!t||done.has(t))return;done.add(t);const im=t.image;
+  scene.traverse(o=>{if(!o.isMesh||BBset.has(o)||!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{const t=m&&m.map;if(!t||(done.has(t)&&(t.__snapV===t.version||!pxRedrawn(t))))return;done.add(t);const im=t.image;
       if(im&&im.getContext&&!t.__t2&&im.width*im.height<=1100000&&!(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))){pxSnapCanvas(im);t.needsUpdate=true;snapped++;}
       // sharp at a distance: nearest pixels with mipmaps between levels instead of blur
-      if(t.magFilter!==THREE.NearestFilter||t.minFilter===THREE.LinearMipmapLinearFilter||t.minFilter===THREE.LinearFilter){t.magFilter=THREE.NearestFilter;t.minFilter=t.generateMipmaps?THREE.NearestMipmapLinearFilter:THREE.NearestFilter;t.needsUpdate=true;sharp++;}});});
+      if(t.magFilter!==THREE.NearestFilter||t.minFilter===THREE.LinearMipmapLinearFilter||t.minFilter===THREE.LinearFilter){t.magFilter=THREE.NearestFilter;t.minFilter=t.generateMipmaps?THREE.NearestMipmapLinearFilter:THREE.NearestFilter;t.needsUpdate=true;sharp++;}t.__snapV=t.version;});});
   pxOneLook.stats={props,snapped,sharp,faces:fm.size};}
 /* people and animals: a touch brighter than the calm background, less so at night */
 function pxPopTick(){const now=performance.now();if(pxPopTick.t&&now-pxPopTick.t<900)return;pxPopTick.t=now;if(typeof BB==='undefined')return;const n=typeof NIGHT==='number'?NIGHT:0,k=.13*(1-.75*n);
@@ -15386,7 +15389,7 @@ function wel4Build(){const DZ=-2.2,X1=598,X2=702,Z1=-60,Z2=-20.8,V=new THREE.Vec
   for(let z=R1+.15;z<R2-.1;z+=.32){if(Math.abs(z-MZ)<MW/2)continue;flat(1.6,.18,677,z,W,.034);}
   wel4Build.moved=moved.size;if(CW_ON)try{cwBuild(moved,lbox,flat,kerb,new Set(scene.children.slice(CWn0)));}catch(e){console.error(e);}}
 // ---------- buildings off the bike lanes (Paul, Nov 2026): a house whose walls, verandah or posts reach over a lane steps back from it ----------
-function pxbLaneClear(){if(typeof BLANES==='undefined'||!BLANES.length)return;const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);let n=0;const out=[];
+function pxbLaneClear(gs){if(typeof BLANES==='undefined'||!BLANES.length)return;const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);let n=0;const out=[];
   const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
   const lanes=BLANES.filter(l=>l[0][0]<99.5);
   // how far a box reaches into a lane: sample its footprint edge, return the push vector that clears it
@@ -15396,7 +15399,7 @@ function pxbLaneClear(){if(typeof BLANES==='undefined'||!BLANES.length)return;co
       const along=Math.abs(dx/len)*(b.max.x-b.min.x)/2+Math.abs(dz/len)*(b.max.z-b.min.z)/2;const tt=((cx-a[0])*dx+(cz-a[1])*dz)/len;if(tt+along<0||tt-along>len)continue;
       const side=(cx-a[0])*nx+(cz-a[1])*nz,half=Math.abs(nx)*(b.max.x-b.min.x)/2+Math.abs(nz)*(b.max.z-b.min.z)/2,gap=Math.abs(side)-half;
       if(gap<hw){const d=hw-gap,sg=side>=0?1:-1;if(!best||d>best.d)best={d,x:nx*sg*d,z:nz*sg*d};}}return best;};
-  scene.children.forEach(g=>{if(!g.isGroup||!g.visible||g.children.length>60||g.userData.lane)return;const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2;
+  (gs||scene.children).forEach(g=>{if(!g.isGroup||!g.visible||g.children.length>60||g.userData.lane)return;(pxbLaneClear.seen=pxbLaneClear.seen||new Set()).add(g);const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2;
     if(cx>99.5||cx<-260||b.max.y-b.min.y<1.3||b.max.x-b.min.x>14||b.max.z-b.min.z>14)return;
     let hasWall=false;g.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='BoxGeometry'){const p=o.geometry.parameters;if(p.height>1.2&&Math.max(p.width,p.depth)>1.5)hasWall=true;}});if(!hasWall)return;
     let tot=null;for(let k=0;k<3;k++){const q=push(b);if(!q)break;b.min.x+=q.x;b.max.x+=q.x;b.min.z+=q.z;b.max.z+=q.z;tot=tot?{x:tot.x+q.x,z:tot.z+q.z}:{x:q.x,z:q.z};}
@@ -15410,7 +15413,7 @@ function pxbLaneClear(){if(typeof BLANES==='undefined'||!BLANES.length)return;co
   pxbLaneClear.moved=out;window.__laneMoved=out;}
 // ---------- skewed roofs (Paul, Nov 2026): a four-sided cone turned 45° and then stretched comes out as a twisted diamond.
 // Every such roof on every map is rebuilt as a true hip roof over the rectangle it was meant to cover.
-function pxFixDiamonds(){let n=0;const out=[];scene.traverse(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='ConeGeometry')return;const p=o.geometry.parameters;if(p.radialSegments!==4)return;
+function pxFixDiamonds(only){let n=0;const out=[];(only?f=>only.forEach(f):f=>scene.traverse(f))(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='ConeGeometry')return;const p=o.geometry.parameters;if(p.radialSegments!==4)return;
     const ry=((o.rotation.y%(Math.PI/2))+Math.PI/2)%(Math.PI/2);if(Math.abs(ry-Math.PI/4)>.06||Math.abs(o.rotation.x)>.01||Math.abs(o.rotation.z)>.01)return;const sx=o.scale.x,sz=o.scale.z;if(Math.abs(sx-sz)<.02*Math.max(sx,sz))return;
     const W=Math.SQRT2*p.radius*Math.abs(sx),D=Math.SQRT2*p.radius*Math.abs(sz),H=p.height*o.scale.y,hx=W/2,hz=D/2,y0=-H/2,y1=H/2;const alongX=W>=D,ri=Math.min(hx,hz);
     const R1=alongX?[-hx+ri,y1,0]:[0,y1,-hz+ri],R2=alongX?[hx-ri,y1,0]:[0,y1,hz-ri];const A=[-hx,y0,-hz],B=[hx,y0,-hz],C=[hx,y0,hz],Dd=[-hx,y0,hz];const pos=[],uv=[];
@@ -15508,7 +15511,7 @@ if(SEA2_ON){const _up=updatePlayer;updatePlayer=function(dt){if(BOAT.on){sea2Dri
     else T.push({x:BOAT.dock.x,z:BOAT.dock.z,r:1.6,label:'Take the tour boat round Rottnest (whales, dolphins, seals, rare fish)',act:()=>{BOAT.on=true;BOAT.v=0;popText('Drive with the joystick · come back to the jetty to tie up',{x:BOAT.x,y:2,z:BOAT.z});}});};}
 // ---------- Rottnest declutter (Paul, Nov 2026): little houses that crowd the main paths shrink and step back from them;
 // ones that sit right on a path are taken away. Anything you can use (a shop, a door, a lot for sale, the café) stays as it is.
-function pxDeclutter(){const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);const out={shrunk:0,gone:0,kept:0};
+function pxDeclutter(gs){const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);const out={shrunk:0,gone:0,kept:0};
   const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
   let T=[];try{T=buildTargets();}catch(e){}const lanes=(typeof BLANES!=='undefined'?BLANES:[]).filter(l=>l[0][0]<99.5);
   const near=(b,pad)=>{const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2,hx=(b.max.x-b.min.x)/2+pad,hz=(b.max.z-b.min.z)/2+pad;let best=1e9,dir=null;
@@ -15516,7 +15519,7 @@ function pxDeclutter(){const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THRE
     for(const p of MAIN)for(let i=0;i<p.length-1;i++)test(p[i],p[i+1],.6);for(const l of lanes)test(l[0],l[1],(l[2]||1.15)/2);return[best,dir];};
   // main paths only: the short spurs that lead to a door don't count
   const plen=p=>{let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);return L;};const MAIN=PATHS.filter(p=>p.length>2||plen(p)>16);
-  scene.children.slice().forEach(g=>{if(!g.isGroup||!g.visible||g.__pxSkip||g===CAFE_PX?.g)return;const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;
+  (gs||scene.children.slice()).forEach(g=>{if(!g.isGroup||!g.visible||g.__pxSkip||g===CAFE_PX?.g)return;(pxDeclutter.seen=pxDeclutter.seen||new Set()).add(g);const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;
     if(cx>99.5||cx<-260||b.max.y-b.min.y<1.3||b.max.x-b.min.x>9||b.max.z-b.min.z>9)return;
     let wall=false;g.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='BoxGeometry'){const p=o.geometry.parameters;if(p.height>1.2&&Math.max(p.width,p.depth)>1.5)wall=true;}});if(!wall)return;
     if(Math.hypot(cx-player.x,cz-player.z)<6)return;
@@ -15812,7 +15815,7 @@ function town2Thin(){const out={sp:0,freo:0,vp:0,cbd:0,cottages:0,kept:0,gaps:[]
   const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
   // everything the story or a shop needs stays: interaction spots in every town, homes for sale, shop people
   let T=[];const px=player.x,pz=player.z;for(const zx of[150,300,520,650]){player.x=zx;try{T=T.concat(buildTargets().map(t=>[t.x,t.z]));}catch(e){}}player.x=px;player.z=pz;
-  try{PROP_LIST.forEach(p=>T.push([p.x,p.z]));}catch(e){}try{FREO_NPCS.forEach(n=>T.push([n.x,n.z]));}catch(e){}try{VP_SHOPS.forEach(s=>T.push([s.npc.x,s.npc.z]));}catch(e){}
+  try{PROP_LIST.forEach(p=>T.push([p.x,p.z]));}catch(e){}try{FREO_NPCS.forEach(n=>T.push([n.x,n.z]));}catch(e){}try{VP_SHOPS.forEach(s=>T.push([s.npc.x,s.npc.z]));}catch(e){}town2Thin.T=T;
   const signs=[];scene.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)&&o.material.map&&SIGN_TEX.has(o.material.map)){const b=lbox(o);if(b)signs.push(b);}});
   const used=(b,pad)=>T.some(([x,z])=>x>b.min.x-pad&&x<b.max.x+pad&&z>b.min.z-pad&&z<b.max.z+pad)||signs.some(q=>q.max.x>b.min.x-.4&&q.min.x<b.max.x+.4&&q.max.z>b.min.z-.4&&q.min.z<b.max.z+.4);
   const BBs=new Set(BB);const G=new THREE.Group();G.name='town2';G.__pxSkip=1;scene.add(G);town2Thin.g=G;
@@ -16288,15 +16291,21 @@ function mapfixFreoShops(){const SH=[
     const southSide=Math.abs(lo.z0-b.z1)<.05;if(!southSide)continue;const h=b.h-lo.h,L=2.2;const mat=litMat(lit=>paintUpper(L,h,b.col,70+i,lit));
     mesh(new THREE.PlaneGeometry(L,h),mat,b.x0+L/2,lo.h+h/2,b.z1+.014,{nc:1});n++;}
   return n;}
-function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{spBuild_sky();}catch(e){console.error(e);}try{pxDeclutter();}catch(e){console.error(e);}if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}try{pxFixDiamonds();}catch(e){console.error(e);}try{pxbLaneClear();}catch(e){console.error(e);}if(TOWN2_ON)try{town2Thin();}catch(e){console.error(e);}if(TOWN2_ON)try{// the old terrace rows' gable ends were left standing as white triangles where town2 rebuilt the cottages
-  scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isMesh&&o.parent&&o.parent.name==='freoDetail'&&o.geometry&&o.geometry.type==='PlaneGeometry'){const B=new THREE.Box3().setFromObject(o),c=scene.worldToLocal(B.getCenter(new THREE.Vector3())),sz=B.getSize(new THREE.Vector3());if(sz.y>2.5&&Math.max(sz.x,sz.z)<3&&Math.min(sz.x,sz.z)<.05&&c.x>270&&c.x<358&&(Math.abs(c.z-27.2)<.6||Math.abs(c.z-39.6)<.6))o.visible=false;}});}catch(e){}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+function pxbSig(m){if(Array.isArray(m))return m.map(pxbSig).join(',');if(!m)return'';return(m.color?m.color.getHexString():'')+'|'+(m.map?m.map.uuid:'')+'|'+(m.emissive?m.emissive.getHexString():'');}
+// only (a Set of meshes): the same pass for just those meshes, after a save changed them (pxbCatchUp, HOME4); the builders do not run again
+function pxbScene(only){pxbScene.done=true;const T0=performance.now();const SUB=!!only,TR=SUB?f=>only.forEach(f):f=>scene.traverse(f);
+  if(!SUB){if(SP2_ON)try{spBuild_sky();}catch(e){console.error(e);}try{pxDeclutter();}catch(e){console.error(e);}if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}try{pxFixDiamonds();}catch(e){console.error(e);}try{pxbLaneClear();}catch(e){console.error(e);}if(TOWN2_ON)try{town2Thin();}catch(e){console.error(e);}if(TOWN2_ON)try{// the old terrace rows' gable ends were left standing as white triangles where town2 rebuilt the cottages
+  scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isMesh&&o.parent&&o.parent.name==='freoDetail'&&o.geometry&&o.geometry.type==='PlaneGeometry'){const B=new THREE.Box3().setFromObject(o),c=scene.worldToLocal(B.getCenter(new THREE.Vector3())),sz=B.getSize(new THREE.Vector3());if(sz.y>2.5&&Math.max(sz.x,sz.z)<3&&Math.min(sz.x,sz.z)<.05&&c.x>270&&c.x<358&&(Math.abs(c.z-27.2)<.6||Math.abs(c.z-39.6)<.6))o.visible=false;}});}catch(e){}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}}
+  else{const gs=k=>scene.children.filter(g=>g.isGroup&&g.visible&&!(k.seen&&k.seen.has(g)));try{pxDeclutter(gs(pxDeclutter));}catch(e){console.error(e);}try{pxFixDiamonds(only);}catch(e){console.error(e);}try{pxbLaneClear(gs(pxbLaneClear));}catch(e){console.error(e);}}
+  const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+  if(!SUB){const R=pxbScene.orig=new Map();scene.traverse(o=>{if(o.isMesh)R.set(o,{m:o.material,v:o.visible});});}
   const isl=o=>{const m=o.material,im=m&&m.map&&m.map.image;return!im||im.width<=32;};// plain walls get the kit; walls with their own picture keep it (redrawn below)// every map; faces that already carry a painted picture keep it
   const hex=m=>m&&m.color?'#'+m.color.getHexString():'#e4d2a8';const r1=v=>Math.round(v*2)/2;
   const cache=new Map();const tm=(key,make,o)=>{let m=cache.get(key);if(!m){const c=make();m=new THREE.MeshLambertMaterial(Object.assign({map:ctex(c)},o||{}));m.map.minFilter=THREE.NearestFilter;m.map.generateMipmaps=false;cache.set(key,m);}return m;};
   const vehicle=o=>{for(let p=o.parent;p&&p!==scene;p=p.parent)if(p.__wheels>=3)return true;return false;};
   scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='CylinderGeometry'&&o.parent&&o.parent!==scene&&!o.parent.__pxw){o.parent.__pxw=1;let n=0;o.parent.children.forEach(c=>{if(c.isMesh&&c.geometry&&c.geometry.type==='CylinderGeometry'&&c.geometry.parameters.radiusTop<.6&&Math.abs(c.rotation.x)+Math.abs(c.rotation.z)>1)n++;});if(n>=3)o.parent.__wheels=Math.max(o.parent.__wheels||0,n);}});
   const walls=[],panes=[],roofs=[];
-  scene.traverse(o=>{if(!o.isMesh||o.__pxSkip||!o.visible||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material)||o.material.transparent||o.material.vertexColors)return;const g=o.geometry,t=g.type,p=g.parameters||{};
+  TR(o=>{if(!o.isMesh||o.__pxSkip||!o.visible||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material)||o.material.transparent||o.material.vertexColors)return;const g=o.geometry,t=g.type,p=g.parameters||{};
     if(!(o.material.isMeshLambertMaterial||o.material.isMeshStandardMaterial||o.material.isMeshPhongMaterial))return;
     if(typeof SIGN_TEX!=='undefined'&&o.material.map&&SIGN_TEX.has(o.material.map))return;
     o.matrixWorld.decompose(V,Q,SC);const sx=Math.abs(SC.x),sy=Math.abs(SC.y),sz=Math.abs(SC.z);
@@ -16308,7 +16317,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
     if(t==='PlaneGeometry'&&!o.material.map){const w=p.width*sx,h=p.height*sy;if((w>1.8||h>1.8)&&w<=12&&h<=8&&w>.6&&h>.5&&pxGlassy(o.material.color)){o.getWorldPosition(V);if(V.y>.2){o.material=pxGlassMat(hex(o.material),w,h);}return;}if(w<.22||h<.22||w>1.8||h>1.8)return;o.getWorldPosition(V);if(V.y<.25||V.y>3.2)return;
       const c=o.material.color,l=c.r*.3+c.g*.59+c.b*.11;const isDoor=h>=.8&&h>w*1.3&&V.y-h/2<.35;if(!isDoor&&l>.62)return;if(isl(o))panes.push({o,w,h,door:isDoor,pos:V.clone()});}});
   // faces that already carry a painted picture (the towns from Paul's photos): keep the design, redraw it as pixel art at the kit's density
-  const hdT=new Map();let nh=0;
+  const hdT=pxbScene.hdT||(pxbScene.hdT=new Map());let nh=0;
   const facadeHD=t=>{if(hdT.has(t))return hdT.get(t);let out=null;try{const im=t.image;if(!im||!(im.width>=8)||im.width>640||im.height>640||(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t)))throw 0;
       const k=Math.max(2,Math.min(3,Math.floor(1024/Math.max(im.width,im.height)))),W=im.width,H=im.height,W2=W*k,H2=H*k;
       const sc=document.createElement('canvas');sc.width=W;sc.height=H;const sx=sc.getContext('2d');sx.drawImage(im,0,0);const s0=sx.getImageData(0,0,W,H).data;
@@ -16324,8 +16333,8 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
           put(x*k+i,y*k+j,c,f);}}
       ox.putImageData(id,0,0);out=new THREE.CanvasTexture(oc);out.magFilter=out.minFilter=THREE.NearestFilter;out.generateMipmaps=false;out.wrapS=t.wrapS;out.wrapT=t.wrapT;out.repeat.copy(t.repeat);out.offset.copy(t.offset);out.rotation=t.rotation;out.center.copy(t.center);out.encoding=t.encoding;nh++;}catch(e){out=null;}
     hdT.set(t,out);return out;};
-  const hdMat=new Map();const upMat=m=>{if(!m||!m.map||m.__pxHD||m.transparent||m.alphaTest>0||m.isMeshBasicMaterial||m.isSpriteMaterial||m.isShaderMaterial)return m;if(hdMat.has(m))return hdMat.get(m);const t=facadeHD(m.map);let r=m;if(t){r=m.clone();r.map=t;if(m.emissiveMap===m.map)r.emissiveMap=t;r.__pxHD=1;}hdMat.set(m,r);return r;};
-  scene.traverse(o=>{if(!o.isMesh||o.__pxSkip||!o.geometry||!o.material)return;const t=o.geometry.type;if(t!=='BoxGeometry'&&t!=='PlaneGeometry'&&t!=='CylinderGeometry'&&t!=='ExtrudeGeometry'&&t!=='ShapeGeometry')return;
+  const hdMat=pxbScene.hdMat||(pxbScene.hdMat=new Map());const upMat=m=>{if(!m||!m.map||m.__pxHD||m.transparent||m.alphaTest>0||m.isMeshBasicMaterial||m.isSpriteMaterial||m.isShaderMaterial)return m;{const q=hdMat.get(m);if(q&&q.s===pxbSig(m))return q.r;}const t=facadeHD(m.map);let r=m;if(t){r=m.clone();r.map=t;if(m.emissiveMap===m.map)r.emissiveMap=t;r.__pxHD=1;}hdMat.set(m,{r,s:pxbSig(m)});return r;};
+  TR(o=>{if(!o.isMesh||o.__pxSkip||!o.geometry||!o.material)return;const t=o.geometry.type;if(t!=='BoxGeometry'&&t!=='PlaneGeometry'&&t!=='CylinderGeometry'&&t!=='ExtrudeGeometry'&&t!=='ShapeGeometry')return;
     o.geometry.computeBoundingBox&&!o.geometry.boundingBox&&o.geometry.computeBoundingBox();const bb=o.geometry.boundingBox;if(!bb)return;o.matrixWorld.decompose(V,Q,SC);if((bb.max.y-bb.min.y)*Math.abs(SC.y)<1)return;
     if(typeof BB!=='undefined'&&BB.includes&&BB.includes(o))return;if(Array.isArray(o.material))o.material=o.material.map(upMat);else o.material=upMat(o.material);});
   // which wall face each pane sits on
@@ -16335,7 +16344,7 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
       if(Math.abs(L.y)<p.height/2+.1){if(Math.abs(ax)<.25&&Math.abs(L.z)<p.depth/2+.05)W.faces[L.x>0?0:1]++;else if(Math.abs(az)<.25&&Math.abs(L.x)<p.width/2+.05)W.faces[L.z>0?4:5]++;}});});
   let nw=0,nr=0,np=0;const glowMats=[];
   // the wall's own colour: material colour times the most common colour of its little tile (so a teal tower stays teal)
-  const avgC=new Map();const tileCol=m=>{const im=m.map&&m.map.image;if(!im)return hex(m);if(avgC.has(im))return avgC.get(im);let out=hex(m);try{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;const cnt=new Map();let best=0,bk=0;
+  const avgC=pxbScene.avgC||(pxbScene.avgC=new Map());const tileCol=m=>{const im=m.map&&m.map.image;if(!im)return hex(m);if(avgC.has(im))return avgC.get(im);let out=hex(m);try{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const x=c.getContext('2d');x.drawImage(im,0,0);const d=x.getImageData(0,0,c.width,c.height).data;const cnt=new Map();let best=0,bk=0;
       for(let q=0;q<d.length;q+=4){const k=((d[q]>>3)<<10)|((d[q+1]>>3)<<5)|(d[q+2]>>3);const n=(cnt.get(k)||0)+1;cnt.set(k,n);if(n>best){best=n;bk=q;}}const col=new THREE.Color(d[bk]/255,d[bk+1]/255,d[bk+2]/255).multiply(m.color);out='#'+col.getHexString();}catch(e){}avgC.set(im,out);return out;};
   if(TOWN2_ON)try{town2Mark(walls);}catch(e){console.error(e);}walls.forEach((W,i)=>{if(TOWN2_ON)T2.cur=W;const base=TOWN2_ON&&W.__t2?T2.base(W,tileCol(W.o.material)):tileCol(W.o.material),lum=PXK.lum(base);const kind=lum>.84?'stone':lum<.3?'brick':'plaster';
     const big=W.w*W.d>4.5;const face=(fw,has,k)=>{const n=has||fw<1.7||W.h<1.25||Math.min(W.w,W.d)<.4?0:Math.max(1,Math.floor((fw-.6)/1.5));const key=['w',base,r1(fw),r1(W.h),n,k%2].join('|');
@@ -16391,23 +16400,26 @@ function pxbScene(){pxbScene.done=true;const T0=performance.now();if(SP2_ON)try{
       m=cache.get(key);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(PXK.pane(false,w,h)),emissive:0xffffff,emissiveIntensity:0});m.emissiveMap=ctex(PXK.pane(true,w,h));cache.set(key,m);glowMats.push(m);}}
     P.o.material=m;np++;});
   // a door or window left standing on its own (its house was moved or taken away) goes too
-  {const vis=o=>{for(let p=o;p;p=p.parent)if(p.visible===false)return false;return true;};const wb=walls.filter(W=>vis(W.o)).map(W=>W.box||new THREE.Box3().setFromObject(W.o));
-    panes.forEach(P=>{if(!vis(P.o))return;const p=P.pos;if(!wb.some(b=>p.x>b.min.x-.4&&p.x<b.max.x+.4&&p.z>b.min.z-.4&&p.z<b.max.z+.4&&p.y<b.max.y+.3))P.o.visible=false;});
+  {const vis=o=>{for(let p=o;p;p=p.parent)if(p.visible===false)return false;return true;};const wb=(SUB?(pxbScene.W||[]).concat(walls):walls).filter(W=>vis(W.o)).map(W=>W.box||new THREE.Box3().setFromObject(W.o));const hasW=P=>{const p=P.pos;return wb.some(b=>p.x>b.min.x-.4&&p.x<b.max.x+.4&&p.z>b.min.z-.4&&p.z<b.max.z+.4&&p.y<b.max.y+.3);};
+    panes.forEach(P=>{if(!vis(P.o))return;if(!hasW(P)){P.o.visible=false;P.o.__orph=1;}});
+    // after a save: windows the title pass left alone or hid are judged again against the walls standing now
+    if(SUB)(pxbScene.P||[]).forEach(P=>{if(P.o.__orph){P.o.visible=true;const ok=vis(P.o)&&hasW(P);P.o.visible=ok;if(ok)P.o.__orph=0;}else if(vis(P.o)&&!hasW(P)){P.o.visible=false;P.o.__orph=1;}});
+    pxbScene.W=(SUB?pxbScene.W||[]:[]).concat(walls);pxbScene.P=(SUB?pxbScene.P||[]:[]).concat(panes);
     scene.updateMatrixWorld(true);const DB=new THREE.Box3(),DC=new THREE.Vector3();const allW=[];scene.traverse(o=>{if(o.isMesh&&vis(o)&&o.geometry&&(o.geometry.type==='BoxGeometry'||o.geometry.type==='CylinderGeometry')){DB.setFromObject(o);const sz=DB.getSize(DC);if(sz.y>1.2&&Math.max(sz.x,sz.z)>1.4){const bb=DB.clone();bb.__o=o;allW.push(bb);}}});
-    let nd=0;scene.traverse(o=>{if(!o.isMesh||!vis(o)||!o.geometry||o.geometry.type!=='PlaneGeometry'||(o.userData&&o.userData.frames&&o.userData.frames.length>1))return;DB.setFromObject(o);const sz=DB.getSize(DC);if(sz.y<.8||sz.y>1.7||Math.max(sz.x,sz.z)>1.3||DB.min.y>.9||Math.min(sz.x,sz.z)>.6||!(o.material&&o.material.map&&o.material.map.image&&o.material.map.image.height>o.material.map.image.width))return;
-      const c=DB.getCenter(new THREE.Vector3());if(scene.worldToLocal(c.clone()).x>100)return;const w=allW.find(b=>c.x>b.min.x-.35&&c.x<b.max.x+.35&&c.z>b.min.z-.35&&c.z<b.max.z+.35);if(!w){o.visible=false;nd++;}else PXB_DOORS.push([o,w.__o,w.__o.getWorldPosition(new THREE.Vector3())]);});window.__orphanDoors=nd;}
-  if(TOWN2_ON)try{town2Skin(walls,roofs,panes,glowMats);}catch(e){console.error(e);}if(TOWN2_ON)try{town3Houses();}catch(e){console.error(e);}PXB_GLOW.push(...glowMats);pxbScene.glow=PXB_GLOW;try{pxOneLook();}catch(e){console.error(e);}pxbScene.stats={walls:nw,roofs:nr,panes:np,mats:cache.size,hd:nh,ms:Math.round(performance.now()-T0),one:pxOneLook.stats,hips:pxbScene.hips};window.__pxbStats=pxbScene.stats;if(typeof CBD!=='undefined'&&CBD.cut)CBD.cut.forEach(e=>{e.ready=false;});
+    let nd=0;TR(o=>{if(!o.isMesh||!vis(o)||!o.geometry||o.geometry.type!=='PlaneGeometry'||(o.userData&&o.userData.frames&&o.userData.frames.length>1))return;DB.setFromObject(o);const sz=DB.getSize(DC);if(sz.y<.8||sz.y>1.7||Math.max(sz.x,sz.z)>1.3||DB.min.y>.9||Math.min(sz.x,sz.z)>.6||!(o.material&&o.material.map&&o.material.map.image&&o.material.map.image.height>o.material.map.image.width))return;
+      const c=DB.getCenter(new THREE.Vector3());if(scene.worldToLocal(c.clone()).x>100)return;const w=allW.find(b=>c.x>b.min.x-.35&&c.x<b.max.x+.35&&c.z>b.min.z-.35&&c.z<b.max.z+.35);if(!w){o.visible=false;o.__orph=1;nd++;}else PXB_DOORS.push([o,w.__o,w.__o.getWorldPosition(new THREE.Vector3())]);});window.__orphanDoors=nd;}
+  if(TOWN2_ON)try{town2Skin(walls,roofs,panes,glowMats);}catch(e){console.error(e);}if(TOWN2_ON&&!SUB)try{town3Houses();}catch(e){console.error(e);}PXB_GLOW.push(...glowMats);pxbScene.glow=PXB_GLOW;try{pxOneLook(SUB?only:undefined);}catch(e){console.error(e);}if(SUB)pxbScene.sub={walls:nw,roofs:nr,panes:np,ms:Math.round(performance.now()-T0)};else pxbScene.stats={walls:nw,roofs:nr,panes:np,mats:cache.size,hd:nh,ms:Math.round(performance.now()-T0),one:pxOneLook.stats,hips:pxbScene.hips};window.__pxbStats=pxbScene.stats;if(typeof CBD!=='undefined'&&CBD.cut)CBD.cut.forEach(e=>{e.ready=false;});
   // Victoria Park shop fronts (painted from Paul's photos): real shop glass with goods behind it and a panelled door, both lit at night
-  if(typeof VP_SHOPS!=='undefined'&&typeof REF_ON!=='undefined'&&REF_ON)VP_SHOPS.forEach((sh,i)=>{if(sh.id==='bkk'||sh.id==='pub')return;const h=sh.id==='kmax'?4.4:3,w=5.2,z=sh.z+1.71+.015;
+  if(!SUB&&typeof VP_SHOPS!=='undefined'&&typeof REF_ON!=='undefined'&&REF_ON)VP_SHOPS.forEach((sh,i)=>{if(sh.id==='bkk'||sh.id==='pub')return;const h=sh.id==='kmax'?4.4:3,w=5.2,z=sh.z+1.71+.015;
     const gw=w*.58,gh=h*.5-.42,gx=sh.x-w/2+w*.08+gw/2,gy=.3+gh/2;const gm=pxGlassMat(['#4a6a86','#5a7a86','#4e6a7e'][i%3],gw,gh);const g=new THREE.Mesh(new THREE.PlaneGeometry(gw,gh),gm);g.position.set(gx,gy,z);g.__pxSkip=1;scene.add(g);
     const dw=w*.16,dh=h*.5-.3,dcol=['#2f5a46','#6a2a2a','#1d3a6e','#3a3e48','#7a4a2a'][i%5];const dk='vpd|'+dcol;let dm=cache.get(dk);if(!dm){const day=PXK.doorPane(dcol,Math.round(dw*32)-6,Math.round(dh*32)-4);dm=new THREE.MeshLambertMaterial({map:ctex(day)});cache.set(dk,dm);}
     const d=new THREE.Mesh(new THREE.PlaneGeometry(dw,dh),dm);d.position.set(sh.x-w/2+w*.78,.25+dh/2,z);d.__pxSkip=1;scene.add(d);});
   // buildings outside the city fade when they stand between the camera and Kip (the city has its own)
-  {const cutG=new Set(typeof CBD!=='undefined'&&CBD.cut?CBD.cut.map(e=>e.g):[]);const inCut=o=>{for(let p=o;p;p=p.parent)if(cutG.has(p))return true;return false;};const seen=new Set();PXB_SEE.length=0;
+  {const cutG=new Set(typeof CBD!=='undefined'&&CBD.cut?CBD.cut.map(e=>e.g):[]);const inCut=o=>{for(let p=o;p;p=p.parent)if(cutG.has(p))return true;return false;};const seen=new Set();if(SUB)PXB_SEE.forEach(e=>seen.add(e.objs[0]));else PXB_SEE.length=0;
     walls.forEach(W=>{if(inCut(W.o))return;const par=W.o.parent;const root=par&&par!==scene&&par.children.length<=40?par:W.o;if(seen.has(root))return;seen.add(root);
       const objs=[root];if(root===W.o)roofs.forEach(R=>{RB.setFromObject(R.o);RB.getCenter(RC);if(RC.x>W.box.min.x&&RC.x<W.box.max.x&&RC.z>W.box.min.z&&RC.z<W.box.max.z&&RC.y>W.box.max.y-.5)objs.push(R.o);});
       const box=new THREE.Box3();objs.forEach(o=>box.expandByObject(o));PXB_SEE.push({objs,box,a:1,mats:null});});}
-  if(rt.depthTexture&&post.uniforms.outl){post.uniforms.tDepth.value=rt.depthTexture;post.uniforms.outl.value=1;post.uniforms.nf.value.set(camera.near,camera.far);}try{mapfixBuild();}catch(e){console.error(e);}}
+  if(rt.depthTexture&&post.uniforms.outl){post.uniforms.tDepth.value=rt.depthTexture;post.uniforms.outl.value=1;post.uniforms.nf.value.set(camera.near,camera.far);}if(!SUB)try{mapfixBuild();}catch(e){console.error(e);}if(!SUB){pxbScene.orig.forEach(r=>{r.s=pxbSig(r.m);});pxbScene.mainT=performance.now();}}
 const PXB_DOORS=[],PXB_SEE=[],_pxR=new THREE.Ray(),_pxP=new THREE.Vector3(),_pxV=new THREE.Vector3();
 function pxbSee(dt){if(!PXB_SEE.length||typeof player==='undefined')return;const k=Math.min(1,(dt||.016)*6);
   for(const e of PXB_SEE){const c=e.box;_pxP.set(player.x,0,player.z);scene.localToWorld(_pxP);if(_pxP.x<c.min.x-30||_pxP.x>c.max.x+30||_pxP.z<c.min.z-30||_pxP.z>c.max.z+30){if(e.a===1)continue;}
@@ -16425,13 +16437,13 @@ var H3=null;// stays undefined until this point of the script runs (the camera r
 function h3Away(){return!!(H3&&H3.act&&H3.away);}
 function h3Init(){const R=TITLE_SHOTS.map((A,j)=>({k:'r'+j,x:A[0],z:A[2],yaw:A[3],zm:A[4],d:[.8,0,.12,0],rott:1}));
   const L=[R[0],R[1],
-    {k:'boat',away:0,dur:10,ready:()=>!!BOAT.g,enter:h3BoatIn,tick:h3BoatTick,exit:h3BoatOut,zm:.8,yaw:.5,d:[0,0,.25,0]},
+    {k:'boat',away:0,dur:10,ready:()=>!!BOAT.g,enter:h3BoatIn,tick:h3BoatTick,exit:h3BoatOut,zm:.8,zo:1.5,yaw:.5,d:[0,0,.25,0]},
     R[2],R[3],
     {k:'lan',away:1,x:912,z:-8,yaw:1.2,zm:1.3,d:[0,6,.1,0],time:1070,trip:'lan',ready:()=>h3Trip('lan')&&h3LanPaint()>.85},
     {k:'pin',away:1,x:1066,z:6,yaw:-.45,zm:.9,d:[-3,-2,-.12,0],time:1060,trip:'pin',ready:()=>h3Trip('pin')},
     R[4],
     {k:'cbd',away:1,x:656,z:-12,yaw:.3,zm:1.6,d:[-8,0,-.12,0],time:1080,ready:()=>true},
-    {k:'stn',away:1,x:686,z:-48.4,yaw:.5,zm:.75,d:[-2.5,0,-.08,0],time:1020,dur:10,ready:()=>MTR.on&&MTR.built&&!!MTR.st.cbd,enter:h3StnIn},
+    {k:'stn',away:1,x:686,z:-48.4,yaw:.5,zm:.75,zo:1.35,d:[-2.5,0,-.08,0],time:1020,dur:10,ready:()=>MTR.on&&MTR.built&&!!MTR.st.cbd,enter:h3StnIn},
     R[5]];
   return L;}
 function h3Trip(k){return TRIP_ON&&TRIPS[k]&&TRIPS[k].built;}
@@ -16447,7 +16459,9 @@ function h3BoatTick(s,f){const p=h3BoatPos(s,f);BOAT.x=p.x;BOAT.z=p.z;BOAT.h=p.h
 function h3BoatOut(s){const v=s.sv;if(!v)return;Object.assign(BOAT,v);BOAT.v=0;if(BOAT.wake)BOAT.wake.material.opacity=0;sea2Place();s.sv=null;}
 // a train pulls in and opens its doors while the shot plays
 function h3StnIn(){const s=MTR.st.cbd;if(!s)return;s.hold=false;s.door=0;s.ph='in';s.t=MTR.TIN*.75;}
-function h3Pose(s,f){const d=s.d||[0,0,0,0];return{x:s.x+d[0]*f,z:s.z+d[1]*f,yaw:s.yaw+d[2]*f,zm:s.zm+d[3]*f};}
+// HOME4 (Paul Nov 2026): every shot about 1.8x further out (the camera stops at the in-game zoom-out limit); H3_ZO per shot via s.zo
+const H3_ZO=1.8;
+function h3Pose(s,f){const d=s.d||[0,0,0,0];return{x:s.x+d[0]*f,z:s.z+d[1]*f,yaw:s.yaw+d[2]*f,zm:Math.min(1.7,(s.zm+d[3]*f)*(s.zo||H3_ZO))};}
 function h3Ready(s){try{return!s.ready||s.ready();}catch(e){return false;}}
 function h3Next(i){const L=H3.L;for(let j=1;j<=L.length;j++){const n=(i+j)%L.length;if(h3Ready(L[n]))return n;}return i;}
 function h3Far(a,b){return!(a.rott&&b.rott);}
@@ -16456,28 +16470,17 @@ function h3Enter(i){const L=H3.L,s=L[i];H3.i=i;H3.st=0;H3.snap=true;if(s.enter)t
   if(player.mesh)player.mesh.visible=!s.away;if(player.blob)player.blob.visible=!s.away;}
 function h3Exit(){const s=H3.L[H3.i];if(s&&s.exit)try{s.exit(s);}catch(e){console.error(e);}}
 // big pieces are built in the background, spread out so the title keeps moving (Lancelin first: it paints its sand bit by bit)
-// pixel faces for one group only (the home screen builds the boat and the train before the game's full pixel pass runs)
-function pxFaceRoot(root){if(!root||typeof pxFace!=='function')return 0;const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3();const fm=pxFaceRoot.fm||(pxFaceRoot.fm=new Map());
-  const bucket=m=>{const px=m*32;return Math.max(4,Math.min(128,Math.pow(2,Math.round(Math.log2(Math.max(4,px))))));};
-  const face=(col,w,h,top)=>{const W=bucket(w),H=bucket(h),k=col+'|'+W+'|'+H+'|'+(top?1:0);let m=fm.get(k);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(pxFace(col,W,H,top))});fm.set(k,m);}return m;};
-  let n=0;root.updateMatrixWorld(true);root.traverse(o=>{if(!o.isMesh||o.__pxSkip||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material))return;const m=o.material,t=o.geometry.type,p=o.geometry.parameters||{};
-    if(m.map||m.vertexColors||m.transparent||m.isMeshBasicMaterial||m.isShaderMaterial||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial||m.isMeshPhongMaterial))return;
-    if(m.emissive&&(m.emissive.r+m.emissive.g+m.emissive.b)>.3)return;
-    o.matrixWorld.decompose(V,Q,SC);const sx=Math.abs(SC.x),sy=Math.abs(SC.y),sz=Math.abs(SC.z);const col='#'+m.color.getHexString();
-    if(t==='BoxGeometry'){const w=p.width*sx,h=p.height*sy,d=p.depth*sz;if(Math.max(w,h,d)>24)return;const side=face(col,d,h),top=face(col,w,d,true),front=face(col,w,h);o.material=[side,side,top,top,front,front];o.__pxSkip=1;n++;}
-    else if(t==='CylinderGeometry'||t==='ConeGeometry'){const r=(p.radiusBottom!=null?Math.max(p.radiusTop,p.radiusBottom):p.radius)*Math.max(sx,sz),h=p.height*sy;if(r>12||h>24)return;const sd=face(col,2*Math.PI*r,h),c=face(col,2*r,2*r,true);o.material=t==='ConeGeometry'?[sd,c]:[sd,c,c];o.__pxSkip=1;n++;}});
-  return n;}
 function h3Builds(){const T=H3.T,B=H3.b;
-  if(!B.sea&&T>2.5){B.sea=1;if(SEA2_ON)try{sea2Build();if(BOAT.g)pxFaceRoot(BOAT.g);}catch(e){console.error(e);}}
+  if(!B.sea&&T>2.5){B.sea=1;if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}}
   if(!B.lan&&T>4){B.lan=1;if(TRIP_ON)try{tripEnsure('lan');}catch(e){console.error(e);}}
-  if(!B.mtr&&T>9){B.mtr=1;if(MTR.on&&!MTR.built)try{mtrBuild();for(const k in MTR.st){const st=MTR.st[k];if(st&&st.sg)pxFaceRoot(st.sg);}}catch(e){console.error(e);MTR.on=false;}}
+  if(!B.mtr&&T>9){B.mtr=1;if(MTR.on&&!MTR.built)try{mtrBuild();}catch(e){console.error(e);MTR.on=false;}}
   if(!B.pin&&T>14){B.pin=1;if(TRIP_ON)try{tripEnsure('pin');}catch(e){console.error(e);}}
   // paint Lancelin's sand a little each frame (nearest the title shot first) until it is done
   const cur=H3.L[H3.i];if(h3Trip('lan')&&h3LanPaint()<1&&!(cur.k==='lan')){const LS=TRIP_BUILD.lan.S,ob=LS.budget,px=player.x,pz=player.z,sh=H3.L.find(s=>s.k==='lan');
     LS.budget=4;player.x=sh.x;player.z=sh.z;try{TRIPS.lan.K.tick(1/60,performance.now()/1000);}catch(e){}player.x=px;player.z=pz;LS.budget=ob;}}
 function h3Cam(dt){if(H3===undefined)return false;if(!H3){H3={on:(typeof HOME2_LIVE!=='undefined'&&HOME2_LIVE)||/[?&#]home2\b/.test(location.search+location.hash)};}if(!H3.on)return false;
   if(!H3.act){H3.act=true;if(!H3.L)H3.L=h3Init();H3.T=0;H3.b=H3.b||{};H3.px=player.x;H3.pz=player.z;H3.away=false;h3Enter(0);H3.snap=false;}
-  dt=Math.min(dt||0,.1);H3.T+=dt;h3Builds();
+  dt=Math.min(dt||0,.1);if(h4Busy()){h4Step();dt=0;}else{H3.T+=dt;h3Builds();}
   if(H3.force!=null){const n=H3.force;H3.force=null;h3Exit();h3Enter(n);}
   let s=H3.L[H3.i];const dur=s.dur||9,FO=.9;H3.st+=dt;
   if(H3.st>=dur){const n=h3Next(H3.i);const far=h3Far(s,H3.L[n]);h3Exit();h3Enter(n);if(!far)H3.snap=false;H3.inFade=far;s=H3.L[n];}
@@ -16487,17 +16490,45 @@ function h3Cam(dt){if(H3===undefined)return false;if(!H3){H3={on:(typeof HOME2_L
   // close Rottnest shots glide into each other as before; far ones fade through dark
   if(!far&&f>.7){const e=(f-.7)/.3,k=e*e*(3-2*e),Q=h3Pose(nx,0);P={x:lerp(P.x,Q.x,k),z:lerp(P.z,Q.z,k),yaw:lerp(P.yaw,Q.yaw,k),zm:lerp(P.zm,Q.zm,k)};}
   let fd=0;const left=(s.dur||9)-H3.st;if(far&&left<FO)fd=Math.max(fd,1-left/FO);if(H3.inFade&&H3.st<FO)fd=Math.max(fd,1-H3.st/FO);if(H3.inFade&&H3.st>=FO)H3.inFade=false;
-  fd=fd*fd*(3-2*fd)*.97;fadeTarget=fd;post.uniforms.fade.value=fd;
+  if(h4Busy())fd=1;fd=fd*fd*(3-2*fd)*.97;fadeTarget=fd;post.uniforms.fade.value=fd;
   tmpV.set(P.x,.6+(P.x>840?groundY(P.x,P.z):0),P.z);yawT=P.yaw;zm=P.zm;S.time=s.time||1050;
   if(H3.snap){H3.snap=false;camTarget.copy(tmpV);yaw=yawT;}
   if(BOAT.g&&!running)try{sea2Tick(dt);}catch(e){}
   return true;}
 function h3End(){if(!H3||!H3.act)return;H3.act=false;h3Exit();H3.away=false;if(!running){player.x=H3.px;player.z=H3.pz;}
   if(player.mesh)player.mesh.visible=true;if(player.blob)player.blob.visible=true;fadeTarget=0;post.uniforms.fade.value=0;H3.inFade=false;}
+// ---------- HOME4 (Paul Nov 2026): the home screen shows the finished pixel look ----------
+// The one-time pixel pass used to run on the first frame of play. Now the home screen runs it: the boat, Lancelin, the trains
+// and the Pinnacles are built first (as when the title had played a while), then each step of the pass, one per frame, while
+// the 3D stays dark; the title and buttons show at once and the shots fade in when it is done. New game / Continue then re-does
+// only what the save changed (pxbCatchUp), so play starts in the same world as before. Mirrored island, Kip at the café door.
+var H4={i:0,w:0,busy:true,need:false,caught:false,ready:false};
+function h4Busy(){return!!(PXB_ON&&H4.busy&&!running&&!pxbScene.done);}
+const H4_BUILD=[()=>{if(H3.b.sea)return;H3.b.sea=1;if(SEA2_ON)sea2Build();},()=>{if(H3.b.lan)return;H3.b.lan=1;if(TRIP_ON)tripEnsure('lan');},
+  ()=>{if(H3.b.mtr)return;H3.b.mtr=1;if(MTR.on&&!MTR.built)try{mtrBuild();}catch(e){console.error(e);MTR.on=false;}},()=>{if(H3.b.pin)return;H3.b.pin=1;if(TRIP_ON)tripEnsure('pin');}];
+// the big pieces, one per frame, after the title has painted
+function h4Step(){if(H4.w<3){H4.w++;return;}if(!H4.t0)H4.t0=performance.now();if(H4.i<H4_BUILD.length){try{H4_BUILD[H4.i]();}catch(e){console.error(e);}H4.i++;}else H4.ready=true;}
+// then the whole pass in one go, in the render slot where play used to run it (its steps rely on running back to back)
+function h4Pass(){const ox=player.x,oz=player.z,sx=scene.scale.x;player.x=IWx(0,2.9);player.z=IWz(0,2.9);if(sx!==-1){scene.scale.x=-1;scene.updateMatrixWorld(true);}
+  try{if(typeof TEX3_ON!=='undefined'&&TEX3_ON&&!tex3Scene.done)safeRun('tex3',tex3Scene);safeRun('pxb',pxbScene);}finally{player.x=ox;player.z=oz;if(scene.scale.x!==sx){scene.scale.x=sx;scene.updateMatrixWorld(true);}
+  H4.busy=false;H3.inFade=true;H3.st=0;H4.ms=Math.round(performance.now()-H4.t0);H4.pxbMs=pxbScene.stats&&pxbScene.stats.ms;}}
+// New game / Continue: note every mesh's material before the save is applied
+function h4Mark(){if(H4.need||H4.caught||!H4.i)return;H4.need=true;H4.eT=performance.now();if(pxbScene.mainT){const E=H4.E=new Map();scene.traverse(o=>{if(o.isMesh)E.set(o,o.material);});}}
+function t2Targets(){let T=[];const px=player.x,pz=player.z;for(const zx of[150,300,520,650]){player.x=zx;try{T=T.concat(buildTargets().map(t=>[t.x,t.z]));}catch(e){}}player.x=px;player.z=pz;return T;}
+// first frame of play (where the whole pass used to run): the pass again for just the meshes the save added, showed or recoloured
+function pxbCatchUp(){H4.need=false;H4.caught=true;const T0=performance.now(),R=pxbScene.orig,E=H4.E;const st=H4.cu={new:0,vis:0,sig:0,mat:0};
+  if(TOWN2_ON&&town2Thin.T)try{const key=T=>new Set(T.map(t=>(+t[0]).toFixed(1)+','+(+t[1]).toFixed(1)));const a=key(town2Thin.T),b=key(t2Targets());st.t2=[...a].filter(k=>!b.has(k)).concat([...b].filter(k=>!a.has(k)).map(k=>'+'+k));}catch(e){}
+  if(!R||!E||!(pxbScene.mainT<H4.eT)){const gs=k=>scene.children.filter(g=>g.isGroup&&g.visible&&k.seen&&!k.seen.has(g));try{if(pxDeclutter.seen)pxDeclutter(gs(pxDeclutter));}catch(e){console.error(e);}try{if(pxbLaneClear.seen)pxbLaneClear(gs(pxbLaneClear));}catch(e){console.error(e);}st.ms=Math.round(performance.now()-T0);return;}
+  const only=new Set();
+  scene.traverse(o=>{if(!o.isMesh)return;const r=R.get(o);if(!r){only.add(o);st.new++;return;}if(r.d2)return;const e=E.get(o);
+    if(e!==undefined&&o.material!==e){only.add(o);st.mat++;return;}// a save step gave it a new material
+    const v=o.visible&&!r.v&&!o.__orph&&!o.__declut&&!o.__t2gone,sg=pxbSig(r.m)!==r.s;
+    if(v||sg){if(o.material!==r.m)o.material=r.m;only.add(o);if(v)st.vis++;else st.sig++;}});
+  try{pxbScene(only);}catch(e){console.error(e);}pxbScene._k=-1;st.ms=Math.round(performance.now()-T0);}
 window.__h3={lan:()=>h3LanPaint(),go:i=>{if(H3&&H3.L){const s=H3.L[i];if(s&&s.trip)tripEnsure(s.trip);if(s&&s.k==='boat'&&SEA2_ON)sea2Build();if(s&&s.k==='stn'&&MTR.on&&!MTR.built)mtrBuild();H3.force=i;}},get H3(){return H3;}};
-{const _sg=startGame;startGame=function(){h3End();return _sg.apply(this,arguments);};}
+{const _sg=startGame;startGame=function(){h4Mark();h3End();return _sg.apply(this,arguments);};}
 {const _am=ambient;ambient=function(dt,t){if(H3&&H3.act&&overlay!=='title'&&overlay!=='slots')h3End();return _am(dt,t);};}
-function pxbTick(){if(!window.__owgo&&running&&!overlay&&typeof openWorld==='function'&&/[?&#]owgo\b/.test(location.search+location.hash)){window.__owgo=1;setTimeout(()=>{const z=zoneOf(player.x);openWorld(z==='island'?'freo':z,'e');},1500);}if(window.FREO_FOUNTAIN&&zoneOf(player.x)==='freo')try{FREO_FOUNTAIN(performance.now()/1000);}catch(e){}if(DET2_ON&&!det2Build.done){det2Build.done=1;try{det2Build();}catch(e){console.error(e);}}if(DET2_ON&&det2Build.tick)try{det2Build.tick(performance.now()/1000);}catch(e){}pxbDoorsTick();if(SP2_ON&&spBuild_sky.tick)try{spBuild_sky.tick(performance.now()/1000);}catch(e){}if(SEA2_ON)try{sea2Tick(1/60);}catch(e){}if(!pxbScene.glow)return;pxbSee(1/60);post.uniforms.blurK.value=0;post.uniforms.bloomK.value=Math.min(post.uniforms.bloomK.value,.7);pxPopTick();if(post.uniforms.outl)post.uniforms.outl.value=1;const n=typeof NIGHT==='number'?NIGHT:0,h=(typeof S!=='undefined'?S.time%1440:720)/60,dusk=Math.max(0,Math.min(1,(h-17.6)/1.2)),k=Math.max(n,dusk*.6);
+function pxbTick(){if(!window.__owgo&&running&&!overlay&&typeof openWorld==='function'&&/[?&#]owgo\b/.test(location.search+location.hash)){window.__owgo=1;setTimeout(()=>{const z=zoneOf(player.x);openWorld(z==='island'?'freo':z,'e');},1500);}if(window.FREO_FOUNTAIN&&zoneOf(player.x)==='freo')try{FREO_FOUNTAIN(performance.now()/1000);}catch(e){}if(DET2_ON&&!det2Build.done){det2Build.done=1;try{det2Build();}catch(e){console.error(e);}try{const R=pxbScene.orig;if(R)scene.traverse(o=>{if(o.isMesh&&!R.has(o))R.set(o,{m:o.material,v:o.visible,d2:1});});}catch(e){}}if(DET2_ON&&det2Build.tick)try{det2Build.tick(performance.now()/1000);}catch(e){}pxbDoorsTick();if(SP2_ON&&spBuild_sky.tick)try{spBuild_sky.tick(performance.now()/1000);}catch(e){}if(SEA2_ON&&running)try{sea2Tick(1/60);}catch(e){}if(!pxbScene.glow)return;if(running)pxbSee(1/60);post.uniforms.blurK.value=0;post.uniforms.bloomK.value=Math.min(post.uniforms.bloomK.value,.7);pxPopTick();if(post.uniforms.outl)post.uniforms.outl.value=1;const n=typeof NIGHT==='number'?NIGHT:0,h=(typeof S!=='undefined'?S.time%1440:720)/60,dusk=Math.max(0,Math.min(1,(h-17.6)/1.2)),k=Math.max(n,dusk*.6);
   if(CAFE_PX)CAFE_PX.tick(performance.now()/1000);if(pxbScene._k===k)return;pxbScene._k=k;pxbScene.glow.forEach(m=>m.emissiveIntensity=k*(m.__dim||1.35));PXB_LAMPS.forEach(l=>l.material.color.set(k>.3?'#ffd070':'#e8d8a8'));
 }
 

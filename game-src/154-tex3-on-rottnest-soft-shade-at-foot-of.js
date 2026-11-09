@@ -15,7 +15,10 @@ const PXSNAP=new Map();
 function pxSnap(r,g,b,amt=.55,desat=.08){const k=((r>>3)<<10)|((g>>3)<<5)|(b>>3),kk=k*4+Math.round(amt*3);let v=PXSNAP.get(kk);if(v)return v;
   let best=1e9,bp=PXPAL[0];for(const p of PXPAL){const dr=r-p[0],dg=g-p[1],db=b-p[2],d=dr*dr*.3+dg*dg*.59+db*db*.11;if(d<best){best=d;bp=p;}}
   let R=r+(bp[0]-r)*amt,G=g+(bp[1]-g)*amt,B=b+(bp[2]-b)*amt;const l=R*.3+G*.59+B*.11;R+=(l-R)*desat;G+=(l-G)*desat;B+=(l-B)*desat;v=[R|0,G|0,B|0];PXSNAP.set(kk,v);return v;}
-function pxSnapCanvas(c){try{const x=c.getContext('2d'),id=x.getImageData(0,0,c.width,c.height),d=id.data;for(let q=0;q<d.length;q+=4){if(d[q+3]<8)continue;const v=pxSnap(d[q],d[q+1],d[q+2]);d[q]=v[0];d[q+1]=v[1];d[q+2]=v[2];}x.putImageData(id,0,0);}catch(e){}return c;}
+function pxSnapCanvas(c){try{const x=c.getContext('2d'),id=x.getImageData(0,0,c.width,c.height),d=id.data;for(let q=0;q<d.length;q+=4){if(d[q+3]<8)continue;const v=pxSnap(d[q],d[q+1],d[q+2]);d[q]=v[0];d[q+1]=v[1];d[q+2]=v[2];}x.putImageData(id,0,0);c.__snapH=pxImgHash(d);}catch(e){}return c;}
+// opaque pixels only (they survive a put/get round trip unchanged)
+function pxImgHash(d){let h=0;for(let q=0;q<d.length;q+=4)if(d[q+3]===255)h=(Math.imul(h,31)+d[q]+(d[q+1]<<8)+(d[q+2]<<16))|0;return h;}
+function pxRedrawn(t){const im=t.image;if(!im||!im.getContext||im.__snapH===undefined){t.__snapV=t.version;return false;}let hh;try{hh=pxImgHash(im.getContext('2d').getImageData(0,0,im.width,im.height).data);}catch(e){return false;}if(hh===im.__snapH){t.__snapV=t.version;return false;}return true;}
 function pxSnapHex(h){const c=new THREE.Color(h);const v=pxSnap(c.r*255|0,c.g*255|0,c.b*255|0);return'#'+v.map(n=>n.toString(16).padStart(2,'0')).join('');}
 /* a pixel face for a plain-coloured prop: W×H px (32 px per metre, buckets keep the count of textures small) */
 function pxFace(col,W,H,top){const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');const base=new THREE.Color(pxSnapHex(col));
@@ -29,7 +32,7 @@ const PXGLASS=new Map();function pxGlassMat(col,w,h){const c=new THREE.Color(col
   let m=PXGLASS.get(k);if(m)return m;const seed=(W*7+H*3)%97+1;const day=PXK.glass(W,H,{tint,seed}),lit=PXK.glass(W,H,{tint,seed,lit:true});
   m=new THREE.MeshLambertMaterial({map:ctex(day),emissive:0xffffff,emissiveIntensity:0,emissiveMap:ctex(PXK.glowDiff(day,lit))});PXGLASS.set(k,m);PXB_GLOW.push(m);return m;}
 const pxGlassy=c=>{const l=c.r*.3+c.g*.59+c.b*.11;return(c.b>c.r+.05&&c.b>=c.g-.02)||l<.28;};
-function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3();const bucket=m=>{const px=m*32;return px<12?8:px<24?16:px<48?32:64;};// four sizes only: textures are shared widely (phones)
+function pxOneLook(only){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3();const bucket=m=>{const px=m*32;return px<12?8:px<24?16:px<48?32:64;};// four sizes only: textures are shared widely (phones)
   const fm=new Map();const big=(col,w,h)=>{{const c=new THREE.Color(col),v=pxSnap(c.r*255|0,c.g*255|0,c.b*255|0,1,.08);col='#'+v.map(n=>n.toString(16).padStart(2,'0')).join('');}
     // big faces (ground slabs, car parks, long walls): a 2 m tile repeated, plain grain without rims, so the pixels stay 32 per metre
     const rx=Math.max(1,Math.round(w/2)),ry=Math.max(1,Math.round(h/2)),k='B|'+col+'|'+rx+'|'+ry;let m=fm.get(k);if(m)return m;
@@ -37,8 +40,8 @@ function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new
       for(let y=0;y<64;y++)for(let X=0;X<64;X++){const hh=((X*73856093)^(y*19349663))>>>0;if(hh%9===0){x.fillStyle='#'+cc.clone().multiplyScalar(hh%2?.95:1.05).getHexString();x.fillRect(X,y,1,1);}}base={c};fm.set('Bt|'+col,base);}
     const t=ctex(base.c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);m=new THREE.MeshLambertMaterial({map:t});fm.set(k,m);return m;};
   const face=(col,w,h,top)=>{if(w>3||h>3)return big(col,w,h);{const c=new THREE.Color(col),v=pxSnap(c.r*255|0,c.g*255|0,c.b*255|0,1,.08);col='#'+v.map(n=>n.toString(16).padStart(2,'0')).join('');}const W=bucket(w),H=bucket(h),k=col+'|'+W+'|'+H+'|'+(top?1:0);let m=fm.get(k);if(!m){m=new THREE.MeshLambertMaterial({map:ctex(pxFace(col,W,H,top))});fm.set(k,m);}return m;};
-  let props=0,snapped=0,sharp=0;const done=new Set();
-  scene.traverse(o=>{if(!o.isMesh||o.__pxSkip||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material))return;const m=o.material,t=o.geometry.type,p=o.geometry.parameters||{};
+  let props=0,snapped=0,sharp=0;const done=pxOneLook.done||(pxOneLook.done=new Set());
+  (only?f=>only.forEach(f):f=>scene.traverse(f))(o=>{if(!o.isMesh||o.__pxSkip||o.isInstancedMesh||!o.geometry||!o.material||Array.isArray(o.material))return;const m=o.material,t=o.geometry.type,p=o.geometry.parameters||{};
     if(m.map||m.vertexColors||m.transparent||m.isMeshBasicMaterial||m.isShaderMaterial||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial||m.isMeshPhongMaterial))return;
     if(m.emissive&&(m.emissive.r+m.emissive.g+m.emissive.b)>.3)return;// lamps and glowing things keep their glow
     o.matrixWorld.decompose(V,Q,SC);const sx=Math.abs(SC.x),sy=Math.abs(SC.y),sz=Math.abs(SC.z);const col='#'+m.color.getHexString();
@@ -50,8 +53,8 @@ function pxOneLook(){const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new
     else if(t==='SphereGeometry'||t==='IcosahedronGeometry'||t==='DodecahedronGeometry'||t==='OctahedronGeometry'||t==='TorusGeometry'){const r=(p.radius||.3)*Math.max(sx,sy,sz);if(r>8)return;o.material=face(col,2*Math.PI*r,Math.PI*r);props++;}});
   // calm the background: every remaining canvas texture (ground, walls, roofs, signs too) leans toward the palette; sprites are left alone so people and plants stay vivid
   const BBset=new Set(typeof BB!=='undefined'?BB:[]);
-  scene.traverse(o=>{if(!o.isMesh||BBset.has(o)||!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{const t=m&&m.map;if(!t||done.has(t))return;done.add(t);const im=t.image;
+  scene.traverse(o=>{if(!o.isMesh||BBset.has(o)||!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{const t=m&&m.map;if(!t||(done.has(t)&&(t.__snapV===t.version||!pxRedrawn(t))))return;done.add(t);const im=t.image;
       if(im&&im.getContext&&!t.__t2&&im.width*im.height<=1100000&&!(typeof SIGN_TEX!=='undefined'&&SIGN_TEX.has(t))){pxSnapCanvas(im);t.needsUpdate=true;snapped++;}
       // sharp at a distance: nearest pixels with mipmaps between levels instead of blur
-      if(t.magFilter!==THREE.NearestFilter||t.minFilter===THREE.LinearMipmapLinearFilter||t.minFilter===THREE.LinearFilter){t.magFilter=THREE.NearestFilter;t.minFilter=t.generateMipmaps?THREE.NearestMipmapLinearFilter:THREE.NearestFilter;t.needsUpdate=true;sharp++;}});});
+      if(t.magFilter!==THREE.NearestFilter||t.minFilter===THREE.LinearMipmapLinearFilter||t.minFilter===THREE.LinearFilter){t.magFilter=THREE.NearestFilter;t.minFilter=t.generateMipmaps?THREE.NearestMipmapLinearFilter:THREE.NearestFilter;t.needsUpdate=true;sharp++;}t.__snapV=t.version;});});
   pxOneLook.stats={props,snapped,sharp,faces:fm.size};}

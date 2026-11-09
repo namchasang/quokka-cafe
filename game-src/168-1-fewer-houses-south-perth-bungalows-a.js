@@ -4,7 +4,7 @@ function town2Thin(){const out={sp:0,freo:0,vp:0,cbd:0,cottages:0,kept:0,gaps:[]
   const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
   // everything the story or a shop needs stays: interaction spots in every town, homes for sale, shop people
   let T=[];const px=player.x,pz=player.z;for(const zx of[150,300,520,650]){player.x=zx;try{T=T.concat(buildTargets().map(t=>[t.x,t.z]));}catch(e){}}player.x=px;player.z=pz;
-  try{PROP_LIST.forEach(p=>T.push([p.x,p.z]));}catch(e){}try{FREO_NPCS.forEach(n=>T.push([n.x,n.z]));}catch(e){}try{VP_SHOPS.forEach(s=>T.push([s.npc.x,s.npc.z]));}catch(e){}
+  try{PROP_LIST.forEach(p=>T.push([p.x,p.z]));}catch(e){}try{FREO_NPCS.forEach(n=>T.push([n.x,n.z]));}catch(e){}try{VP_SHOPS.forEach(s=>T.push([s.npc.x,s.npc.z]));}catch(e){}town2Thin.T=T;
   const signs=[];scene.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)&&o.material.map&&SIGN_TEX.has(o.material.map)){const b=lbox(o);if(b)signs.push(b);}});
   const used=(b,pad)=>T.some(([x,z])=>x>b.min.x-pad&&x<b.max.x+pad&&z>b.min.z-pad&&z<b.max.z+pad)||signs.some(q=>q.max.x>b.min.x-.4&&q.min.x<b.max.x+.4&&q.max.z>b.min.z-.4&&q.min.z<b.max.z+.4);
   const BBs=new Set(BB);const G=new THREE.Group();G.name='town2';G.__pxSkip=1;scene.add(G);town2Thin.g=G;

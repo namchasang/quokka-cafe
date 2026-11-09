@@ -38,7 +38,7 @@ function wel4Build(){const DZ=-2.2,X1=598,X2=702,Z1=-60,Z2=-20.8,V=new THREE.Vec
   for(let z=R1+.15;z<R2-.1;z+=.32){if(Math.abs(z-MZ)<MW/2)continue;flat(1.6,.18,677,z,W,.034);}
   wel4Build.moved=moved.size;if(CW_ON)try{cwBuild(moved,lbox,flat,kerb,new Set(scene.children.slice(CWn0)));}catch(e){console.error(e);}}
 // ---------- buildings off the bike lanes (Paul, Nov 2026): a house whose walls, verandah or posts reach over a lane steps back from it ----------
-function pxbLaneClear(){if(typeof BLANES==='undefined'||!BLANES.length)return;const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);let n=0;const out=[];
+function pxbLaneClear(gs){if(typeof BLANES==='undefined'||!BLANES.length)return;const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);let n=0;const out=[];
   const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
   const lanes=BLANES.filter(l=>l[0][0]<99.5);
   // how far a box reaches into a lane: sample its footprint edge, return the push vector that clears it
@@ -48,7 +48,7 @@ function pxbLaneClear(){if(typeof BLANES==='undefined'||!BLANES.length)return;co
       const along=Math.abs(dx/len)*(b.max.x-b.min.x)/2+Math.abs(dz/len)*(b.max.z-b.min.z)/2;const tt=((cx-a[0])*dx+(cz-a[1])*dz)/len;if(tt+along<0||tt-along>len)continue;
       const side=(cx-a[0])*nx+(cz-a[1])*nz,half=Math.abs(nx)*(b.max.x-b.min.x)/2+Math.abs(nz)*(b.max.z-b.min.z)/2,gap=Math.abs(side)-half;
       if(gap<hw){const d=hw-gap,sg=side>=0?1:-1;if(!best||d>best.d)best={d,x:nx*sg*d,z:nz*sg*d};}}return best;};
-  scene.children.forEach(g=>{if(!g.isGroup||!g.visible||g.children.length>60||g.userData.lane)return;const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2;
+  (gs||scene.children).forEach(g=>{if(!g.isGroup||!g.visible||g.children.length>60||g.userData.lane)return;(pxbLaneClear.seen=pxbLaneClear.seen||new Set()).add(g);const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2;
     if(cx>99.5||cx<-260||b.max.y-b.min.y<1.3||b.max.x-b.min.x>14||b.max.z-b.min.z>14)return;
     let hasWall=false;g.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='BoxGeometry'){const p=o.geometry.parameters;if(p.height>1.2&&Math.max(p.width,p.depth)>1.5)hasWall=true;}});if(!hasWall)return;
     let tot=null;for(let k=0;k<3;k++){const q=push(b);if(!q)break;b.min.x+=q.x;b.max.x+=q.x;b.min.z+=q.z;b.max.z+=q.z;tot=tot?{x:tot.x+q.x,z:tot.z+q.z}:{x:q.x,z:q.z};}

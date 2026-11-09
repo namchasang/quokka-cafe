@@ -1,6 +1,6 @@
 // ---------- Rottnest declutter (Paul, Nov 2026): little houses that crowd the main paths shrink and step back from them;
 // ones that sit right on a path are taken away. Anything you can use (a shop, a door, a lot for sale, the café) stays as it is.
-function pxDeclutter(){const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);const out={shrunk:0,gone:0,kept:0};
+function pxDeclutter(gs){const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THREE.Box3();scene.updateMatrixWorld(true);const out={shrunk:0,gone:0,kept:0};
   const lbox=o=>{B.setFromObject(o);if(B.isEmpty())return null;L.makeEmpty();for(const x of[B.min.x,B.max.x])for(const y of[B.min.y,B.max.y])for(const z of[B.min.z,B.max.z]){V.set(x,y,z);scene.worldToLocal(V);L.expandByPoint(V);}return L.clone();};
   let T=[];try{T=buildTargets();}catch(e){}const lanes=(typeof BLANES!=='undefined'?BLANES:[]).filter(l=>l[0][0]<99.5);
   const near=(b,pad)=>{const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2,hx=(b.max.x-b.min.x)/2+pad,hz=(b.max.z-b.min.z)/2+pad;let best=1e9,dir=null;
@@ -8,7 +8,7 @@ function pxDeclutter(){const V=new THREE.Vector3(),B=new THREE.Box3(),L=new THRE
     for(const p of MAIN)for(let i=0;i<p.length-1;i++)test(p[i],p[i+1],.6);for(const l of lanes)test(l[0],l[1],(l[2]||1.15)/2);return[best,dir];};
   // main paths only: the short spurs that lead to a door don't count
   const plen=p=>{let L=0;for(let i=1;i<p.length;i++)L+=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);return L;};const MAIN=PATHS.filter(p=>p.length>2||plen(p)>16);
-  scene.children.slice().forEach(g=>{if(!g.isGroup||!g.visible||g.__pxSkip||g===CAFE_PX?.g)return;const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;
+  (gs||scene.children.slice()).forEach(g=>{if(!g.isGroup||!g.visible||g.__pxSkip||g===CAFE_PX?.g)return;(pxDeclutter.seen=pxDeclutter.seen||new Set()).add(g);const b=lbox(g);if(!b)return;const cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;
     if(cx>99.5||cx<-260||b.max.y-b.min.y<1.3||b.max.x-b.min.x>9||b.max.z-b.min.z>9)return;
     let wall=false;g.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='BoxGeometry'){const p=o.geometry.parameters;if(p.height>1.2&&Math.max(p.width,p.depth)>1.5)wall=true;}});if(!wall)return;
     if(Math.hypot(cx-player.x,cz-player.z)<6)return;

@@ -1,6 +1,6 @@
 // ---------- skewed roofs (Paul, Nov 2026): a four-sided cone turned 45° and then stretched comes out as a twisted diamond.
 // Every such roof on every map is rebuilt as a true hip roof over the rectangle it was meant to cover.
-function pxFixDiamonds(){let n=0;const out=[];scene.traverse(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='ConeGeometry')return;const p=o.geometry.parameters;if(p.radialSegments!==4)return;
+function pxFixDiamonds(only){let n=0;const out=[];(only?f=>only.forEach(f):f=>scene.traverse(f))(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='ConeGeometry')return;const p=o.geometry.parameters;if(p.radialSegments!==4)return;
     const ry=((o.rotation.y%(Math.PI/2))+Math.PI/2)%(Math.PI/2);if(Math.abs(ry-Math.PI/4)>.06||Math.abs(o.rotation.x)>.01||Math.abs(o.rotation.z)>.01)return;const sx=o.scale.x,sz=o.scale.z;if(Math.abs(sx-sz)<.02*Math.max(sx,sz))return;
     const W=Math.SQRT2*p.radius*Math.abs(sx),D=Math.SQRT2*p.radius*Math.abs(sz),H=p.height*o.scale.y,hx=W/2,hz=D/2,y0=-H/2,y1=H/2;const alongX=W>=D,ri=Math.min(hx,hz);
     const R1=alongX?[-hx+ri,y1,0]:[0,y1,-hz+ri],R2=alongX?[hx-ri,y1,0]:[0,y1,hz-ri];const A=[-hx,y0,-hz],B=[hx,y0,-hz],C=[hx,y0,hz],Dd=[-hx,y0,hz];const pos=[],uv=[];
