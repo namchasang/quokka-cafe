@@ -1,3 +1,30 @@
+// ---- regional towns (Paul Nov 2026): every coast and country town without its own map gets a park-and-walk gate into the shared small-town map ----
+if(typeof RTOWN!=='undefined'&&typeof TRIPS!=='undefined'&&TRIPS.rtn)try{const SKIP={Lancelin:1,Cervantes:1,Busselton:1,Esperance:1},C0=[];O.rtnGates=[];
+  if(NORTH&&NORTH.town)NORTH.town.forEach(t=>{if(t.k==='city'||SKIP[t.n])return;C0.push({n:t.n,x:t.x,z:t.z,R:t.r*1.3});});
+  if(SOUTH&&SOUTH.SD0&&SOUTH.world)SOUTH.SD0.towns.forEach(w=>{if(SKIP[w[0]])return;const R={Mandurah:36,Bunbury:36,Albany:34}[w[0]]||22,p=SOUTH.world(w[1],0);C0.push({n:w[0],x:p[0],z:p[1],R,s0:w[1]});});
+  const occ=(x,z)=>!!(O.subOcc&&O.subOcc(x,z));
+  const good=(x,z)=>{if(!landAt(x,z)||onRoad(x,z,4.4)||!onRoad(x,z,8.5))return false;for(const[a,b]of[[0,0],[3,0],[-3,0],[0,2.4],[0,-2.4]])if(occ(x+a,z+b)||!landAt(x+a,z+b))return false;return!TOWNS.some(t=>Math.hypot(t.x-x,t.z-z)<16);};
+  const find=c=>{if(c.s0!=null){for(let a=c.R+4;a<c.R+60;a+=2)for(const sg of[-1,1])for(const b of[6,-6,7.5,-7.5,5.2,-5.2]){const p=SOUTH.world(c.s0+sg*a,b);if(good(p[0],p[1]))return p;}}
+    for(let r=c.R+4;r<c.R+60;r+=2)for(let k=0;k<32;k++){const a=(k&1?-1:1)*Math.ceil(k/2)/32*6.283,x=c.x+Math.cos(a)*r,z=c.z+Math.sin(a)*r;if(good(x,z))return[x,z];}return null;};
+  const beacon=t=>{const g=t.g;const bm=new THREE.Mesh(new THREE.CylinderGeometry(.55,.9,16,10,1,true),new THREE.MeshBasicMaterial({color:0xffd34d,transparent:true,opacity:.28,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));bm.position.y=8;g.add(bm);
+    const nm=t.name.toUpperCase(),sub='Park & walk · town centre',w=Math.max(nm.length*7,sub.length*6)+14,c=mkc(w,28),x=c.getContext('2d');PP(x,'#141a2e',0,0,w,28);PP(x,'#ffd34d',0,0,w,1);PP(x,'#ffd34d',0,27,w,1);PP(x,'#ffd34d',0,0,1,28);PP(x,'#ffd34d',w-1,0,1,28);
+    x.fillStyle='#ffd34d';x.font='bold 11px monospace';x.textAlign='center';x.fillText(nm,w/2,12);x.fillStyle='#f4f2ec';x.font='9px monospace';x.fillText(sub,w/2,23);PP(x,'#ffd34d',w/2-3,27,6,1);
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:TX(c),depthTest:false,transparent:true}));sp.scale.set(w/26,28/26,1);sp.position.y=5.6;sp.renderOrder=9;g.add(sp);
+    const ar=mkc(12,10),ax=ar.getContext('2d');for(let k=0;k<6;k++)PP(ax,'#ffd34d',k,k,12-2*k,1);for(let k=0;k<6;k++)PP(ax,'#f4f2ec',k+1,k+2,Math.max(0,10-2*k-2),1);const arr=new THREE.Sprite(new THREE.SpriteMaterial({map:TX(ar),transparent:true,depthTest:false}));arr.scale.set(1.2,1,1);arr.position.y=4.4;arr.renderOrder=9;g.add(arr);
+    (O.beacons2=O.beacons2||[]).push({bm,arr,sp});};
+  C0.forEach(c=>{const cfg=RTOWN.byName(c.n);if(!cfg)return;const p=find(c);if(!p){console.warn('rtn gate: no spot for',c.n);return;}
+    town('rtn_'+cfg.key,cfg.name,cfg.set==='coast'?'Small coast town · main street, beach and jetty, holiday park':'Country town · main street, river and bush, holiday park',p[0],p[1],g=>{
+      const a=new THREE.Mesh(new THREE.BoxGeometry(7,.12,4.4),flat('#6a6c70'));a.position.y=.06;g.add(a);for(let k=-2;k<=2;k++){const l=new THREE.Mesh(new THREE.BoxGeometry(.12,.13,1.4),flat('#e8e4d0'));l.position.set(k*1.5,.07,-1.3);g.add(l);}
+      const nm=cfg.name.toUpperCase(),W=Math.max(48,nm.length*7+12),c2=mkc(W,22),x=c2.getContext('2d');PP(x,'#3e7d5c',0,0,W,22);PP(x,'#f4f2ec',1,1,W-2,1);PP(x,'#f4f2ec',1,20,W-2,1);x.fillStyle='#f4f2ec';x.textAlign='center';x.font='7px monospace';x.fillText('WELCOME TO',W/2,8);x.font='bold 9px monospace';x.fillText(nm,W/2,17);
+      const sg=new THREE.Mesh(new THREE.PlaneGeometry(W/16,22/16),new THREE.MeshBasicMaterial({map:TX(c2),side:THREE.DoubleSide}));sg.position.set(-4.4,1.7,2.4);g.add(sg);
+      [-1,1].forEach(s=>{const po=new THREE.Mesh(new THREE.BoxGeometry(.14,1.7,.14),flat('#7a4a2a'));po.position.set(-4.4+s*(W/32-.1),.85,2.38);g.add(po);});
+      const sh=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.8,2),flat(cfg.set==='coast'?'#f4f2ec':'#e8dcc0'));sh.position.set(4.6,.9,-3);g.add(sh);const rf=new THREE.Mesh(new THREE.ConeGeometry(1.9,.8,4),flat(cfg.set==='coast'?'#3a7a9a':'#8a3a2a'));rf.rotation.y=Math.PI/4;rf.position.set(4.6,2.2,-3);g.add(rf);});
+    const t=TOWNS[TOWNS.length-1];t.act='Park and walk in '+cfg.name;t.rtn=cfg.key;beacon(t);O.rtnGates.push([cfg.name,Math.round(t.x),Math.round(t.z)]);});
+}catch(e){console.error('rtn gates',e);}
+window.__OWT=O;}
+
+try{NORTHbuild();}catch(e){console.error('north',e);}L2objects();try{OWBAKE2();NORTHpost();}catch(e){console.error('owbake',e);}try{OWTOWN();}catch(e){console.error('owtown',e);OWT=null;}sortLayers();LAYERS.forEach(([id,n,c],i)=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" checked id="ly${i}"><i style="background:${c}"></i><span>${i+1}. ${n}</span><small>${LCOUNT[i]}</small>`;$('ow_laylist').appendChild(l);l.querySelector('input').onchange=e=>{layOn[i]=e.target.checked;applyLayers();};});applyLayers();
+
 // ---------- LOOK2 (Look Lab): pixel-art ground, Perth suburbs, pixel trees in one draw call, clouds ----------
 // The ground becomes a crisp pixel painting (dithered 7-tone ramps, like a hand-made overworld tile map) at 3 pixels per unit.
 // Between the towns: suburbs on curving streets (low-poly houses, lawns, driveways, backyard pools, fences),

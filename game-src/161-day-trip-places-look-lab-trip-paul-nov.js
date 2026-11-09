@@ -7,7 +7,8 @@ var TRIPS={lan:{x1:850,x2:970,z1:-45,z2:45,tour:'lancelin',name:'Lancelin',title
   pin:{x1:1000,x2:1120,z1:-45,z2:45,tour:'pinnacles',name:'The Pinnacles',title:'The Pinnacles · Nambung',bg:'#e8b85a'},
   bus:{x1:1150,x2:1270,z1:-45,z2:45,tour:'busselton',name:'Busselton',title:'Busselton Jetty',bg:'#5cc6d8'},
   esp:{x1:1300,x2:1420,z1:-45,z2:45,tour:'esperance',name:'Esperance',title:'Esperance · Lucky Bay',bg:'#f6f3ea'},
-  cer:{x1:1450,x2:1570,z1:-45,z2:45,tour:null,name:'Cervantes',title:'Cervantes · Nok’s Thai Kitchen',bg:'#f2e8d0'}};
+  cer:{x1:1450,x2:1570,z1:-45,z2:45,tour:null,name:'Cervantes',title:'Cervantes · Nok’s Thai Kitchen',bg:'#f2e8d0'},
+  rtn:{x1:1600,x2:1700,z1:-45,z2:45,tour:null,name:'Regional town',title:'Regional town',bg:'#2490c0'}};
 var TRIP_BUILD=TRIP_BUILD||{};
 function tripOf(x){if(!TRIP_ON||x<840)return null;for(const k in TRIPS){const T=TRIPS[k];if(x>=T.x1-15&&x<T.x2+15)return k;}return null;}
 function tripWalk(x,z){const k=tripOf(x),T=k&&TRIPS[k];if(!T||!T.K||!T.K.walk)return false;return T.K.walk(x,z);}

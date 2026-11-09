@@ -47,7 +47,3 @@ O.render=function(dt){dt=Math.max(0,Math.min(.05,dt||0));O.t+=dt;const t=O.t;PU.
   if(((t*4)|0)!==O.ck){O.ck=(t*4)|0;const cx=cam.position.x,cz=cam.position.z;O.chunks.forEach(c=>{const u=c.userData.c;c.visible=Math.hypot(u[0]-cx,u[1]-cz)<360+u[2];});}
   renderer.getDrawingBufferSize(vs);if(rt.width!==vs.x||rt.height!==vs.y){rt.setSize(vs.x,vs.y);post.uniforms.res.value.copy(vs);}
   renderer.setRenderTarget(rt);renderer.render(scene,cam);renderer.setRenderTarget(null);renderer.render(pScene,pCam);};
-window.__OWT=O;}
-
-try{NORTHbuild();}catch(e){console.error('north',e);}L2objects();try{OWBAKE2();NORTHpost();}catch(e){console.error('owbake',e);}try{OWTOWN();}catch(e){console.error('owtown',e);OWT=null;}sortLayers();LAYERS.forEach(([id,n,c],i)=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" checked id="ly${i}"><i style="background:${c}"></i><span>${i+1}. ${n}</span><small>${LCOUNT[i]}</small>`;$('ow_laylist').appendChild(l);l.querySelector('input').onchange=e=>{layOn[i]=e.target.checked;applyLayers();};});applyLayers();
-

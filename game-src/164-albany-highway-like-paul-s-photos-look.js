@@ -1,7 +1,3 @@
-/* people and animals: a touch brighter than the calm background, less so at night */
-function pxPopTick(){const now=performance.now();if(pxPopTick.t&&now-pxPopTick.t<900)return;pxPopTick.t=now;if(typeof BB==='undefined')return;const n=typeof NIGHT==='number'?NIGHT:0,k=.13*(1-.75*n);
-  for(const o of BB){const F=o.userData&&o.userData.frames;if(!F)continue;for(const f of F){const m=f.m;if(!m||!m.map||!m.emissive||!m.emissive.isColor)continue;if(!m.__pop){m.__pop=1;m.emissive.set(0xffffff);m.emissiveMap=m.map;m.needsUpdate=true;}m.emissiveIntensity=k;}}}
-
 // ---------- Albany Highway like Paul's photos (Look Lab ?vp2, Oct 2026): kerbside parking bays both sides, red-brown road,
 // brick footpaths, banner poles and curved street lamps. Bays sit where the painted lanes were; every third bay stays empty
 // so Kip can always cross to the night market.
