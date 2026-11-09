@@ -23,7 +23,7 @@ O.render=function(dt){dt=Math.max(0,Math.min(.05,dt||0));O.t+=dt;const t=O.t;PU.
   if(O.beam){O.beam.rotation.y=t*.9;O.beamM.opacity=gk*.85;O.lighthouseLamp.material.color.setRGB(1,.95,.7+.3*gk);}
   if(O.train){const T2=O.train;if(T2.wait>0)T2.wait-=dt;else{const ps=T2.s;T2.s+=T2.dir*14*dt;if(T2.s>O.trainLen-8||T2.s<8){T2.s=Math.max(8,Math.min(O.trainLen-8,T2.s));T2.dir*=-1;T2.wait=3;}else for(const st of T2.stops){if((ps-st)*(T2.s-st)<0){T2.wait=2.5;T2.s=st;break;}}}
     T2.cars.forEach((c,k)=>{const p=O.trainAt(T2.s-T2.dir*k*4.6);c.position.set(p.x,deckH(p.x,p.z)+.2,p.z);c.rotation.y=p.a;});}
-  if(O.traffic)O.traffic(dt,px,pz);
+  if(O.traffic)O.traffic(dt,px,pz);if(O.subTick)O.subTick(dt,px,pz);
   (O.signals||[]).forEach(s=>{const[ax,st]=O.signalPhase(s,O.t);s.heads.forEach(h=>{const on=h.axis===ax?st:'r';h.L[0].material.color.set(on==='r'?0xff3a2a:0x3a1010);h.L[1].material.color.set(on==='a'?0xffb020:0x3a2a08);h.L[2].material.color.set(on==='g'?0x3aff6a:0x0a2a12);});});if(O.jettyTrain){const J=O.jettyTrain;J.g.position.z=(Math.sin(O.t*.11)*.5+.5)*(J.L-8)+5;}(O.beacons2||[]).forEach((b,i)=>{b.bm.material.opacity=.16+.12*Math.sin(O.t*2.4+i);b.arr.position.y=4.4+Math.sin(O.t*3+i)*.35;});if(O.cbdG)O.cbdDet.visible=Math.hypot(cam.position.x-O.cbdG.position.x,cam.position.z-O.cbdG.position.z)<170;if(O.wheel)O.wheel.rotation.z=t*.08;if(O.sails)O.sails.rotation.z=t*.25;if(O.ferry)O.ferry.position.y=Math.sin(t*1.4)*.06;
   post.uniforms.tint.value.set(1+.04*gk,1,1-.05*gk);
   if(SOUTH&&pz>WZ+2){const S=SOUTH,[s0,t0]=S.st(px,pz),km=S.km(s0),T=S.SD0.towns,tn=T.find(w=>Math.abs(w[1]-s0)<30&&Math.abs(t0)<40),nx=T.find(w=>w[1]>s0+30);

@@ -13,10 +13,10 @@ if(N&&N.groundMat)addGrain(N.groundMat,'diffuseColor.rgb*=pow(col,vec3(2.2));}')
 {const CAP=1600,P3=new Float32Array(CAP*12),C2=new Float32Array(CAP*8),U2=new Float32Array(CAP*8),N3=new Float32Array(CAP*12),K3=new Float32Array(CAP*12),I=new Uint32Array(CAP*6);for(let i=0;i<CAP;i++){I.set([i*4,i*4+1,i*4+2,i*4+1,i*4+3,i*4+2],i*6);for(let j=0;j<4;j++)N3[(i*4+j)*3+1]=1;}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P3,3));g.setAttribute('corner',new THREE.BufferAttribute(C2,2));g.setAttribute('uv',new THREE.BufferAttribute(U2,2));g.setAttribute('normal',new THREE.BufferAttribute(N3,3));g.setAttribute('color',new THREE.BufferAttribute(K3,3));g.setIndex(new THREE.BufferAttribute(I,1));g.setDrawRange(0,0);
   const m=new THREE.Mesh(g,plantMat);m.frustumCulled=false;m.userData.L='plants';scene.add(m);
-  const kindAt=(x,z)=>{if(TOWNS.some(t=>Math.abs(t.x-x)<15&&Math.abs(t.z-z)<15))return -1;if(isOB(x,z))return obD(x,z)>20?21:17;if(onRoad(x,z,2.8))return -1;
+  const kindAt=(x,z)=>{if(O.subOcc&&O.subOcc(x,z))return -1;if(TOWNS.some(t=>Math.abs(t.x-x)<15&&Math.abs(t.z-z)<15))return -1;if(isOB(x,z))return obD(x,z)>20?21:17;if(onRoad(x,z,2.8))return -1;
     if(z>=0){const i=(z|0)*WX+(x|0);if(!LAND[i]||(BLOCK&&BLOCK[i]))return -1;const k=L2?L2.KK[i]:5;if(L2&&L2.SUB[i])return -1;return k===5?(HSH(x*.3,z*.3)<.12?18:16):k===4?17:k===3&&DL[i]>3?17:-1;}
     if(!N.land(x,z))return -1;const c=N.cls(x,z);return c===4||c===5?17:c===6?17:c===8?16:c===1&&N.sd(x,z)>4?12:-1;};
-  O.tuft=(px,pz)=>{let n=0;const R2=20,st=.9;for(let gz=Math.floor((pz-R2)/st);gz<=(pz+R2)/st;gz++)for(let gx=Math.floor((px-R2)/st);gx<=(px+R2)/st;gx++){if(n>=CAP)break;const h=HSH(gx*.71,gz*1.13);if(h>.27)continue;
+  O.tuft=(px,pz)=>{let n=0;const R2=20,st=.9;for(let gz=Math.floor((pz-R2)/st);gz<=(pz+R2)/st;gz++)for(let gx=Math.floor((px-R2)/st);gx<=(px+R2)/st;gx++){if(n>=CAP)break;const h=HSH(gx*.71,gz*1.13);if(h>.15)continue;// Paul (Nov 2026): half the grass tufts
       const x=gx*st+HSH(gz,gx)*st,z=gz*st+HSH(gx+.5,gz)*st,dd=Math.hypot(x-px,z-pz);if(dd>R2)continue;const kd=kindAt(x,z);if(kd<0)continue;
       const B=BOX[kd],hh=(kd===12?.7:.55)*(.8+h*1.2),hw=hh*B.asp/2,y=(isOB(x,z)?OBH(x,z):groundAt(x,z))-.03,t=Math.max(.74,Math.min(1.08,isOB(x,z)?1:bakeAt(x,z)));
       [[-hw,0,B.u0,B.v0],[hw,0,B.u1,B.v0],[-hw,hh,B.u0,B.v1],[hw,hh,B.u1,B.v1]].forEach(([a,b,u,v],j)=>{const o=n*4+j;P3[o*3]=x;P3[o*3+1]=y;P3[o*3+2]=z;C2[o*2]=a;C2[o*2+1]=b;U2[o*2]=u;U2[o*2+1]=v;K3[o*3]=t;K3[o*3+1]=t;K3[o*3+2]=t*.97;});n++;}

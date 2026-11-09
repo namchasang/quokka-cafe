@@ -38,7 +38,7 @@ function L2paint(mesh,gc){
   for(let py=0;py<CH;py++){const z=(py+.5)/PU,cz=Math.min(WZ-2,Math.max(0,z-.5)),z0=cz|0,fz=cz-z0;
     for(let px=0;px<CW;px++){const x=(px+.5)/PU,cx=Math.min(WX-2,Math.max(0,x-.5)),x0=cx|0,fx=cx-x0,i0=z0*WX+x0,o=(py*CW+px)*4;
       const ci=(Math.min(WZ-1,z|0))*WX+Math.min(WX-1,x|0);let col=null;
-      if(SUB[ci]){const sa=md(WPa(x,z),SX),sb=md(WPb(x,z),SZ);if(sa<SW||sb<SW){const e=Math.min(sa<SW?Math.min(sa,SW-sa):9,sb<SW?Math.min(sb,SW-sb):9);col=e<.3?KERB:ASP;}}
+      if(SUB[ci]&&!OW_SUB2){const sa=md(WPa(x,z),SX),sb=md(WPb(x,z),SZ);if(sa<SW||sb<SW){const e=Math.min(sa<SW?Math.min(sa,SW-sa):9,sb<SW?Math.min(sb,SW-sb):9);col=e<.3?KERB:ASP;}}
       else if(RV[ci]>2.1&&RV[ci]<3.3&&LAND[ci]){const v=VERGE[(BAY[(py&3)*4+(px&3)]+(L2hash(px,py)*6|0))%4];col=v;}
       if(!col&&LAND[ci]&&DL[ci]===1&&KK[ci]===3){col=L2hash(px*.7,py*1.3)<.3?FOAM:WET;}
       if(!col){const w00=(1-fx)*(1-fz),w10=fx*(1-fz),w01=(1-fx)*fz,w11=fx*fz;
@@ -55,7 +55,7 @@ function L2paint(mesh,gc){
   g.setTransform(PU,0,0,PU,0,0);g.imageSmoothingEnabled=false;
   const HOUSES=[],PARKS=[],TREES2=[];
   const LAWN=['#5e9a3e','#6aa444','#76ac4a','#86b252','#8eae56','#a4a85e'];const pick=(a,s)=>a[(s*a.length)|0];
-  for(let bb=-1;bb<WZ/SZ+2;bb++)for(let ba=-1;ba<WX/SX+2;ba++){const s=L2hash(ba*3.1,bb*7.7);
+  if(!OW_SUB2)for(let bb=-1;bb<WZ/SZ+2;bb++)for(let ba=-1;ba<WX/SX+2;ba++){const s=L2hash(ba*3.1,bb*7.7);
     const ca=ba*SX+SW+(SX-SW)/2,cb=bb*SZ+SW+(SZ-SW)/2,[px,pz]=inv(ca,cb);if(px<0||pz<0||px>=WX||pz>=WZ)continue;
     const [ax,az]=inv(ca+1,cb),ang=Math.atan2(az-pz,ax-px);
     if(s<.075){if(!SUB[(pz|0)*WX+(px|0)])continue;PARKS.push([px,pz,ang]);continue;}

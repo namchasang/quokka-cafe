@@ -30,7 +30,7 @@ roofMat.onBeforeCompile=sh=>{sh.vertexShader='attribute float aRoof;varying floa
   sh.fragmentShader='varying float vRoof;\n'+sh.fragmentShader.replace('#include <map_fragment>','{float fu=fract(vUv.x*4.);vec2 ru=vec2(fu*.5+vRoof*.5,fract(vUv.y*3.));vec4 tc=texture2D(map,ru);tc=mapTexelToLinear(tc);if(fu<.035||fu>.965)tc.rgb*=1.25;if(vUv.y<.06)tc.rgb*=.7;diffuseColor*=tc;}');};
 {const ims=[];scene.traverse(o=>{if(o.isInstancedMesh&&o.userData.L==='build')ims.push(o);});
   // body and roof meshes come in pairs (same count): box geometry first, cone second
-  const bodies=ims.filter(m=>m.geometry.type==='BoxGeometry'),roofs=ims.filter(m=>m.geometry.type==='ConeGeometry');
+  const bodies=ims.filter(m=>m.geometry.type==='BoxGeometry'&&m.count>0),roofs=ims.filter(m=>m.geometry.type==='ConeGeometry'&&m.count>0);
   const m4=new THREE.Matrix4(),p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3(),col=new THREE.Color();const CH=[];
   const HID=new Set(),ZERO=new THREE.Vector3(1e-4,1e-4,1e-4);bodies.forEach((b,bi)=>{const n=b.count,cell=new Float32Array(n*2);for(let i=0;i<n;i++){b.getMatrixAt(i,m4);m4.decompose(p,q,s);if(clearAt(p.x,p.z,1.3)){HID.add(bi+':'+i);m4.compose(p,q,ZERO);b.setMatrixAt(i,m4);continue;}const two=s.y>2,h=HSH(p.x,p.z);const ci=two?24+((h*8)|0)%8:((h*24)|0)%24;cell[i*2]=ci%HCOL;cell[i*2+1]=HROW-1-((ci/HCOL)|0);
       const k=Math.max(.72,Math.min(1.08,bakeAt(p.x,p.z)));col.setRGB(k,k,k*.98);b.setColorAt(i,col);if(h<.33)CH.push([p.x,p.y+s.y,p.z,q.clone(),s.x,s.z,h]);}

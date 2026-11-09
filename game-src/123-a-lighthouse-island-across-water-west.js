@@ -34,7 +34,7 @@ vec2 suv(vec2 st){return vec2((st.y-sG.x)/sG.y+.5,st.x/sG.y+.5)/sG.zw;}
 `+sh.fragmentShader.replace('#include <map_fragment>',`{vec2 pi=floor(vST*3.),pp=(pi+.5)/3.;vec2 wj=pp+(vec2(qn(pp*.3),qn(pp*.3+7.1))-.5)*4.+(vec2(qh(pi),qh(pi+3.3))-.5)*1.2;
  vec4 cs=texture2D(sCls,suv(wj));float c=floor(cs.r*255.+.5);float sd=(texture2D(sCls,suv(pp)).g*255.-128.)/4.;float hh=qh(pi*1.37+.5),bb=(qb4(pi)-7.5)/16.;
  if(sd<3.5&&sd>-1.)c=1.;float lev=.55+(qn(pp*.5)-.5)*.3+(hh-.5)*.07;
- bool strt=false;if(c==7.){vec2 sw=vec2(pp.x+5.*sin(pp.y/37.),pp.y);if(mod(sw.x,11.)<2.||mod(sw.y,9.)<2.)strt=true;}
+ bool strt=false;if(c==7.&&${OW_SUB2?'false':'true'}){vec2 sw=vec2(pp.x+5.*sin(pp.y/37.),pp.y);if(mod(sw.x,11.)<2.||mod(sw.y,9.)<2.)strt=true;}
  float k=clamp(floor(lev*7.+bb*1.2),0.,6.);vec3 col=texture2D(sRamp,vec2((k+.5)/8.,(c+.5)/8.)).rgb;if(c==7.){col=strt?(hh<.5?vec3(.36,.37,.39):vec3(.33,.34,.36)):texture2D(sRamp,vec2((k+.5)/8.,3.5/8.)).rgb;}
  if((c==3.||c==4.||c==2.)&&hh>.993)col=hh>.997?vec3(.95,.82,.3):vec3(.95,.95,.9);
  float cd=length(vWS-uCamS.xz);if(cd<40.){float g=qh(floor(vWS*12.));col*=mix(1.,g<.14?.92:g>.9?1.06:1.,1.-smoothstep(22.,40.,cd));}
@@ -63,7 +63,7 @@ vec2 suv(vec2 st){return vec2((st.y-sG.x)/sG.y+.5,st.x/sG.y+.5)/sG.zw;}
   TWS.forEach(([n,s])=>board([n],s-40,-4.6,'#1d3a6e'));
   for(let s=60;s<S.SE-50;s+=180){const ahead=TWS.filter(w=>w[1]>s+30).slice(0,3);if(ahead.length)board(ahead.map(w=>w[0]+'  '+Math.max(1,w[2]-S.km(s))+' km'),s,-4.6);}
   // towns: houses on little streets either side of the road (pixel facades, tile/tin roofs), street lamps
-  {const HO=[];TWS.forEach(([n,s0])=>{for(let s=s0-24;s<=s0+24;s+=3.6)for(const t of[-8,-11.6,8,11.6,-18,-21.6,18,21.6]){const ss2=s+(t>0?1.8:0);const[x,z]=S.world(ss2,t+(HSH(s,t)-.5)*.6);if(!S.land(x,z)||S.sd(x,z)<5||HSH(s*1.3,t)<.18)continue;HO.push([x,z,ss2,t]);}});
+  {const HO=[];if(!OW_SUB2)TWS.forEach(([n,s0])=>{for(let s=s0-24;s<=s0+24;s+=3.6)for(const t of[-8,-11.6,8,11.6,-18,-21.6,18,21.6]){const ss2=s+(t>0?1.8:0);const[x,z]=S.world(ss2,t+(HSH(s,t)-.5)*.6);if(!S.land(x,z)||S.sd(x,z)<5||HSH(s*1.3,t)<.18)continue;HO.push([x,z,ss2,t]);}});
     const n=HO.length,cell=new Float32Array(n*2),ar=new Float32Array(n),body=new THREE.InstancedMesh(houseGeo.clone(),houseMat,n),rg=new THREE.ConeGeometry(.7071*1.12,1,4);rg.rotateY(Math.PI/4);rg.translate(0,.5,0);
     const rgeo=rg.clone();const roof=new THREE.InstancedMesh(rgeo,roofMat,n),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),v=new THREE.Vector3(),sc=new THREE.Vector3(),col=new THREE.Color(),RC=['#b8562e','#a8482a','#c8683e','#5a5e64','#8a8e94','#6a7a6a','#46494e'];
     HO.forEach(([x,z,s,t],i)=>{const[ax,az]=S.world(s+1,t),a=Math.atan2(ax-x,az-z),h=HSH(x,z),w=2.4+h*.5,d=2.1+HSH(h,1)*.4,ht=1.25+HSH(h,3)*.3,y=S.H(x,z);e.set(0,a,0);q.setFromEuler(e);
@@ -139,6 +139,11 @@ if(SOUTH){const S=SOUTH,BT=TOWNS.find(t=>t.id==='bus'),s0=750;
   const ar=mkc(12,10),ax=ar.getContext('2d');for(let k=0;k<6;k++)PP(ax,'#ffd34d',k,k,12-2*k,1);for(let k=0;k<6;k++)PP(ax,'#f4f2ec',k+1,k+2,Math.max(0,10-2*k-2),1);const arr=new THREE.Sprite(new THREE.SpriteMaterial({map:TX(ar),transparent:true,depthTest:false}));arr.scale.set(1.2,1,1);arr.position.y=4.4;arr.renderOrder=9;g.add(arr);
   O.beacons2.push({bm,arr,sp});});}
 
-// re-chunk the plants added by the landmarks (palms, island heath)
-O.chunks.forEach(c=>{c.parent.remove(c);c.geometry.dispose();});O.chunks.length=0;{const k0=PL.length;for(let i=PL.length-1;i>=0;i--){const q=PL[i];if(q[0]<WX-1&&q[2]>(N?N.ZMIN:0)&&clearAt(q[0],q[2],.3))PL.splice(i,1);}O.plantsCleared=k0-PL.length;}plants(PL,'plants',80);O.plants=PL.length;
-
+// Paul (Nov 2026): half the trees and bushes of the outer world, so it looks less cluttered. Thinned in patches (a slow noise field):
+// clumps survive as clumps with open ground between them; lone random scatter goes first; planting at the towns and landmarks stays.
+// (Street, garden and park trees of the rebuilt suburbs are added after this and are kept.)
+function OWTHIN(){if(/[?&#]alltrees\b/.test(location.search+location.hash))return;const n0=PL.length;let w=0;
+  for(let i=0;i<PL.length;i++){const q=PL[i],x=q[0],z=q[2];let keep=true;
+    if(!TOWNS.some(t=>Math.hypot(t.x-x,t.z-z)<(t.id==='freo'?9:15))){const n=fbm(x/26+7.3,z/26-1.9),h=L2hash(x*1.7+.3,z*2.3+.9),dense=z<0&&z>-320;keep=n>.04?h<(dense?.72:.8):h<(dense?.14:.22);}
+    if(keep)PL[w++]=q;}PL.length=w;O.thinned=[n0,w];}
+try{OWTHIN();}catch(e){console.error('owthin',e);}

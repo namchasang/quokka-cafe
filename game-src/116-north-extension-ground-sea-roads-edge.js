@@ -33,7 +33,7 @@ float b4(vec2 p){return 4.*b2(mod(p,2.))+b2(mod(floor(p/2.),2.));}
   if(c!=2.&&c!=7.&&c!=8.&&sd<4.+nv(pp*.4)*2.5)c=1.;
   float lev=base+(nv(pp*.55)-.5)*.2+(hh-.5)*.07;bool st=false;
   if(c==2.){float rp=fract((pp.y*.9+pp.x*.35+nv(pp*.12)*3.)/1.25);if(rp<.16)lev-=.14;else if(rp<.3)lev+=.05;}
-  if(c==7.||c==8.){vec2 sw=vec2(pp.x+6.*sin(pp.y/47.+sin(pp.x/83.)),pp.y+6.*sin(pp.x/53.+cos(pp.y/71.)));float sa=mod(sw.x,12.),sb=mod(sw.y,9.5);
+  if((c==7.||c==8.)&&${OW_SUB2?'false':'true'}){vec2 sw=vec2(pp.x+6.*sin(pp.y/47.+sin(pp.x/83.)),pp.y+6.*sin(pp.x/53.+cos(pp.y/71.)));float sa=mod(sw.x,12.),sb=mod(sw.y,9.5);
     if(sa<2.3||sb<2.3){float e=min(sa<2.3?min(sa,2.3-sa):9.,sb<2.3?min(sb,2.3-sb):9.);col=e<.3?nr(9.,3.):nr(9.,2.);st=true;}}
   if(!st){lev*=bk;float k=clamp(floor(lev*7.+bb*1.2),0.,6.);col=nr(c,k);
    if(c==1.&&sd<.9)col=(hh<.3&&sd<.35)?nr(9.,1.):nr(9.,0.);
@@ -89,7 +89,7 @@ float b4(vec2 p){return 4.*b2(mod(p,2.))+b2(mod(floor(p/2.),2.));}
   const wa=(x,z)=>x+6*Math.sin(z/47+Math.sin(x/83)),wb=(x,z)=>z+6*Math.sin(x/53+Math.cos(z/71));
   const inv=(a,b)=>{let x=a,z=b;for(let k=0;k<6;k++){x+=a-wa(x,z);z+=b-wb(x,z);}return[x,z];};
   const HO=[];const SXb=12,SZb=9.5,SWb=2.3;
-  for(let bb=Math.floor(N.ZMIN/SZb)-1;bb<2;bb++){const zc=bb*SZb;for(let ba=Math.floor(N.X0/SXb)-1;ba<N.X1/SXb+1;ba++){const [cx,cz]=inv(ba*SXb+7,zc+6);if(cz>-2||cz<N.ZMIN+4)continue;const k0=N.cls(cx,cz);if(k0!==7&&k0!==8)continue;
+  if(!OW_SUB2)for(let bb=Math.floor(N.ZMIN/SZb)-1;bb<2;bb++){const zc=bb*SZb;for(let ba=Math.floor(N.X0/SXb)-1;ba<N.X1/SXb+1;ba++){const [cx,cz]=inv(ba*SXb+7,zc+6);if(cz>-2||cz<N.ZMIN+4)continue;const k0=N.cls(cx,cz);if(k0!==7&&k0!==8)continue;
     const [ax,az]=inv(ba*SXb+8,zc+6),ang=Math.atan2(az-cz,ax-cx);
     for(let row=0;row<2;row++)for(let k=0;k<3;k++){const la=SWb+1.65+k*3.2,lb=row?SZb-1.55:SWb+1.55,[x,z]=inv(ba*SXb+la,bb*SZb+lb);const kc=N.cls(x,z);if((kc!==7&&kc!==8)||N.sd(x,z)<5||N.onRoad(x,z,4.4))continue;
       const r=L2hash(x*13.1,z*7.3);if(kc===7&&r<.12)continue;HO.push({x,z,a:ang,r,t:kc});}}}

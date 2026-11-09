@@ -97,7 +97,11 @@ if(T.cbd){const t=T.cbd,g=t.g;hideOld(t);const[gx,gz]=gpos(t);const L=(lo,la)=>{
     [115.8540,-31.9563,{w:1.6,h:9,seed:18,stone:'#e8dcc4',gl:GLS,tiers:[[1,1,1]],fh:4}],
     [115.8645,-31.9542,{w:1.6,h:9,seed:19,gl:GLB,tiers:[[1,1,1]],crown:'flat'}],
     [115.8510,-31.9548,{w:1.6,h:8,seed:20,stone:'#d8ccb8',gl:GLS,tiers:[[1,1,1]],fh:4}]];
-  let n=0;TW.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!free(a,b,Math.max(o.w,o.d||o.w)*.5+.6))return;tower2(g,a,b,o);n++;});O.cbdTowers=n;
+  // Paul (Nov 2026): half the CBD towers. The signature ones stay (the tallest with its frame crown, the slanted and pyramid crowns, the octagon,
+  // the tiered ones, two sandstone-faced blocks); the generic flat-topped fillers go and their sites become small paved plazas with trees and benches.
+  const ALL=/[?&#]allcbd\b/.test(location.search+location.hash),RANK=[1,4,5,6,8,2,3,15,7,16,12,17,10,11,19,9,13,14,18,20];const plz=(()=>{const c=mkc(32,32),x=c.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?2:0);X<32;X+=4){PP(x,['#d8d0bc','#cfc6b0','#e2dac6'][(X*3+y)%3],X,y,4,4);PP(x,'#b8b09c',X,y+3,4,1);}return new THREE.MeshLambertMaterial({map:TX(c)});})();
+  const fit=TW.filter(([lo,la,o])=>{const[a,b]=L(lo,la);return free(a,b,Math.max(o.w,o.d||o.w)*.5+.6);}),keep=new Set(fit.map(q=>q[2].seed).sort((p,q)=>RANK.indexOf(p)-RANK.indexOf(q)).slice(0,ALL?99:Math.ceil(fit.length/2)));
+  let n=0,nP=0;fit.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!keep.has(o.seed)){const pw=o.w+1.4;add(g,new THREE.BoxGeometry(pw,.1,pw),plz,a,.05,b).castShadow=false;[[-1,-1],[1,1]].forEach(([p,q])=>{const x=gx+a+p*pw*.32,z=gz+b+q*pw*.32;PL.push([x,groundAt(x,z),z,2,2.8,1]);});add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a+.5,.2,b-.4);add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a-.5,.2,b+.4);nP++;return;}tower2(g,a,b,o);n++;});O.cbdTowers=n;O.cbdPlazas=nP;O.cbdKept=[...keep];
   // heritage sandstone: a town hall with a clock turret, a few low old blocks with verandahs
   [[115.8598,-31.9532,3,2.4,2.2,'#e0c89a',1],[115.8575,-31.9536,2.6,2,1.8,'#e8d8b0',0],[115.8618,-31.9564,2.4,2,1.6,'#d8c098',0],[115.8548,-31.9548,2.2,2,1.7,'#e4d0a8',0]].forEach(([lo,la,w,d,h,c,clock],i)=>{const[a,b]=L(lo,la);if(!free(a,b,w*.5+.4))return;
     blockB(g,a,b,w,d,h,{base:c,kind:'stone',rows:2,win:Math.floor(w*1.6),seed:140+i,parapet:1,frame:'#f4ecd8',awn:i?['#c8344a','#2f6a74','#3e7d5c'][i%3]:null});
