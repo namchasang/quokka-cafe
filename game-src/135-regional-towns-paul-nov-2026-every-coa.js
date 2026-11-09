@@ -180,7 +180,7 @@ function L2objects(){if(!L2)return;
 
 $('ow_back').onclick=()=>hooks.back();
 return{open(from){const t=TOWNS.find(t=>t.id===from);let x,z;if(from==='island'||!t){x=ROTT.x+3;z=ROTT.z+2;}else{x=t.x+7;z=t.z+5;for(let r=0;r<30&&!canGo(x,z);r++){x=t.x+7+Math.cos(r)*r*.6;z=t.z+5+Math.sin(r)*r*.6;}}
-    ST.inCar=false;ST.ride=null;ST.speed=0;ST.x=x;ST.z=z;let cx=x+3,cz=z;for(let r=0;r<40;r++){const a=r*.7;if(onRoad(x+Math.cos(a)*r*.5,z+Math.sin(a)*r*.5,2)){cx=x+Math.cos(a)*r*.5;cz=z+Math.sin(a)*r*.5;break;}}ST.carX=cx;ST.carZ=cz;
+    ST.inCar=false;ST.ride=null;ST.speed=0;ST.x=x;ST.z=z;let cx=x+3,cz=z;for(let r=0;r<40;r++){const a=r*.7;if(onRoad(x+Math.cos(a)*r*.5,z+Math.sin(a)*r*.5,2)){cx=x+Math.cos(a)*r*.5;cz=z+Math.sin(a)*r*.5;break;}}ST.carX=cx;ST.carZ=cz;ST.inCar=true;ST.x=cx;ST.z=cz;// always in the car (Paul, Nov 2026): no walking in the outer world; places are entered from the car
     const col=hooks.carColor&&hooks.carColor();if(CARBODY&&col)CARBODY.material=new THREE.MeshLambertMaterial({color:new THREE.Color(col).convertSRGBToLinear()});
     OPEN=true;camInit=false;resize();last=performance.now();requestAnimationFrame(frame);},
   close(){OPEN=false;for(const k in keys)keys[k]=0;}};
