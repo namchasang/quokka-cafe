@@ -14,7 +14,7 @@ O.subLate=()=>{(O.signals||(O.signals=[])).push(...SIGO);if(!MP){buildMeshes();r
   RAMPS.forEach(r=>{const[x,z]=r.p;let b=null,bd=1e9,bi=0;MPd.forEach((q,i)=>{const d=Math.hypot(q[0]-x,q[1]-z);if(d<bd){bd=d;b=q;bi=i;}});if(!b)return;
     const q0=MPd[Math.max(0,bi-1)],q1=MPd[Math.min(MPd.length-1,bi+1)];let tx=q1[0]-q0[0],tz=q1[1]-q0[1];const tl=Math.hypot(tx,tz)||1;tx/=tl;tz/=tl;const side=Math.sign((x-b[0])*tz-(z-b[1])*tx)||1,nx=tz*side,nz=-tx*side;
     [-1,1].forEach(dir=>{const P=[];for(let i=0;i<=10;i++){const t=i/10,along=dir*(2+t*12),out=5.4+(bd-5.4)*(1-t)*(1-t)+0;const px=b[0]+tx*along+nx*(out+ (1-t)*0),pz=b[1]+tz*along+nz*out;P.push(i===0?[x-nx*0,z]:[px,pz]);}
-      for(let i=0;i<P.length-1;i+=6){const seg=P.slice(i,Math.min(P.length,i+7));const mid=seg[seg.length>>1];strip(B(mid[0],mid[1]),seg,1.5,UV.ramp,.09,1);}});});
+      strip(null,P,1.5,UV.ramp,.09,1);});});
   O.subWalls=nW;O.subRamps=RAMPS.length;}catch(e){console.error('owsub late',e);}buildMeshes();};
 
 // ---------- 9. meshes, LOD and night lights ----------
@@ -22,7 +22,7 @@ const tD=TX(atD),tG=TX(atG);
 const MAT=new THREE.MeshLambertMaterial({map:tD,emissive:new THREE.Color(0xffffff),emissiveMap:tG,emissiveIntensity:0,vertexColors:true,side:THREE.DoubleSide});O.glow.push(MAT);
 const mk=(gb,L)=>{if(!gb.I.length)return null;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(gb.P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(gb.N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(gb.U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(gb.C,3));
   g.setIndex(gb.P.length/3>65535?new THREE.Uint32BufferAttribute(gb.I,1):new THREE.Uint16BufferAttribute(gb.I,1));g.computeBoundingSphere();const me=new THREE.Mesh(g,MAT);me.castShadow=me.receiveShadow=true;me.userData.L=L;me.matrixAutoUpdate=false;me.updateMatrix();scene.add(me);return me;};
-let built=false;function buildMeshes(){if(built)return;built=true;let nv=0;CH.forEach(c=>{if(c.mesh){scene.remove(c.mesh);c.mesh.geometry.dispose();}c.mesh=mk(c.base,'build');if(c.mesh)nv+=c.base.P.length/3;c.base=null;});O.subVerts=nv;}
+let built=false;function buildMeshes(){if(built)return;built=true;let nv=0;try{rbuild();}catch(e){console.error('owroads build',e);}CH.forEach(c=>{if(c.mesh){scene.remove(c.mesh);c.mesh.geometry.dispose();}c.mesh=mk(c.base,'build');if(c.mesh)nv+=c.base.P.length/3;c.base=null;});O.subVerts=nv;}
 // detail meshes are built on demand near the camera, one chunk per frame, and dropped again when far
 const buildDet=c=>{const g=new GB();c.det.forEach(d=>{try{if(d.park)parkDetail(g,d.park);else if(d.cen)centreDetail(g,d.cen);else lotDetail(g,d);}catch(e){console.error('owsub det',e);}});c.dm=mk(g,'props');c.dv=g.P.length/3;};
 CEN.forEach(C=>{if(C.det)chunk(...C.det.P(m+9,m+6)).det.push({cen:C});});
@@ -40,7 +40,7 @@ O.subTick=(dt,px,pz)=>{tick+=dt;sigT+=dt;
     else if(c.dm&&dd>R2(110)){scene.remove(c.dm);c.dm.geometry.dispose();c.dm=null;}});};
 // tufts and plants: keep them off the new streets, houses and centres
 {let w=0;for(let i=0;i<PL.length;i++){const q=PL[i];if(i<PL0&&occ(q[0],q[2])>=1)continue;PL[w++]=q;}O.subPlantsCleared=PL.length-w;PL.length=w;}
-O.subRoutes=ART.map(a=>a.P);
+O.subRoutes=ART.map(a=>a.P);O.subArt=ART;
 O.subOcc=(x,z)=>occ(x,z)>=1;
 O.subDump=()=>{const M=[];for(let z=-300;z<200;z+=2){let r='';for(let x=-20;x<300;x+=2)r+=subA(x,z)?(free(x,z,0)?'1':'2'):(landAt(x,z)?'0':'.');M.push(r);}return{M,lots:LOTS.map(l=>[+l.x.toFixed(1),+l.z.toFixed(1),+l.th.toFixed(2),l.fw,l.dp,l.style[0]]),st:STREETS.filter(s=>s.P[0][1]<200).map(s=>[s.kind,s.P.map(p=>[+p[0].toFixed(1),+p[1].toFixed(1)])]),cen:CEN.filter(c=>!c.coast).map(c=>[c.v.x,c.v.z,c.sa,c.sb]),parks:PARKS.map(p=>[p.kind,p.x,p.z])};};
 const bySt={};LOTS.forEach(L=>{bySt[L.style]=(bySt[L.style]||0)+(L.n||1);});O.subStats={bySt,cells:CELLS.size,houses:nH,lots:LOTS.length,centres:CEN.filter(c=>!c.coast).length,coastTowns:CEN.filter(c=>c.coast).length,art:ART.length,signals:SIGS.length,lamps:lamps.length,parks:PARKS.length,atlasRows:ay,atlasOver:aOver,ms:0};

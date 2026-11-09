@@ -4,7 +4,7 @@
   const pad=(x,z,r)=>{const g=new THREE.CircleGeometry(r,20);g.rotateX(-Math.PI/2);const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*r/2,uv.getY(i)*r/2);const m=new THREE.Mesh(g,padM);m.position.set(x,deckH(x,z)+.19,z);m.receiveShadow=true;m.userData.L='roads';scene.add(m);(O.pads||(O.pads=[])).push([x,z]);(O.padMeshes||(O.padMeshes=[])).push(m);};
   const ALL=[];ROADS.forEach(r=>ALL.push(r.p));if(SOUTH&&SOUTH.road)ALL.push(SOUTH.road);if(N)N.roads.forEach(r=>ALL.push(r.draw||r.p));
   const nearest=(x,z,skip)=>{let b=null,bd=1e9;ALL.forEach((P,j)=>{if(j===skip)return;for(let i=1;i<P.length;i++){const a=P[i-1],c=P[i],dx=c[0]-a[0],dz=c[1]-a[1],L=dx*dx+dz*dz;let t=L?((x-a[0])*dx+(z-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));const px=a[0]+dx*t,pz=a[1]+dz*t,d=Math.hypot(x-px,z-pz);if(d<bd){bd=d;b=[px,pz];}}});return[b,bd];};
-  let nc=0,np=0;ALL.forEach((P,j)=>{[P[0],P[P.length-1]].forEach(e=>{const[b,d]=nearest(e[0],e[1],j);if(!b||d>14)return;if(d>.4){ribbon([e,b],4,roadM,.185,true);(O.conns||(O.conns=[])).push([e,b]);nc++;}pad(b[0],b[1],3);np++;});});
+  let nc=0,np=0;ALL.forEach((P,j)=>{[P[0],P[P.length-1]].forEach(e=>{const[b,d]=nearest(e[0],e[1],j);if(!b||d>14)return;if(d>.4){ribbon([e,b],4,roadM,.12,true);(O.conns||(O.conns=[])).push([e,b]);nc++;}pad(b[0],b[1],3);np++;});});
   // crossings
   const segs=[];ALL.forEach((P,j)=>{for(let i=1;i<P.length;i++)segs.push([P[i-1],P[i],j]);});
   for(let a=0;a<segs.length;a++)for(let b=a+1;b<segs.length;b++){const s=segs[a],t=segs[b];if(s[2]===t[2])continue;const p=s[0],r=[s[1][0]-p[0],s[1][1]-p[1]],q=t[0],u=[t[1][0]-q[0],t[1][1]-q[1]],den=r[0]*u[1]-r[1]*u[0];if(Math.abs(den)<1e-6)continue;
@@ -54,18 +54,18 @@
 // the freeway: two carriageways of two lanes, a gravel median with the railway, overhead wire poles, stations
 if(MP){const off=(P,o)=>P.map((p,i)=>{const q=P[Math.min(P.length-1,i+1)],r=P[Math.max(0,i-1)];let dx=q[0]-r[0],dz=q[1]-r[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;return[p[0]+dz*o,p[1]-dx*o];});
   const lane=(()=>{const c=mkc(32,32),x=c.getContext('2d');PP(x,'#56585d',0,0,32,32);for(let k=0;k<90;k++)PP(x,['#4a4c50','#606268','#6a6c70'][k%3],HSH(k,11)*32,HSH(k,12)*32);PP(x,'#4c4e52',7,0,3,32);PP(x,'#4c4e52',22,0,3,32);
-    PP(x,'#f4f2e8',1,0,1,32);PP(x,'#f4f2e8',30,0,1,32);PP(x,'#f4f2e8',15,2,2,10);PP(x,'#f4f2e8',15,18,2,10);const t=TX(c,true);return new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide});})();
+    PP(x,'#f4f2e8',1,0,1,32);PP(x,'#f4f2e8',30,0,1,32);PP(x,'#f4f2e8',15,2,2,10);PP(x,'#f4f2e8',15,18,2,10);const t=RK.tex(RK.fwy(-1));return new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide});})();
   const gravel=(()=>{const c=mkc(16,16),x=c.getContext('2d');for(let k=0;k<256;k++)PP(x,['#8a7a68','#9a8a74','#7a6a5a','#a89880'][(HSH(k,3)*4)|0],k%16,k>>4);PP(x,'#c8c4b8',0,0,1,16);PP(x,'#c8c4b8',15,0,1,16);return new THREE.MeshLambertMaterial({map:TX(c,true)});})();
   // fix 1: the freeway ends in a long, smooth merge: carriageways taper together, chevron island, merge signs; the railway stops first at a terminus with buffer stops
   O.MPd=MP;const MS=[0];for(let i=1;i<MP.length;i++)MS.push(MS[i-1]+Math.hypot(MP[i][0]-MP[i-1][0],MP[i][1]-MP[i-1][1]));const ML=MS[MS.length-1],TZ0=ML-170,TZ1=ML-15;
   const mf=s=>ss(TZ0,TZ1-40,s),mo=s=>3.6*(1-mf(s))+1.1*mf(s),mw=s=>4*(1-mf(s))+2.2*mf(s);O.mitchTaper=(s,o)=>{const f=mf(s);return o*(1-f)+(o>3.6?1.1:1.1)*f;};O.mitchEdge=s=>mo(s)+mw(s)/2;
   const dense=(()=>{const P=[];for(let i=1;i<MP.length;i++){const a=MP[i-1],b=MP[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/2));for(let k=(i>1?1:0);k<=n;k++)P.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n,MS[i-1]+L*k/n]);}return P;})();
-  const vrib=(P,offF,wF,mat,yo,uScale)=>{const v=[],uv=[],idx=[];P.forEach((p,i)=>{const q=P[Math.min(P.length-1,i+1)],o=P[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const of=offF(p[2]),w=wF(p[2]),cx=p[0]+dz*of,cz=p[1]-dx*of,y=deckH(cx,cz)+yo;
+  const vrib=(P,offF,wF,mat,yo,uScale)=>{const v=[],uv=[],idx=[];P.forEach((p,i)=>{const q=P[Math.min(P.length-1,i+1)],o=P[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const of=offF(p[2]),w=wF(p[2]),cx=p[0]+dz*of,cz=p[1]-dx*of,y=Math.max(deckH(cx,cz),H(cx-dz*w/2,cz+dx*w/2),H(cx+dz*w/2,cz-dx*w/2))+yo;
       [-1,1].forEach(s2=>{v.push(cx-dz*w/2*s2,y,cz+dx*w/2*s2);uv.push(s2<0?0:1,p[2]/(uScale||4));});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';scene.add(m);return m;};
   const lane1=(()=>{const c=mkc(16,32),x=c.getContext('2d');PP(x,'#56585d',0,0,16,32);for(let k=0;k<50;k++)PP(x,['#4a4c50','#606268','#6a6c70'][k%3],HSH(k,31)*16,HSH(k,32)*32);PP(x,'#4c4e52',7,0,3,32);PP(x,'#f4f2e8',1,0,1,32);PP(x,'#f4f2e8',14,0,1,32);return new THREE.MeshLambertMaterial({map:TX(c,true),side:THREE.DoubleSide});})();
   const mainP=dense.filter(p=>p[2]<=TZ0+60),tailP=[mainP[mainP.length-1]].concat(dense.filter(p=>p[2]>TZ0+60&&p[2]<TZ1-30));
-  const laneE=o=>{const c=mkc(16,32),x=c.getContext('2d');PP(x,'#56585d',0,0,16,32);for(let k=0;k<50;k++)PP(x,['#4a4c50','#606268','#6a6c70'][k%3],HSH(k,31)*16,HSH(k,32)*32);PP(x,'#4c4e52',7,0,3,32);PP(x,'#f4f2e8',o?1:14,0,1,32);PP(x,'#f4f2e8',o?15:0,4,1,12);return new THREE.MeshLambertMaterial({map:TX(c,true),side:THREE.DoubleSide});};
+  const laneE=o=>new THREE.MeshLambertMaterial({map:RK.tex(RK.fwy(o?0:1)),side:THREE.DoubleSide});/*road kit: solid outer edge, dashed merge edge*/
   [1,-1].forEach(sd=>{vrib(mainP,s=>sd*mo(s),mw,lane,.2);vrib(tailP,s=>sd*mo(s),mw,laneE(sd>0),.2);});
   vrib(dense.filter(p=>p[2]<=TZ0-40),()=>0,()=>3.2,gravel,.205,8);
   const chev=(()=>{const c=mkc(16,16),x=c.getContext('2d');PP(x,'#56585d',0,0,16,16);for(let y=0;y<16;y++)for(let X=0;X<16;X++){if(((X>>1)+Math.abs(y-8)+40)%6===0)PP(x,'#f4f2e8',X,y,1,1);}PP(x,'#f4f2e8',0,0,1,16);PP(x,'#f4f2e8',15,0,1,16);return new THREE.MeshLambertMaterial({map:TX(c,true)});})();
@@ -108,21 +108,3 @@ if(MP){const off=(P,o)=>P.map((p,i)=>{const q=P[Math.min(P.length-1,i+1)],r=P[Ma
   O.train={s:L0*.3,dir:1,wait:0,cars:tcar,stops:STN.map(s=>s[1]*L0)};}
 // sparse traffic: little cars in their lanes (drive on the left), both directions, kept near Kip
 if(O.subLate)try{O.subLate();}catch(e){console.error('owsub late',e);}
-{const RT=[];const addR=(P,offs)=>{let L=0;const S=[0];for(let i=1;i<P.length;i++){L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);S.push(L);}if(L>20)RT.push({P,S,L,offs});};
-  ROADS.forEach(r=>{if(N&&r===N.cityRoad)return;addR(r.p,[1]);});if(N)N.roads.forEach(r=>{const P=r.draw||r.p;if(r===N.main&&MP){const z0=MP[MP.length-1][1];addR(P.filter(q=>q[1]<=z0+1),[1.1]);}else addR(P,[1]);});if(MP)addR(MP,[2.6,4.6]);if(SOUTH&&SOUTH.road)addR(SOUTH.road,[1.1]);(O.subRoutes||[]).forEach(P=>addR(P,[.95]));
-  const posOn=(R,s,o,dir)=>{s=Math.max(0,Math.min(R.L-.01,s));let i=1;while(i<R.S.length-1&&R.S[i]<s)i++;const a=R.P[i-1],b=R.P[i],t=(s-R.S[i-1])/(R.S[i]-R.S[i-1]||1);let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const fx=dx*dir,fz=dz*dir;
-    return{x:a[0]+(b[0]-a[0])*t+fz*o,z:a[1]+(b[1]-a[1])*t-fx*o,a:Math.atan2(fx,fz)};};
-  const COLS=['#c8344a','#f4f2ec','#2f6a74','#e8b860','#3e7d5c','#1d3a6e','#9aa0a6','#e86a1a','#2a2a30','#d8d0bc'];
-  const wc=mkc(16,8),wx=wc.getContext('2d');PP(wx,'#2a2230',0,0,16,8);PP(wx,'#8ab4cc',1,1,6,6);PP(wx,'#8ab4cc',9,1,6,6);PP(wx,'#c8e0ec',2,1,2,2);const winM=new THREE.MeshLambertMaterial({map:TX(wc)});
-  const CARS=[];for(let k=0;k<22;k++){const g=new THREE.Group();g.userData.L='veh';const c=COLS[k%COLS.length];const bc=mkc(24,8),bx=bc.getContext('2d');PP(bx,c,0,0,24,8);PP(bx,shc(c,1.2),0,0,24,1);PP(bx,shc(c,.6),0,7,24,1);PP(bx,shc(c,.7),8,1,1,6);PP(bx,shc(c,.7),15,1,1,6);PP(bx,'#2a2230',3,6,4,2);PP(bx,'#2a2230',17,6,4,2);
-    const bm=new THREE.MeshLambertMaterial({map:TX(bc)}),van=k%5===0;const b=new THREE.Mesh(new THREE.BoxGeometry(1.15,.5,van?2.8:2.4),[bm,bm,flat(c),flat(c),flat('#e8e4d8'),flat('#d8323a')]);b.position.y=.42;b.castShadow=true;g.add(b);
-    const cab=new THREE.Mesh(new THREE.BoxGeometry(1.0,.42,van?2.2:1.2),[winM,winM,flat(c),flat(c),winM,winM]);cab.position.set(0,.88,van?-.2:-.1);g.add(cab);
-    [[-.5,.75],[.5,.75],[-.5,-.75],[.5,-.75]].forEach(([a,z2])=>{const w=new THREE.Mesh(new THREE.BoxGeometry(.18,.32,.32),flat('#1c1c1e'));w.position.set(a*1.05,.18,z2*(van?1.2:1));g.add(w);});
-    const hl=new THREE.Mesh(new THREE.BoxGeometry(.9,.08,.04),new THREE.MeshBasicMaterial({color:0xfff2c0}));hl.position.set(0,.5,(van?1.4:1.2)+.01);g.add(hl);
-    g.visible=false;scene.add(g);CARS.push({g,R:null,s:0,dir:1,o:1,v:10+HSH(k,1)*6});}
-  const spawn=(c,px,pz)=>{for(let t=0;t<14;t++){const R=RT[(Math.random()*RT.length)|0],s=Math.random()*R.L,o=R.offs[(Math.random()*R.offs.length)|0],dir=Math.random()<.5?1:-1,p=posOn(R,s,o,dir),d=Math.hypot(p.x-px,p.z-pz);if(d<40||d>170)continue;Object.assign(c,{R,s,o,dir});c.g.visible=true;return;}c.g.visible=false;c.R=null;};
-  O.traffic=(dt,px,pz)=>{CARS.forEach(c=>{if(!c.R||Math.hypot(c.g.position.x-px,c.g.position.z-pz)>210){spawn(c,px,pz);if(!c.R)return;}
-      if(O.signals&&O.signals.length){const hx=Math.sin(c.g.rotation.y),hz=Math.cos(c.g.rotation.y);const red=O.signals.find(s=>{const dx=s.x-c.g.position.x,dz=s.z-c.g.position.z,d=Math.hypot(dx,dz);return d>6.5&&d<11&&(dx*hx+dz*hz)/d>.6&&!O.signalOk(s,hx,hz,O.t);});if(red)return;}c.s+=c.v*c.dir*dt;if(c.s<0||c.s>c.R.L){c.R=null;c.g.visible=false;return;}const p=posOn(c.R,c.s,(c.R.P===O.MPd&&O.mitchTaper)?O.mitchTaper(c.s,c.o):c.o,c.dir);
-      if(Math.hypot(p.x-px,p.z-pz)<3.2&&ST.inCar){c.s-=c.v*c.dir*dt;return;}c.g.position.set(p.x,deckH(p.x,p.z)+.2,p.z);c.g.rotation.y=p.a;});};
-  O.carsN=CARS.length;O.roadsT=RT.length;}
-

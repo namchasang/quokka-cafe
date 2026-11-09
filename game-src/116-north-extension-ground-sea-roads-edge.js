@@ -53,7 +53,7 @@ float b4(vec2 p){return 4.*b2(mod(p,2.))+b2(mod(floor(p/2.),2.));}
   const w2=new THREE.Mesh(new THREE.PlaneGeometry(1700,4500),water.material);w2.rotation.x=-Math.PI/2;w2.position.set(200,0,-350-2250);w2.userData.L='water';scene.add(w2);
   const fl=new THREE.Mesh(new THREE.PlaneGeometry(1700,4900),new THREE.MeshBasicMaterial({color:lin('#1e5462')}));fl.rotation.x=-Math.PI/2;fl.position.set(200,-2.6,-2300);fl.userData.L='water';scene.add(fl);
   // ---- roads ----
-  N.roads.forEach(r=>ribbon(r.draw,r.main?4.4:3.4,roadM,.18,true));
+  N.roads.forEach(r=>ribbon(r.draw,r.main?4.4:3.4,roadM,r.main?.18:.12,true));/*spurs run under the highway at the T*/
   const RR=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(9001);
   const along=(P,step,f)=>{let acc=0;for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(!L)continue;const dx=(b[0]-a[0])/L,dz=(b[1]-a[1])/L;let s=(step-acc%step)%step;for(;s<L;s+=step)f(a[0]+dx*s,a[1]+dz*s,dx,dz,acc+s);acc+=L;}};
   // white guide posts with red reflectors along the country roads
