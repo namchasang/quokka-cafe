@@ -1,5 +1,5 @@
 // ===== 0. Mitchell Fwy corridor (four lanes, a median with the northern railway), road and rail corridors kept clear =====
-const MP=(()=>{if(!N)return null;const z0=N.ZF?(-N.ZF.ZK+(-1500+N.ZF.ZK)*N.ZF.ZF):-1500;const P=N.main.p,out=[];for(const q of P){out.push(q);if(q[1]<z0)break;}return out.length>3?out:null;})();
+const MP=(()=>{if(!N)return null;const z0=N.ZF?(-N.ZF.ZK+(-750+N.ZF.ZK)*N.ZF.ZF):-750;const P=N.main.p,out=[];for(const q of P){out.push(q);if(q[1]<z0)break;}return out.length>3?out:null;})();
 O.MP=MP;
 const MB={};if(MP)for(let i=1;i<MP.length;i++){const a=MP[i-1],b=MP[i],k0=Math.floor((Math.min(a[1],b[1])-12)/40),k1=Math.floor((Math.max(a[1],b[1])+12)/40);for(let k=k0;k<=k1;k++)(MB[k]||(MB[k]=[])).push([a,b]);}
 const mitchD=(x,z)=>{const L=MB[Math.floor(z/40)];if(!L)return 1e9;let d=1e9;for(const s of L){const e=segDist(x,z,s[0],s[1]);if(e<d)d=e;}return d;};

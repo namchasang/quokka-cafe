@@ -8,7 +8,7 @@ void main(){vec2 uv=vUv;float z=lz(uv);
  if(uSh>.01&&z>110.){float k=uSh*smoothstep(110.,260.,z);uv.x+=sin(uv.y*res.y*.7+uT*7.)*k*1.2/res.x;uv.y+=sin(uv.x*res.x*.3+uT*5.)*k*.5/res.y;}
  vec3 col=texture2D(tD,uv).rgb;vec2 o=1./res;
  float e=max(max(lz(uv+vec2(o.x,0.)),lz(uv-vec2(o.x,0.))),max(lz(uv+vec2(0.,o.y)),lz(uv-vec2(0.,o.y))))-z;
- if(z<400.)col=mix(col,col*vec3(.34,.3,.4),smoothstep(.06+z*.03,.12+z*.07,e)*.8);
+ if(z<400.)col=mix(col,col*vec3(.66,.62,.7),smoothstep(.1+z*.05,.2+z*.1,e)*.42);
  col*=tint;float L0=dot(col,vec3(.299,.587,.114));col*=mix(vec3(.96,.99,1.03),vec3(1.04,1.01,.95),smoothstep(.25,.7,L0));
  float l=dot(col,vec3(.299,.587,.114));col=mix(vec3(l),col,1.08);col=(col-.5)*1.06+.5;col=mix(col*vec3(.92,.97,1.08),col,smoothstep(.15,.6,l));
  vec2 q=vUv-.5;col*=1.-dot(q,q)*.5;gl_FragColor=vec4(col,1.);}`,depthTest:false,depthWrite:false});
@@ -29,7 +29,7 @@ O.render=function(dt){dt=Math.max(0,Math.min(.05,dt||0));O.t+=dt;const t=O.t;PU.
   if(SOUTH&&pz>WZ+2){const S=SOUTH,[s0,t0]=S.st(px,pz),km=S.km(s0),T=S.SD0.towns,tn=T.find(w=>Math.abs(w[1]-s0)<30&&Math.abs(t0)<40),nx=T.find(w=>w[1]>s0+30);
     const el=document.getElementById('ow_pName'),en=document.getElementById('ow_pNote');if(el&&en&&!document.getElementById('ow_bAct').textContent.match(/Park|Enter/)){
       if(tn){el.textContent=tn[0];en.textContent=(tn[0]==='Busselton'?'Bay town with the long jetty':tn[0]==='Esperance'?'Bright white beaches · Lucky Bay is close':'Country town')+' · '+tn[2]+' km from Perth';}
-      else if(Math.abs(t0)<3){el.textContent=s0<1136?'Forrest Hwy':s0<1500?'Bussell Hwy':s0<2662?'South Western Hwy':'South Coast Hwy';en.textContent=km+' km from Perth'+(nx?' · '+nx[0]+' '+Math.max(1,nx[2]-km)+' km':'');}
+      else if(Math.abs(t0)<3){el.textContent=s0<568?'Forrest Hwy':s0<750?'Bussell Hwy':s0<1331?'South Western Hwy':'South Coast Hwy';en.textContent=km+' km from Perth'+(nx?' · '+nx[0]+' '+Math.max(1,nx[2]-km)+' km':'');}
       else{const c=S.cls(px,pz);el.textContent=['Southern Ocean','Beach','Coastal heath','Farmland','Wheatbelt paddocks','Karri forest','Mallee country','Town'][c]||'The south-west';en.textContent=km+' km from Perth';}}
     if(!S.mini){const c=document.createElement('canvas'),W=Math.ceil((S.CX+S.LC+40)/6),Hh=Math.ceil((S.LA+S.RR+340)/6);c.width=W;c.height=Hh;const x=c.getContext('2d');x.fillStyle='#22546e';x.fillRect(0,0,W,Hh);
       for(let r=0;r<S.NRW;r++)for(let k=0;k<S.NC;k++){const i=r*S.NC+k;if(!S.data.LN[i])continue;const[wx,wz]=S.world(r*S.CE,S.T0+k*S.CE);x.fillStyle=['#22546e','#d6c896','#708a5c','#78964f','#a09a5c','#3e5a36','#b06a3c','#aaa69c'][CL_S(wx,wz)];x.fillRect(wx/6,(wz-WZ+40)/6,1.6,1.6);}

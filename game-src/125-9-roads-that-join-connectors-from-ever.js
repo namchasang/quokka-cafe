@@ -58,14 +58,15 @@ if(MP){const off=(P,o)=>P.map((p,i)=>{const q=P[Math.min(P.length-1,i+1)],r=P[Ma
   const gravel=(()=>{const c=mkc(16,16),x=c.getContext('2d');for(let k=0;k<256;k++)PP(x,['#8a7a68','#9a8a74','#7a6a5a','#a89880'][(HSH(k,3)*4)|0],k%16,k>>4);PP(x,'#c8c4b8',0,0,1,16);PP(x,'#c8c4b8',15,0,1,16);return new THREE.MeshLambertMaterial({map:TX(c,true)});})();
   // fix 1: the freeway ends in a long, smooth merge: carriageways taper together, chevron island, merge signs; the railway stops first at a terminus with buffer stops
   O.MPd=MP;const MS=[0];for(let i=1;i<MP.length;i++)MS.push(MS[i-1]+Math.hypot(MP[i][0]-MP[i-1][0],MP[i][1]-MP[i-1][1]));const ML=MS[MS.length-1],TZ0=ML-170,TZ1=ML-15;
-  const mf=s=>ss(TZ0,TZ1,s),mo=s=>3.6*(1-mf(s))+1.1*mf(s),mw=s=>4*(1-mf(s))+2.3*mf(s);O.mitchTaper=(s,o)=>{const f=mf(s);return o*(1-f)+(o>3.6?1.1:1.1)*f;};O.mitchEdge=s=>mo(s)+mw(s)/2;
+  const mf=s=>ss(TZ0,TZ1-40,s),mo=s=>3.6*(1-mf(s))+1.1*mf(s),mw=s=>4*(1-mf(s))+2.2*mf(s);O.mitchTaper=(s,o)=>{const f=mf(s);return o*(1-f)+(o>3.6?1.1:1.1)*f;};O.mitchEdge=s=>mo(s)+mw(s)/2;
   const dense=(()=>{const P=[];for(let i=1;i<MP.length;i++){const a=MP[i-1],b=MP[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/2));for(let k=(i>1?1:0);k<=n;k++)P.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n,MS[i-1]+L*k/n]);}return P;})();
   const vrib=(P,offF,wF,mat,yo,uScale)=>{const v=[],uv=[],idx=[];P.forEach((p,i)=>{const q=P[Math.min(P.length-1,i+1)],o=P[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const of=offF(p[2]),w=wF(p[2]),cx=p[0]+dz*of,cz=p[1]-dx*of,y=deckH(cx,cz)+yo;
       [-1,1].forEach(s2=>{v.push(cx-dz*w/2*s2,y,cz+dx*w/2*s2);uv.push(s2<0?0:1,p[2]/(uScale||4));});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';scene.add(m);return m;};
   const lane1=(()=>{const c=mkc(16,32),x=c.getContext('2d');PP(x,'#56585d',0,0,16,32);for(let k=0;k<50;k++)PP(x,['#4a4c50','#606268','#6a6c70'][k%3],HSH(k,31)*16,HSH(k,32)*32);PP(x,'#4c4e52',7,0,3,32);PP(x,'#f4f2e8',1,0,1,32);PP(x,'#f4f2e8',14,0,1,32);return new THREE.MeshLambertMaterial({map:TX(c,true),side:THREE.DoubleSide});})();
-  const mainP=dense.filter(p=>p[2]<=TZ0+60),tailP=[mainP[mainP.length-1]].concat(dense.filter(p=>p[2]>TZ0+60));
-  [1,-1].forEach(sd=>{vrib(mainP,s=>sd*mo(s),mw,lane,.2);vrib(tailP,s=>sd*mo(s),mw,lane1,.2);});
+  const mainP=dense.filter(p=>p[2]<=TZ0+60),tailP=[mainP[mainP.length-1]].concat(dense.filter(p=>p[2]>TZ0+60&&p[2]<TZ1-30));
+  const laneE=o=>{const c=mkc(16,32),x=c.getContext('2d');PP(x,'#56585d',0,0,16,32);for(let k=0;k<50;k++)PP(x,['#4a4c50','#606268','#6a6c70'][k%3],HSH(k,31)*16,HSH(k,32)*32);PP(x,'#4c4e52',7,0,3,32);PP(x,'#f4f2e8',o?1:14,0,1,32);PP(x,'#f4f2e8',o?15:0,4,1,12);return new THREE.MeshLambertMaterial({map:TX(c,true),side:THREE.DoubleSide});};
+  [1,-1].forEach(sd=>{vrib(mainP,s=>sd*mo(s),mw,lane,.2);vrib(tailP,s=>sd*mo(s),mw,laneE(sd>0),.2);});
   vrib(dense.filter(p=>p[2]<=TZ0-40),()=>0,()=>3.2,gravel,.205,8);
   const chev=(()=>{const c=mkc(16,16),x=c.getContext('2d');PP(x,'#56585d',0,0,16,16);for(let y=0;y<16;y++)for(let X=0;X<16;X++){if(((X>>1)+Math.abs(y-8)+40)%6===0)PP(x,'#f4f2e8',X,y,1,1);}PP(x,'#f4f2e8',0,0,1,16);PP(x,'#f4f2e8',15,0,1,16);return new THREE.MeshLambertMaterial({map:TX(c,true)});})();
   vrib(dense.filter(p=>p[2]>=TZ0-42&&p[2]<=TZ1),()=>0,s=>Math.max(.05,2*mo(s)-mw(s)),chev,.204,3);

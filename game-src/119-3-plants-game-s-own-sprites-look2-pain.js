@@ -54,6 +54,7 @@ const BOX=PAINT.map((p,i)=>{const ox=(i%ACOL)*CW,oy=((i/ACOL)|0)*CHh,w=p.img.wid
 // a rim mask that is empty: paint it from the sprite's lit top-left edge
 {const id=pax.getImageData(0,0,pAt.width,pAt.height),rd=prx.getImageData(0,0,pRim.width,pRim.height),A=id.data,Bd=rd.data,W2=pAt.width;let any=0;for(let i=0;i<Bd.length;i+=4)if(Bd[i]>20)any++;
   if(any<50)for(let y=1;y<pAt.height;y++)for(let x=1;x<W2;x++){const o=(y*W2+x)*4;if(A[o+3]<128)continue;if(A[o-W2*4+3]<128||A[o-4+3]<128){Bd[o]=255;Bd[o+1]=200;Bd[o+2]=110;Bd[o+3]=255;}}prx.putImageData(rd,0,0);}
+{const id=pax.getImageData(0,0,pAt.width,pAt.height),A=id.data,W2=pAt.width,H2=pAt.height,B=new Uint8ClampedArray(A);for(let y=1;y<H2-1;y++)for(let x=1;x<W2-1;x++){const o=(y*W2+x)*4;if(A[o+3]<128)continue;const L=A[o]*.3+A[o+1]*.59+A[o+2]*.11;if(L>70)continue;let edge=false,br=0,bg=0,bb=0,n=0;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[2,0],[-2,0],[0,2],[0,-2]]){const q=((y+dy)*W2+x+dx)*4;if(q<0||q>=A.length)continue;if(A[q+3]<128){if(Math.abs(dx)+Math.abs(dy)===1)edge=true;continue;}const l2=A[q]*.3+A[q+1]*.59+A[q+2]*.11;if(l2>70){br+=A[q];bg+=A[q+1];bb+=A[q+2];n++;}}if(!edge||!n)continue;B[o]=br/n*.68;B[o+1]=bg/n*.7;B[o+2]=bb/n*.66;}id.data.set(B);pax.putImageData(id,0,0);}// softer sprite outlines: the dark rim takes the colour of the leaves behind it
 const pTex=TX(pAt),pRimT=TX(pRim);
 const plantMat=new THREE.MeshLambertMaterial({map:pTex,alphaTest:.5,side:THREE.DoubleSide,vertexColors:true,emissive:new THREE.Color(0,0,0),emissiveMap:pRimT});
 const PU={uT:{value:0}};

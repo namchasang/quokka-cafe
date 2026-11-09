@@ -74,8 +74,8 @@ float b4(vec2 p){return 4.*b2(mod(p,2.))+b2(mod(floor(p/2.),2.));}
     [-1,1].forEach(k=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,1.6+SHh,6),M('#9aa0a6'));p.position.set(k*SW*.36,(1.6+SHh)/2,-.1);g.add(p);});g.userData.L='props';scene.add(g);};
   const kmAt=s=>Math.round(N.KM(s)),ahead=(s,n)=>N.dest.filter(d=>d.s>s+20).slice(0,n);
   // distance signs every few kilometres heading north (and one for the drive back)
-  along(N.main.p,420,(x,z,dx,dz,s)=>{if(z>40||s<30)return;const k=kmAt(s),A=ahead(s,3);if(!A.length)return;sign(A.map(d=>[d.n,(d.km-k)+' km']),x,z,dx,dz,-1);});
-  along(N.main.p,900,(x,z,dx,dz,s)=>{if(z>-200)return;sign([['Perth',kmAt(s)+' km']],x,z,-dx,-dz,-1);});
+  along(N.main.p,210,(x,z,dx,dz,s)=>{if(z>20||s<15)return;const k=kmAt(s),A=ahead(s,3);if(!A.length)return;sign(A.map(d=>[d.n,(d.km-k)+' km']),x,z,dx,dz,-1);});
+  along(N.main.p,450,(x,z,dx,dz,s)=>{if(z>-100)return;sign([['Perth',kmAt(s)+' km']],x,z,-dx,-dz,-1);});
   // turn-off signs at each side road (the spurs all go west, to the driver's left)
   N.roads.slice(1).forEach(r=>{const [x,z]=r.p[0],s=N.sOf(x,z);let i=1;const P=N.main.p;let b=0,bd=1e9;P.forEach((q,j)=>{const d=Math.hypot(q[0]-x,q[1]-z);if(d<bd){bd=d;b=j;}});i=Math.max(1,Math.min(P.length-1,b));const dx0=P[i][0]-P[i-1][0],dz0=P[i][1]-P[i-1][1],L=Math.hypot(dx0,dz0)||1;
     const d=N.dest.find(d=>Math.abs(d.s-s)<60)||{n:r.n.replace(/ (Rd|Dr)$/,''),km:kmAt(s)};const nm=r.n==='Pinnacles Dr'?'The Pinnacles':r.n==='Yanchep Beach Rd'?'Yanchep':d.n;
@@ -84,7 +84,7 @@ float b4(vec2 p){return 4.*b2(mod(p,2.))+b2(mod(floor(p/2.),2.));}
   N.town.forEach(t=>{const r=N.roads.find(r=>r.p.length&&Math.hypot(r.p[r.p.length-1][0]-t.x,r.p[r.p.length-1][1]-t.z)<40)||N.main;const near=r.p.reduce((b,q)=>Math.hypot(q[0]-t.x,q[1]-t.z)<Math.hypot(b[0]-t.x,b[1]-t.z)?q:b,r.p[0]);
     const k=Math.max(1,r.p.indexOf(near)),a=r.p[k-1],b=r.p[k],L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;sign([t.n],a[0],a[1],(b[0]-a[0])/L,(b[1]-a[1])/L,-1,'#1d3a6e');});
   // the start of the coast road at the city, so Paul knows where to go
-  {const P=N.main.p;let i=P.findIndex(q=>q[1]<60);i=Math.max(1,i);const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;sign([['Mitchell Fwy','North'],['Lancelin',N.dest.find(d=>d.n==='Lancelin').km+' km'],['Pinnacles',N.dest.find(d=>d.n==='Pinnacles').km+' km']],a[0],a[1],(b[0]-a[0])/L,(b[1]-a[1])/L,-1);}
+  {const P=N.main.p;let i=P.findIndex(q=>q[1]<30);i=Math.max(1,i);const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;sign([['Mitchell Fwy','North'],['Lancelin',N.dest.find(d=>d.n==='Lancelin').km+' km'],['Pinnacles',N.dest.find(d=>d.n==='Pinnacles').km+' km']],a[0],a[1],(b[0]-a[0])/L,(b[1]-a[1])/L,-1);}
   // ---- houses: suburbs on curving streets (same warp as the ground shader), small coast towns ----
   const wa=(x,z)=>x+6*Math.sin(z/47+Math.sin(x/83)),wb=(x,z)=>z+6*Math.sin(x/53+Math.cos(z/71));
   const inv=(a,b)=>{let x=a,z=b;for(let k=0;k<6;k++){x+=a-wa(x,z);z+=b-wb(x,z);}return[x,z];};

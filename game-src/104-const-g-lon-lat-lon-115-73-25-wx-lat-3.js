@@ -1,7 +1,7 @@
 const G=(lon,lat)=>[(lon-115.73)/.25*WX,(lat+31.928)/-.144*WZ];
-const LAND=new Uint8Array(WX*WZ);{const b=atob(REAL.land);for(let i=0;i<WX*WZ;i++)LAND[i]=(b.charCodeAt(i>>3)>>(7-(i&7)))&1;}
+const LAND=new Uint8Array(WX*WZ);{const b=atob(REAL.land);for(let i=0;i<WX*WZ;i++){const x=i%WX,z=(i/WX)|0;let n=0;for(const[dx,dz]of[[0,0],[1,0],[0,1],[1,1]]){const j=(2*z+dz)*600+2*x+dx;n+=(b.charCodeAt(j>>3)>>(7-(j&7)))&1;}LAND[i]=n>=3?1:0;}}
 const ELEV=new Float32Array(REAL.hw*REAL.hh);{const b=atob(REAL.elev);for(let i=0;i<ELEV.length;i++)ELEV[i]=b.charCodeAt(i)/2-40;}
-const elevAt=(x,z)=>{x=Math.max(0,Math.min(REAL.hw-1.001,x/2-.5));z=Math.max(0,Math.min(REAL.hh-1.001,z/2-.5));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*REAL.hw+x0,W2=REAL.hw;return (ELEV[i]*(1-fx)+ELEV[i+1]*fx)*(1-fz)+(ELEV[i+W2]*(1-fx)+ELEV[i+W2+1]*fx)*fz;};
+const elevAt=(x,z)=>{x=Math.max(0,Math.min(REAL.hw-1.001,x-.5));z=Math.max(0,Math.min(REAL.hh-1.001,z-.5));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*REAL.hw+x0,W2=REAL.hw;return (ELEV[i]*(1-fx)+ELEV[i+1]*fx)*(1-fz)+(ELEV[i+W2]*(1-fx)+ELEV[i+W2+1]*fx)*fz;};
 const landAt=(x,z)=>{if(z<0&&NORTH)return NORTH.land(x,z);if(z>=WZ&&SOUTH)return SOUTH.land(x,z);x|=0;z|=0;return x>=0&&z>=0&&x<WX&&z<WZ&&LAND[z*WX+x]===1;};
 // distance to the shore (both sides)
 const DL=new Float32Array(WX*WZ).fill(1e9),DW=new Float32Array(WX*WZ).fill(1e9);

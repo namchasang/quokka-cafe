@@ -5,7 +5,7 @@
   const bk=OWBK.north;if(bk&&bk.w===NC0){const sb=atob(bk.b64),get=i=>{const v=sb.charCodeAt(i>>1);return(i&1)?v&15:v>>4;},n1=NC0*(NR1+1),arr=new Uint8Array(Math.ceil(n1/2));
     for(let r=0;r<=NR1;r++){const r0=Math.min(bk.h-1,row(r));for(let c=0;c<NC0;c++){const i=r*NC0+c,q=get(r0*NC0+c);arr[i>>1]|=(i&1)?q:(q<<4);}}
     let t='';for(let i=0;i<arr.length;i+=4096)t+=String.fromCharCode.apply(null,arr.subarray(i,i+4096));OWBK.north={w:NC0,h:NR1+1,b64:btoa(t)};}
-  ND.roads.forEach(r=>r.p.forEach(p=>{p[1]=f(p[1]);}));ND.towns.forEach(t=>{t[2]=f(t[2]);});ND.dunes.forEach(d=>{if(d[1]<-ZK)d[3]*=ZF;d[1]=f(d[1]);});for(const k in ND.gates)ND.gates[k][1]=f(ND.gates[k][1]);ND.ZF={ZK,ZF};}
+  ND.roads.forEach(r=>r.p.forEach(p=>{p[1]=f(p[1]);}));ND.towns.forEach(t=>{t[2]=f(t[2]);});ND.dunes.forEach(d=>{if(d[1]<-ZK)d[3]*=ZF;d[1]=f(d[1]);});for(const k in ND.gates)ND.gates[k][1]=f(ND.gates[k][1]);ND.ZF={ZK,ZF};{const K=.5;ND.CELL*=K;ND.NX0*=K;ND.roads.forEach(r=>r.p.forEach(p=>{p[0]*=K;p[1]*=K;}));ND.towns.forEach(t=>{t[1]*=K;t[2]*=K;});ND.dunes.forEach(d=>{d[0]*=K;d[1]*=K;d[2]*=K;d[3]*=K;});for(const k in ND.gates){ND.gates[k][0]*=K;ND.gates[k][1]*=K;}ND.ZF={ZK:ZK*K,ZF};}}
 const NC=ND.NW+1,NRW=ND.NR+1,NN=NC*NRW,CE=ND.CELL,X0=ND.NX0,X1=X0+ND.NW*CE,ZMIN=-ND.NR*CE;
   const HB=new Float32Array(NN),LN=new Uint8Array(NN);{const b=atob(ND.b64);for(let i=0;i<NN;i++){const v=b.charCodeAt(i);LN[i]=v?1:0;HB[i]=v*.025;}}
   const bfs=src=>{const D=new Float32Array(NN).fill(1e9),q=new Int32Array(NN);let t=0;for(let i=0;i<NN;i++)if(src(i)){D[i]=0;q[t++]=i;}
@@ -29,7 +29,7 @@ const NC=ND.NW+1,NRW=ND.NR+1,NN=NC*NRW,CE=ND.CELL,X0=ND.NX0,X1=X0+ND.NW*CE,ZMIN=
   const segNear=(x,z,w)=>{const L=BUCK[Math.floor(z/BS)];if(!L)return null;for(let i=0;i<L.length;i++){const s=L[i];if(segDist(x,z,s[0],s[1])<w)return s[2];}return null;};
   // road distance in km (real road distances from Perth: Lancelin turn-off 124 km, Pinnacles Drive 187 km, Cervantes 196 km)
   const sOf=(x,z)=>nearOn(MR.p,x,z).s;
-  const TOWN=ND.towns.map(([n,x,z,k])=>({n,x,z,k,r:k==='city'?40:k==='town'?24:15}));
+  const TOWN=ND.towns.map(([n,x,z,k])=>({n,x,z,k,r:k==='city'?22:k==='town'?13:9}));
   const tw=n=>TOWN.find(t=>t.n===n);
   const S_L=sOf(...NR2.find(r=>r.n==='Lancelin Rd').p[0]),S_P=sOf(...NR2.find(r=>r.n==='Pinnacles Dr').p[0]);let S_E=0;for(let i=1;i<MR.p.length;i++)S_E+=Math.hypot(MR.p[i][0]-MR.p[i-1][0],MR.p[i][1]-MR.p[i-1][1]);
   const KM=s=>s<=S_L?s/S_L*124:s<=S_P?124+(s-S_L)/(S_P-S_L)*63:187+(s-S_P)/Math.max(1,S_E-S_P)*2;
@@ -39,7 +39,7 @@ const NC=ND.NW+1,NRW=ND.NR+1,NN=NC*NRW,CE=ND.CELL,X0=ND.NX0,X1=X0+ND.NW*CE,ZMIN=
   // ---- ground classes on the 4-unit grid: 0 sea 1 beach 2 white dunes 3 Pinnacles sand 4 coastal heath 5 banksia scrub 6 paddocks 7 town 8 suburbs ----
   const DUN=ND.dunes,CL=new Uint8Array(NN),SH=new Uint8Array(NN);
   const dunAt=(x,z)=>{for(const d of DUN){const q=Math.hypot((x-d[0])/d[2],(z-d[1])/d[3])+fbm(x/30+d[0],z/30)*.22;if(q<.92)return d[4]===1?2:3;}return 0;};
-  const subAt=(x,z)=>z>-430+fbm(x/60,z/60)*70||Math.hypot((x-tw('Joondalup').x)/70,(z-tw('Joondalup').z)/90)<1;
+  const subAt=(x,z)=>z>-215+fbm(x/60,z/60)*35||Math.hypot((x-tw('Joondalup').x)/70,(z-tw('Joondalup').z)/90)<1;
   for(let r=0;r<NRW;r++)for(let c=0;c<NC;c++){const i=r*NC+c,x=X0+c*CE,z=-r*CE;let k=0,base=.6;
     if(LN[i]){const sd=SD[i],du=dunAt(x,z),n=fbm(x/55+3,z/55-7),big=fbm(x/140,z/140);
       if(du)k=du;else if(TOWN.some(t=>Math.hypot(x-t.x,z-t.z)<t.r*(.85+.3*fbm(x/20,z/20))&&t.k!=='city'))k=7;else if(subAt(x,z)&&sd>6)k=8;

@@ -9,6 +9,6 @@ function OW3DBuild(root,hooks){
 let OPEN=false;const LOOK2=!!hooks.look2;
 
 const $=id=>document.getElementById(id);
-const WX=600,WZ=400;// world size in units (1 unit ≈ 50 m)
+const WX=300,WZ=200;// Paul (Nov 2026): the outer world at half size (1 unit = 80 m)// world size in units (1 unit ≈ 50 m)
 // ---------- the real map: land and water from real elevation (Terrain Tiles on AWS), Fremantle to the airport ----------
 // 600 x 400 units covers lon 115.73..115.98, lat -31.928..-32.072 (1 unit ≈ 40 m)

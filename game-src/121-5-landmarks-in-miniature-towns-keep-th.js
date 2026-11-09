@@ -72,7 +72,7 @@ function tower2(g,x,z,o){const w=o.w,d=o.d||o.w,h=o.h,ry=o.ry||0,tp=flat(o.roof|
   if(o.mast){add(g,new THREE.CylinderGeometry(.05,.1,o.mast,5),flat('#e8ecf0'),x,y+(o.crown?o.ch||2.4:0)+o.mast/2,z);}
   const L=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2),new THREE.MeshBasicMaterial({color:0xd8323a}));L.position.set(x,y+(o.crown?(o.ch||2.4):.5)+(o.mast||0)+.1,z);g.add(L);(O.beacons||(O.beacons=[])).push(L);
   return y;}
-if(T.cbd){const t=T.cbd,g=t.g;hideOld(t);const[gx,gz]=gpos(t);const L=(lo,la)=>{const p=G(lo,la);return[p[0]-gx,p[1]-gz];};
+if(T.cbd){const t=T.cbd,g=t.g;hideOld(t);const[gx,gz]=gpos(t);const L=(lo,la)=>{const p=G(lo,la);return[(p[0]-gx)*2,(p[1]-gz)*2];};
   const railNear=(x,z,r)=>RAIL.some((a,i)=>i&&segDist(x,z,RAIL[i-1],a)<r);
   const free=(a,b,r)=>{const x=gx+a,z=gz+b;return landAt(x,z)&&!onRoad(x,z,r+2.3)&&!railNear(x,z,r+2);};
   const GLB=['#b4d4e6','#8ab4cc','#5e8aaa','#3e6688'],GLT=['#a8dcd4','#78b8b4','#4a9294','#2e6e74'],GLS=['#c8d4e0','#98aabc','#6a809a','#465c78'],GLBR=['#d8c4a0','#b0966e','#86704c','#5e4c34'];

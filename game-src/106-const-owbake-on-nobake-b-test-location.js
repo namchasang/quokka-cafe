@@ -1,7 +1,7 @@
 const OWBAKE_ON=!/[?&#]nobake\b/.test(location.search+location.hash);
 const owBakeDec=o=>{const b=atob(o.b64),n=o.w*o.h,a=new Float32Array(n);for(let i=0;i<n;i++){const v=b.charCodeAt(i>>1),q=(i&1)?v&15:v>>4;a[i]=OWBK.lo+q/15*(OWBK.hi-OWBK.lo);}return a;};
 const BKM=owBakeDec(OWBK.main);
-const bakeMain=(x,z)=>{let u=x/2-.5,v=z/2-.5;u=Math.max(0,Math.min(298.999,u));v=Math.max(0,Math.min(198.999,v));const i=u|0,j=v|0,fx=u-i,fz=v-j,k=j*300+i;return (BKM[k]*(1-fx)+BKM[k+1]*fx)*(1-fz)+(BKM[k+300]*(1-fx)+BKM[k+301]*fx)*fz;};
+const bakeMain=(x,z)=>{let u=x-.5,v=z-.5;u=Math.max(0,Math.min(298.999,u));v=Math.max(0,Math.min(198.999,v));const i=u|0,j=v|0,fx=u-i,fz=v-j,k=j*300+i;return (BKM[k]*(1-fx)+BKM[k+1]*fx)*(1-fz)+(BKM[k+300]*(1-fx)+BKM[k+301]*fx)*fz;};
 // baked light on the plain (vertex colour) ground
 function OWBAKEV(g){if(!OWBAKE_ON)return;const p=g.attributes.position,c=g.attributes.color;for(let k=0;k<p.count;k++){const f=bakeMain(p.getX(k),p.getZ(k));c.setXYZ(k,c.getX(k)*f,c.getY(k)*f,c.getZ(k)*f);}c.needsUpdate=true;}
 // baked light on the LOOK2 pixel ground: ordered dither between the 16 light levels, then every ground pixel snaps back onto its own colour ramp

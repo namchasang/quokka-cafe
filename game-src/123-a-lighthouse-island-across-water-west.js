@@ -1,17 +1,17 @@
 // --- a lighthouse island across the water, west of Fremantle (seen from the coast) ---
-{const ix=-58,iz=300,g=new THREE.Group();g.position.set(ix,0,iz);g.userData.L='mark';scene.add(g);
-  const sd=mkc(64,64),sx=sd.getContext('2d');for(let y=0;y<64;y++)for(let X=0;X<64;X++){const n=HSH(X,y);PP(sx,n<.3?'#d8c898':n<.8?'#e8d8aa':'#a8a070',X,y);}const isl=add(g,new THREE.CylinderGeometry(30,36,2,24),new THREE.MeshLambertMaterial({map:TX(sd,true)}),0,-.2,0);isl.scale.z=.45;
+{const ix=-50,iz=150,g=new THREE.Group();g.position.set(ix,0,iz);g.userData.L='mark';scene.add(g);
+  const sd=mkc(64,64),sx=sd.getContext('2d');for(let y=0;y<64;y++)for(let X=0;X<64;X++){const n=HSH(X,y);PP(sx,n<.3?'#d8c898':n<.8?'#e8d8aa':'#a8a070',X,y);}const isl=add(g,new THREE.CylinderGeometry(18,22,2,24),new THREE.MeshLambertMaterial({map:TX(sd,true)}),0,-.2,0);isl.scale.z=.45;
   const lc=mkc(16,48),lx=lc.getContext('2d');face(lx,null,0,0,16,48,{base:'#f2eee4',kind:'stone',win:1,rows:3,seed:5,litP:0});add(g,new THREE.CylinderGeometry(.9,1.4,7,10),new THREE.MeshLambertMaterial({map:TX(lc)}),4,4.3,-2);
   add(g,new THREE.CylinderGeometry(1.15,1.15,.3,10),flat('#2a3038'),4,7.9,-2);const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.7,.7,.9,10),new THREE.MeshBasicMaterial({color:0xfff2c0}));lamp.position.set(4,8.5,-2);g.add(lamp);add(g,new THREE.ConeGeometry(.9,.8,10),flat('#c8344a'),4,9.35,-2);
   const bt=mkc(64,8),bx2=bt.getContext('2d'),gr=bx2.createLinearGradient(0,0,64,0);gr.addColorStop(0,'rgba(255,240,190,.75)');gr.addColorStop(1,'rgba(255,240,190,0)');bx2.fillStyle=gr;bx2.fillRect(0,1,64,6);
   const beam=new THREE.Mesh(new THREE.PlaneGeometry(40,2.2),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(bt),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,opacity:0}));beam.geometry.translate(20,0,0);const bp=new THREE.Group();bp.position.set(4,8.5,-2);bp.add(beam);g.add(bp);O.beam=bp;O.beamM=beam.material;O.lighthouseLamp=lamp;
-  const RR=rng(77);for(let k=0;k<160;k++){const a=RR()*6.283,r=Math.sqrt(RR())*26,x=ix+Math.cos(a)*r,z=iz+Math.sin(a)*r*.42;if(Math.hypot(x-ix-4,z-iz+2)<3)continue;PL.push([x,.75,z,RR()<.6?8:RR()<.5?9:4,RR()<.85?1.4:4.5,1]);}
+  const RR=rng(77);for(let k=0;k<160;k++){const a=RR()*6.283,r=Math.sqrt(RR())*15,x=ix+Math.cos(a)*r,z=iz+Math.sin(a)*r*.42;if(Math.hypot(x-ix-4,z-iz+2)<3)continue;PL.push([x,.75,z,RR()<.6?8:RR()<.5?9:4,RR()<.85?1.4:4.5,1]);}
   [[-10,2],[-6,3],[12,1]].forEach(([a,b],i)=>blockB(g,a,b,2.2,1.8,1.2,{base:['#efe3c4','#f2e6c8','#e8d0a0'][i],seed:120+i,gable:.6,tin:1,win:2}));}
 const CL_S=(x,z)=>SOUTH&&SOUTH.cls?SOUTH.cls(x,z):0;
 // ===== 4b. the south and the south coast: pixel ground, road, towns, plants, the Busselton and Lucky Bay gates =====
 if(SOUTH){const S=SOUTH,D=S.data,NC=S.NC,NRW=S.NRW,CE=S.CE,T0=S.T0;
   // ground classes: 0 sea 1 beach 2 heath 3 green paddock 4 dry paddock 5 karri forest 6 red mallee 7 town
-  const TWS=S.SD0.towns,reg=s=>s<1560?(s<1000?3:3):s<2330?5:s<2800?3:s<3700?4:2;
+  const TWS=S.SD0.towns,reg=s=>s<780?3:s<1165?5:s<1400?3:s<1850?4:2;
   const CL=new Uint8Array(NC*NRW);
   for(let r=0;r<NRW;r++)for(let c=0;c<NC;c++){const i=r*NC+c,s=r*CE,t=T0+c*CE,sd=D.SDs[i];let k=0;
     if(D.LN[i]){const n=fbm(s/60+3,t/60-7);k=reg(s);if(sd<5)k=1;else if(sd<26+n*14&&k!==5)k=2;else if(k===4&&n>.18)k=6;else if(k===3&&n<-.25)k=4;else if(k===5&&n<-.3)k=3;
@@ -61,7 +61,7 @@ vec2 suv(vec2 st){return vec2((st.y-sG.x)/sG.y+.5,st.x/sG.y+.5)/sG.zw;}
     const[px,pz]=S.world(s,t),[ax,az]=S.world(s+2,t),a=Math.atan2(ax-px,az-pz),g=new THREE.Group();g.position.set(px,Math.max(S.H(px,pz),.5),pz);g.rotation.y=a+Math.PI;g.userData.L='props';scene.add(g);
     const fm=new THREE.MeshLambertMaterial({map:TX(c)}),bk=flat('#8a8e94');const b=new THREE.Mesh(new THREE.BoxGeometry(w/16,h/16,.12),[bk,bk,bk,bk,fm,bk]);b.position.y=1.5+h/32;g.add(b);[-1,1].forEach(k=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,1.6+h/16,6),flat('#9aa0a6'));p.position.set(k*w/16*.36,(1.6+h/16)/2,-.1);g.add(p);});};
   TWS.forEach(([n,s])=>board([n],s-40,-4.6,'#1d3a6e'));
-  for(let s=120;s<S.SE-100;s+=360){const ahead=TWS.filter(w=>w[1]>s+30).slice(0,3);if(ahead.length)board(ahead.map(w=>w[0]+'  '+Math.max(1,w[2]-S.km(s))+' km'),s,-4.6);}
+  for(let s=60;s<S.SE-50;s+=180){const ahead=TWS.filter(w=>w[1]>s+30).slice(0,3);if(ahead.length)board(ahead.map(w=>w[0]+'  '+Math.max(1,w[2]-S.km(s))+' km'),s,-4.6);}
   // towns: houses on little streets either side of the road (pixel facades, tile/tin roofs), street lamps
   {const HO=[];TWS.forEach(([n,s0])=>{for(let s=s0-24;s<=s0+24;s+=3.6)for(const t of[-8,-11.6,8,11.6,-18,-21.6,18,21.6]){const ss2=s+(t>0?1.8:0);const[x,z]=S.world(ss2,t+(HSH(s,t)-.5)*.6);if(!S.land(x,z)||S.sd(x,z)<5||HSH(s*1.3,t)<.18)continue;HO.push([x,z,ss2,t]);}});
     const n=HO.length,cell=new Float32Array(n*2),ar=new Float32Array(n),body=new THREE.InstancedMesh(houseGeo.clone(),houseMat,n),rg=new THREE.ConeGeometry(.7071*1.12,1,4);rg.rotateY(Math.PI/4);rg.translate(0,.5,0);
@@ -93,7 +93,7 @@ vec2 suv(vec2 st){return vec2((st.y-sG.x)/sG.y+.5,st.x/sG.y+.5)/sG.zw;}
 function gate2(id,name,act,note,x,z,build){town(id,name,note,x,z,g=>{const a=new THREE.Mesh(new THREE.BoxGeometry(8,.12,5),flat('#6a6c70'));a.position.y=.06;g.add(a);for(let k=-2;k<=2;k++){const l=new THREE.Mesh(new THREE.BoxGeometry(.12,.13,1.6),flat('#e8e4d0'));l.position.set(k*1.8,.07,-1.5);g.add(l);}build(g);});TOWNS[TOWNS.length-1].act=act;}
 
 // fix 2 (Paul, Nov 2026): Busselton like the real bay town, and every park-and-walk gate an obvious landmark
-if(SOUTH){const S=SOUTH,BT=TOWNS.find(t=>t.id==='bus'),s0=1500;
+if(SOUTH){const S=SOUTH,BT=TOWNS.find(t=>t.id==='bus'),s0=750;
   if(BT){// hide the first little jetty; keep the car park
     BT.g.children.forEach(c=>{if(c.isGroup)c.visible=false;});
     const ex=BT.x,ez=BT.z,[sx,sz]=S.world(s0,-200),dl=Math.hypot(sx-ex,sz-ez),ux=(sx-ex)/dl,uz=(sz-ez)/dl,ang=Math.atan2(ux,uz);

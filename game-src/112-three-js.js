@@ -1,6 +1,6 @@
 // ---------- three.js ----------
 const cv=$('ow_c'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:false});renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;renderer.physicallyCorrectLights=false;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-const PIX=.5;// draw at half resolution, scaled up: chunky pixels
+const PIX=Math.max(.75,1/Math.min(devicePixelRatio||1,2));// Paul (Nov 2026): sharper picture, thin outlines// draw at half resolution, scaled up: chunky pixels
 const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(46,1,.5,900);
 const lin=c=>new THREE.Color(c).convertSRGBToLinear();
 const skyC=document.createElement('canvas');skyC.width=4;skyC.height=256;const skyT=new THREE.CanvasTexture(skyC);skyT.encoding=THREE.sRGBEncoding;scene.background=skyT;
@@ -13,7 +13,7 @@ const DETAIL=(()=>{const c=document.createElement('canvas');c.width=c.height=256
   // seven shades per material, dark to light (hand-picked, the way a pixel artist builds a ramp: hue shifts warm in the light)
   const CC={},cc=hx=>CC[hx]||(CC[hx]=lin(hx)),sm=ss,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
   const hash2=(x,z)=>{const s=Math.sin(x*127.1+z*311.7)*43758.5453;return s-Math.floor(s);};
-  const coast=(x,z)=>x<75;// ocean beaches on the west; river banks elsewhere
+  const coast=(x,z)=>x<37.5;// ocean beaches on the west; river banks elsewhere
   function groundColor(x,z,h,d,sl,out){const n=fbm(x/14,z/14),big=fbm(x/60+7,z/60),n2=noise(x/3.3,z/3.3),j=hash2(x,z)-.5;
     if(d<0){const dep=-d;out.copy(cc(coast(x,z)?'#e8dcb4':'#c8b888')).lerp(cc('#6ab8b0'),cl(dep/3,0,1)).lerp(cc('#2a6a78'),cl((dep-3)/8,0,1));if(dep<1.2)out.lerp(cc('#f4f4ec'),(1-dep/1.2)*.55*(coast(x,z)?1:.35));out.k=0;return;}
     const city=Math.hypot(x-CBDP[0],z-CBDP[1])<20||Math.hypot(x-FRP[0],z-FRP[1])<12;
@@ -44,9 +44,9 @@ const wc=document.createElement('canvas');wc.width=wc.height=64;{const x=wc.getC
 const wT=new THREE.CanvasTexture(wc);wT.wrapS=wT.wrapT=THREE.RepeatWrapping;wT.repeat.set(90,60);wT.magFilter=THREE.NearestFilter;wT.encoding=THREE.sRGBEncoding;
 const water=new THREE.Mesh(new THREE.PlaneGeometry(1400,1100),new THREE.MeshStandardMaterial({map:wT,transparent:true,opacity:.62,roughness:.12,metalness:.15,depthWrite:false}));water.rotation.x=-Math.PI/2;water.position.set(WX/2,0,WZ/2);water.userData.L='water';scene.add(water);
 // road ribbons that follow the ground, bridges with rails over the water
-const ribbon=(pts,w,mat,yo,deck)=>{const P2=[];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/2));for(let k=(i>1?1:0);k<=n;k++)P2.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n]);}
+const ribbon=(pts,w,mat,yo,deck)=>{const P2=[];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L));for(let k=(i>1?1:0);k<=n;k++)P2.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n]);}
   const v=[],uv=[],idx=[];let acc=0;P2.forEach((p,i)=>{const q=P2[Math.min(P2.length-1,i+1)],o=P2[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;if(i)acc+=Math.hypot(p[0]-P2[i-1][0],p[1]-P2[i-1][1]);
-    const y=(deck?deckH(p[0],p[1]):H(p[0],p[1]))+yo;[-1,1].forEach(s=>{v.push(p[0]-dz*w/2*s,y,p[1]+dx*w/2*s);uv.push(s<0?0:1,acc/w);});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
+    const y=Math.max(deck?deckH(p[0],p[1]):H(p[0],p[1]),H(p[0]+.9,p[1]),H(p[0]-.9,p[1]),H(p[0],p[1]+.9),H(p[0],p[1]-.9))+yo+.04;[-1,1].forEach(s=>{v.push(p[0]-dz*w/2*s,y,p[1]+dx*w/2*s);uv.push(s<0?0:1,acc/w);});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';scene.add(m);return P2;};
 const tex=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.magFilter=THREE.NearestFilter;t.encoding=THREE.sRGBEncoding;return t;};
 const roadT=tex(16,16,(x)=>{x.fillStyle='#55575c';x.fillRect(0,0,16,16);x.fillStyle='#e8e4d0';x.fillRect(0,0,1,16);x.fillRect(15,0,1,16);x.fillStyle=LOOK2?'#f4f2e8':'#f2d24a';x.fillRect(7,2,2,6);});

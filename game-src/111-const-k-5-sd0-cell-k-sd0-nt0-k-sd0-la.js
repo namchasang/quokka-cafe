@@ -1,4 +1,5 @@
-  const CE=SD0.CELL,T0=SD0.NT0,NT=SD0.NT,NR=SD0.NR,LA=SD0.LA,RR=SD0.R,LC=SD0.LC,SE=LA+RR*Math.PI/2+LC,PX=300,PZ=WZ,T1=T0+NT*CE;
+  {const k=.5;SD0.CELL*=k;SD0.NT0*=k;SD0.LA*=k;SD0.R*=k;SD0.LC*=k;SD0.towns.forEach(t=>t[1]*=k);for(const g in SD0.gates){SD0.gates[g][0]*=k;SD0.gates[g][1]*=k;}SD0.km.forEach(q=>q[0]*=k);}
+  const CE=SD0.CELL,T0=SD0.NT0,NT=SD0.NT,NR=SD0.NR,LA=SD0.LA,RR=SD0.R,LC=SD0.LC,SE=LA+RR*Math.PI/2+LC,PX=WX/2,PZ=WZ,T1=T0+NT*CE;
   const NC=NT+1,NRW=NR+1,NN=NC*NRW,HB=new Float32Array(NN),LN=new Uint8Array(NN);{const b=atob(SD0.b64);for(let i=0;i<NN;i++){const v=b.charCodeAt(i);LN[i]=v?1:0;HB[i]=v*.025;}}
   const bfs=src=>{const D=new Float32Array(NN).fill(1e9),q=new Int32Array(NN);let n=0;for(let i=0;i<NN;i++)if(src(i)){D[i]=0;q[n++]=i;}
     for(let h=0;h<n;h++){const i=q[h],c=i%NC,r=(i/NC)|0,d=D[i]+1;if(c>0&&D[i-1]>d){D[i-1]=d;q[n++]=i-1;}if(c<NC-1&&D[i+1]>d){D[i+1]=d;q[n++]=i+1;}if(r>0&&D[i-NC]>d){D[i-NC]=d;q[n++]=i-NC;}if(r<NRW-1&&D[i+NC]>d){D[i+NC]=d;q[n++]=i+NC;}}return D;};
@@ -21,14 +22,14 @@ NORTH.miniBase=null;
 NORTH.mini=function(ctx,px,pz){const N=NORTH;if(!N.miniBase){const c=document.createElement('canvas'),w=N.NC,h=N.NRW;c.width=w;c.height=h;const x=c.getContext('2d'),id=x.createImageData(w,h);
     const C=[[34,84,110],[214,200,150],[238,236,228],[226,178,96],[112,126,92],[84,108,70],[160,150,92],[170,166,156],[120,150,84]];
     for(let r=0;r<h;r++)for(let i=0;i<w;i++){const k=N.data.CL[r*w+i],o=((h-1-r)*w+i)*4,v=N.data.SD[r*w+i]<0?C[0]:C[k];id.data.set([v[0],v[1],v[2],255],o);}x.putImageData(id,0,0);
-    x.strokeStyle='#e8e0c8';x.lineWidth=1;N.roads.forEach(rd=>{x.beginPath();rd.p.forEach((p,i)=>{const X=(p[0]-N.X0)/4,Y=h-1+p[1]/4;i?x.lineTo(X,Y):x.moveTo(X,Y);});x.stroke();});
-    N.town.forEach(t=>{x.fillStyle='#ffd34d';x.fillRect((t.x-N.X0)/4-1,h-1+t.z/4-1,3,3);});N.miniBase=c;}
-  ctx.fillStyle='#22546e';ctx.fillRect(0,0,150,100);const ox=75-px/4,oy=50-pz/4;ctx.drawImage(mmBase,ox,oy);ctx.drawImage(N.miniBase,ox+N.X0/4,oy-(N.NRW-1)-.5);
+    x.strokeStyle='#e8e0c8';x.lineWidth=1;N.roads.forEach(rd=>{x.beginPath();rd.p.forEach((p,i)=>{const X=(p[0]-N.X0)/2,Y=h-1+p[1]/2;i?x.lineTo(X,Y):x.moveTo(X,Y);});x.stroke();});
+    N.town.forEach(t=>{x.fillStyle='#ffd34d';x.fillRect((t.x-N.X0)/2-1,h-1+t.z/2-1,3,3);});N.miniBase=c;}
+  ctx.fillStyle='#22546e';ctx.fillRect(0,0,150,100);const ox=75-px/2,oy=50-pz/2;ctx.drawImage(mmBase,ox,oy);ctx.drawImage(N.miniBase,ox+N.X0/2,oy-(N.NRW-1)-.5);
   ctx.fillStyle='rgba(20,26,46,.75)';ctx.fillRect(0,88,150,12);ctx.fillStyle='#ffd34d';ctx.font='9px monospace';const km=Math.max(0,Math.round(N.KM(N.sOf(px,pz))));const nx=N.dest.find(d=>d.km>km+1);ctx.fillText(nx?`${km} km · ${nx.n} ${nx.km-km} km`:`${km} km from Perth`,4,97);};
 NORTH.place=function(x,z){const N=NORTH;if(z>-2)return null;const sd=N.sd(x,z);if(sd<0)return['Indian Ocean','Turquoise water off the coast'];
   const t=N.town.find(t=>Math.hypot(x-t.x,z-t.z)<t.r+6);if(t)return[t.n,t.n==='Lancelin'?'Fishing town · white dunes to the north':t.n==='Cervantes'?'Crayfish town · the Pinnacles are close':'Coast town · '+Math.round(N.KM(N.sOf(t.x,t.z)))+' km from Perth'];
-  const c=N.cls(x,z);if(c===3)return['The Pinnacles','Limestone spires in yellow sand'];if(c===2)return[Math.abs(z-N.gates.lan[1])<260?'Lancelin sand dunes':'White sand dunes','Bright white dunes shaped by the sea wind'];
-  const r=N.roadAt(x,z,2.8);if(r){const km=Math.round(N.KM(N.sOf(x,z))),nx=N.dest.find(d=>d.km>km+1);return[r.main?(z>-875?'Mitchell Fwy · Wanneroo Rd':'Indian Ocean Drive'):r.n,nx?`${km} km from Perth · ${nx.n} ${nx.km-km} km`:'Driving the coast road'];}
+  const c=N.cls(x,z);if(c===3)return['The Pinnacles','Limestone spires in yellow sand'];if(c===2)return[Math.abs(z-N.gates.lan[1])<130?'Lancelin sand dunes':'White sand dunes','Bright white dunes shaped by the sea wind'];
+  const r=N.roadAt(x,z,2.8);if(r){const km=Math.round(N.KM(N.sOf(x,z))),nx=N.dest.find(d=>d.km>km+1);return[r.main?(z>-437?'Mitchell Fwy · Wanneroo Rd':'Indian Ocean Drive'):r.n,nx?`${km} km from Perth · ${nx.n} ${nx.km-km} km`:'Driving the coast road'];}
   return [['Beach','Indian Ocean'],['Beach','Soft sand and shells'],['White sand dunes',''],['The Pinnacles',''],['Coastal heath','Banksia, grass trees and wildflowers'],['Banksia scrub','Grass trees and banksias'],['Paddocks','Dry grass and old gums'],['Town',''],['Northern suburbs','Lawns, pools and wide streets']][c]||null;};
 
 // ---------- roads and the railway ----------
@@ -44,7 +45,7 @@ const ROADS=[
 if(NORTH)ROADS.push(NORTH.cityRoad);// the coast road's first stretch through the city
 const RAIL=[G(115.747,-32.053),G(115.754,-32.036),G(115.758,-31.995),G(115.785,-31.98),G(115.823,-31.948),G(115.861,-31.951),G(115.9,-31.94),G(115.94,-31.937),G(115.967,-31.938)];
 const segDist=(px,pz,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz;let t=L?((px-a[0])*dx+(pz-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(a[0]+dx*t),pz-(a[1]+dz*t));};
-const onRoad=(x,z,w=2.4)=>(z<80&&NORTH&&NORTH.onRoad(x,z,w))||(z>WZ-12&&SOUTH&&SOUTH.onRoad(x,z,w))||ROADS.some(r=>r.p.some((a,i)=>i&&segDist(x,z,r.p[i-1],a)<w));
+const onRoad=(x,z,w=2.4)=>(z<40&&NORTH&&NORTH.onRoad(x,z,w))||(z>WZ-12&&SOUTH&&SOUTH.onRoad(x,z,w))||ROADS.some(r=>r.p.some((a,i)=>i&&segDist(x,z,r.p[i-1],a)<w));
 const deckH=(x,z)=>Math.max(H(x,z),1.4);// bridges carry the road over the water
 const groundAt=(x,z)=>onRoad(x,z,2.6)?deckH(x,z):Math.max(H(x,z),-.2);
 let BLOCK=null;const canGo=(x,z)=>(landAt(x,z)&&!(BLOCK&&BLOCK[(z|0)*WX+(x|0)]))||onRoad(x,z,2.4);
