@@ -19,7 +19,16 @@ const MEADOW={on:MEADOW_LIVE||/[?&#]toon\b/.test(location.search+location.hash),
   // the island ground picture (green where grass grows), read once
   function ground(){if(TD)return TD;const W=terrC.width,H=terrC.height;if(W<8)return null;TD={W,H,d:terrC.getContext('2d').getImageData(0,0,W,H).data};return TD;}
   const green=(x,z)=>{const T=ground();if(!T)return false;const px=Math.floor((x-TB.x1)*TPX),py=Math.floor((z-TB.z1)*TPX);if(px<0||py<0||px>=T.W||py>=T.H)return false;const k=(py*T.W+px)*4;const R=T.d[k],G=T.d[k+1],B=T.d[k+2];return T.d[k+3]>200&&G>R*1.18&&G>B*1.25&&G>70;};
-  const inBuilding=(x,z)=>colliders.some(c=>x>c.x1-.25&&x<c.x2+.25&&z>c.z1-.25&&z<c.z2+.25);
+  const inBuilding=(x,z)=>colliders.some(c=>x>c.x1-.25&&x<c.x2+.25&&z>c.z1-.25&&z<c.z2+.25)||covered(x,z);
+  // Paul (Nov 2026): no grass on the café deck, floors, paving or the airstrip. Anything flat that stands on the ground (decks, floors,
+  // tables, paving, runway paint) is listed once by its footprint; a tuft never grows inside one.
+  let COV=null;const CG=4;
+  function covered(x,z){if(!COV){COV=new Map();const B=new THREE.Box3(),add=(b)=>{for(let i=Math.floor(b[0]/CG);i<=Math.floor(b[2]/CG);i++)for(let j=Math.floor(b[1]/CG);j<=Math.floor(b[3]/CG);j++){const k=i+','+j;let L=COV.get(k);if(!L)COV.set(k,L=[]);L.push(b);}};
+      scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();
+      scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.visible||!o.geometry||o.name==='sea3')return;if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();B.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld).applyMatrix4(inv);
+        const sx=B.max.x-B.min.x,sz=B.max.z-B.min.z;if(!isFinite(sx)||sx>25||sz>25||B.max.y<.045||B.min.y>1.2||sx*sz<.3)return;if(zoneOf((B.min.x+B.max.x)/2)!=='island')return;add([B.min.x-.15,B.min.z-.15,B.max.x+.15,B.max.z+.15]);});
+      if(typeof WA!=='undefined'&&WA.rw)add([WA.rw.x1-1,WA.rw.z1-1.5,WA.rw.x2+1,WA.rw.z2+1.5]);}
+    const L=COV.get(Math.floor(x/CG)+','+Math.floor(z/CG));if(L)for(const b of L)if(x>b[0]&&x<b[2]&&z>b[1]&&z<b[3])return true;return false;}
   const lanes=()=>(typeof BLANES!=='undefined'&&Array.isArray(BLANES))?BLANES.filter(p=>Array.isArray(p)&&p.length>1&&Array.isArray(p[0])):[];
   const onLane=(x,z)=>lanes().some(p=>{for(let i=1;i<p.length;i++)if(segD(x,z,p[i-1][0],p[i-1][1],p[i][0],p[i][1])<1.1)return true;return false;});
   function chunk(ci,cj){if(!MAT){MAT=[tuftTex(false),tuftTex(true)].map(t=>new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color('#0d1a08')}));GEO=tuftGeo();}
