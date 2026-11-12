@@ -51,8 +51,8 @@ const BSMOOTH={on:BSMOOTH_LIVE||/[?&#]toon\b/.test(location.search+location.hash
       if(t==='BoxGeometry'){const w=p.width*sx,h=p.height*sy,d=p.depth*sz;
         if(h>=1.3&&Math.max(w,d)>=1.6){const dz=w>=d,seed=Math.round(V.x*7+V.z*13);
           o.material=[facade(col,d,h,!dz,seed+1),facade(col,d,h,false,seed+2),new THREE.MeshLambertMaterial({color:col}),new THREE.MeshLambertMaterial({color:col}),facade(col,w,h,dz,seed+3),facade(col,w,h,false,seed+4)];o.__bs=1;BSMOOTH.walls++;n++;return;}
-        if(h<.18&&w>=1.4){o.material=roofMat(col,w,d);o.__bs=1;BSMOOTH.roofs++;n++;return;}return;}
-      if(t==='CylinderGeometry'||t==='ConeGeometry'){const R=(p.radiusTop||p.radius||1)*Math.max(sx,sz),L=(p.height||1)*sy;o.material=roofMat(col,R*3,L+R);o.__bs=1;BSMOOTH.roofs++;n++;}});
+        if(h<.18&&w>=1.4&&V.y>1.2){o.material=roofMat(col,w,d);o.__bs=1;BSMOOTH.roofs++;n++;return;}return;}
+      if((t==='CylinderGeometry'||t==='ConeGeometry')&&V.y>1.4&&(p.radialSegments||8)<=8){const R=(p.radiusTop||p.radius||1)*Math.max(sx,sz),L=(p.height||1)*sy;o.material=roofMat(col,R*3,L+R);o.__bs=1;BSMOOTH.roofs++;n++;}});
     return n;}
   const go=()=>{if(typeof pxbScene==='undefined'||!pxbScene.done||!pxbScene.orig){setTimeout(go,700);return;}try{run();}catch(e){console.error('bsmooth',e);}};
   [3000,9000,22000].forEach(t=>setTimeout(go,t));
