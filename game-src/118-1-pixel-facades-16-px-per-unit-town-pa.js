@@ -30,6 +30,15 @@ const roofC=(()=>{const c=mkc(64,32),x=c.getContext('2d');PP(x,'#7a7a7a',0,0,32,
 const MP=(()=>{if(!N)return null;const z0=N.ZF?(-N.ZF.ZK+(-750+N.ZF.ZK)*N.ZF.ZF):-750;const P=N.main.p,out=[];for(const q of P){out.push(q);if(q[1]<z0)break;}return out.length>3?out:null;})();
 O.MP=MP;
 const MB={};if(MP)for(let i=1;i<MP.length;i++){const a=MP[i-1],b=MP[i],k0=Math.floor((Math.min(a[1],b[1])-12)/40),k1=Math.floor((Math.max(a[1],b[1])+12)/40);for(let k=k0;k<=k1;k++)(MB[k]||(MB[k]=[])).push([a,b]);}
+// owroads2 (Paul, Nov 2026): the Kwinana Fwy and on down the Forrest Hwy to Busselton are four lanes with the railway in the median,
+// like the Mitchell Fwy. The corridor starts where the freeway leaves the protected CBD / Perth Water / South Perth boxes; it joins the
+// Mitchell corridor grid, so houses, plants and props keep clear of it the same way
+const KWP=(()=>{if(!OWR2)return null;const kw=ROADS.find(r=>r.n==='Kwinana Fwy');if(!kw)return null;const P=[];let i0=-1;
+  for(let i=0;i<kw.p.length;i++){if(owProtected(kw.p[i][0],kw.p[i][1],3)){i0=i;continue;}P.push(kw.p[i]);}
+  if(i0>=0&&i0<kw.p.length-1){const a=kw.p[i0],b=kw.p[i0+1];let t=0;for(;t<1;t+=.02)if(!owProtected(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,3))break;P.unshift([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+  if(SOUTH&&SOUTH.world){const last=P[P.length-1];for(let s0=0;s0<=SOUTH.SE;s0+=6){const q=SOUTH.world(s0,0);if(q[1]<=last[1]+.5)continue;P.push(q);}}
+  O.KWP=P;O.KWprot=kw.p.slice(0,Math.max(1,i0+1)).concat(P.length?[P[0]]:[]);return P.length>3?P:null;})();
+if(KWP)for(let i=1;i<KWP.length;i++){const a=KWP[i-1],b=KWP[i],k0=Math.floor((Math.min(a[1],b[1])-12)/40),k1=Math.floor((Math.max(a[1],b[1])+12)/40);for(let k=k0;k<=k1;k++)(MB[k]||(MB[k]=[])).push([a,b]);}
 const mitchD=(x,z)=>{const L=MB[Math.floor(z/40)];if(!L)return 1e9;let d=1e9;for(const s of L){const e=segDist(x,z,s[0],s[1]);if(e<d)d=e;}return d;};
 O.mitchD=mitchD;
 if(N&&MP){const orig=N.onRoad.bind(N),origAt=N.roadAt.bind(N);N.onRoad=(x,z,w)=>orig(x,z,w)||mitchD(x,z)<w+3.8;N.roadAt=(x,z,w)=>origAt(x,z,w)||(mitchD(x,z)<w+3.8?N.main:null);}

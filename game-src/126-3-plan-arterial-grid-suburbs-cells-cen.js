@@ -59,7 +59,7 @@ function modCell(c){const mask=(x,z)=>subA(x,z),north=c.north;const A=.6+c.h*.7,
       if(myslot===park){const len=(bEnd-b0)*sd;PARKS.push({kind:'pocket',x:c.x0+a,z:c.z0+(b0+bEnd)/2,th:0,w:2*MLD+SWD-.6,d:len,c});markRect(c.x0+a,c.z0+(b0+bEnd)/2,0,2*MLD+SWD,len,1);return;}
       const P=[];DBG.st=(DBG.st||0)+1;for(let b=b0;sd<0?b>=bEnd-.01:b<=bEnd+.01;b+=sd){const p=cellP(c,a,b);if(!landAt(p[0],p[1])){DBG.sl=(DBG.sl||0)+1;break;}if(!free(p[0],p[1],-1.2)){DBG.sf=(DBG.sf||0)+1;break;}if(inCen(c,a,b,1.4)){DBG.sc=(DBG.sc||0)+1;break;}P.push(p);}if(P.length>4)DBG.sok=(DBG.sok||0)+1;
       const len=(P.length-1);if(len<4.5)return;const pe=P[P.length-1];
-      addStreet(P,'local');STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,5.2,5.2,2);
+      addStreet(P,'local');STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,3.2,3.2,2);
       // lots along both sides (front edge on the verge), facing the stub, and one past the turning circle when there is room
       [-1,1].forEach(sx=>{let e=b0;for(let q=0;q<=MLD+.01;q+=.8){const v=bcol(a+sx*(SWD/2+q))+sd*(SWD/2+.15);e=sd>0?Math.max(e,v):Math.min(e,v);}const t0=(e-b0)*sd;for(let t=t0;t+MLF<=len+.3;t+=MLF){const b=b0+sd*(t+MLF/2);const fx=c.x0+a+sx*SWD/2,fz=c.z0+b;if(inCen(c,a+sx*(SWD/2+MLD/2),b,0))continue;addLot(fx,fz,Math.atan2(-sx,0),MLF,MLD,c.style,north,mask);}});
       });

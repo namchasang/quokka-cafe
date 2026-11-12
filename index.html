@@ -9881,6 +9881,15 @@ const roofC=(()=>{const c=mkc(64,32),x=c.getContext('2d');PP(x,'#7a7a7a',0,0,32,
 const MP=(()=>{if(!N)return null;const z0=N.ZF?(-N.ZF.ZK+(-750+N.ZF.ZK)*N.ZF.ZF):-750;const P=N.main.p,out=[];for(const q of P){out.push(q);if(q[1]<z0)break;}return out.length>3?out:null;})();
 O.MP=MP;
 const MB={};if(MP)for(let i=1;i<MP.length;i++){const a=MP[i-1],b=MP[i],k0=Math.floor((Math.min(a[1],b[1])-12)/40),k1=Math.floor((Math.max(a[1],b[1])+12)/40);for(let k=k0;k<=k1;k++)(MB[k]||(MB[k]=[])).push([a,b]);}
+// owroads2 (Paul, Nov 2026): the Kwinana Fwy and on down the Forrest Hwy to Busselton are four lanes with the railway in the median,
+// like the Mitchell Fwy. The corridor starts where the freeway leaves the protected CBD / Perth Water / South Perth boxes; it joins the
+// Mitchell corridor grid, so houses, plants and props keep clear of it the same way
+const KWP=(()=>{if(!OWR2)return null;const kw=ROADS.find(r=>r.n==='Kwinana Fwy');if(!kw)return null;const P=[];let i0=-1;
+  for(let i=0;i<kw.p.length;i++){if(owProtected(kw.p[i][0],kw.p[i][1],3)){i0=i;continue;}P.push(kw.p[i]);}
+  if(i0>=0&&i0<kw.p.length-1){const a=kw.p[i0],b=kw.p[i0+1];let t=0;for(;t<1;t+=.02)if(!owProtected(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,3))break;P.unshift([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);}
+  if(SOUTH&&SOUTH.world){const last=P[P.length-1];for(let s0=0;s0<=SOUTH.SE;s0+=6){const q=SOUTH.world(s0,0);if(q[1]<=last[1]+.5)continue;P.push(q);}}
+  O.KWP=P;O.KWprot=kw.p.slice(0,Math.max(1,i0+1)).concat(P.length?[P[0]]:[]);return P.length>3?P:null;})();
+if(KWP)for(let i=1;i<KWP.length;i++){const a=KWP[i-1],b=KWP[i],k0=Math.floor((Math.min(a[1],b[1])-12)/40),k1=Math.floor((Math.max(a[1],b[1])+12)/40);for(let k=k0;k<=k1;k++)(MB[k]||(MB[k]=[])).push([a,b]);}
 const mitchD=(x,z)=>{const L=MB[Math.floor(z/40)];if(!L)return 1e9;let d=1e9;for(const s of L){const e=segDist(x,z,s[0],s[1]);if(e<d)d=e;}return d;};
 O.mitchD=mitchD;
 if(N&&MP){const orig=N.onRoad.bind(N),origAt=N.roadAt.bind(N);N.onRoad=(x,z,w)=>orig(x,z,w)||mitchD(x,z)<w+3.8;N.roadAt=(x,z,w)=>origAt(x,z,w)||(mitchD(x,z)<w+3.8?N.main:null);}
@@ -10153,7 +10162,13 @@ if(T.cbd){const t=T.cbd,g0=t.g;hideOld(t);const[gx,gz]=gpos(t);
   // the tiered ones, two sandstone-faced blocks); the generic flat-topped fillers go and their sites become small paved plazas with trees and benches.
   const ALL=/[?&#]allcbd\b/.test(location.search+location.hash),RANK=[1,4,5,6,8,2,3,15,7,16,12,17,10,11,19,9,13,14,18,20];const plz=(()=>{const c=mkc(32,32),x=c.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?2:0);X<32;X+=4){PP(x,['#d8d0bc','#cfc6b0','#e2dac6'][(X*3+y)%3],X,y,4,4);PP(x,'#b8b09c',X,y+3,4,1);}return new THREE.MeshLambertMaterial({map:TX(c)});})();
   const fit=TW.filter(([lo,la,o])=>{const[a,b]=L(lo,la);return free(a,b,Math.max(o.w,o.d||o.w)*.5+.6);}),keep=new Set(fit.map(q=>q[2].seed).sort((p,q)=>RANK.indexOf(p)-RANK.indexOf(q)).slice(0,ALL?99:KS<1?8:Math.ceil(fit.length/2)));
-  let n=0,nP=0;fit.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!keep.has(o.seed)){const pw=o.w+1.4;add(g,new THREE.BoxGeometry(pw,.1,pw),plz,a,.05,b).castShadow=false;[[-1,-1],[1,1]].forEach(([p,q])=>{const x=gx+(a+p*pw*.32)*KS,z=gz+(b+q*pw*.32)*KS;PL.push([x,groundAt(x,z),z,2,2.8,1]);});add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a+.5,.2,b-.4);add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a-.5,.2,b+.4);nP++;return;}tower2(g,a,b,o);n++;});O.cbdTowers=n;O.cbdPlazas=nP;O.cbdKept=[...keep];
+  let n=0,nP=0;fit.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!keep.has(o.seed)){const pw=o.w+1.4;add(g,new THREE.BoxGeometry(pw,.1,pw),plz,a,.05,b).castShadow=false;[[-1,-1],[1,1]].forEach(([p,q])=>{const x=gx+(a+p*pw*.32)*KS,z=gz+(b+q*pw*.32)*KS;PL.push([x,groundAt(x,z),z,2,2.8,1]);});add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a+.5,.2,b-.4);add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a-.5,.2,b+.4);nP++;return;}tower2(g,a,b,o);n++;});
+  // Paul (Nov 2026, by name): fill the empty CBD ground with more towers in the same style (same specs, new seeds), on free land off the roads and rail
+  if(KS<1){const used=fit.filter(q=>keep.has(q[2].seed)).map(([lo,la])=>L(lo,la)),A=G(115.846,-31.9495),Bq=G(115.869,-31.9585);let extra=0;
+    for(let wz=A[1];wz<=Bq[1];wz+=1.6)for(let wx=A[0];wx<=Bq[0];wx+=1.6){if(extra>=16)break;const jx=wx+(HSH(wx,wz)-.5)*.6,jz=wz+(HSH(wz,wx)-.5)*.6,a=(jx-gx)/KS,b=(jz-gz)/KS;
+      const sp=TW[(extra*7+3)%TW.length][2],r=Math.max(sp.w,sp.d||sp.w)*.5+.5;if(!free(a,b,r))continue;if(used.some(u=>Math.hypot(u[0]-a,u[1]-b)<(r+1.6)*2))continue;
+      tower2(g,a,b,Object.assign({},sp,{seed:60+extra,h:Math.max(7,sp.h*(.55+HSH(a,b)*.5))}));used.push([a,b]);extra++;n++;}O.cbdExtra=extra;}
+  O.cbdTowers=n;O.cbdPlazas=nP;O.cbdKept=[...keep];
   // heritage sandstone: a town hall with a clock turret, a few low old blocks with verandahs
   [[115.8598,-31.9532,3,2.4,2.2,'#e0c89a',1],[115.8575,-31.9536,2.6,2,1.8,'#e8d8b0',0],[115.8618,-31.9564,2.4,2,1.6,'#d8c098',0],[115.8548,-31.9548,2.2,2,1.7,'#e4d0a8',0]].forEach(([lo,la,w,d,h,c,clock],i)=>{const[a,b]=L(lo,la);if(!free(a,b,w*.5+.4))return;
     blockB(g,a,b,w,d,h,{base:c,kind:'stone',rows:2,win:Math.floor(w*1.6),seed:140+i,parapet:1,frame:'#f4ecd8',awn:i?['#c8344a','#2f6a74','#3e7d5c'][i%3]:null});
@@ -10660,7 +10675,7 @@ function modCell(c){const mask=(x,z)=>subA(x,z),north=c.north;const A=.6+c.h*.7,
       if(myslot===park){const len=(bEnd-b0)*sd;PARKS.push({kind:'pocket',x:c.x0+a,z:c.z0+(b0+bEnd)/2,th:0,w:2*MLD+SWD-.6,d:len,c});markRect(c.x0+a,c.z0+(b0+bEnd)/2,0,2*MLD+SWD,len,1);return;}
       const P=[];DBG.st=(DBG.st||0)+1;for(let b=b0;sd<0?b>=bEnd-.01:b<=bEnd+.01;b+=sd){const p=cellP(c,a,b);if(!landAt(p[0],p[1])){DBG.sl=(DBG.sl||0)+1;break;}if(!free(p[0],p[1],-1.2)){DBG.sf=(DBG.sf||0)+1;break;}if(inCen(c,a,b,1.4)){DBG.sc=(DBG.sc||0)+1;break;}P.push(p);}if(P.length>4)DBG.sok=(DBG.sok||0)+1;
       const len=(P.length-1);if(len<4.5)return;const pe=P[P.length-1];
-      addStreet(P,'local');STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,5.2,5.2,2);
+      addStreet(P,'local');STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,3.2,3.2,2);
       // lots along both sides (front edge on the verge), facing the stub, and one past the turning circle when there is room
       [-1,1].forEach(sx=>{let e=b0;for(let q=0;q<=MLD+.01;q+=.8){const v=bcol(a+sx*(SWD/2+q))+sd*(SWD/2+.15);e=sd>0?Math.max(e,v):Math.min(e,v);}const t0=(e-b0)*sd;for(let t=t0;t+MLF<=len+.3;t+=MLF){const b=b0+sd*(t+MLF/2);const fx=c.x0+a+sx*SWD/2,fz=c.z0+b;if(inCen(c,a+sx*(SWD/2+MLD/2),b,0))continue;addLot(fx,fz,Math.atan2(-sx,0),MLF,MLD,c.style,north,mask);}});
       });
@@ -10752,7 +10767,7 @@ const APR=[];O.subAprons=APR;
     let m=near(e[0],e[1],s,6);
     if(!m){for(let t=.5;t<=4.5&&!m;t+=.5){const x=e[0]+dx*t,z=e[1]+dz*t;const k=near(x,z,s,.6);if(k)m=k;}}
     if(m&&m.d>.2&&!landRun(e,m.p))m=null;
-    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,5.2,5.2,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
+    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,3.2,3.2,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
     const oh=m.rib?m.rib/2:half(m.s);let nx=e[0]-m.p[0],nz=e[1]-m.p[1],nl=Math.hypot(nx,nz);if(nl<.2){nx=-dx;nz=-dz;nl=1;}nx/=nl;nz/=nl;
     // close a gap: run the street on to the other road
     const reach=m.rib?Math.max(.6,oh-.5):m.s.kind==='art'?3.0:s.kind==='lane'?Math.max(.2,oh-.6):oh+.1;
@@ -10779,12 +10794,13 @@ APR.forEach(a=>rbox(a[0],a[1],a[2],a[3],a[4],'asph',.1,!!a[5]));
 // streets into chunk geometry
 STREETS.forEach(s=>{const P=s.P;
   if((s.kind==='bulb'||s.kind==='abulb'||s.kind==='xpad')&&(()=>{const[x,z]=P[0];if(MP&&fwD(x,z)<9)return true;const rb=ribNear(x,z,9);return rb&&rb.d<rb.w/2+2.6;})())return;// nothing round left lying on a highway (Paul, Nov 2026)
-  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
-  if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.05,.07,UV.asph,24);ring(g,x,z,2.0,2.12,.16,UV.kerb,24);ring(g,x,z,2.12,2.5,.11,UV.path,24);RKCIR.push([x,z,2.0]);return;}// a cul-de-sac: asphalt circle, kerb, footpath
+  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],OWR2?1.45:3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
+  if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z),R0=1.05;disc(g,x,z,R0+.05,.07,UV.asph,24);ring(g,x,z,R0,R0+.1,.16,UV.kerb,24);ring(g,x,z,R0+.1,R0+.45,.11,UV.path,24);RKCIR.push([x,z,R0]);return;}// a cul-de-sac just a little wider than its street (Paul, Nov 2026)// a cul-de-sac: asphalt circle, kerb, footpath
   if(s.kind==='xst'){const[x,z]=P[0];rbox(x,z,s.w2+2,s.w1,s.a1,'xarm',0,false);rbox(x,z,s.w1+2,s.w2,s.a2,'xarm2',0,false);return;}
   if(s.kind==='tj'){const[x,z]=P[0];rbox(x,z,s.L,s.w,s.ang,'tarm',0,false);return;}
   if(s.kind==='mrab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,s.r,.07,UV.asph,16);const F=FR(x,gy(x,z)+.08,z,0,bake(x,z));cyl(g,F,0,0,0,s.r*.36,.1,12,UV.kerb,UV.island);ring(g,x,z,s.r*.36,s.r*.36+.08,.1,UV.kerb,12);return;}
   if(s.kind==='rab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.1,.075,UV.asph,14);const F=FR(x,gy(x,z)+.07,z,0,bake(x,z));cyl(g,F,0,0,0,.95,.14,12,UV.kerb,UV.island);plant(x,z,3,2.4);return;}
+  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];rbox(x,z,6.6,6.6,0,'cross',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
   if(s.kind==='rab2'){const[x,z]=P[0],g=B(x,z);rbox(x,z,6.6,6.6,0,'asph',.1,false);disc(g,x,z,4,.09,UV.asph,18);const F=FR(x,gy(x,z)+.09,z,0,bake(x,z));cyl(g,F,0,0,0,2,.16,16,UV.kerb,UV.island);plant(x,z,13,4.2);plant(x+.9,z+.6,5,2.8);return;}
   if(s.kind==='pad'){const[x,z]=P[0],v=s.v;if(v&&v.arms.length===2&&v.arms[0][0].h===v.arms[1][0].h)return;rbox(x,z,6.6,6.6,0,'asph',.11,false);return;}
   const w=s.kind==='art'?6.5:s.kind==='lane'?.8:s.kind==='main'?3:2.5,uv=s.kind==='art'?UV.art:s.kind==='lane'?UV.lane:s.kind==='ramp'?UV.ramp:UV.street,yo=s.kind==='art'?.08:s.kind==='lane'?.04:.06;
@@ -11161,6 +11177,30 @@ if(MP){const off=(P,o)=>P.map((p,i)=>{const q=P[Math.min(P.length-1,i+1)],r=P[Ma
   O.train={s:L0*.3,dir:1,wait:0,cars:tcar,stops:STN.map(s=>s[1]*L0)};}
 // sparse traffic: little cars in their lanes (drive on the left), both directions, kept near Kip
 if(O.subLate)try{O.subLate();}catch(e){console.error('owsub late',e);}
+// ===== owroads2 (Paul, Nov 2026): Kwinana Fwy -> Forrest Hwy -> Busselton, four lanes with the railway in the median like the Mitchell =====
+if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP;
+  // the old single ribbons go; the part inside the protected boxes is drawn again exactly as before
+  const kw=ROADS.find(r=>r.n==='Kwinana Fwy');RIBS.forEach(r=>{if((kw&&r.pts===kw.p)||(SOUTH&&r.pts===SOUTH.road)){r.m.visible=false;r.hidden=1;}});if(O.KWprot&&O.KWprot.length>1)ribbon(O.KWprot,4,roadM,.18,true);
+  const D=[];let acc=0;for(let i=1;i<KP.length;i++){const a=KP[i-1],b=KP[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/2));for(let k=(i>1?1:0);k<=n;k++)D.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n,acc+L*k/n]);acc+=L;}
+  // a little smoothing so the curves are even
+  for(let pass=0;pass<3;pass++)for(let i=1;i<D.length-1;i++){D[i][0]=(D[i-1][0]+D[i][0]*2+D[i+1][0])/4;D[i][1]=(D[i-1][1]+D[i][1]*2+D[i+1][1])/4;}
+  const vr=(off,w,mat,yo,us)=>{const v=[],uv=[],idx=[];D.forEach((p,i)=>{const q=D[Math.min(D.length-1,i+1)],o=D[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const cx=p[0]+dz*off,cz=p[1]-dx*off,y=Math.max(deckH(cx,cz),H(cx-dz*w/2,cz+dx*w/2),H(cx+dz*w/2,cz-dx*w/2))+yo;
+      [-1,1].forEach(s2=>{v.push(cx-dz*w/2*s2,y,cz+dx*w/2*s2);uv.push(s2<0?0:1,p[2]/(us||4));});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';scene.add(m);return m;};
+  const laneM=new THREE.MeshLambertMaterial({map:RK.tex(RK.fwy(-1)),side:THREE.DoubleSide});
+  const gc=mkc(16,16),gx=gc.getContext('2d');for(let k=0;k<256;k++)PP(gx,['#8a7a68','#9a8a74','#7a6a5a','#a89880'][(HSH(k,3)*4)|0],k%16,k>>4);PP(gx,'#c8c4b8',0,0,1,16);PP(gx,'#c8c4b8',15,0,1,16);const gravel=new THREE.MeshLambertMaterial({map:TX(gc,true)});
+  [1,-1].forEach(sd=>vr(sd*3.6,4,laneM,.2));vr(0,3.2,gravel,.205,8);
+  const RPK=ribbon(D.map(p=>[p[0],p[1]]),1.6,new THREE.MeshLambertMaterial({map:railT}),.22,true);
+  // overhead wire poles
+  const PO=[];let a2=0;for(let i=1;i<RPK.length;i++){a2+=Math.hypot(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1]);if(a2>=9){a2=0;PO.push([RPK[i][0],RPK[i][1],Math.atan2(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1])]);}}
+  {const pg=new THREE.BoxGeometry(.1,2.4,.1);pg.translate(0,1.2,0);const im=new THREE.InstancedMesh(pg,flat('#8a9098'),PO.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),v=new THREE.Vector3(),one=new THREE.Vector3(1,1,1);
+    PO.forEach(([x,z,a],i)=>{e.set(0,a,0);q.setFromEuler(e);m4.compose(v.set(x+Math.cos(a)*.95,deckH(x,z)+.2,z-Math.sin(a)*.95),q,one);im.setMatrixAt(i,m4);});im.castShadow=true;im.frustumCulled=false;im.userData.L='props';scene.add(im);}
+  // a train of its own on this line, the same cars as the northern line
+  let L0=0;const RS=[0];for(let i=1;i<RPK.length;i++){L0+=Math.hypot(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1]);RS.push(L0);}
+  const at=s=>{s=Math.max(0,Math.min(L0-.01,s));let i=1;while(i<RS.length-1&&RS[i]<s)i++;const a=RPK[i-1],b=RPK[i],t=(s-RS[i-1])/(RS[i]-RS[i-1]||1);return{x:a[0]+(b[0]-a[0])*t,z:a[1]+(b[1]-a[1])*t,a:Math.atan2(b[0]-a[0],b[1]-a[1])};};
+  if(O.train&&O.train.cars.length){const tg=new THREE.Group();tg.userData.L='veh';scene.add(tg);const cars=O.train.cars.map(c=>{const k=c.clone();tg.add(k);return k;});
+    O.trainK={s:L0*.2,dir:1,wait:0,cars,at,L:L0,stops:[.12,.3,.5,.7,.88].map(f=>f*L0)};}
+  O.kwRoad=D;console.log('OWLOG kwinana corridor '+Math.round(acc)+' u, rail '+Math.round(L0));}catch(e){console.error('kwinana',e);}
 // ===== roads as one system (Paul, Nov 2026, "ถนนไม่แหว่ง"): kit textures on every road, no second road under the freeway, bridges wherever a road
 // crosses water, junction boxes that follow the ground above the roads under them, signals in green waves, nothing standing on a carriageway =====
 try{const t0=performance.now(),RS={};O.ribs=RIBS;
@@ -11224,7 +11264,7 @@ try{const t0=performance.now(),RS={};O.ribs=RIBS;
   RS.ms=Math.round(performance.now()-t0);O.roadsFix=RS;console.log('OWROADS',JSON.stringify(RS));}catch(e){console.error('owroads',e);}
 
 {const RT=[];const addR=(P,offs)=>{let L=0;const S=[0];for(let i=1;i<P.length;i++){L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);S.push(L);}if(L>20)RT.push({P,S,L,offs});};
-  ROADS.forEach(r=>{if(N&&r===N.cityRoad)return;addR(r.p,[1]);});if(N)N.roads.forEach(r=>{const P=r.draw||r.p;if(r===N.main&&MP){const z0=MP[MP.length-1][1];addR(P.filter(q=>q[1]<=z0+1),[1.1]);}else addR(P,[1]);});if(MP)addR(MP,[2.6,4.6]);if(SOUTH&&SOUTH.road)addR(SOUTH.road,[1.1]);(O.subRoutes||[]).forEach(P=>addR(P,[.95]));
+  ROADS.forEach(r=>{if(N&&r===N.cityRoad)return;if(O.kwRoad&&r.n==='Kwinana Fwy'){if(O.KWprot&&O.KWprot.length>1)addR(O.KWprot,[1]);addR(O.kwRoad.map(p=>[p[0],p[1]]),[2.6,4.6]);return;}addR(r.p,[1]);});if(N)N.roads.forEach(r=>{const P=r.draw||r.p;if(r===N.main&&MP){const z0=MP[MP.length-1][1];addR(P.filter(q=>q[1]<=z0+1),[1.1]);}else addR(P,[1]);});if(MP)addR(MP,[2.6,4.6]);if(SOUTH&&SOUTH.road&&!O.kwRoad)addR(SOUTH.road,[1.1]);(O.subRoutes||[]).forEach(P=>addR(P,[.95]));
   const posOn=(R,s,o,dir)=>{s=Math.max(0,Math.min(R.L-.01,s));let i=1;while(i<R.S.length-1&&R.S[i]<s)i++;const a=R.P[i-1],b=R.P[i],t=(s-R.S[i-1])/(R.S[i]-R.S[i-1]||1);let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const fx=dx*dir,fz=dz*dir;
     return{x:a[0]+(b[0]-a[0])*t+fz*o,z:a[1]+(b[1]-a[1])*t-fx*o,a:Math.atan2(fx,fz)};};
   const COLS=['#c8344a','#f4f2ec','#2f6a74','#e8b860','#3e7d5c','#1d3a6e','#9aa0a6','#e86a1a','#2a2a30','#d8d0bc'];
@@ -11266,7 +11306,7 @@ O.render=function(dt){dt=Math.max(0,Math.min(.05,dt||0));O.t+=dt;const t=O.t;PU.
   plantMat.emissive.setRGB(.10+.22*gk,.07+.12*gk,.02);(O.lamps||[]).forEach(l=>l.material.color.set(gk>.5?0xffe2a0:0x3a3a30));
   if(O.bell)O.bell.material.color.setRGB(.9+.1*gk,.85+.1*gk,.6+.3*gk*Math.abs(Math.sin(t*1.3)));(O.beacons||[]).forEach((b,i)=>b.visible=gk>.3&&Math.sin(t*3+i)>0);
   if(O.beam){O.beam.rotation.y=t*.9;O.beamM.opacity=gk*.85;O.lighthouseLamp.material.color.setRGB(1,.95,.7+.3*gk);}
-  if(O.train){const T2=O.train;if(T2.wait>0)T2.wait-=dt;else{const ps=T2.s;T2.s+=T2.dir*14*dt;if(T2.s>O.trainLen-8||T2.s<8){T2.s=Math.max(8,Math.min(O.trainLen-8,T2.s));T2.dir*=-1;T2.wait=3;}else for(const st of T2.stops){if((ps-st)*(T2.s-st)<0){T2.wait=2.5;T2.s=st;break;}}}
+  if(O.trainK){const T=O.trainK;if(T.wait>0)T.wait-=dt;else{const ps=T.s;T.s+=T.dir*14*dt;if(T.s>T.L-8||T.s<8){T.s=Math.max(8,Math.min(T.L-8,T.s));T.dir*=-1;T.wait=3;}else for(const st of T.stops)if((ps-st)*(T.s-st)<0){T.wait=2.5;T.s=st;break;}}T.cars.forEach((c,k)=>{const p=T.at(T.s-T.dir*k*4.6);c.position.set(p.x,deckH(p.x,p.z)+.2,p.z);c.rotation.y=p.a;});}if(O.train){const T2=O.train;if(T2.wait>0)T2.wait-=dt;else{const ps=T2.s;T2.s+=T2.dir*14*dt;if(T2.s>O.trainLen-8||T2.s<8){T2.s=Math.max(8,Math.min(O.trainLen-8,T2.s));T2.dir*=-1;T2.wait=3;}else for(const st of T2.stops){if((ps-st)*(T2.s-st)<0){T2.wait=2.5;T2.s=st;break;}}}
     T2.cars.forEach((c,k)=>{const p=O.trainAt(T2.s-T2.dir*k*4.6);c.position.set(p.x,deckH(p.x,p.z)+.2,p.z);c.rotation.y=p.a;});}
   if(O.traffic)O.traffic(dt,px,pz);if(O.subTick)O.subTick(dt,px,pz);
   (O.signals||[]).forEach(s=>{const[ax,st]=O.signalPhase(s,O.t);s.heads.forEach(h=>{const on=h.axis===ax?st:'r';h.L[0].material.color.set(on==='r'?0xff3a2a:0x3a1010);h.L[1].material.color.set(on==='a'?0xffb020:0x3a2a08);h.L[2].material.color.set(on==='g'?0x3aff6a:0x0a2a12);});});if(O.jettyTrain){const J=O.jettyTrain;J.g.position.z=(Math.sin(O.t*.11)*.5+.5)*(J.L-8)+5;}(O.beacons2||[]).forEach((b,i)=>{b.bm.material.opacity=.16+.12*Math.sin(O.t*2.4+i);b.arr.position.y=4.4+Math.sin(O.t*3+i)*.35;});if(O.cbdG)O.cbdDet.visible=Math.hypot(cam.position.x-O.cbdG.position.x,cam.position.z-O.cbdG.position.z)<170;if(O.wheel)O.wheel.rotation.z=t*.08;if(O.sails)O.sails.rotation.z=t*.25;if(O.ferry)O.ferry.position.y=Math.sin(t*1.4)*.06;
@@ -11298,12 +11338,12 @@ O.render=function(dt){dt=Math.max(0,Math.min(.05,dt||0));O.t+=dt;const t=O.t;PU.
 // 3D leaf-card tree (trunk and limbs, painted leaf-clump cards that shade like one soft ball, dappled shadow); further out the
 // pictures stay. Tree spots are read from every billboard mesh (the ones with a 'corner' attribute); the kind is guessed from the
 // picture's height and width: tall and narrow = pine, low = bush, else gum, peppermint or a round street tree. Instanced per kind.
-const OW3T={R:46,/* trees about as tall as the houses (Paul, Nov 2026) */n:0,ready:false,pts:null,grid:null,uCam:{value:new THREE.Vector2(1e9,1e9)},uR:{value:46}};
+const OW3T={R:46,R2:150,/* trees about as tall as the houses (Paul, Nov 2026) */n:0,ready:false,pts:null,grid:null,uCam:{value:new THREE.Vector2(1e9,1e9)},uR:{value:150}};
 function owTree3dTick(px,pz){if(!OWTOON)return;try{owToonCar();if(!OW3T.ready)owTree3dInit();if(!OW3T.ready)return;OW3T.uCam.value.set(px,pz);
-  if(OW3T.lx!==undefined&&Math.hypot(px-OW3T.lx,pz-OW3T.lz)<4)return;OW3T.lx=px;OW3T.lz=pz;
-  const R=OW3T.R,C=16,i0=Math.floor((px-R)/C),i1=Math.floor((px+R)/C),j0=Math.floor((pz-R)/C),j1=Math.floor((pz+R)/C),cnt=OW3T.T.map(()=>0),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),P=new THREE.Vector3(),S=new THREE.Vector3();
-  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const L=OW3T.grid.get(i*100003+j);if(!L)continue;for(const t of L){if(Math.hypot(t[0]-px,t[2]-pz)>R)continue;const T=OW3T.T[t[4]];const k=cnt[t[4]];if(k>=T.cap)continue;
-    q.setFromAxisAngle(Y,t[5]);P.set(t[0],t[1],t[2]);S.set(t[3],t[3],t[3]);m4.compose(P,q,S);T.meshes.forEach(m=>m.setMatrixAt(k,m4));cnt[t[4]]++;}}
+  if(OW3T.lx!==undefined&&Math.hypot(px-OW3T.lx,pz-OW3T.lz)<6)return;OW3T.lx=px;OW3T.lz=pz;
+  const R=OW3T.R2,RN=OW3T.R,C=16,i0=Math.floor((px-R)/C),i1=Math.floor((px+R)/C),j0=Math.floor((pz-R)/C),j1=Math.floor((pz+R)/C),cnt=OW3T.T.map(()=>0),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),P=new THREE.Vector3(),S=new THREE.Vector3();
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const L=OW3T.grid.get(i*100003+j);if(!L)continue;for(const t of L){const dd=Math.hypot(t[0]-px,t[2]-pz);if(dd>R)continue;const ti=t[4]+(dd>RN?5:0),T=OW3T.T[ti];const k=cnt[ti];if(k>=T.cap)continue;
+    q.setFromAxisAngle(Y,t[5]);P.set(t[0],t[1],t[2]);S.set(t[3],t[3],t[3]);m4.compose(P,q,S);T.meshes.forEach(m=>m.setMatrixAt(k,m4));cnt[ti]++;}}
   OW3T.T.forEach((T,i)=>T.meshes.forEach(m=>{m.count=cnt[i];m.instanceMatrix.needsUpdate=true;}));OW3T.n=cnt.reduce((a,b)=>a+b,0);}catch(e){console.warn('ow3t',e);OW3T.ready=true;OW3T.T=OW3T.T||[];}}
 function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
   // 1. tree spots from every billboard mesh; their materials stop drawing within R of the car
@@ -11336,7 +11376,7 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;};
   const barkTex=(base,dark)=>{const cv=document.createElement('canvas');cv.width=32;cv.height=64;const g=cv.getContext('2d');g.fillStyle=base;g.fillRect(0,0,32,64);for(let i=0;i<60;i++){g.fillStyle=dark;g.fillRect(r()*32,r()*64,1+r()*2,4+r()*10);}const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;};
   const KINDS=[['gum','#d9d0bf','#b9ad99'],['pep','#5d4636','#3e2d22'],['pine','#6b4a33','#4a3222'],['round','#5b4838','#3d2f24'],['bush','#5b4838','#3d2f24']];
-  OW3T.T=KINDS.map(([k,bc,bd],ki)=>{const L=new B(),K=new B();
+  const mk=(k,bc,bd,lite)=>{const L=new B(),K=new B();if(lite){const c0=L.card.bind(L);let nn=0;L.card=(c,f,up,w,h,roll,cell,nc,nUp)=>{if((nn++)%3)return;c0(c,f,up,w*1.55,h*1.55,roll,cell,nc,nUp);};}
     if(k==='pine'){const H=1;K.limb(V(0,0,0),V(0,H,0),.03,.006,6);const tiers=7;for(let t=0;t<tiers;t++){const y=.22+.72*t/(tiers-1),Lr=(H-y)*.36+.05,arms=5,a0=r()*6.28,c0=V(0,y,0),nc=V(0,y-.14,0);
         for(let a=0;a<arms;a++){const an=a0+a/arms*6.283,dir=V(Math.cos(an),-.08,Math.sin(an)).normalize();for(let s=0;s<2;s++){const tt=(s+.6)/2,c=c0.clone().addScaledVector(dir,Lr*tt);c.y-=tt*tt*.03;const sz=.11+Lr*.3;L.card(c,UP.clone().addScaledVector(dir,.2),dir,sz*.9,sz,(r()-.5)*.3,(r()*4)|0,nc,.5);}}}}
     else if(k==='bush'){const nc=V(0,-.3,0);for(let i=0;i<3;i++){const c=V((r()-.5)*.5,.35+r()*.15,(r()-.5)*.5),rad=.3+r()*.15;for(let j=0;j<22;j++){const d=ru();d.y=Math.abs(d.y);d.normalize();const sz=.38+r()*.12;L.card(c.clone().addScaledVector(d,rad*(.4+.6*r())),d,UP,sz,sz,r()*6.28,(r()*4)|0,nc,.6);}}K.limb(V(0,0,0),V(0,.3,0),.03,.02,5);}
@@ -11346,8 +11386,10 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const lt=leafTex(k),lm=new THREE.MeshLambertMaterial({map:lt,alphaTest:.45,side:THREE.DoubleSide,emissive:new THREE.Color(.03,.04,.02)});
     lm.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <lights_lambert_vertex>','#include <lights_lambert_vertex>\n#ifdef DOUBLE_SIDED\nvLightBack=vLightFront;vIndirectBack=vIndirectFront;\n#endif');};lm.customProgramCacheKey=()=>'ow3tleaf';
     const dm=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:lt,alphaTest:.45});const bm=new THREE.MeshLambertMaterial({map:barkTex(bc,bd)});
-    const cap=k==='bush'?500:420,meshes=[new THREE.InstancedMesh(L.geo(),lm,cap),new THREE.InstancedMesh(K.geo(),bm,cap)];meshes[0].customDepthMaterial=dm;
-    meshes.forEach(m=>{m.count=0;m.castShadow=true;m.receiveShadow=true;m.frustumCulled=false;m.userData.L='plants';m.userData.ow3t=1;scene.add(m);});return{k,cap,meshes};});
+    const cap=lite?(k==='bush'?2200:1800):(k==='bush'?500:420),meshes=[new THREE.InstancedMesh(L.geo(),lm,cap),new THREE.InstancedMesh(K.geo(),bm,cap)];meshes[0].customDepthMaterial=dm;
+    meshes.forEach(m=>{m.count=0;m.castShadow=!lite;m.receiveShadow=true;m.frustumCulled=false;m.userData.L='plants';m.userData.ow3t=1;scene.add(m);});return{k,cap,meshes};};
+  // near trees in full, far ones (out to R2) with a third of the leaf cards, a bit bigger; pictures only beyond R2 (Paul: far trees 3D too)
+  OW3T.T=KINDS.map(([k,bc,bd])=>mk(k,bc,bd,false)).concat(KINDS.map(([k,bc,bd])=>mk(k,bc,bd,true)));
   OW3T.ready=true;console.log('OW3T trees '+pts.length);}
 
 // Kip drives a toon car (Paul, Nov 2026): the car's boxes get banded toon shading and a dark ink outline, and Kip sits at the wheel

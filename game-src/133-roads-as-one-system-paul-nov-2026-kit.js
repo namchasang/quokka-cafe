@@ -61,7 +61,7 @@ try{const t0=performance.now(),RS={};O.ribs=RIBS;
   RS.ms=Math.round(performance.now()-t0);O.roadsFix=RS;console.log('OWROADS',JSON.stringify(RS));}catch(e){console.error('owroads',e);}
 
 {const RT=[];const addR=(P,offs)=>{let L=0;const S=[0];for(let i=1;i<P.length;i++){L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);S.push(L);}if(L>20)RT.push({P,S,L,offs});};
-  ROADS.forEach(r=>{if(N&&r===N.cityRoad)return;addR(r.p,[1]);});if(N)N.roads.forEach(r=>{const P=r.draw||r.p;if(r===N.main&&MP){const z0=MP[MP.length-1][1];addR(P.filter(q=>q[1]<=z0+1),[1.1]);}else addR(P,[1]);});if(MP)addR(MP,[2.6,4.6]);if(SOUTH&&SOUTH.road)addR(SOUTH.road,[1.1]);(O.subRoutes||[]).forEach(P=>addR(P,[.95]));
+  ROADS.forEach(r=>{if(N&&r===N.cityRoad)return;if(O.kwRoad&&r.n==='Kwinana Fwy'){if(O.KWprot&&O.KWprot.length>1)addR(O.KWprot,[1]);addR(O.kwRoad.map(p=>[p[0],p[1]]),[2.6,4.6]);return;}addR(r.p,[1]);});if(N)N.roads.forEach(r=>{const P=r.draw||r.p;if(r===N.main&&MP){const z0=MP[MP.length-1][1];addR(P.filter(q=>q[1]<=z0+1),[1.1]);}else addR(P,[1]);});if(MP)addR(MP,[2.6,4.6]);if(SOUTH&&SOUTH.road&&!O.kwRoad)addR(SOUTH.road,[1.1]);(O.subRoutes||[]).forEach(P=>addR(P,[.95]));
   const posOn=(R,s,o,dir)=>{s=Math.max(0,Math.min(R.L-.01,s));let i=1;while(i<R.S.length-1&&R.S[i]<s)i++;const a=R.P[i-1],b=R.P[i],t=(s-R.S[i-1])/(R.S[i]-R.S[i-1]||1);let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const fx=dx*dir,fz=dz*dir;
     return{x:a[0]+(b[0]-a[0])*t+fz*o,z:a[1]+(b[1]-a[1])*t-fx*o,a:Math.atan2(fx,fz)};};
   const COLS=['#c8344a','#f4f2ec','#2f6a74','#e8b860','#3e7d5c','#1d3a6e','#9aa0a6','#e86a1a','#2a2a30','#d8d0bc'];

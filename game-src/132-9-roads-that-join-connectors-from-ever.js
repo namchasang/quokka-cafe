@@ -108,3 +108,27 @@ if(MP){const off=(P,o)=>P.map((p,i)=>{const q=P[Math.min(P.length-1,i+1)],r=P[Ma
   O.train={s:L0*.3,dir:1,wait:0,cars:tcar,stops:STN.map(s=>s[1]*L0)};}
 // sparse traffic: little cars in their lanes (drive on the left), both directions, kept near Kip
 if(O.subLate)try{O.subLate();}catch(e){console.error('owsub late',e);}
+// ===== owroads2 (Paul, Nov 2026): Kwinana Fwy -> Forrest Hwy -> Busselton, four lanes with the railway in the median like the Mitchell =====
+if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP;
+  // the old single ribbons go; the part inside the protected boxes is drawn again exactly as before
+  const kw=ROADS.find(r=>r.n==='Kwinana Fwy');RIBS.forEach(r=>{if((kw&&r.pts===kw.p)||(SOUTH&&r.pts===SOUTH.road)){r.m.visible=false;r.hidden=1;}});if(O.KWprot&&O.KWprot.length>1)ribbon(O.KWprot,4,roadM,.18,true);
+  const D=[];let acc=0;for(let i=1;i<KP.length;i++){const a=KP[i-1],b=KP[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/2));for(let k=(i>1?1:0);k<=n;k++)D.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n,acc+L*k/n]);acc+=L;}
+  // a little smoothing so the curves are even
+  for(let pass=0;pass<3;pass++)for(let i=1;i<D.length-1;i++){D[i][0]=(D[i-1][0]+D[i][0]*2+D[i+1][0])/4;D[i][1]=(D[i-1][1]+D[i][1]*2+D[i+1][1])/4;}
+  const vr=(off,w,mat,yo,us)=>{const v=[],uv=[],idx=[];D.forEach((p,i)=>{const q=D[Math.min(D.length-1,i+1)],o=D[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const cx=p[0]+dz*off,cz=p[1]-dx*off,y=Math.max(deckH(cx,cz),H(cx-dz*w/2,cz+dx*w/2),H(cx+dz*w/2,cz-dx*w/2))+yo;
+      [-1,1].forEach(s2=>{v.push(cx-dz*w/2*s2,y,cz+dx*w/2*s2);uv.push(s2<0?0:1,p[2]/(us||4));});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';scene.add(m);return m;};
+  const laneM=new THREE.MeshLambertMaterial({map:RK.tex(RK.fwy(-1)),side:THREE.DoubleSide});
+  const gc=mkc(16,16),gx=gc.getContext('2d');for(let k=0;k<256;k++)PP(gx,['#8a7a68','#9a8a74','#7a6a5a','#a89880'][(HSH(k,3)*4)|0],k%16,k>>4);PP(gx,'#c8c4b8',0,0,1,16);PP(gx,'#c8c4b8',15,0,1,16);const gravel=new THREE.MeshLambertMaterial({map:TX(gc,true)});
+  [1,-1].forEach(sd=>vr(sd*3.6,4,laneM,.2));vr(0,3.2,gravel,.205,8);
+  const RPK=ribbon(D.map(p=>[p[0],p[1]]),1.6,new THREE.MeshLambertMaterial({map:railT}),.22,true);
+  // overhead wire poles
+  const PO=[];let a2=0;for(let i=1;i<RPK.length;i++){a2+=Math.hypot(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1]);if(a2>=9){a2=0;PO.push([RPK[i][0],RPK[i][1],Math.atan2(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1])]);}}
+  {const pg=new THREE.BoxGeometry(.1,2.4,.1);pg.translate(0,1.2,0);const im=new THREE.InstancedMesh(pg,flat('#8a9098'),PO.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),v=new THREE.Vector3(),one=new THREE.Vector3(1,1,1);
+    PO.forEach(([x,z,a],i)=>{e.set(0,a,0);q.setFromEuler(e);m4.compose(v.set(x+Math.cos(a)*.95,deckH(x,z)+.2,z-Math.sin(a)*.95),q,one);im.setMatrixAt(i,m4);});im.castShadow=true;im.frustumCulled=false;im.userData.L='props';scene.add(im);}
+  // a train of its own on this line, the same cars as the northern line
+  let L0=0;const RS=[0];for(let i=1;i<RPK.length;i++){L0+=Math.hypot(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1]);RS.push(L0);}
+  const at=s=>{s=Math.max(0,Math.min(L0-.01,s));let i=1;while(i<RS.length-1&&RS[i]<s)i++;const a=RPK[i-1],b=RPK[i],t=(s-RS[i-1])/(RS[i]-RS[i-1]||1);return{x:a[0]+(b[0]-a[0])*t,z:a[1]+(b[1]-a[1])*t,a:Math.atan2(b[0]-a[0],b[1]-a[1])};};
+  if(O.train&&O.train.cars.length){const tg=new THREE.Group();tg.userData.L='veh';scene.add(tg);const cars=O.train.cars.map(c=>{const k=c.clone();tg.add(k);return k;});
+    O.trainK={s:L0*.2,dir:1,wait:0,cars,at,L:L0,stops:[.12,.3,.5,.7,.88].map(f=>f*L0)};}
+  O.kwRoad=D;console.log('OWLOG kwinana corridor '+Math.round(acc)+' u, rail '+Math.round(L0));}catch(e){console.error('kwinana',e);}

@@ -3,12 +3,12 @@
 // 3D leaf-card tree (trunk and limbs, painted leaf-clump cards that shade like one soft ball, dappled shadow); further out the
 // pictures stay. Tree spots are read from every billboard mesh (the ones with a 'corner' attribute); the kind is guessed from the
 // picture's height and width: tall and narrow = pine, low = bush, else gum, peppermint or a round street tree. Instanced per kind.
-const OW3T={R:46,/* trees about as tall as the houses (Paul, Nov 2026) */n:0,ready:false,pts:null,grid:null,uCam:{value:new THREE.Vector2(1e9,1e9)},uR:{value:46}};
+const OW3T={R:46,R2:150,/* trees about as tall as the houses (Paul, Nov 2026) */n:0,ready:false,pts:null,grid:null,uCam:{value:new THREE.Vector2(1e9,1e9)},uR:{value:150}};
 function owTree3dTick(px,pz){if(!OWTOON)return;try{owToonCar();if(!OW3T.ready)owTree3dInit();if(!OW3T.ready)return;OW3T.uCam.value.set(px,pz);
-  if(OW3T.lx!==undefined&&Math.hypot(px-OW3T.lx,pz-OW3T.lz)<4)return;OW3T.lx=px;OW3T.lz=pz;
-  const R=OW3T.R,C=16,i0=Math.floor((px-R)/C),i1=Math.floor((px+R)/C),j0=Math.floor((pz-R)/C),j1=Math.floor((pz+R)/C),cnt=OW3T.T.map(()=>0),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),P=new THREE.Vector3(),S=new THREE.Vector3();
-  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const L=OW3T.grid.get(i*100003+j);if(!L)continue;for(const t of L){if(Math.hypot(t[0]-px,t[2]-pz)>R)continue;const T=OW3T.T[t[4]];const k=cnt[t[4]];if(k>=T.cap)continue;
-    q.setFromAxisAngle(Y,t[5]);P.set(t[0],t[1],t[2]);S.set(t[3],t[3],t[3]);m4.compose(P,q,S);T.meshes.forEach(m=>m.setMatrixAt(k,m4));cnt[t[4]]++;}}
+  if(OW3T.lx!==undefined&&Math.hypot(px-OW3T.lx,pz-OW3T.lz)<6)return;OW3T.lx=px;OW3T.lz=pz;
+  const R=OW3T.R2,RN=OW3T.R,C=16,i0=Math.floor((px-R)/C),i1=Math.floor((px+R)/C),j0=Math.floor((pz-R)/C),j1=Math.floor((pz+R)/C),cnt=OW3T.T.map(()=>0),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),P=new THREE.Vector3(),S=new THREE.Vector3();
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const L=OW3T.grid.get(i*100003+j);if(!L)continue;for(const t of L){const dd=Math.hypot(t[0]-px,t[2]-pz);if(dd>R)continue;const ti=t[4]+(dd>RN?5:0),T=OW3T.T[ti];const k=cnt[ti];if(k>=T.cap)continue;
+    q.setFromAxisAngle(Y,t[5]);P.set(t[0],t[1],t[2]);S.set(t[3],t[3],t[3]);m4.compose(P,q,S);T.meshes.forEach(m=>m.setMatrixAt(k,m4));cnt[ti]++;}}
   OW3T.T.forEach((T,i)=>T.meshes.forEach(m=>{m.count=cnt[i];m.instanceMatrix.needsUpdate=true;}));OW3T.n=cnt.reduce((a,b)=>a+b,0);}catch(e){console.warn('ow3t',e);OW3T.ready=true;OW3T.T=OW3T.T||[];}}
 function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
   // 1. tree spots from every billboard mesh; their materials stop drawing within R of the car
@@ -41,7 +41,7 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;};
   const barkTex=(base,dark)=>{const cv=document.createElement('canvas');cv.width=32;cv.height=64;const g=cv.getContext('2d');g.fillStyle=base;g.fillRect(0,0,32,64);for(let i=0;i<60;i++){g.fillStyle=dark;g.fillRect(r()*32,r()*64,1+r()*2,4+r()*10);}const t=new THREE.CanvasTexture(cv);t.encoding=THREE.sRGBEncoding;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;};
   const KINDS=[['gum','#d9d0bf','#b9ad99'],['pep','#5d4636','#3e2d22'],['pine','#6b4a33','#4a3222'],['round','#5b4838','#3d2f24'],['bush','#5b4838','#3d2f24']];
-  OW3T.T=KINDS.map(([k,bc,bd],ki)=>{const L=new B(),K=new B();
+  const mk=(k,bc,bd,lite)=>{const L=new B(),K=new B();if(lite){const c0=L.card.bind(L);let nn=0;L.card=(c,f,up,w,h,roll,cell,nc,nUp)=>{if((nn++)%3)return;c0(c,f,up,w*1.55,h*1.55,roll,cell,nc,nUp);};}
     if(k==='pine'){const H=1;K.limb(V(0,0,0),V(0,H,0),.03,.006,6);const tiers=7;for(let t=0;t<tiers;t++){const y=.22+.72*t/(tiers-1),Lr=(H-y)*.36+.05,arms=5,a0=r()*6.28,c0=V(0,y,0),nc=V(0,y-.14,0);
         for(let a=0;a<arms;a++){const an=a0+a/arms*6.283,dir=V(Math.cos(an),-.08,Math.sin(an)).normalize();for(let s=0;s<2;s++){const tt=(s+.6)/2,c=c0.clone().addScaledVector(dir,Lr*tt);c.y-=tt*tt*.03;const sz=.11+Lr*.3;L.card(c,UP.clone().addScaledVector(dir,.2),dir,sz*.9,sz,(r()-.5)*.3,(r()*4)|0,nc,.5);}}}}
     else if(k==='bush'){const nc=V(0,-.3,0);for(let i=0;i<3;i++){const c=V((r()-.5)*.5,.35+r()*.15,(r()-.5)*.5),rad=.3+r()*.15;for(let j=0;j<22;j++){const d=ru();d.y=Math.abs(d.y);d.normalize();const sz=.38+r()*.12;L.card(c.clone().addScaledVector(d,rad*(.4+.6*r())),d,UP,sz,sz,r()*6.28,(r()*4)|0,nc,.6);}}K.limb(V(0,0,0),V(0,.3,0),.03,.02,5);}
@@ -51,8 +51,10 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const lt=leafTex(k),lm=new THREE.MeshLambertMaterial({map:lt,alphaTest:.45,side:THREE.DoubleSide,emissive:new THREE.Color(.03,.04,.02)});
     lm.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <lights_lambert_vertex>','#include <lights_lambert_vertex>\n#ifdef DOUBLE_SIDED\nvLightBack=vLightFront;vIndirectBack=vIndirectFront;\n#endif');};lm.customProgramCacheKey=()=>'ow3tleaf';
     const dm=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:lt,alphaTest:.45});const bm=new THREE.MeshLambertMaterial({map:barkTex(bc,bd)});
-    const cap=k==='bush'?500:420,meshes=[new THREE.InstancedMesh(L.geo(),lm,cap),new THREE.InstancedMesh(K.geo(),bm,cap)];meshes[0].customDepthMaterial=dm;
-    meshes.forEach(m=>{m.count=0;m.castShadow=true;m.receiveShadow=true;m.frustumCulled=false;m.userData.L='plants';m.userData.ow3t=1;scene.add(m);});return{k,cap,meshes};});
+    const cap=lite?(k==='bush'?2200:1800):(k==='bush'?500:420),meshes=[new THREE.InstancedMesh(L.geo(),lm,cap),new THREE.InstancedMesh(K.geo(),bm,cap)];meshes[0].customDepthMaterial=dm;
+    meshes.forEach(m=>{m.count=0;m.castShadow=!lite;m.receiveShadow=true;m.frustumCulled=false;m.userData.L='plants';m.userData.ow3t=1;scene.add(m);});return{k,cap,meshes};};
+  // near trees in full, far ones (out to R2) with a third of the leaf cards, a bit bigger; pictures only beyond R2 (Paul: far trees 3D too)
+  OW3T.T=KINDS.map(([k,bc,bd])=>mk(k,bc,bd,false)).concat(KINDS.map(([k,bc,bd])=>mk(k,bc,bd,true)));
   OW3T.ready=true;console.log('OW3T trees '+pts.length);}
 
 // Kip drives a toon car (Paul, Nov 2026): the car's boxes get banded toon shading and a dark ink outline, and Kip sits at the wheel

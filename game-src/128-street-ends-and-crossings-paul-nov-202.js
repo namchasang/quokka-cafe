@@ -13,7 +13,7 @@ const APR=[];O.subAprons=APR;
     let m=near(e[0],e[1],s,6);
     if(!m){for(let t=.5;t<=4.5&&!m;t+=.5){const x=e[0]+dx*t,z=e[1]+dz*t;const k=near(x,z,s,.6);if(k)m=k;}}
     if(m&&m.d>.2&&!landRun(e,m.p))m=null;
-    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,5.2,5.2,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
+    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,3.2,3.2,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
     const oh=m.rib?m.rib/2:half(m.s);let nx=e[0]-m.p[0],nz=e[1]-m.p[1],nl=Math.hypot(nx,nz);if(nl<.2){nx=-dx;nz=-dz;nl=1;}nx/=nl;nz/=nl;
     // close a gap: run the street on to the other road
     const reach=m.rib?Math.max(.6,oh-.5):m.s.kind==='art'?3.0:s.kind==='lane'?Math.max(.2,oh-.6):oh+.1;
@@ -40,12 +40,13 @@ APR.forEach(a=>rbox(a[0],a[1],a[2],a[3],a[4],'asph',.1,!!a[5]));
 // streets into chunk geometry
 STREETS.forEach(s=>{const P=s.P;
   if((s.kind==='bulb'||s.kind==='abulb'||s.kind==='xpad')&&(()=>{const[x,z]=P[0];if(MP&&fwD(x,z)<9)return true;const rb=ribNear(x,z,9);return rb&&rb.d<rb.w/2+2.6;})())return;// nothing round left lying on a highway (Paul, Nov 2026)
-  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
-  if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.05,.07,UV.asph,24);ring(g,x,z,2.0,2.12,.16,UV.kerb,24);ring(g,x,z,2.12,2.5,.11,UV.path,24);RKCIR.push([x,z,2.0]);return;}// a cul-de-sac: asphalt circle, kerb, footpath
+  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],OWR2?1.45:3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
+  if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z),R0=1.05;disc(g,x,z,R0+.05,.07,UV.asph,24);ring(g,x,z,R0,R0+.1,.16,UV.kerb,24);ring(g,x,z,R0+.1,R0+.45,.11,UV.path,24);RKCIR.push([x,z,R0]);return;}// a cul-de-sac just a little wider than its street (Paul, Nov 2026)// a cul-de-sac: asphalt circle, kerb, footpath
   if(s.kind==='xst'){const[x,z]=P[0];rbox(x,z,s.w2+2,s.w1,s.a1,'xarm',0,false);rbox(x,z,s.w1+2,s.w2,s.a2,'xarm2',0,false);return;}
   if(s.kind==='tj'){const[x,z]=P[0];rbox(x,z,s.L,s.w,s.ang,'tarm',0,false);return;}
   if(s.kind==='mrab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,s.r,.07,UV.asph,16);const F=FR(x,gy(x,z)+.08,z,0,bake(x,z));cyl(g,F,0,0,0,s.r*.36,.1,12,UV.kerb,UV.island);ring(g,x,z,s.r*.36,s.r*.36+.08,.1,UV.kerb,12);return;}
   if(s.kind==='rab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.1,.075,UV.asph,14);const F=FR(x,gy(x,z)+.07,z,0,bake(x,z));cyl(g,F,0,0,0,.95,.14,12,UV.kerb,UV.island);plant(x,z,3,2.4);return;}
+  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];rbox(x,z,6.6,6.6,0,'cross',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
   if(s.kind==='rab2'){const[x,z]=P[0],g=B(x,z);rbox(x,z,6.6,6.6,0,'asph',.1,false);disc(g,x,z,4,.09,UV.asph,18);const F=FR(x,gy(x,z)+.09,z,0,bake(x,z));cyl(g,F,0,0,0,2,.16,16,UV.kerb,UV.island);plant(x,z,13,4.2);plant(x+.9,z+.6,5,2.8);return;}
   if(s.kind==='pad'){const[x,z]=P[0],v=s.v;if(v&&v.arms.length===2&&v.arms[0][0].h===v.arms[1][0].h)return;rbox(x,z,6.6,6.6,0,'asph',.11,false);return;}
   const w=s.kind==='art'?6.5:s.kind==='lane'?.8:s.kind==='main'?3:2.5,uv=s.kind==='art'?UV.art:s.kind==='lane'?UV.lane:s.kind==='ramp'?UV.ramp:UV.street,yo=s.kind==='art'?.08:s.kind==='lane'?.04:.06;
