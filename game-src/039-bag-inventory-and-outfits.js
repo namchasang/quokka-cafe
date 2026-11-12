@@ -16,7 +16,7 @@ function drawOutfit(P,o){if(!o)return;const S3=c=>{const h=hex(c);return[shade(h
   if(o.acc==='shades'){const d=[18,18,26];for(let i=17;i<23;i++)P.set(i,9,d);[[17,10],[18,10],[19,10],[21,10],[22,10],[18,11],[21,11]].forEach(([i,j])=>P.set(i,j,d));P.set(18,10,[110,140,180]);P.set(21,10,[110,140,180]);}
   else if(o.acc==='flowers'&&!o.hat){[['#e8457a',11],['#ffd34d',13],['#ffffff',15],['#e8457a',17],['#9478d4',19],['#ffd34d',21]].forEach(([c,i])=>{P.set(i,5,hex(c));P.set(i+1,5,hex(c));P.set(i,6,hex('#3e7d5c'));});}
   else if(o.acc==='snorkel'){const b=S3('#2f78a8');for(let i=17;i<23;i++){P.set(i,8,b[1]);P.set(i,11,b[1]);}P.set(17,9,b[1]);P.set(17,10,b[1]);P.set(22,9,b[1]);P.set(22,10,b[1]);for(let i=18;i<22;i++){P.set(i,9,[150,210,240]);P.set(i,10,[120,190,230]);}for(let j=2;j<11;j++)P.set(24,j,hex('#f1c64a'));P.set(24,1,hex('#c8344a'));}}
-function kipFrames(){const o=outfit();const col=(WARD.apron[o.apron]||WARD.apron.green).col;return[0,1,2].map(s=>kip32(s,col,null,o)).concat([0,1,2].map(s=>kipFB(0,s,col,null,o)),[0,1,2].map(s=>kipFB(1,s,col,null,o)));}
+function kipFrames(){const o=outfit();const col=(WARD.apron[o.apron]||WARD.apron.green).col;const F=[0,1,2].map(s=>kip32(s,col,null,o)).concat([0,1,2].map(s=>kipFB(0,s,col,null,o)),[0,1,2].map(s=>kipFB(1,s,col,null,o)));F.forEach(c=>c.__toon={k:'quokka',apron:col,kip:1,o});return F;}
 function applyOutfit(){if(!player.mesh)return;const nm=spriteMesh(kipFrames(),1.15,1.15);player.mesh.userData.frames=nm.userData.frames;player.mesh.userData.cur=-1;showFrame(player.mesh);nm.geometry.dispose();const bi=BB.indexOf(nm);if(bi>=0)BB.splice(bi,1);const di=DIR4.indexOf(nm);if(di>=0)DIR4.splice(di,1);}
 let bagTab='bag';
 function openBag(){if(!running||overlay)return;renderBag();showOverlay('bag');}

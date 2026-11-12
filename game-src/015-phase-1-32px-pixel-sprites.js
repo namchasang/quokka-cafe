@@ -82,8 +82,8 @@ function humanBack(v,step){const P=painter(32,44);const S3=c=>[shade(c,.7),shade
   if(v.glasses){P.set(8,12,[18,18,26]);P.set(23,12,[18,18,26]);}
   if(v.hat){const hc=hex(v.hat);if(v.cap){P.ell(16,6.6,6.8,3.2,S3(hc));for(let i=14;i<18;i++)P.set(i,9,shade(hc,.6));}else{P.ell(16,6.4,10,2.2,S3(hc));P.ell(16,4.6,6,3.4,S3(hc));}}
   return P.done([38,26,22]);}
-function quokkaFrames(apron,tint){const col=apron?(typeof apron==='string'?apron:'#3e7d5c'):null;return[0,1,2].map(s=>kip32(s,col,tint)).concat([0,1,2].map(s=>kipFB(0,s,col,tint)),[0,1,2].map(s=>kipFB(1,s,col,tint)));}
-function humanFrames(v){const pad=h=>{const c=mk(32,52);c.getContext('2d').drawImage(h,0,8);return c;};return[0,1,2].map(s=>pad(humanSide(v,s))).concat([0,1,2].map(s=>pad(human32(v,s))),[0,1,2].map(s=>pad(humanBack(v,s))));}
+function quokkaFrames(apron,tint){const col=apron?(typeof apron==='string'?apron:'#3e7d5c'):null;const F=[0,1,2].map(s=>kip32(s,col,tint)).concat([0,1,2].map(s=>kipFB(0,s,col,tint)),[0,1,2].map(s=>kipFB(1,s,col,tint)));F.forEach(c=>c.__toon={k:'quokka',apron:col,tint});return F;}
+function humanFrames(v){const pad=h=>{const c=mk(32,52);c.getContext('2d').drawImage(h,0,8);c.__toon={k:'human',v};return c;};return[0,1,2].map(s=>pad(humanSide(v,s))).concat([0,1,2].map(s=>pad(human32(v,s))),[0,1,2].map(s=>pad(humanBack(v,s))));}
 const ICON_OVR={capp:['coffee',{f:'#fff8ee',w:'#c8344a',c:'#8a5a36'}],thai:['smo',{m:'#f2902e',r:'#ffffff',g:'#f6e8d0'}],fc:[null,{o:'#2a1d1a',y:'#f4c84a',w:'#f4efe6',b:'#d9a05a'}]};
 const FC_ROWS=['............','...y.y.y....','..yy.yy.y...','..yyyyyyy...','.oooooooooo.','.owwbbbbwwo.','.owbbbbbbwo.','.owwbbbbwwo.','..owwwwwwo..','...owwwwo...','....oooo....','............'];
 function iconCanvas(k){if(ICON_OVR[k]){const [base,pal]=ICON_OVR[k];return pix(base?ICONS[base]:FC_ROWS,Object.assign({},ICON_PAL,pal));}return pix(ICONS[k],k==='shell'?SHELL_PAL:k==='heart'?HEART_PAL:k==='spark'?SPARK_PAL:ICON_PAL);}

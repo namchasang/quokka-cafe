@@ -193,5 +193,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 185-home3-look-lab-home2-paul-nov-2026-hom.js | 17627-17692 | 6 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
 | 186-home4-paul-nov-2026-home-screen-shows.js | 17693-17751 | 8 | H4, h4Busy, H4_BUILD, h4Step, h4Pass, h4Mark, t2Targets, pxbCatchUp, pxbTick, tex3Scene |
 | 187-hd-pixel-set-on-rottnest-only-look-lab.js | 17752-17791 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 188-auth.js | 17792-17870 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 17871-17892 | 3 | SHOT |
+| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17792-17901 | 13 | TREE3D_LIVE, TREE3D |
+| 188-toon-characters-look-lab-toon.js | 17902-17979 | 9 | TOON_LIVE, TOON |
+| 188-auth.js | 17980-18058 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18059-18080 | 3 | SHOT |
