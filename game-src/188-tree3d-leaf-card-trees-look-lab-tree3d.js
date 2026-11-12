@@ -89,6 +89,9 @@ const TREE3D={pos:[],on:TREE3D_LIVE||/[?&#](tree3d|toon)\b/.test(location.search
   BB.slice().forEach((o,i)=>{if(!o.isMesh||o.userData.frames||!o.parent)return;if(typeof SIGN_TEX!=='undefined'&&o.material&&SIGN_TEX.has(o.material.map))return;
     // Paul (Nov 2026): Rottnest only until he approves the look for the other maps
     let isl=false;try{const wp=o.getWorldPosition(new THREE.Vector3());isl=zoneOf(o.parent===scene?o.position.x:wp.x)==='island';}catch(e){}if(!isl)return;
+    // Paul (Nov 2026): no trees over the island railway or hiding its stations
+    if(typeof WEST!=='undefined'&&WEST.rail&&WEST.rail.length>1){const x=o.position.x,z=o.position.z,R=WEST.rail,e=[R[0],R[R.length-1]];let d=1e9;for(let k=1;k<R.length;k++)d=Math.min(d,segD(x,z,R[k-1][0],R[k-1][1],R[k][0],R[k][1]));const gp0=o.geometry&&o.geometry.parameters,h0=gp0?gp0.height*Math.abs(o.scale.y):0;
+      if(h0>1.2&&(d<2.4||e.some(q=>Math.hypot(q[0]-x,q[1]-z)<6))){o.visible=false;TREE3D.cleared=(TREE3D.cleared||0)+1;return;}}
     const P=infoOf(o);if(!P)return;const gp=o.geometry&&o.geometry.parameters;if(!gp||!gp.height)return;const H=gp.height*Math.abs(o.scale.y),W=gp.width*Math.abs(o.scale.x);
     let kind=P.kind;if(kind==='grass')kind=W>=.6?'bush':(H>=.25?'tuft':null);if(!kind||!BUILD[kind]){TREE3D.skipped[P.kind]=(TREE3D.skipped[P.kind]||0)+1;return;}if(H<.2)return;
     const pal=palOf(P),bk=['pine','bush','gum','jac','tuft','palm'].includes(kind)?kind:'broad',tk=bk+pal[2]+pal[4];TREE3D.pos.push([o.position.x,o.position.z,Math.max(W,1)]);

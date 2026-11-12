@@ -197,5 +197,6 @@
 188-rocks-look-lab-toon.js
 188-critters-look-lab-toon.js
 188-basin-lookout-look-lab-toon.js
+188-rail-clear-look-lab-toon.js
 188-auth.js
 189-photo-mode-shot-x-z-hour-weather-zoom.js

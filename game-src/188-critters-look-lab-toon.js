@@ -28,7 +28,7 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
   const SH=['#e0434f','#3f7ad0','#f2c14e','#3f9a6a','#8a5ad0','#f08a3c'];
   function rider(i){const g=new THREE.Group(),F=TM(['#1d3a6e','#c8344a','#2f6a74','#e8b860'][i%4]),T=TM('#26282c'),S=TM('#f1c7a0'),C=TM(SH[i%SH.length]),P=TM('#3b4a6b');
     const wheels=[];[.42,-.42].forEach(z=>{const w=mesh(new THREE.TorusGeometry(.26,.03,6,18).rotateY(Math.PI/2),T,0,.29,z);g.add(w);wheels.push(w);});
-    const tube=(a,b,m)=>{const d=new THREE.Vector3().subVectors(b,a),L=d.length();const c=new THREE.CylinderGeometry(.022,.022,L,6);c.translate(0,L/2,0);c.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()));c.translate(a.x,a.y,a.z);return mesh(c,m);};
+    const tube=(a,b,m)=>{const d=new THREE.Vector3().subVectors(b,a),L=d.length();const c=new THREE.CylinderGeometry(.022,.022,L,6);c.translate(0,L/2,0);c.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize())));c.translate(a.x,a.y,a.z);return mesh(c,m);};
     const V=(y,z)=>new THREE.Vector3(0,y,z);[[V(.29,.42),V(.62,.3)],[V(.62,.3),V(.62,-.12)],[V(.62,-.12),V(.29,-.42)],[V(.29,-.42),V(.32,0)],[V(.32,0),V(.62,.3)],[V(.32,0),V(.62,-.12)],[V(.62,.3),V(.74,.28)],[V(.62,-.12),V(.68,-.12)]].forEach(([a,b])=>g.add(tube(a,b,F)));
     g.add(mesh(new THREE.BoxGeometry(.3,.025,.05),T,0,.75,.28));g.add(mesh(new THREE.BoxGeometry(.1,.04,.18),T,0,.7,-.13));
     const body=mesh(new THREE.BoxGeometry(.24,.34,.18),C,0,.95,-.02);body.rotation.x=.35;g.add(body);g.add(mesh(new THREE.SphereGeometry(.11,12,10),S,0,1.2,.1));
@@ -57,5 +57,5 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
       if(e.kind==='b'){const f=Math.sin(t*22+e.i)*1.1;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.position.y=s.position.y-.05;}
       else if(e.kind==='g'){const f=Math.sin(t*3+e.i)*.25;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.rotation.z=Math.sin(t*.7+e.i)*.15;}
       else{M.position.y=0;e.wa=(e.wa||0)+.25;M.userData.wheels.forEach(w=>w.rotation.x=e.wa);M.userData.legs.forEach((l,j)=>l.rotation.x=Math.sin(e.wa+j*Math.PI)*.6);}}}
-  (function loop(){try{tick();}catch(err){console.warn('crit3',err);CRIT3.on=false;return;}requestAnimationFrame(loop);})();
+  (function loop(){try{tick();}catch(err){if(!CRIT3.err){CRIT3.err=1;console.warn('crit3',err);}}requestAnimationFrame(loop);})();
 })();
