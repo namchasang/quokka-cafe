@@ -193,8 +193,9 @@ Find code: `grep -n 'name' game-src/*`.
 | 185-home3-look-lab-home2-paul-nov-2026-hom.js | 17627-17692 | 6 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
 | 186-home4-paul-nov-2026-home-screen-shows.js | 17693-17751 | 8 | H4, h4Busy, H4_BUILD, h4Step, h4Pass, h4Mark, t2Targets, pxbCatchUp, pxbTick, tex3Scene |
 | 187-hd-pixel-set-on-rottnest-only-look-lab.js | 17752-17791 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17792-17924 | 17 | TREE3D_LIVE, TREE3D |
-| 188-toon-characters-look-lab-toon.js | 17925-18002 | 9 | TOON_LIVE, TOON |
-| 188-garden-meadow-look-lab-toon.js | 18003-18038 | 3 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
-| 188-auth.js | 18039-18117 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18118-18139 | 3 | SHOT |
+| 188-garden-meadow-look-lab-toon.js | 17792-17858 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
+| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17859-18000 | 19 | TREE3D_LIVE, TREE3D |
+| 188-toon-characters-look-lab-toon.js | 18001-18078 | 9 | TOON_LIVE, TOON |
+| 188-paint-look-look-lab-toon.js | 18079-18133 | 5 | PAINT_LIVE, PAINT |
+| 188-auth.js | 18134-18212 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18213-18234 | 3 | SHOT |

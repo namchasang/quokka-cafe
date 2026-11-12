@@ -110,7 +110,16 @@ const TREE3D={pos:[],on:TREE3D_LIVE||/[?&#](tree3d|toon)\b/.test(location.search
     G.bark.forEach((B,bk)=>{if(!B.v)return;const m=new THREE.Mesh(B.build(),barkCache.get(bk));m.castShadow=m.receiveShadow=true;m.position.y=G.y;m.__t3=1;G.parent.add(m);TREE3D.meshes.push(m);});});
   // tiny pixel sprites that stay (grass tufts, flowers, pebbles): repaint each pixel as a soft painted dab at 6x size
   const paintC=new Map(),matC=new Map();
-  function paintUp(img){if(paintC.has(img))return paintC.get(img);const W=img.width,H=img.height,S=6,c0=mk(W,H),x0=c0.getContext('2d');x0.drawImage(img,0,0);const d=x0.getImageData(0,0,W,H).data;
+  // grass tufts and flower clumps get the tree-lab look: long painted blades, round petals, colours read from the sprite
+  function labTuft(cols,flowers){const cv=mk(96,72),g=cv.getContext('2d'),r=mulberry32(cols.g.length*13+(flowers?7:3));const G=cols.g.length?cols.g:[[85,136,65],[106,154,74],[133,178,90]];
+    const cs=c=>`rgb(${c[0]|0},${c[1]|0},${c[2]|0})`;for(let i=0;i<30;i++){const x0=48+(r()-.5)*26,a=-Math.PI/2+(r()-.5)*1.3,l=26+r()*40,c=G[(r()*G.length)|0],k=.8+r()*.45;
+      g.strokeStyle=cs(c.map(v=>Math.min(255,v*k)));g.lineWidth=2.2;g.lineCap='round';g.beginPath();g.moveTo(x0,72);g.quadraticCurveTo(x0+Math.cos(a)*l*.5,72+Math.sin(a)*l*.5,x0+Math.cos(a)*l,72+Math.sin(a)*l);g.stroke();}
+    if(flowers&&cols.f.length)for(let i=0;i<6;i++){const x=16+r()*64,y=10+r()*26,c=cols.f[(r()*cols.f.length)|0];g.fillStyle=cs(c);for(const [dx,dy] of [[0,-3],[3,0],[0,3],[-3,0]]){g.beginPath();g.arc(x+dx,y+dy,3,0,6.28);g.fill();}g.fillStyle='#f0b030';g.beginPath();g.arc(x,y,1.6,0,6.28);g.fill();}
+    return cv;}
+  function colsOf(img){const c0=mk(img.width,img.height),x0=c0.getContext('2d');x0.drawImage(img,0,0);const d=x0.getImageData(0,0,img.width,img.height).data,g=[],f=[];
+    for(let i=0;i<d.length;i+=4){if(d[i+3]<128)continue;const c=[d[i],d[i+1],d[i+2]];if(c[1]>c[0]*1.05&&c[1]>c[2])g.push(c);else if(c[0]+c[1]+c[2]>300||c[0]>c[1]*1.2)f.push(c);}return{g,f};}
+  function paintUp(img){if(paintC.has(img))return paintC.get(img);
+    if((img.width===24&&img.height===16)||(img.width===10&&img.height===7)){const cv=labTuft(colsOf(img),img.width===10);const t=new THREE.CanvasTexture(cv);t.encoding=renderer.outputEncoding===THREE.sRGBEncoding?THREE.sRGBEncoding:THREE.LinearEncoding;t.anisotropy=4;paintC.set(img,t);return t;}const W=img.width,H=img.height,S=6,c0=mk(W,H),x0=c0.getContext('2d');x0.drawImage(img,0,0);const d=x0.getImageData(0,0,W,H).data;
     const cv=mk(W*S,H*S),g=cv.getContext('2d'),r=mulberry32(W*31+H);
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=(y*W+x)*4;if(d[i+3]<128)continue;const lt=1+(1-y/H)*.12;g.fillStyle=`rgb(${Math.min(255,d[i]*lt)|0},${Math.min(255,d[i+1]*lt)|0},${Math.min(255,d[i+2]*lt)|0})`;
       g.beginPath();g.ellipse((x+.5)*S+(r()-.5)*2,(y+.5)*S+(r()-.5)*2,S*.62,S*.78,(r()-.5)*.8,0,6.2832);g.fill();}
