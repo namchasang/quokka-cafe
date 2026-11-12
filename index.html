@@ -9387,8 +9387,9 @@ const onRoad=(x,z,w=2.4)=>(z<40&&NORTH&&NORTH.onRoad(x,z,w))||(z>WZ-12&&SOUTH&&S
 const deckH=(x,z)=>Math.max(H(x,z),1.4);// bridges carry the road over the water
 const groundAt=(x,z)=>onRoad(x,z,2.6)?deckH(x,z):Math.max(H(x,z),-.2);
 /* DRIVE: every drawn road surface painted into a half-unit grid (1 = road, 2 = freeway), so the car never snags on a road it can see (Paul Nov 2026) */
-const DRV_R=2,DRIVE=new Uint8Array(WX*DRV_R*WZ*DRV_R);const drvAt=(x,z)=>{const i=Math.floor(x*DRV_R),j=Math.floor(z*DRV_R);return i<0||j<0||i>=WX*DRV_R||j>=WZ*DRV_R?(DRV_FAR?DRV_FAR(x,z):0):DRIVE[j*WX*DRV_R+i];};let DRV_FAR=null;
-const drvPaint=(P,hw,v)=>{v=v||1;if(!P||P.length<1)return;const W=WX*DRV_R,Hh=WZ*DRV_R,put=(cx,cz,r)=>{const r2=r*DRV_R,x0=Math.max(0,Math.floor(cx*DRV_R-r2)),x1=Math.min(W-1,Math.ceil(cx*DRV_R+r2)),z0=Math.max(0,Math.floor(cz*DRV_R-r2)),z1=Math.min(Hh-1,Math.ceil(cz*DRV_R+r2));for(let j=z0;j<=z1;j++)for(let i=x0;i<=x1;i++){const dx=(i+.5)/DRV_R-cx,dz=(j+.5)/DRV_R-cz;if(dx*dx+dz*dz<=r*r){const k=j*W+i;if(DIVE_MAX(DRIVE[k],v))DRIVE[k]=v;}}};
+const DRV_R=2,DRIVE=new Uint8Array(WX*DRV_R*WZ*DRV_R),DRVX=new Map();const drvAt=(x,z)=>{const i=Math.floor(x*DRV_R),j=Math.floor(z*DRV_R);if(i<0||j<0||i>=WX*DRV_R||j>=WZ*DRV_R){const v=DRVX.get(i*1000003+j);return v||(DRV_FAR?DRV_FAR(x,z):0);}return DRIVE[j*WX*DRV_R+i];};let DRV_FAR=null;
+const drvPaint=(P,hw,v)=>{v=v||1;if(!P||P.length<1)return;const W=WX*DRV_R,Hh=WZ*DRV_R,put=(cx,cz,r)=>{const r2=r*DRV_R,x0=Math.max(0,Math.floor(cx*DRV_R-r2)),x1=Math.min(W-1,Math.ceil(cx*DRV_R+r2)),z0=Math.max(0,Math.floor(cz*DRV_R-r2)),z1=Math.min(Hh-1,Math.ceil(cz*DRV_R+r2));for(let j=z0;j<=z1;j++)for(let i=x0;i<=x1;i++){const dx=(i+.5)/DRV_R-cx,dz=(j+.5)/DRV_R-cz;if(dx*dx+dz*dz<=r*r){const k=j*W+i;if(DIVE_MAX(DRIVE[k],v))DRIVE[k]=v;}}
+    if(cx-r<0||cz-r<0||cx+r>=WX||cz+r>=WZ){const a0=Math.floor((cx-r)*DRV_R),a1=Math.ceil((cx+r)*DRV_R),b0=Math.floor((cz-r)*DRV_R),b1=Math.ceil((cz+r)*DRV_R);for(let j=b0;j<=b1;j++)for(let i=a0;i<=a1;i++){if(i>=0&&j>=0&&i<W&&j<Hh)continue;const dx=(i+.5)/DRV_R-cx,dz=(j+.5)/DRV_R-cz;if(dx*dx+dz*dz<=r*r){const k=i*1000003+j;if((DRVX.get(k)||0)<v)DRVX.set(k,v);}}}};
   for(let i=0;i<P.length;i++){const a=P[i];put(a[0],a[1],hw);if(i){const b=P[i-1],L=Math.hypot(a[0]-b[0],a[1]-b[1]),n=Math.ceil(L/.35);for(let k=1;k<n;k++)put(b[0]+(a[0]-b[0])*k/n,b[1]+(a[1]-b[1])*k/n,hw);}}};
 function DIVE_MAX(o,v){return v>o;}
 let BLOCK=null;const canGo=(x,z)=>drvAt(x,z)>0||(landAt(x,z)&&!(BLOCK&&BLOCK[(z|0)*WX+(x|0)]))||onRoad(x,z,2.4);
@@ -10792,7 +10793,7 @@ KWST.forEach(a=>{addStreet(a.P,'main');ROUTES.push(a.P);});ART.forEach(a=>{const
 VX.forEach(v=>{if(v.arms.length<2)return;const four=v.arms.length>=3;if(v.used&&four){SIGS.push(v);}else if(v.arms.length>=3)STREETS.push({P:[[v.x,v.z]],kind:'rab2',v});else STREETS.push({P:[[v.x,v.z]],kind:'pad',v});markRect(v.x,v.z,0,6.4,6.4,2);});
 
 // ===== Fremantle centre (Look Lab ?ow2, Paul Nov 2026): a grid of small two-lane town streets, limestone shopfronts on every block, and landmarks (market hall, town hall clock tower, café strip, boat shed) =====
-if(OWR2&&T.freo)try{const t=T.freo,g=t.g,[gx,gz]=[t.x,t.z],gox=g.position.x,goz=g.position.z,sc=g.scale.x||1,gy0=g.position.y;
+if(OWR2&&T.freo)try{if(O.inFreo){/* the square is Fremantle's own grid: other plans' streets and signals inside it go */for(let i=STREETS.length-1;i>=0;i--){const P=STREETS[i].P;if(P&&P.length&&P.filter(p=>O.inFreo(p[0],p[1],-.5)).length>=P.length*.5){const ri=ROUTES.indexOf(P);if(ri>=0)ROUTES.splice(ri,1);STREETS.splice(i,1);}}for(let i=SIGS.length-1;i>=0;i--)if(O.inFreo(SIGS[i].x,SIGS[i].z,-.5))SIGS.splice(i,1);}const t=T.freo,g=t.g,[gx,gz]=[t.x,t.z],gox=g.position.x,goz=g.position.z,sc=g.scale.x||1,gy0=g.position.y;
   const hsh=(a,b)=>{const s=Math.sin(a*127.1+b*311.7)*43758.5453;return s-Math.floor(s);},PIT=6,K=5,R=K*PIT,keep=(x,z)=>{const a=(x-gox)/sc,b=(z-goz)/sc;return a>-12&&a<11&&b>-11&&b<6;};/* the old harbour piece stays as it is */
   const nearRail=(x,z)=>RAIL&&RAIL.some((p,i)=>i&&segDist(x,z,RAIL[i-1],p)<1.8);
   const okPt=(x,z)=>landAt(x,z)&&[[3.5,0],[-3.5,0],[0,3.5],[0,-3.5],[2.5,2.5],[-2.5,2.5],[2.5,-2.5],[-2.5,-2.5]].every(([a,b])=>landAt(x+a,z+b))/* solid ground only: nothing out on the moles or little islands (Paul Nov 2026) */&&!keep(x,z)&&!nearRail(x,z)&&Math.abs(x-gx)<=R+.01&&Math.abs(z-gz)<=R+.01;
@@ -10884,6 +10885,30 @@ if(OWR2){VX.forEach(v=>{if(!v.arms||v.arms.length!==3)return;if(O.KWP&&O.KWP.som
       [-1,1].forEach(sg=>{let j=bi,acc=0;while(j+sg>=0&&j+sg<P.length&&acc<3){acc+=Math.hypot(P[j+sg][0]-P[j][0],P[j+sg][1]-P[j][1]);j+=sg;}if(acc<1.5)return;let dx=P[j][0]-v.x,dz=P[j][1]-v.z;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;if(!dirs.some(d=>d[0]*dx+d[1]*dz>.85))dirs.push([dx,dz]);});});
     if(dirs.length!==3)return;let best=null;for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){const d=dirs[i][0]*dirs[j][0]+dirs[i][1]*dirs[j][1];if(!best||d<best.d)best={d,i,j};}if(best.d>-.8)return;
     const k=3-best.i-best.j,n=dirs[k],t=[-n[1],n[0]];v.tee=1;O.tee3(v.x,v.z,t[0],t[1],n[0],n[1],1.5,1.5);});}
+// ===== road audit fixes (Look Lab ?ow2, Paul Nov 2026, from the audit agent's drive-through) =====
+// 1. main roads cut by the Mitchell are joined across it on bridges (like the Kwinana); 2. a street end that stops a few units short of another road
+// runs on to meet it; a residential street that still ends in nothing gets a small turning circle
+if(OWR2)try{const nrm=(dx,dz)=>{const l=Math.hypot(dx,dz)||1;return[dx/l,dz/l];};
+  // 1. across the Mitchell
+  if(MP&&O.brg){const MB=new Map(),mk=(x,z)=>Math.floor(x/6)*10007+Math.floor(z/6);for(let i=1;i<MP.length;i++){const a=MP[i-1],b=MP[i],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/1.5);for(let t=0;t<=n;t++){const p=[a[0]+(b[0]-a[0])*t/n,a[1]+(b[1]-a[1])*t/n];const k=mk(p[0],p[1]);(MB.get(k)||MB.set(k,[]).get(k)).push(p);}}
+    const mpD=(x,z)=>{let m=1e9;for(let a=-2;a<=2;a++)for(let b=-2;b<=2;b++){const L=MB.get((Math.floor(x/6)+a)*10007+Math.floor(z/6)+b);if(L)L.forEach(p=>{m=Math.min(m,Math.hypot(p[0]-x,p[1]-z));});}return m;};
+    const A=STREETS.filter(s=>s.kind==='art'&&s.P.length>2),ends=[];A.forEach(s=>[0,1].forEach(e=>{const P=s.P,p=e?P[P.length-1]:P[0],q=e?P[P.length-3]:P[2];if(mpD(p[0],p[1])<18){const d=nrm(p[0]-q[0],p[1]-q[1]);ends.push({s,e,p,dx:d[0],dz:d[1]});}}));let nJ=0;
+    ends.forEach(a=>{if(a.used)return;let best=null;ends.forEach(b=>{if(b===a||b.used||b.s===a.s)return;const vx=b.p[0]-a.p[0],vz=b.p[1]-a.p[1],L=Math.hypot(vx,vz);if(L>40||L<4)return;if((vx*a.dx+vz*a.dz)/L<.9||-(vx*b.dx+vz*b.dz)/L<.9)return;let mid=false;for(let t=.15;t<.85;t+=.05)if(mpD(a.p[0]+vx*t,a.p[1]+vz*t)<4)mid=true;if(mid&&(!best||L<best.L))best={b,L};});
+      if(!best)return;const b=best.b;ends.forEach(x=>{if(x.s===a.s||x.s===b.s)x.used=1;});const PA=a.e?a.s.P:a.s.P.slice().reverse(),PB=b.e?b.s.P.slice().reverse():b.s.P,n=Math.ceil(best.L),fill=[];for(let t=1;t<n;t++)fill.push([a.p[0]+(b.p[0]-a.p[0])*t/n,a.p[1]+(b.p[1]-a.p[1])*t/n]);
+      const ri=ROUTES.indexOf(b.s.P);if(ri>=0)ROUTES.splice(ri,1);const ra=ROUTES.indexOf(a.s.P);a.s.P=PA.concat(fill,PB);if(ra>=0)ROUTES[ra]=a.s.P;STREETS.splice(STREETS.indexOf(b.s),1);
+      let bi=0,bd=1e9;fill.forEach((p,i)=>{const d=mpD(p[0],p[1]);if(d<bd){bd=d;bi=i;}});const c=fill[bi]||a.p,d=nrm(b.p[0]-a.p[0],b.p[1]-a.p[1]);O.brg.push({x:c[0],z:c[1],dx:d[0],dz:d[1]});nJ++;});O.mpJoined=nJ;}
+  // 2. stubs and loose ends
+  const LK=new Set(['local','main','art','lane','ramp','street']),HW={art:3.25,main:1.5,local:1.25,lane:.5,ramp:.8,street:1.25};const SB=new Map(),sk=(x,z)=>Math.floor(x/4)*100003+Math.floor(z/4);
+  const addSeg=(a,b,w,own)=>{const n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/3));for(let t=0;t<=n;t++){const x=a[0]+(b[0]-a[0])*t/n,z=a[1]+(b[1]-a[1])*t/n,k=sk(x,z);let L=SB.get(k);if(!L)SB.set(k,L=[]);const last=L[L.length-1];if(!last||last[0]!==a||last[1]!==b)L.push([a,b,w,own]);}};
+  STREETS.forEach(s=>{if(!LK.has(s.kind)||!s.P||s.P.length<2)return;for(let i=1;i<s.P.length;i++)addSeg(s.P[i-1],s.P[i],HW[s.kind],s);});RIBS.forEach(r=>{if(r.hidden||!r.P2||(r.m&&r.m.visible===false))return;for(let i=1;i<r.P2.length;i++)addSeg(r.P2[i-1],r.P2[i],r.w/2,r);});
+  const hitAt=(x,z,own,slack)=>{let best=null;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=SB.get((Math.floor(x/4)+a)*100003+Math.floor(z/4)+b);if(!L)continue;for(const g of L){if(g[3]===own)continue;const d=segDist(x,z,g[0],g[1]);if(d<g[2]+slack&&(!best||d<best.d))best={d,g};}}return best;};
+  const nearFwy=(x,z)=>(MP&&fwD(x,z)<9)||(O.KWP&&O.KWP.some(p=>Math.abs(p[0]-x)<9&&Math.abs(p[1]-z)<9&&Math.hypot(p[0]-x,p[1]-z)<9));
+  const bulbs=STREETS.filter(s=>s.kind==='bulb'||s.kind==='abulb').map(s=>s.P[0]);let nExt=0,nBulb=0;const add=[];
+  STREETS.forEach(s=>{if(!LK.has(s.kind)||!s.P||s.P.length<2||s.kind==='lane')return;[0,1].forEach(e=>{const P=s.P,p=e?P[P.length-1]:P[0],q=e?P[P.length-2]:P[1];if(hitAt(p[0],p[1],s,.5))return;if(bulbs.some(b=>Math.hypot(b[0]-p[0],b[1]-p[1])<1.5))return;
+    const d=nrm(p[0]-q[0],p[1]-q[1]);let hit=-1;for(let t=.5;t<=6.5;t+=.5){const x=p[0]+d[0]*t,z=p[1]+d[1]*t;if(!landAt(x,z)&&z>=0&&z<WZ)break;const h=hitAt(x,z,s,0);if(h){hit=t+Math.min(1,h.g[2]*.5);break;}}
+    if(hit>0){const ext=[];for(let t=Math.min(1,hit);t<=hit+.01;t+=1)ext.push([p[0]+d[0]*t,p[1]+d[1]*t]);if(ext.length){s.P=e?P.concat(ext):ext.reverse().concat(P);nExt++;}return;}
+    if((s.kind==='local'||s.kind==='main')&&landAt(p[0],p[1])&&!nearFwy(p[0],p[1])){add.push({P:[[p[0],p[1]]],kind:'bulb'});nBulb++;}});});
+  add.forEach(s=>STREETS.push(s));O.auditFix={extended:nExt,bulbs:nBulb,mpBridges:O.mpJoined||0};console.log('OWLOG audit fixes',JSON.stringify(O.auditFix));}catch(e){console.error('audit fixes',e);}
 // ---- street ends and crossings (Paul, Nov 2026: no notches): a street that meets an arterial gets an asphalt apron across the arterial's verge
 // and footpath; a short gap to the road it faces is closed; a street crossing another gets an apron; a true dead end gets a turning circle ----
 const APR=[];O.subAprons=APR;
@@ -10925,8 +10950,14 @@ const APR=[];O.subAprons=APR;
   O.subStreetFix={aprons:nA,crossings:nX,bulbs:nB,closed:nC};}
 APR.forEach(a=>rbox(a[0],a[1],a[2],a[3],a[4],'asph',.1,!!a[5]));
 // streets into chunk geometry
+{/* audit (Paul Nov 2026): a junction box must sit square to a road it serves, and nothing round in the water */
+const AB=new Map(),abk=(x,z)=>Math.floor(x/4)*100003+Math.floor(z/4);const abAdd=(P)=>{for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],n=Math.max(1,Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/3));for(let t=0;t<=n;t++){const k=abk(a[0]+(b[0]-a[0])*t/n,a[1]+(b[1]-a[1])*t/n);let L=AB.get(k);if(!L)AB.set(k,L=[]);L.push([a,b]);}}};
+STREETS.forEach(s=>{if(s.P&&s.P.length>1&&s.kind!=='ramp')abAdd(s.P);});RIBS.forEach(r=>{if(!r.hidden&&r.P2&&r.w>2.5)abAdd(r.P2);});
+O.boxSquare=(x,z,ang,rad)=>{let seen=0;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=AB.get((Math.floor(x/4)+a)*100003+Math.floor(z/4)+b);if(!L)continue;for(const[p,q]of L){if(segDist(x,z,p,q)>rad)continue;seen++;let d=((Math.atan2(q[0]-p[0],q[1]-p[1])-ang)*180/Math.PI)%90;d=Math.abs(d<0?d+90:d);if(Math.min(d,90-d)<8)return true;}}return seen===0;};}
 STREETS.forEach(s=>{const P=s.P;
   if((s.kind==='bulb'||s.kind==='abulb'||s.kind==='xpad')&&(()=>{const[x,z]=P[0];if(MP&&fwD(x,z)<9)return true;const rb=ribNear(x,z,9);return rb&&rb.d<rb.w/2+2.6;})())return;// nothing round left lying on a highway (Paul, Nov 2026)
+  if(OWR2&&(s.kind==='bulb'||s.kind==='abulb'||s.kind==='mrab')&&!landAt(P[0][0],P[0][1]))return;
+  if(OWR2&&s.kind==='tj'&&!O.boxSquare(P[0][0],P[0][1],s.ang,1.5))return;if(OWR2&&s.kind==='xst'&&!(O.boxSquare(P[0][0],P[0][1],s.a1,1.5)&&O.boxSquare(P[0][0],P[0][1],s.a2,1.5)))return;
   if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],OWR2?1.45:3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
   if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z),R0=1.05;disc(g,x,z,R0+.05,.07,UV.asph,24);ring(g,x,z,R0,R0+.1,.16,UV.kerb,24);ring(g,x,z,R0+.1,R0+.45,.11,UV.path,24);RKCIR.push([x,z,R0]);return;}// a cul-de-sac just a little wider than its street (Paul, Nov 2026)// a cul-de-sac: asphalt circle, kerb, footpath
   if(s.kind==='xst'){const[x,z]=P[0];rbox(x,z,s.w2+2,s.w1,s.a1,'xarm',0,false);rbox(x,z,s.w1+2,s.w2,s.a2,'xarm2',0,false);return;}
@@ -10934,7 +10965,7 @@ STREETS.forEach(s=>{const P=s.P;
   if(s.kind==='tj'){const[x,z]=P[0];rbox(x,z,s.L,s.w,s.ang,'tarm',0,false);return;}
   if(s.kind==='mrab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,s.r,.07,UV.asph,16);const F=FR(x,gy(x,z)+.08,z,0,bake(x,z));cyl(g,F,0,0,0,s.r*.36,.1,12,UV.kerb,UV.island);ring(g,x,z,s.r*.36,s.r*.36+.08,.1,UV.kerb,12);return;}
   if(s.kind==='rab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.1,.075,UV.asph,14);const F=FR(x,gy(x,z)+.07,z,0,bake(x,z));cyl(g,F,0,0,0,.95,.14,12,UV.kerb,UV.island);plant(x,z,3,2.4);return;}
-  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];rbox(x,z,3.0,3.0,0,s.v&&s.v.tee?'asph':'cross2',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
+  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];if(!O.boxSquare(x,z,0,1.5))return;rbox(x,z,3.0,3.0,0,s.v&&s.v.tee?'asph':'cross2',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
   if(s.kind==='rab2'){const[x,z]=P[0],g=B(x,z);rbox(x,z,6.6,6.6,0,'asph',.1,false);disc(g,x,z,4,.09,UV.asph,18);const F=FR(x,gy(x,z)+.09,z,0,bake(x,z));cyl(g,F,0,0,0,2,.16,16,UV.kerb,UV.island);plant(x,z,13,4.2);plant(x+.9,z+.6,5,2.8);return;}
   if(s.kind==='pad'){const[x,z]=P[0],v=s.v;if(v&&v.arms.length===2&&v.arms[0][0].h===v.arms[1][0].h)return;rbox(x,z,6.6,6.6,0,'asph',.11,false);return;}
   const w=s.kind==='art'?6.5:s.kind==='ramp'?1.6:s.kind==='lane'?.8:s.kind==='main'?3:2.5,uv=s.kind==='art'?UV.art:s.kind==='lane'?UV.lane:s.kind==='ramp'?UV.ramp:UV.street,yo=s.kind==='art'?.08:s.kind==='lane'?.04:.06;
@@ -10945,7 +10976,7 @@ STREETS.forEach(s=>{const P=s.P;
 
 // signals at the centre crossroads: a zebra slab, four poles with heads (bulbs are one instanced mesh, phases shared with the traffic)
 const BULB=[],SIGO=[];
-SIGS.forEach((v,si)=>{const x=v.x,z=v.z,g=B(x,z),y=gy(x,z)+.1,F=FR(x,y,z,0,bake(x,z));if(OWR2&&!v.rib)rbox(x,z,3.0,3.0,0,v.tee?'asph':'cross2',.12,false);else rbox(x,z,6.5,6.5,0,'cross',.12,!!v.rib);
+SIGS.forEach((v,si)=>{const x=v.x,z=v.z,g=B(x,z),y=gy(x,z)+.1,F=FR(x,y,z,0,bake(x,z));if(OWR2&&!v.rib){if(O.boxSquare(x,z,0,1.5))rbox(x,z,3.0,3.0,0,v.tee?'asph':'cross2',.12,false);}else rbox(x,z,6.5,6.5,0,'cross',.12,!!v.rib);
   const s={x,z,ang:0,ax:[0,1],heads:[],ph:si*3.7+1.3,g:null,sub:1};SIGO.push(s);
   [[1,1],[-1,1],[-1,-1],[1,-1]].forEach(([sx,sz],k)=>{const px=sx*3.6,pz=sz*3.6;box(g,F,px,0,pz,.12,2.3,.12,all(UV.black));const hy=2.05;box(g,F,px,hy-.42,pz,.28,.8,.22,all(UV.black));
     const axis=k%2;const dirs=axis?[[0,0,1],[0,0,-1]]:[[1,0,0],[-1,0,0]];BULB.push({x:x+px,y:y+hy-.42,z:z+pz,s,axis,face:axis?[0,sz]:[sx,0]});});});
