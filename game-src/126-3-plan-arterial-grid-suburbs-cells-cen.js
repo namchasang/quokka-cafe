@@ -28,6 +28,10 @@ if(OWR2){const artOK2=(x,z)=>landAt(x,z)&&rdD(x,z,0)>3.4&&fwD(x,z)>8.2&&(z<-40||
   ART.slice().forEach(a=>{[0,1].forEach(e=>{const P=a.P,p=e?P[P.length-1]:P[0],q=e?P[P.length-2]:P[1];if(onArt(p[0],p[1],a))return;const dx=Math.sign(p[0]-q[0]),dz=Math.sign(p[1]-q[1]);const ext=[];let hit=false;
     for(let t=1;t<=CX*1.5;t++){const x=p[0]+dx*t,z=p[1]+dz*t;if(rdD(x,z,0)<3.6||onArt(x,z,a)){hit=true;break;}if(!artOK2(x,z))break;ext.push([x,z]);}
     if(hit&&ext.length)a.P=e?P.concat(ext):ext.reverse().concat(P);});});O.artAfter=ARTL();}
+/* Paul Nov 2026: 4-lane roads running beside the Kwinana are residential streets (2 lanes), not main roads */
+const KWST=[];if(OWR2&&O.KWP){const KB=new Map(),kb=(x,z)=>Math.floor(x/6)*10007+Math.floor(z/6);for(let i=1;i<O.KWP.length;i++){const a=O.KWP[i-1],b=O.KWP[i],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/2);for(let t=0;t<=n;t++){const x=a[0]+(b[0]-a[0])*t/n,z=a[1]+(b[1]-a[1])*t/n,k=kb(x,z);(KB.get(k)||KB.set(k,[]).get(k)).push([x,z]);}}
+  const kwD=(x,z)=>{let m=1e9;for(let dx=-3;dx<=3;dx++)for(let dz=-3;dz<=3;dz++){const L=KB.get((Math.floor(x/6)+dx)*10007+Math.floor(z/6)+dz);if(L)L.forEach(p=>{m=Math.min(m,Math.hypot(p[0]-x,p[1]-z));});}return m;};
+  ART.slice().forEach(a=>{let n=0;a.P.forEach(p=>{if(kwD(p[0],p[1])<16)n++;});if(n>a.P.length*.4){KWST.push(a);ART.splice(ART.indexOf(a),1);}});O.artToStreet=KWST.length;}
 // which arterial arms reach each grid vertex
 ART.forEach(a=>{const p0=a.P[0],p1=a.P[a.P.length-1];[[p0,0],[p1,1]].forEach(([p,e])=>{const vi=Math.round((p[0]-GX0)/CX),vj=Math.round((p[1]-GZ0)/CZ);if(Math.hypot(p[0]-(GX0+vi*CX),p[1]-(GZ0+vj*CZ))<.6){const k=vk(vi,vj);let v=VX.get(k);if(!v)VX.set(k,v={i:vi,j:vj,x:GX0+vi*CX,z:GZ0+vj*CZ,arms:[]});v.arms.push([a,e]);}});});
 // names: invented from bush and bird words (no real suburb names)
@@ -43,7 +47,7 @@ const quadOK=(c,sa,sb,ca,cb)=>{let n=0,t=0;for(let u=m;u<m+18;u+=2)for(let v=m;v
 const inCen=(c,a,b,pad)=>{const C=c.cen;if(!C)return false;const u=(a-C.ca)*C.sa,v=(b-C.cb)*C.sb;return u>m-.5-(pad||0)&&u<m+18.4+(pad||0)&&v>m-.5-(pad||0)&&v<m+12.4+(pad||0);};
 
 // ---------- 4. streets, lots and houses ----------
-const STREETS=[],LOTS=[],PARKS=[],LAMPS=[],SIGS=[],ROUTES=[];
+const STREETS=[];O.subStreets=STREETS;const LOTS=[],PARKS=[],LAMPS=[],SIGS=[],ROUTES=[];
 const addStreet=(P,kind)=>{if(P.length<2)return;STREETS.push({P,kind});markLine(P,kind==='art'?4.8:kind==='lane'?.8:1.6,2);};
 const DBG={m:0,f:0,o:0,ok:0};O.subDbg=DBG;const lotOK=(x,z,th,fw,dp,mask)=>{const c=Math.cos(th),s=Math.sin(th);for(const[lx,lz]of[[0,0],[-fw/2+.5,-dp/2+.5],[fw/2-.5,-dp/2+.5],[-fw/2+.5,dp/2-1.2],[fw/2-.5,dp/2-1.2],[0,dp/2-1.4]]){const X=x+lx*c+lz*s,Z=z-lx*s+lz*c;if(lx===0&&lz===0?!mask(X,Z):!(landAt(X,Z)&&(Z>=0||!N||N.sd(X,Z)>3.5))){DBG.m++;return false;}if(!free(X,Z,0)){DBG.f++;return false;}if(occ(X,Z)>=2){DBG.o++;return false;}}DBG.ok++;return true;};
 // pick a house type for a place

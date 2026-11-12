@@ -32,6 +32,10 @@ const RK=(()=>{const hs=(a,b)=>L2hash(a*1.37+.11,b*.91+.7);const A=['#56585d','#
     [[.0625,.4375],[6.0,.4375]].forEach(([u,d])=>{P(x,'#d8d2c4',u*k,0,d*k,SH);for(let y=0;y<SH;y+=7)P(x,'#c4bcac',u*k,y,d*k,1);});
     [[.8125,2.25],[3.4375,2.25]].forEach(([u,d])=>{asph(x,u*k,0,d*k,SH,u*10);P(x,KB,(u-.0625)*k,0,.0625*k,SH);P(x,KB,(u+d)*k,0,.0625*k,SH);P(x,W,(u+.08)*k,0,LW*k,SH);P(x,W,(u+d-.08-LW)*k,0,LW*k,SH);P(x,W,(u+d/2-LW/2)*k,.5*kv,LW*k,1*kv);});
     P(x,KB,3.0625*k,0,.375*k,SH);P(x,'#5a8a3a',3.125*k,0,.25*k,SH);for(let y=0;y<SH;y+=3)P(x,'#6aa040',(3.14+(y%5)*.04)*k,y,2,2);return c;};
+  /* Look Lab ?ow2 (Paul Nov 2026): the suburban main road is one two-lane carriageway like Stirling Hwy (3 wide in the middle), with grass verges and footpaths */
+  if(OWR2)R.art=()=>{const SW=256,SH=64,w=6.5,k=SW/w,kv=SH/2,[c,x]=cv(SW,SH);const g=['#6a9a44','#78a64c','#86b252'];for(let X=0;X<SW;X++)for(let y=0;y<SH;y++)P(x,g[(hs(X,y)*3)|0],X,y,1,1);
+    [[.0625,.4375],[6.0,.4375]].forEach(([u,d])=>{P(x,'#d8d2c4',u*k,0,d*k,SH);for(let y=0;y<SH;y+=7)P(x,'#c4bcac',u*k,y,d*k,1);});
+    const u=1.75,d=3.0;asph(x,u*k,0,d*k,SH,17);P(x,KB,(u-.0625)*k,0,.0625*k,SH);P(x,KB,(u+d)*k,0,.0625*k,SH);P(x,W,(u+.1)*k,0,LW*k,SH);P(x,W,(u+d-.1-LW)*k,0,LW*k,SH);P(x,W,(u+d/2-LW/2)*k,.5*kv,LW*k,1*kv);return c;};
   // local street, 2.5 wide (grass, footpath, kerb, asphalt), repeats every 1.25; no lines
   R.street=()=>{const SW=128,SH=64,w=2.5,k=SW/w,[c,x]=cv(SW,SH);const g=['#6a9a44','#78a64c'];for(let X=0;X<SW;X++)for(let y=0;y<SH;y++)P(x,g[hs(X,y)<.5?0:1],X,y,1,1);
     [[.094,.344],[2.0625,.344]].forEach(([u,d])=>{P(x,'#d8d2c4',u*k,0,d*k,SH);for(let y=0;y<SH;y+=10)P(x,'#c4bcac',u*k,y,d*k,1);P(x,'#e8e2d4',u*k,0,1,SH);});

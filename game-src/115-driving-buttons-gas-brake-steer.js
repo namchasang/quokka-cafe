@@ -7,12 +7,12 @@ function drawMini(px,pz){let x=px/2,z=pz/2;const a=ST.yaw;if(NORTH&&pz<30){NORTH
 // ---------- loop ----------
 function resize(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(PIX*Math.min(devicePixelRatio,2));renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
 addEventListener('resize',()=>{if(OPEN)resize();});
-let last=performance.now(),T=0,trainS=0;const camP=new THREE.Vector3(),camL=new THREE.Vector3();let camInit=false;
+let last=performance.now(),T=0,trainS=0,DRV_RIBS=0;const camP=new THREE.Vector3(),camL=new THREE.Vector3();let camInit=false;
 function frame(now){if(!OPEN)return;const dt=Math.min(.05,(now-last)/1000);last=now;T+=dt;
   let ix=0,iz=0;if(keys.arrowleft||keys.a)ix--;if(keys.arrowright||keys.d)ix++;if(keys.arrowup||keys.w)iz--;if(keys.arrowdown||keys.s)iz++;if(stick&&!stick.cam){ix+=stick.dx;iz+=stick.dy;}
   ST.yaw+=(ST.yawT-ST.yaw)*Math.min(1,dt*(ST.inCar?3:6));
   if(ST.ride){ST.ride.t+=dt/5;const u=Math.min(1,ST.ride.t),e=u*u*(3-2*u);ST.x=ST.ride.ax+(ST.ride.bx-ST.ride.ax)*e;ST.z=ST.ride.az+(ST.ride.bz-ST.ride.az)*e;boat.position.set(ST.x,0,ST.z);if(u>=1)ST.ride=null;}
-  else if(ST.inCar){const road=onRoad(ST.carX,ST.carZ,2.4),vmax=road?20:13,gas=DRV.g||keys.arrowup||keys.w,brk=DRV.b||keys.arrowdown||keys.s,thr=gas?1:brk?(ST.speed>.5?-2:-1):0,steer=(DRV.r||keys.arrowright||keys.d?1:0)-(DRV.l||keys.arrowleft||keys.a?1:0);
+  else if(ST.inCar){if(!DRV_RIBS){DRV_RIBS=1;RIBS.forEach(r=>{if(!r.hidden&&r.P2&&r.w)drvPaint(r.P2,r.w/2+.3,r.w>=6?2:1);});}const dv=drvAt(ST.carX,ST.carZ),road=dv>0||onRoad(ST.carX,ST.carZ,2.4),vmax=dv===2?24:road?20:13,gas=DRV.g||keys.arrowup||keys.w,brk=DRV.b||keys.arrowdown||keys.s,thr=gas?1:brk?(ST.speed>.5?-2:-1):0,steer=(DRV.r||keys.arrowright||keys.d?1:0)-(DRV.l||keys.arrowleft||keys.a?1:0);
     if(thr>0)ST.speed+=(vmax-ST.speed)*Math.min(1,dt*1.2);else if(thr===-2)ST.speed=Math.max(0,ST.speed-dt*26);else if(thr===-1)ST.speed+=(-5-ST.speed)*Math.min(1,dt*1.5);else ST.speed+=(0-ST.speed)*Math.min(1,dt*.7);
     if(Math.abs(ST.speed)>.4)ST.carA-=steer*dt*1.8*Math.sign(ST.speed)*Math.min(1,Math.abs(ST.speed)/6);
     ST.yawT=ST.carA+Math.PI;ST.yaw=ST.yawT+Math.atan2(Math.sin(ST.yaw-ST.yawT),Math.cos(ST.yaw-ST.yawT));

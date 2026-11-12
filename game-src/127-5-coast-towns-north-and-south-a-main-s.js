@@ -44,7 +44,7 @@ const AJ=[];O.subArtJoins=AJ;const landRun=(a,b)=>{const L=Math.hypot(b[0]-a[0],
   ART.forEach(a=>{[a.P[0],a.P[a.P.length-1]].forEach(e=>{if(vxOf(e))return;for(const b of ART){if(b===a)continue;const f=footOn(b.P,e[0],e[1]);if(f.p&&f.d<3.3&&Math.hypot(f.p[0]-b.P[0][0],f.p[1]-b.P[0][1])>3&&Math.hypot(f.p[0]-b.P[b.P.length-1][0],f.p[1]-b.P[b.P.length-1][1])>3){AJ.push({x:f.p[0],z:f.p[1],abox:1});STREETS.push({P:[f.p.slice()],kind:'pad'});break;}}});});
   AJ.forEach(j=>{if(j.four){if(SIGS.some(v=>Math.hypot(v.x-j.x,v.z-j.z)<8))return;SIGS.push({x:j.x,z:j.z,arms:[],used:1,rib:1});markRect(j.x,j.z,0,6.4,6.4,2);}
     else if(j.w&&!j.used){STREETS.push({P:[[j.x,j.z]],kind:'tee',w:j.w});markRect(j.x,j.z,0,6.4,6.4,2);}});}
-ART.forEach(a=>{const P=a.P;addStreet(P,'art');ROUTES.push(P);for(let i=3;i<P.length-3;i+=5){const[x,z]=P[i];if(VX.size&&[...[P[0],P[P.length-1]]].some(q=>Math.hypot(q[0]-x,q[1]-z)<5))continue;plant(x,z,(i/5|0)%3===0?3:2,2.6+hs(x,z)*.6);}
+KWST.forEach(a=>{addStreet(a.P,'main');ROUTES.push(a.P);});ART.forEach(a=>{const P=a.P;addStreet(P,'art');ROUTES.push(P);for(let i=3;i<P.length-3;i+=5){const[x,z]=P[i];if(VX.size&&[...[P[0],P[P.length-1]]].some(q=>Math.hypot(q[0]-x,q[1]-z)<5))continue;plant(x,z,(i/5|0)%3===0?3:2,2.6+hs(x,z)*.6);}
   for(let i=2;i<P.length-2;i+=8){const[x,z]=P[i];const dx=a.h?0:1,dz=a.h?1:0;LAMPS.push([x+dx*2.75,z+dz*2.75,a.h?Math.PI:-Math.PI/2]);}});
 VX.forEach(v=>{if(v.arms.length<2)return;const four=v.arms.length>=3;if(v.used&&four){SIGS.push(v);}else if(v.arms.length>=3)STREETS.push({P:[[v.x,v.z]],kind:'rab2',v});else STREETS.push({P:[[v.x,v.z]],kind:'pad',v});markRect(v.x,v.z,0,6.4,6.4,2);});
 

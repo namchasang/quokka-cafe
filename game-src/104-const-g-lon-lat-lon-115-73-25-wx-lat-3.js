@@ -29,7 +29,7 @@ for(let z=0;z<WZ;z++)for(let x=0;x<WX;x++){const i=z*WX+x;let h;
 const OW_PROTECT=[{n:'Perth CBD',a:G(115.843,-31.947),b:G(115.872,-31.9605)},{n:'Swan River (Perth Water)',a:G(115.842,-31.956),b:G(115.882,-31.972)},{n:'South Perth',a:G(115.842,-31.966),b:G(115.872,-31.982)}];
 const owProtected=(x,z,m)=>{m=m||0;return OW_PROTECT.some(r=>x>=r.a[0]-m&&x<=r.b[0]+m&&z>=r.a[1]-m&&z<=r.b[1]+m);};
 // smoother ground (owroads2): two gentle blur passes over the land, not at the shore and not in the protected areas
-if(OWR2){const T2=new Float32Array(HG);for(let pass=0;pass<2;pass++){T2.set(HG);for(let z=1;z<WZ-1;z++)for(let x=1;x<WX-1;x++){const i=z*WX+x;if(!LAND[i]||DL[i]<3||owProtected(x,z,2))continue;let s=0,n=0;for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){const j=i+dz*WX+dx;if(LAND[j]){s+=T2[j]*(dx||dz?1:2);n+=dx||dz?1:2;}}HG[i]=s/n;}}}
+if(OWR2){const T2=new Float32Array(HG);for(let pass=0;pass<6;pass++){T2.set(HG);for(let z=1;z<WZ-1;z++)for(let x=1;x<WX-1;x++){const i=z*WX+x;if(!LAND[i]||DL[i]<3||owProtected(x,z,2))continue;let s=0,n=0;for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){const j=i+dz*WX+dx;if(LAND[j]){s+=T2[j]*(dx||dz?1:2);n+=dx||dz?1:2;}}HG[i]=s/n;}}}
 const H=(x,z)=>{if(z<0&&NORTH)return NORTH.H(x,z);if(z>WZ&&SOUTH)return SOUTH.H(x,z);x=Math.max(0,Math.min(WX-1.001,x));z=Math.max(0,Math.min(WZ-1.001,z));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*WX+x0;return lerp(lerp(HG[i],HG[i+1],fx),lerp(HG[i+WX],HG[i+WX+1],fx),fz);};
 // ---------- North extension (Look Lab, Paul Nov 2026): drive from Perth CBD up the coast to Lancelin, the Pinnacles and Cervantes ----------
 // Real coastline and elevation (Terrain Tiles on AWS, z12) in a straightened corridor joined to the north edge of the map (z<0):

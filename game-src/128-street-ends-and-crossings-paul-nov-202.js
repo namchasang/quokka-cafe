@@ -16,10 +16,10 @@ const APR=[];O.subAprons=APR;
     if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,3.2,3.2,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
     const oh=m.rib?m.rib/2:half(m.s);let nx=e[0]-m.p[0],nz=e[1]-m.p[1],nl=Math.hypot(nx,nz);if(nl<.2){nx=-dx;nz=-dz;nl=1;}nx/=nl;nz/=nl;
     // close a gap: run the street on to the other road
-    const reach=m.rib?Math.max(.6,oh-.5):m.s.kind==='art'?3.0:s.kind==='lane'?Math.max(.2,oh-.6):oh+.1;
+    const reach=m.rib?Math.max(.6,oh-.5):m.s.kind==='art'?(OWR2?1.55:3.0):s.kind==='lane'?Math.max(.2,oh-.6):oh+.1;
     if(m.d>reach+.05){const to=[m.p[0]+nx*reach,m.p[1]+nz*reach],L=Math.hypot(to[0]-e[0],to[1]-e[1]),n=Math.max(1,Math.ceil(L)),add=[];for(let k=1;k<=n;k++)add.push([e[0]+(to[0]-e[0])*k/n,e[1]+(to[1]-e[1])*k/n]);if(i===0)s.P.unshift(...add.reverse());else s.P.push(...add);markLine(add,1.6,2);nC++;}
     // the apron over the arterial's verge and footpath (or a small one where a lane meets a street)
-    if(m.s&&m.s.kind==='art'){const a0=2.3,a1=Math.max(3.45,Math.min(m.d,4.5)),c=(a0+a1)/2;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,a1-a0,asw(s)+.35,Math.atan2(nx,nz)]);nA++;}
+    if(m.s&&m.s.kind==='art'){const a0=OWR2?1.45:2.3,a1=Math.max(3.45,Math.min(m.d,4.5)),c=(a0+a1)/2;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,a1-a0,asw(s)+.35,Math.atan2(nx,nz)]);nA++;}
     else if(m.rib){const c=m.rib/4;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,m.rib/2+.1,asw(s)+.6,Math.atan2(nx,nz),1]);nA++;}
     else if(m.s&&(m.s.kind==='local'||m.s.kind==='main')&&(s.kind==='local'||s.kind==='main')){const L=3;STREETS.push({P:[[m.p[0]+nx*L/2,m.p[1]+nz*L/2]],kind:'tj',ang:Math.atan2(nx,nz),w:s.kind==='main'?3:2.5,L});nA++;}// a proper tee (Paul, Nov 2026)
     else if(s.kind==='lane'&&m.s){const a0=Math.max(0,oh-.75),a1=oh+.35,c=(a0+a1)/2;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,a1-a0,1.0,Math.atan2(nx,nz)]);nA++;}});});
@@ -46,10 +46,10 @@ STREETS.forEach(s=>{const P=s.P;
   if(s.kind==='tj'){const[x,z]=P[0];rbox(x,z,s.L,s.w,s.ang,'tarm',0,false);return;}
   if(s.kind==='mrab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,s.r,.07,UV.asph,16);const F=FR(x,gy(x,z)+.08,z,0,bake(x,z));cyl(g,F,0,0,0,s.r*.36,.1,12,UV.kerb,UV.island);ring(g,x,z,s.r*.36,s.r*.36+.08,.1,UV.kerb,12);return;}
   if(s.kind==='rab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.1,.075,UV.asph,14);const F=FR(x,gy(x,z)+.07,z,0,bake(x,z));cyl(g,F,0,0,0,.95,.14,12,UV.kerb,UV.island);plant(x,z,3,2.4);return;}
-  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];rbox(x,z,6.6,6.6,0,'cross',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
+  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];rbox(x,z,3.0,3.0,0,'cross2',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
   if(s.kind==='rab2'){const[x,z]=P[0],g=B(x,z);rbox(x,z,6.6,6.6,0,'asph',.1,false);disc(g,x,z,4,.09,UV.asph,18);const F=FR(x,gy(x,z)+.09,z,0,bake(x,z));cyl(g,F,0,0,0,2,.16,16,UV.kerb,UV.island);plant(x,z,13,4.2);plant(x+.9,z+.6,5,2.8);return;}
   if(s.kind==='pad'){const[x,z]=P[0],v=s.v;if(v&&v.arms.length===2&&v.arms[0][0].h===v.arms[1][0].h)return;rbox(x,z,6.6,6.6,0,'asph',.11,false);return;}
-  const w=s.kind==='art'?6.5:s.kind==='lane'?.8:s.kind==='main'?3:2.5,uv=s.kind==='art'?UV.art:s.kind==='lane'?UV.lane:s.kind==='ramp'?UV.ramp:UV.street,yo=s.kind==='art'?.08:s.kind==='lane'?.04:.06;
+  const w=s.kind==='art'?6.5:s.kind==='ramp'?1.6:s.kind==='lane'?.8:s.kind==='main'?3:2.5,uv=s.kind==='art'?UV.art:s.kind==='lane'?UV.lane:s.kind==='ramp'?UV.ramp:UV.street,yo=s.kind==='art'?.08:s.kind==='lane'?.04:.06;
   strip(null,P,w,uv,yo,s.kind==='art'?2:s.kind==='lane'?.8:1.25);/*one strip per street: no notches where chunk slices met*/
   // street trees on the verges and pads at the junctions
   if(s.kind==='local'||s.kind==='main')for(let i=2;i<P.length-1;i+=3){const a=P[i-1],b=P[i],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1;const sd=(i/3|0)%2?1:-1,x=b[0]+dz/l*1.05*sd,z=b[1]-dx/l*1.05*sd;if(hs(x,z)<.55&&occ(x,z)<2)plant(x,z,[2,3,1,11][((hs(z,x)*4)|0)],1.6+hs(x,z)*.9);}
@@ -57,7 +57,7 @@ STREETS.forEach(s=>{const P=s.P;
 
 // signals at the centre crossroads: a zebra slab, four poles with heads (bulbs are one instanced mesh, phases shared with the traffic)
 const BULB=[],SIGO=[];
-SIGS.forEach((v,si)=>{const x=v.x,z=v.z,g=B(x,z),y=gy(x,z)+.1,F=FR(x,y,z,0,bake(x,z));rbox(x,z,6.5,6.5,0,'cross',.12,!!v.rib);
+SIGS.forEach((v,si)=>{const x=v.x,z=v.z,g=B(x,z),y=gy(x,z)+.1,F=FR(x,y,z,0,bake(x,z));if(OWR2&&!v.rib)rbox(x,z,3.0,3.0,0,'cross2',.12,false);else rbox(x,z,6.5,6.5,0,'cross',.12,!!v.rib);
   const s={x,z,ang:0,ax:[0,1],heads:[],ph:si*3.7+1.3,g:null,sub:1};SIGO.push(s);
   [[1,1],[-1,1],[-1,-1],[1,-1]].forEach(([sx,sz],k)=>{const px=sx*3.6,pz=sz*3.6;box(g,F,px,0,pz,.12,2.3,.12,all(UV.black));const hy=2.05;box(g,F,px,hy-.42,pz,.28,.8,.22,all(UV.black));
     const axis=k%2;const dirs=axis?[[0,0,1],[0,0,-1]]:[[1,0,0],[-1,0,0]];BULB.push({x:x+px,y:y+hy-.42,z:z+pz,s,axis,face:axis?[0,sz]:[sx,0]});});});

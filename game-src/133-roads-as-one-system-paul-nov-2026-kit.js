@@ -18,7 +18,7 @@ try{const t0=performance.now(),RS={};O.ribs=RIBS;
     const BH=new Set(B.map(q=>Math.floor(q[0]/3)+','+Math.floor(q[1]/3)));O.bridgeAt=(x,z)=>{for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)if(BH.has((Math.floor(x/3)+a)+','+(Math.floor(z/3)+b)))return true;return false;};RS.bridge=B.length;}
   // 4. junction boxes: the city crossroads at 256 px, following the ground and above every road under them; plain boxes where a road tees into a highway
   const coverY=(x,z)=>{let m=deckH(x,z);for(const[a,b]of[[1.3,0],[-1.3,0],[0,1.3],[0,-1.3],[2.6,0],[-2.6,0],[0,2.6],[0,-2.6],[1.8,1.8],[-1.8,1.8],[1.8,-1.8],[-1.8,-1.8]])m=Math.max(m,H(x+a,z+b));return m+.26;};O.roadCoverY=coverY;
-  const boxMesh=(x,z,a,b,ang,mat,yo,world)=>{const g=new THREE.PlaneGeometry(b,a,Math.max(1,Math.ceil(b/1.1)),Math.max(1,Math.ceil(a/1.1)));g.rotateX(-Math.PI/2);g.rotateY(ang);const p=g.attributes.position,uv=g.attributes.uv;
+  const boxMesh=(x,z,a,b,ang,mat,yo,world)=>{(O.auBox||(O.auBox=[])).push([x,z,a,b,ang,'rk']);const g=new THREE.PlaneGeometry(b,a,Math.max(1,Math.ceil(b/1.1)),Math.max(1,Math.ceil(a/1.1)));g.rotateX(-Math.PI/2);g.rotateY(ang);const p=g.attributes.position,uv=g.attributes.uv;
     for(let i=0;i<p.count;i++){const X=x+p.getX(i),Z=z+p.getZ(i);p.setXYZ(i,X,coverY(X,Z)+(yo||0),Z);if(world)uv.setXY(i,X/2,Z/2);}g.computeVertexNormals();g.computeBoundingSphere();
     const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';m.name='rk:box';scene.add(m);return m;};
   const cityM=RK.mat('city',RK.city,{polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}),asM=RK.mat('asph',RK.asph,{polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8});let nb=0;

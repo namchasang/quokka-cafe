@@ -43,17 +43,17 @@ const RKG=new Map();let RKU=null;const RKS=r=>(RKU||(RKU=new Map([[UV.street,'st
 const rgb=(kind,x,z)=>{const k=kind+'|'+Math.floor(x/96)+'|'+Math.floor(z/96);let g=RKG.get(k);if(!g){g=new GB();g.kind=kind;RKG.set(k,g);}return g;};
 const RKSEG=[],RKCIR=[];// carriageways for "nothing stands on the road": [a,b,inner,outer half-width] and [x,z,r]
 const rkCover=(x,z)=>{let m=deckH(x,z);for(const[a,b]of[[1.3,0],[-1.3,0],[0,1.3],[0,-1.3],[2.6,0],[-2.6,0],[0,2.6],[0,-2.6],[1.8,1.8],[-1.8,1.8],[1.8,-1.8],[-1.8,-1.8]])m=Math.max(m,H(x+a,z+b));return m+.26;};
-function rstrip(P,w,kind,yo,tl,k){const D=[P[0]];for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<1e-4)continue;const n=Math.max(1,Math.round(L/tl));for(let j=1;j<=n;j++)D.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n]);}
+function rstrip(P,w,kind,yo,tl,k){drvPaint(P,w/2,1);const D=[P[0]];for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<1e-4)continue;const n=Math.max(1,Math.round(L/tl));for(let j=1;j<=n;j++)D.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n]);}
   if(D.length<2)return;const nc=Math.max(1,Math.ceil(w/1.1)),Y={lane:.05,ramp:.06,street:.07,art:.09}[kind]||yo,rows=[];
   for(let i=0;i<D.length;i++){const p=D[Math.max(0,i-1)],q=D[Math.min(D.length-1,i+1)];let dx=q[0]-p[0],dz=q[1]-p[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const x=D[i][0],z=D[i][1],r=[];
     for(let j=0;j<=nc;j++){const o=-w/2+w*j/nc,X=x-dz*o,Z=z+dx*o;r.push([X,Math.max(gy(X,Z),.05)+Y,Z]);/* a low causeway where a street crosses a creek */}rows.push(r);}
   for(let i=1;i<D.length;i++){const g=rgb(kind,D[i][0],D[i][1]),c=(k||1)*bake(D[i][0],D[i][1]);for(let j=0;j<nc;j++){const u0=j/nc,u1=(j+1)/nc;g.poly([rows[i-1][j],rows[i-1][j+1],rows[i][j+1],rows[i][j]],[[u0,0],[u1,0],[u1,1],[u0,1]],c);}
-    RKSEG.push([D[i-1],D[i],kind==='art'?.19:0,kind==='art'?2.44:kind==='lane'?.4:kind==='ramp'?.62:w*.275]);}}
-function rdisc(x,z,rad,yo,n,k){const top=yo>=.08,g=rgb(top?'asph2':'asph',x,z),Y=top?.13:.12,c=(k||1)*bake(x,z),C=[x,gy(x,z)+Y,z];n=Math.max(n,10);
+    RKSEG.push([D[i-1],D[i],kind==='art'?(OWR2?0:.19):0,kind==='art'?(OWR2?1.55:2.44):kind==='lane'?.4:kind==='ramp'?.62:w*.275]);}}
+function rdisc(x,z,rad,yo,n,k){drvPaint([[x,z]],rad,1);(O.auDisc||(O.auDisc=[])).push([x,z,rad]);const top=yo>=.08,g=rgb(top?'asph2':'asph',x,z),Y=top?.13:.12,c=(k||1)*bake(x,z),C=[x,gy(x,z)+Y,z];n=Math.max(n,10);
   for(let i=0;i<n;i++){const a0=i/n*6.283,a1=(i+1)/n*6.283,p1=[x+Math.cos(a1)*rad,0,z+Math.sin(a1)*rad],p0=[x+Math.cos(a0)*rad,0,z+Math.sin(a0)*rad];p1[1]=gy(p1[0],p1[2])+Y;p0[1]=gy(p0[0],p0[2])+Y;
     g.poly([C,p1,p0],[[x/2,z/2],[p1[0]/2,p1[2]/2],[p0[0]/2,p0[2]/2]],c);}RKCIR.push([x,z,rad-.1,rad===2.1?1.1:rad===4?2.2:0]);}
 // a flat box (junction box, apron): centre x,z, size a (along ang) x b, turned by ang; follows the ground, or covers the highway under it
-function rbox(x,z,a,b,ang,kind,yo,cover){yo=kind==='cross'?.15:kind==='xarm'?.14:kind==='xarm2'?.16:kind==='tarm'?.15:cover?.14:Math.max(yo,.12);const na=Math.max(1,Math.ceil(a/1.1)),nb=Math.max(1,Math.ceil(b/1.1)),c=Math.cos(ang),s=Math.sin(ang),g=rgb(kind==='asph'&&cover?'box':kind,x,z),kk=bake(x,z),V=[];
+function rbox(x,z,a,b,ang,kind,yo,cover){(O.auBox||(O.auBox=[])).push([x,z,a,b,ang,kind]);yo=kind==='cross'||kind==='cross2'?.15:kind==='xarm'?.14:kind==='xarm2'?.16:kind==='tarm'?.15:cover?.14:Math.max(yo,.12);const na=Math.max(1,Math.ceil(a/1.1)),nb=Math.max(1,Math.ceil(b/1.1)),c=Math.cos(ang),s=Math.sin(ang),g=rgb(kind==='asph'&&cover?'box':kind,x,z),kk=bake(x,z),V=[];
   for(let j=0;j<=nb;j++)for(let i=0;i<=na;i++){const lx=-b/2+b*j/nb,lz=-a/2+a*i/na,X=x+lx*c+lz*s,Z=z-lx*s+lz*c;V.push([X,Math.max(gy(X,Z)+yo,cover?rkCover(X,Z):-99),Z,j/nb,i/na]);}
   const U=v=>kind==='asph'?[v[0]/2,v[2]/2]:[v[3],v[4]];
   for(let j=0;j<nb;j++)for(let i=0;i<na;i++){const q=[V[j*(na+1)+i],V[j*(na+1)+i+1],V[(j+1)*(na+1)+i+1],V[(j+1)*(na+1)+i]];g.poly(q.map(v=>[v[0],v[1],v[2]]),q.map(U),kk);}
@@ -63,7 +63,7 @@ O.subCarr=(x,z)=>{for(const c of RKCIR)if(Math.abs(c[0]-x)<c[2]&&Math.abs(c[1]-z
 const RKH=new Map();
 function rbuild(){RKSEG.forEach(s=>{const i0=Math.floor((Math.min(s[0][0],s[1][0])-3)/8),i1=Math.floor((Math.max(s[0][0],s[1][0])+3)/8),j0=Math.floor((Math.min(s[0][1],s[1][1])-3)/8),j1=Math.floor((Math.max(s[0][1],s[1][1])+3)/8);
     for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=i*100003+j;let L=RKH.get(k);if(!L)RKH.set(k,L=[]);L.push(s);}});
-  const MK={street:RK.street,art:RK.art,lane:RK.lane,ramp:RK.ramp,asph:RK.asph,asph2:RK.asph,box:RK.asph,cross:RK.cross,xarm:RK.xarm,xarm2:RK.xarm,tarm:RK.tarm},PO={lane:0,ramp:1,street:2,art:3,asph:4,asph2:5,box:6,cross:7,xarm:6,xarm2:8,tarm:7};let n=0;
+  const MK={street:RK.street,art:RK.art,lane:RK.lane,ramp:RK.ramp,asph:RK.asph,asph2:RK.asph,box:RK.asph,cross:RK.cross,cross2:()=>RK.cityW(3.0),xarm:RK.xarm,xarm2:RK.xarm,tarm:RK.tarm},PO={lane:0,ramp:1,street:2,art:3,asph:4,asph2:5,box:6,cross:7,cross2:7,xarm:6,xarm2:8,tarm:7};let n=0;
   RKG.forEach(gb=>{if(!gb.I.length)return;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(gb.P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(gb.N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(gb.U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(gb.C,3));
     g.setIndex(gb.P.length/3>65535?new THREE.Uint32BufferAttribute(gb.I,1):new THREE.Uint16BufferAttribute(gb.I,1));g.computeBoundingSphere();
     const po=PO[gb.kind]||0,me=new THREE.Mesh(g,RK.mat('sub'+gb.kind,MK[gb.kind],{vertexColors:true,side:THREE.DoubleSide,polygonOffset:po>0,polygonOffsetFactor:-po*.5,polygonOffsetUnits:-po*2}));me.receiveShadow=true;me.userData.L='roads';me.name='rk:'+gb.kind;me.matrixAutoUpdate=false;me.updateMatrix();scene.add(me);n++;});O.subRoadMeshes=n;}
