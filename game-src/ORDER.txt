@@ -195,5 +195,6 @@
 188-build-smooth-look-lab-toon.js
 188-meadow-tufts-look-lab-toon.js
 188-rocks-look-lab-toon.js
+188-critters-look-lab-toon.js
 188-auth.js
 189-photo-mode-shot-x-z-hour-weather-zoom.js

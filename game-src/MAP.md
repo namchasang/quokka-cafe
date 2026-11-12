@@ -202,5 +202,6 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-build-smooth-look-lab-toon.js | 18278-18337 | 7 | BSMOOTH_LIVE, BSMOOTH |
 | 188-meadow-tufts-look-lab-toon.js | 18338-18386 | 6 | MEADOW_LIVE, MEADOW |
 | 188-rocks-look-lab-toon.js | 18387-18419 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-auth.js | 18420-18498 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18499-18520 | 3 | SHOT |
+| 188-critters-look-lab-toon.js | 18420-18480 | 7 | CRIT3_LIVE, CRIT3 |
+| 188-auth.js | 18481-18559 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18560-18581 | 3 | SHOT |
