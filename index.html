@@ -1696,7 +1696,7 @@ function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.
     else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
     else if(SG&&!SL&&SG.g.t!=='sand'&&!(SG.g.t!=='tarmac'&&d<beachW)){const t=SG.g.t;if(t==='fairway')c=((Math.floor((SG.u*SG.g.rx+40)/1.6))&1)?[132,196,96]:[146,208,108];else if(t==='green')c=r<.5?[118,198,98]:[126,206,104];else if(t==='bunker')c=r<.5?[240,226,188]:[232,216,176];else c=Math.abs(SG.v)<.08&&((Math.floor((SG.u*SG.g.rx+40)/1.4))&1)?[240,240,232]:(r<.5?[108,112,120]:[118,122,128]);}
     else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(TOON_SAND){// ?toon: the Tree Lab beach, a smooth warm gradient from wet sand at the water to pale dry sand, then golden at the back
-      const u=Math.min(1,d/Math.max(1,beachW)),L=[[0,[176,150,116]],[.14,[196,172,138]],[.3,[214,192,158]],[.85,[220,200,166]],[1,[206,186,150]]];let a=L[0],b=L[L.length-1];for(let q=1;q<L.length;q++)if(u<=L[q][0]){a=L[q-1];b=L[q];break;}
+      const u=Math.min(1,d/Math.max(1,beachW)),L=[[0,[214,212,200]],[.14,[232,230,220]],[.3,[246,244,236]],[.85,[244,241,230]],[1,[232,228,212]]];let a=L[0],b=L[L.length-1];for(let q=1;q<L.length;q++)if(u<=L[q][0]){a=L[q-1];b=L[q];break;}
       const f=(u-a[0])/((b[0]-a[0])||1),sp=(r<.5?.985:1.015)+(n2-.5)*.04;c=[0,1,2].map(q=>(a[1][q]+(b[1][q]-a[1][q])*f)*sp*(u<.5?1-.035*Math.max(0,Math.sin(d*11+n1*3)):1));if(r>.992)c=c.map(v=>v*1.06);else if(r<.006)c=c.map(v=>v*.86);}
     else if(d<.42)c=[222,214,196];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
     else{let t=n1*.62+n2*.38+(r-.5)*.2;if(d<beachW+.8)t+=.18;c=G[t<.32?0:t<.46?1:t<.6?2:t<.72?3:4];
@@ -2124,21 +2124,21 @@ const BIKE_LANE=[[-12.5,4.6],[-6.6,4.6],[-5,6.5],[5,6.5],[6.4,4.6],[9.6,4.6],[13
 (()=>{const c=mk(64,32),x=c.getContext('2d');x.fillStyle='#b5523b';x.fillRect(0,0,64,32);const r=mulberry32(55);for(let i=0;i<120;i++){x.fillStyle=r()<.5?'#a8472f':'#c25f46';x.fillRect(r()*64|0,r()*32|0,2,2);}
   x.fillStyle='#f6efe0';x.fillRect(0,1,64,2);x.fillRect(0,29,64,2);for(let i=0;i<64;i+=16)x.fillRect(i,15,9,2);
   const tex=new THREE.CanvasTexture(c);tex.magFilter=THREE.NearestFilter;tex.wrapS=THREE.RepeatWrapping;
-  if(TOON_SAND){// ?toon (Paul, Nov 2026): the lane drawn smooth, like the Tree Lab (soft red surface, clean white edge lines and dashes)
-    const S=4;c.width=64*S;c.height=32*S;const g=x;g.fillStyle='#bf5a42';g.fillRect(0,0,c.width,c.height);const rr=mulberry32(56);for(let i=0;i<2600;i++){g.fillStyle=`rgba(${rr()<.5?'90,30,20':'255,220,200'},${.05+rr()*.07})`;g.beginPath();g.arc(rr()*c.width,rr()*c.height,.6+rr()*1.6,0,6.283);g.fill();}
-    g.fillStyle='#f8f2e6';g.fillRect(0,1.2*S,c.width,1.6*S);g.fillRect(0,c.height-2.8*S,c.width,1.6*S);for(let i=0;i<64;i+=16){g.beginPath();g.roundRect?g.roundRect(i*S,14.8*S,9*S,2.4*S,1.2*S):g.rect(i*S,14.8*S,9*S,2.4*S);g.fill();}
+  if(TOON_SAND){// ?toon (Paul, Nov 2026, from his photos of the island roads): grey asphalt with a white edge line each side, no red paint
+    const S=4;c.width=64*S;c.height=32*S;const g=x;g.fillStyle='#7c7f82';g.fillRect(0,0,c.width,c.height);const rr=mulberry32(56);for(let i=0;i<3000;i++){g.fillStyle=`rgba(${rr()<.5?'40,42,46':'200,200,196'},${.06+rr()*.08})`;g.beginPath();g.arc(rr()*c.width,rr()*c.height,.6+rr()*1.5,0,6.283);g.fill();}
+    {const e=g.createLinearGradient(0,0,0,c.height);e.addColorStop(0,'rgba(214,200,168,.95)');e.addColorStop(.07,'rgba(214,200,168,0)');e.addColorStop(.93,'rgba(214,200,168,0)');e.addColorStop(1,'rgba(214,200,168,.95)');g.fillStyle=e;g.fillRect(0,0,c.width,c.height);}// a sandy limestone edge, no paint (Paul's photos)
     tex.magFilter=THREE.LinearFilter;tex.minFilter=THREE.LinearMipmapLinearFilter;tex.anisotropy=8;tex.needsUpdate=true;}
   const ic=mk(32,32),ix=ic.getContext('2d');ix.fillStyle='#f6efe0';const ring=(cx,cy)=>{ix.fillRect(cx-4,cy-1,8,2);ix.fillRect(cx-1,cy-4,2,8);ix.fillRect(cx-3,cy-3,2,2);ix.fillRect(cx+1,cy-3,2,2);ix.fillRect(cx-3,cy+1,2,2);ix.fillRect(cx+1,cy+1,2,2);};
   ring(8,20);ring(24,20);ix.fillRect(8,12,10,2);ix.fillRect(16,12,2,8);ix.fillRect(12,10,8,2);ix.fillRect(20,10,2,10);ix.fillRect(22,9,4,2);
   if(TOON_SAND){const S=4;ic.width=ic.height=32*S;const g=ix;g.strokeStyle='#f8f2e6';g.lineWidth=2.2*S;g.lineCap='round';g.lineJoin='round';[[8,20],[24,20]].forEach(([a,b])=>{g.beginPath();g.arc(a*S,b*S,4.6*S,0,6.283);g.stroke();});
     g.beginPath();g.moveTo(8*S,20*S);g.lineTo(13*S,12*S);g.lineTo(21*S,12*S);g.lineTo(24*S,20*S);g.moveTo(13*S,12*S);g.lineTo(16*S,20*S);g.lineTo(21*S,12*S);g.moveTo(12*S,10*S);g.lineTo(15*S,10*S);g.moveTo(21*S,12*S);g.lineTo(20*S,9*S);g.lineTo(24*S,9*S);g.stroke();}
   const itex=new THREE.CanvasTexture(ic);itex.magFilter=TOON_SAND?THREE.LinearFilter:THREE.NearestFilter;const imat=new THREE.MeshLambertMaterial({map:itex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6});
-  const capMs={};const capM=thin=>capMs[thin]||(capMs[thin]=new THREE.MeshLambertMaterial({color:thin?0xc4573e:0xb5523b,polygonOffset:true,polygonOffsetFactor:thin?-2:-1,polygonOffsetUnits:thin?-2:-1}));
+  const capMs={};const capM=thin=>capMs[thin]||(capMs[thin]=new THREE.MeshLambertMaterial({color:TOON_SAND?0x7c7f82:thin?0xc4573e:0xb5523b,polygonOffset:true,polygonOffsetFactor:thin?-2:-1,polygonOffsetUnits:thin?-2:-1}));
   laneStrip=(a,b,w,icons,y)=>{const n0=scene.children.length,w0=w,y0=y;w=w||1.15;y=y||.021;const len=Math.hypot(b[0]-a[0],b[1]-a[1]);const t=tex.clone();t.needsUpdate=true;t.repeat.set(len/2,1);
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));if(TOON_SAND)m.__pxSkip=1;m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(len,w),w<.9?new THREE.MeshLambertMaterial({color:TOON_SAND?0x7c7f82:0xc4573e,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}):new THREE.MeshLambertMaterial({map:t,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));if(TOON_SAND)m.__pxSkip=1;m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);m.position.set((a[0]+b[0])/2,y,(a[1]+b[1])/2);m.receiveShadow=true;scene.add(m);
     // round caps so lanes meet at corners without a gap
     [a,b].forEach(e=>{const cap=new THREE.Mesh(new THREE.CircleGeometry(w/2,14),capM(w<.9));cap.rotation.x=-Math.PI/2;cap.position.set(e[0],y-.001,e[1]);cap.receiveShadow=true;scene.add(cap);});if(w<.9)for(let d=2;d<len-1;d+=6){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.scale.setScalar(Math.min(1,w/.5));q.position.set(a[0]+(b[0]-a[0])*k,y+.004,a[1]+(b[1]-a[1])*k);scene.add(q);}BLANES.push([a,b,w]);
-    if(icons!==false&&w>.9&&len>8)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.position.set(a[0]+(b[0]-a[0])*k,y+.005,a[1]+(b[1]-a[1])*k);scene.add(q);}
+    if(icons!==false&&w>.9&&len>8&&!TOON_SAND)for(let d=3;d<len-1;d+=7){const k=d/len;const q=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),imat);q.rotation.x=-Math.PI/2;q.rotation.z=-Math.atan2(b[1]-a[1],b[0]-a[0]);q.position.set(a[0]+(b[0]-a[0])*k,y+.005,a[1]+(b[1]-a[1])*k);scene.add(q);}
     scene.children.slice(n0).forEach(m=>m.userData.lane=1);
     if(!ISL.done&&a[0]<99.5){const ms=scene.children.slice(n0);ms.forEach(m=>m.__noWarp=true);(ISL.strips=ISL.strips||[]).push({a:a.slice(),b:b.slice(),w:w0,icons,y:y0,meshes:ms});BLANES[BLANES.length-1].__isl=1;}};
   const run=(pts,w,icons,y)=>{for(let i=0;i<pts.length-1;i++)laneStrip(pts[i],pts[i+1],w,icons,y);};
@@ -18265,10 +18265,12 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
         // Paul's reference (Nov 2026): clear green-teal water you can see the seabed through (sand, darker weed patches, pebbles,
         // dancing light), deepening to a teal blue; a thin lacy foam line on the sand and a second one just behind it
         float n1=s3n(wp*.35),n2=s3n(wp*1.3+7.),n3=s3n(wp*4.5+3.);
-        vec3 bed=mix(${SR('#cdb994')},${SR('#9aa27a')},smoothstep(.3,3.,dd));bed=mix(bed,${SR('#3f6a52')},smoothstep(.55,.75,n1*.7+n2*.3)*smoothstep(.4,1.5,dd)*.85);
-        bed*=.9+.2*n3;float peb=smoothstep(.82,.9,s3n(wp*6.+n1*2.));bed=mix(bed,${SR('#5e5a4a')},peb*.6*smoothstep(.3,1.,dd));
-        float ca=abs(sin((wp.x+s3n(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+s3n(wp*1.9-uT*.2)*2.)*2.7));bed+=vec3(.10,.12,.10)*pow(1.-ca,6.)*(1.-smoothstep(1.,5.,dd));
-        float wd=clamp(.28+dd*.11,0.,.95);vec3 c=mix(bed,${SR('#2aa394')},wd);c=mix(c,${SR('#1b7f8e')},smoothstep(4.,10.,dd));c=mix(c,${SR('#14607e')},smoothstep(9.,16.,dd));
+        // Paul's Parker Point photo: brilliant white sand under clear turquoise, big dark navy seagrass meadows, deep blue offshore
+        vec3 bed=mix(${SR('#f3f1ea')},${SR('#d9eee8')},smoothstep(.3,4.,dd));
+        float grass=smoothstep(.5,.58,n1*.62+s3n(wp*.7+3.)*.25+n2*.13)*smoothstep(.8,2.2,dd);
+        bed=mix(bed,${SR('#173a5c')},grass*.92);bed*=.94+.12*n3;
+        float ca=abs(sin((wp.x+s3n(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+s3n(wp*1.9-uT*.2)*2.)*2.7));bed+=vec3(.08,.10,.10)*pow(1.-ca,6.)*(1.-smoothstep(1.,5.,dd))*(1.-grass);
+        float wd=clamp(.18+dd*.09,0.,.9);vec3 c=mix(bed,${SR('#2cc6cc')}*mix(1.,.55,grass),wd*(1.-grass*.6));c=mix(c,${SR('#1b6fb4')},smoothstep(6.,12.,dd));c=mix(c,${SR('#123f86')},smoothstep(11.,20.,dd));
         c*=1.+(s3n(wp*.7+vec2(uT*.25,-uT*.15))-.5)*.06;
         float lace=smoothstep(.35,.65,s3n(wp*5.+vec2(uT*.3,0.)))*.6+.4;
         float ph=fract(uT*.08+s3n(wp*.12)*.5);
@@ -18491,6 +18493,37 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
       else if(e.kind==='g'){const f=Math.sin(t*3+e.i)*.25;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.rotation.z=Math.sin(t*.7+e.i)*.15;}
       else{M.position.y=0;e.wa=(e.wa||0)+.25;M.userData.wheels.forEach(w=>w.rotation.x=e.wa);M.userData.legs.forEach((l,j)=>l.rotation.x=Math.sin(e.wa+j*Math.PI)*.6);}}}
   (function loop(){try{tick();}catch(err){console.warn('crit3',err);CRIT3.on=false;return;}requestAnimationFrame(loop);})();
+})();
+// ---------- The Basin lookout (Look Lab: ?toon until BASIN_LIVE is true) ----------
+// Paul (Nov 2026, from his photo): a grey timber boardwalk with post-and-rail sides runs from the path by THE BASIN sign
+// to a lookout platform at the top of the dune, then steps down onto the sand of the bay.
+const BASIN_LIVE=false;
+const BASIN={on:BASIN_LIVE||/[?&#]toon\b/.test(location.search+location.hash)};
+(function(){if(!BASIN.on)return;
+  function build(){const S0=IW(19.5,-8.4),B=IW(20,-12.8);let sx=S0.x,sz=S0.z;
+    // walk from the sign towards the bay until the sand (landD ~ .5)
+    // straight towards The Basin from its sign: start 2.5 inland, end a little onto the sand
+    const dx0=B.x-sx,dz0=B.z-sz,l0=Math.hypot(dx0,dz0)||1,dx=dx0/l0,dz=dz0/l0;let t0=3;for(let t=0;t<10;t+=.1)if(landD(sx+dx*t,sz+dz*t)<.25){t0=t;break;}
+    sx-=dx*2.5;sz-=dz*2.5;const L=t0+2.5+.7;
+    const G=new THREE.Group(),wood=c=>new THREE.MeshLambertMaterial({color:c}),PL=wood('#a59a88'),PD=wood('#8a7f6e'),PO=wood('#7d7466');
+    const ang=Math.atan2(dx,dz);G.position.set(sx,0,sz);G.rotation.y=ang;scene.add(G);
+    const add=(g,m,x,y,z)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;G.add(o);return o;};
+    const W=1.2,top=.55,flat=Math.max(1.5,L*.45),plat=1.8;
+    // level walk, then a wider lookout platform, then stairs down to the sand
+    for(let z=0;z<flat;z+=.22)add(new THREE.BoxGeometry(W,.05,.2),z%(.44)<.2?PL:PD,0,top,z+.1);
+    add(new THREE.BoxGeometry(W*2,.06,plat),PL,W*.5,top,flat+plat/2);
+    const st=Math.max(4,Math.round((L-flat-plat)/.3)),sd=(L-flat-plat)/st;
+    for(let k=0;k<st;k++)add(new THREE.BoxGeometry(W,.06,sd*1.05),k%2?PD:PL,0,top*(1-(k+1)/(st+1)),flat+plat+sd*(k+.5));
+    // posts and two rails each side; the lookout gets a rail on its open sides
+    const post=(x,z,y0)=>add(new THREE.BoxGeometry(.09,.75,.09),PO,x,y0+.37,z);
+    const rail=(x0,z0,y0,x1,z1,y1)=>{const d=Math.hypot(x1-x0,z1-z0,y1-y0);[.42,.72].forEach(h=>{const r=add(new THREE.BoxGeometry(.05,.05,d),PO,(x0+x1)/2,(y0+y1)/2+h,(z0+z1)/2);r.lookAt(new THREE.Vector3(x1,y1+h,z1).applyMatrix4(G.matrixWorld));r.rotation.set(Math.atan2(-(y1-y0),Math.hypot(x1-x0,z1-z0)),Math.atan2(x1-x0,z1-z0),0);});};
+    [-W/2,W/2].forEach(x=>{for(let z=0;z<=flat;z+=1.2)post(x,z,top);rail(x,0,top,x,flat,top);});
+    post(-W/2,flat+plat,top);post(W*1.5,flat,top);post(W*1.5,flat+plat,top);rail(W*1.5,flat,top,W*1.5,flat+plat,top);rail(W/2,flat+plat,top,W*1.5,flat+plat,top);
+    const zEnd=flat+plat+sd*st;[-W/2,W/2].forEach(x=>{post(x,zEnd,0);rail(x,flat+plat,top,x,zEnd,0);});
+    // piles under the walk
+    for(let z=.6;z<flat+plat;z+=1.2)[-W/2+.1,W/2-.1].forEach(x=>add(new THREE.BoxGeometry(.1,top,.1),PO,x,top/2,z));
+    G.traverse(o=>o.__pxSkip=1);BASIN.g=G;BASIN.len=L;}
+  const go=()=>{if(typeof ISL==='undefined'||!ISL.done||typeof IW!=='function'){setTimeout(go,500);return;}try{build();}catch(e){console.warn('basin',e);}};setTimeout(go,1500);
 })();
 // ---- auth ----
 function authLoad(){try{AUTH.s=JSON.parse(localStorage.getItem('qc-auth')||'null');}catch(e){AUTH.s=null;}}

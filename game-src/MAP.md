@@ -198,10 +198,11 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17963-18104 | 19 | TREE3D_LIVE, TREE3D |
 | 188-toon-characters-look-lab-toon.js | 18105-18182 | 9 | TOON_LIVE, TOON |
 | 188-paint-look-look-lab-toon.js | 18183-18238 | 5 | PAINT_LIVE, PAINT |
-| 188-sea-beach-look-lab-toon.js | 18239-18291 | 5 | SEA3_LIVE, SEA3 |
-| 188-build-smooth-look-lab-toon.js | 18292-18351 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 18352-18400 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 18401-18433 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 18434-18494 | 7 | CRIT3_LIVE, CRIT3 |
-| 188-auth.js | 18495-18573 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18574-18595 | 3 | SHOT |
+| 188-sea-beach-look-lab-toon.js | 18239-18293 | 5 | SEA3_LIVE, SEA3 |
+| 188-build-smooth-look-lab-toon.js | 18294-18353 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 18354-18402 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 18403-18435 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 18436-18496 | 7 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 18497-18527 | 2 | BASIN_LIVE, BASIN |
+| 188-auth.js | 18528-18606 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18607-18628 | 3 | SHOT |

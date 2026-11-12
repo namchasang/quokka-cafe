@@ -27,10 +27,12 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
         // Paul's reference (Nov 2026): clear green-teal water you can see the seabed through (sand, darker weed patches, pebbles,
         // dancing light), deepening to a teal blue; a thin lacy foam line on the sand and a second one just behind it
         float n1=s3n(wp*.35),n2=s3n(wp*1.3+7.),n3=s3n(wp*4.5+3.);
-        vec3 bed=mix(${SR('#cdb994')},${SR('#9aa27a')},smoothstep(.3,3.,dd));bed=mix(bed,${SR('#3f6a52')},smoothstep(.55,.75,n1*.7+n2*.3)*smoothstep(.4,1.5,dd)*.85);
-        bed*=.9+.2*n3;float peb=smoothstep(.82,.9,s3n(wp*6.+n1*2.));bed=mix(bed,${SR('#5e5a4a')},peb*.6*smoothstep(.3,1.,dd));
-        float ca=abs(sin((wp.x+s3n(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+s3n(wp*1.9-uT*.2)*2.)*2.7));bed+=vec3(.10,.12,.10)*pow(1.-ca,6.)*(1.-smoothstep(1.,5.,dd));
-        float wd=clamp(.28+dd*.11,0.,.95);vec3 c=mix(bed,${SR('#2aa394')},wd);c=mix(c,${SR('#1b7f8e')},smoothstep(4.,10.,dd));c=mix(c,${SR('#14607e')},smoothstep(9.,16.,dd));
+        // Paul's Parker Point photo: brilliant white sand under clear turquoise, big dark navy seagrass meadows, deep blue offshore
+        vec3 bed=mix(${SR('#f3f1ea')},${SR('#d9eee8')},smoothstep(.3,4.,dd));
+        float grass=smoothstep(.5,.58,n1*.62+s3n(wp*.7+3.)*.25+n2*.13)*smoothstep(.8,2.2,dd);
+        bed=mix(bed,${SR('#173a5c')},grass*.92);bed*=.94+.12*n3;
+        float ca=abs(sin((wp.x+s3n(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+s3n(wp*1.9-uT*.2)*2.)*2.7));bed+=vec3(.08,.10,.10)*pow(1.-ca,6.)*(1.-smoothstep(1.,5.,dd))*(1.-grass);
+        float wd=clamp(.18+dd*.09,0.,.9);vec3 c=mix(bed,${SR('#2cc6cc')}*mix(1.,.55,grass),wd*(1.-grass*.6));c=mix(c,${SR('#1b6fb4')},smoothstep(6.,12.,dd));c=mix(c,${SR('#123f86')},smoothstep(11.,20.,dd));
         c*=1.+(s3n(wp*.7+vec2(uT*.25,-uT*.15))-.5)*.06;
         float lace=smoothstep(.35,.65,s3n(wp*5.+vec2(uT*.3,0.)))*.6+.4;
         float ph=fract(uT*.08+s3n(wp*.12)*.5);
