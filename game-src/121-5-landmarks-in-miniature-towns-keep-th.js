@@ -72,9 +72,13 @@ function tower2(g,x,z,o){const w=o.w,d=o.d||o.w,h=o.h,ry=o.ry||0,tp=flat(o.roof|
   if(o.mast){add(g,new THREE.CylinderGeometry(.05,.1,o.mast,5),flat('#e8ecf0'),x,y+(o.crown?o.ch||2.4:0)+o.mast/2,z);}
   const L=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2),new THREE.MeshBasicMaterial({color:0xd8323a}));L.position.set(x,y+(o.crown?(o.ch||2.4):.5)+(o.mast||0)+.1,z);g.add(L);(O.beacons||(O.beacons=[])).push(L);
   return y;}
-if(T.cbd){const t=T.cbd,g=t.g;hideOld(t);const[gx,gz]=gpos(t);const L=(lo,la)=>{const p=G(lo,la);return[(p[0]-gx)*2,(p[1]-gz)*2];};
+if(T.cbd){const t=T.cbd,g0=t.g;hideOld(t);const[gx,gz]=gpos(t);
+  // owroads2 (Paul, Nov 2026): at the half-size map the CBD was spread over twice its real area (towers on roads, the quay in the river);
+  // now everything sits on its real spot at half size (a scaled sub-group), as in the earlier version Paul liked
+  const KS=OWR2?.5:1,g=KS===1?g0:new THREE.Group();if(g!==g0){g.scale.setScalar(KS);g.userData.owKeep=1;g0.add(g);}
+  const L=(lo,la)=>{const p=G(lo,la);return[(p[0]-gx)*2,(p[1]-gz)*2];};
   const railNear=(x,z,r)=>RAIL.some((a,i)=>i&&segDist(x,z,RAIL[i-1],a)<r);
-  const free=(a,b,r)=>{const x=gx+a,z=gz+b;return landAt(x,z)&&!onRoad(x,z,r+2.3)&&!railNear(x,z,r+2);};
+  const free=(a,b,r)=>{const x=gx+a*KS,z=gz+b*KS;r*=KS;return landAt(x,z)&&!onRoad(x,z,r+(KS<1?1.6:2.3))&&!railNear(x,z,r+(KS<1?1.2:2));};
   const GLB=['#b4d4e6','#8ab4cc','#5e8aaa','#3e6688'],GLT=['#a8dcd4','#78b8b4','#4a9294','#2e6e74'],GLS=['#c8d4e0','#98aabc','#6a809a','#465c78'],GLBR=['#d8c4a0','#b0966e','#86704c','#5e4c34'];
   const TW=[// [lon,lat, spec]
     [115.8566,-31.9546,{w:2.2,h:30,seed:1,gl:GLS,tiers:[[.62,1,1],[.24,.82,.82],[.14,.62,.62]],crown:'frame',mast:5}],
@@ -100,25 +104,26 @@ if(T.cbd){const t=T.cbd,g=t.g;hideOld(t);const[gx,gz]=gpos(t);const L=(lo,la)=>{
   // Paul (Nov 2026): half the CBD towers. The signature ones stay (the tallest with its frame crown, the slanted and pyramid crowns, the octagon,
   // the tiered ones, two sandstone-faced blocks); the generic flat-topped fillers go and their sites become small paved plazas with trees and benches.
   const ALL=/[?&#]allcbd\b/.test(location.search+location.hash),RANK=[1,4,5,6,8,2,3,15,7,16,12,17,10,11,19,9,13,14,18,20];const plz=(()=>{const c=mkc(32,32),x=c.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?2:0);X<32;X+=4){PP(x,['#d8d0bc','#cfc6b0','#e2dac6'][(X*3+y)%3],X,y,4,4);PP(x,'#b8b09c',X,y+3,4,1);}return new THREE.MeshLambertMaterial({map:TX(c)});})();
-  const fit=TW.filter(([lo,la,o])=>{const[a,b]=L(lo,la);return free(a,b,Math.max(o.w,o.d||o.w)*.5+.6);}),keep=new Set(fit.map(q=>q[2].seed).sort((p,q)=>RANK.indexOf(p)-RANK.indexOf(q)).slice(0,ALL?99:Math.ceil(fit.length/2)));
-  let n=0,nP=0;fit.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!keep.has(o.seed)){const pw=o.w+1.4;add(g,new THREE.BoxGeometry(pw,.1,pw),plz,a,.05,b).castShadow=false;[[-1,-1],[1,1]].forEach(([p,q])=>{const x=gx+a+p*pw*.32,z=gz+b+q*pw*.32;PL.push([x,groundAt(x,z),z,2,2.8,1]);});add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a+.5,.2,b-.4);add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a-.5,.2,b+.4);nP++;return;}tower2(g,a,b,o);n++;});O.cbdTowers=n;O.cbdPlazas=nP;O.cbdKept=[...keep];
+  const fit=TW.filter(([lo,la,o])=>{const[a,b]=L(lo,la);return free(a,b,Math.max(o.w,o.d||o.w)*.5+.6);}),keep=new Set(fit.map(q=>q[2].seed).sort((p,q)=>RANK.indexOf(p)-RANK.indexOf(q)).slice(0,ALL?99:KS<1?8:Math.ceil(fit.length/2)));
+  let n=0,nP=0;fit.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!keep.has(o.seed)){const pw=o.w+1.4;add(g,new THREE.BoxGeometry(pw,.1,pw),plz,a,.05,b).castShadow=false;[[-1,-1],[1,1]].forEach(([p,q])=>{const x=gx+(a+p*pw*.32)*KS,z=gz+(b+q*pw*.32)*KS;PL.push([x,groundAt(x,z),z,2,2.8,1]);});add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a+.5,.2,b-.4);add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a-.5,.2,b+.4);nP++;return;}tower2(g,a,b,o);n++;});O.cbdTowers=n;O.cbdPlazas=nP;O.cbdKept=[...keep];
   // heritage sandstone: a town hall with a clock turret, a few low old blocks with verandahs
   [[115.8598,-31.9532,3,2.4,2.2,'#e0c89a',1],[115.8575,-31.9536,2.6,2,1.8,'#e8d8b0',0],[115.8618,-31.9564,2.4,2,1.6,'#d8c098',0],[115.8548,-31.9548,2.2,2,1.7,'#e4d0a8',0]].forEach(([lo,la,w,d,h,c,clock],i)=>{const[a,b]=L(lo,la);if(!free(a,b,w*.5+.4))return;
     blockB(g,a,b,w,d,h,{base:c,kind:'stone',rows:2,win:Math.floor(w*1.6),seed:140+i,parapet:1,frame:'#f4ecd8',awn:i?['#c8344a','#2f6a74','#3e7d5c'][i%3]:null});
     if(clock){add(g,new THREE.BoxGeometry(.9,2.2,.9),flat(c),a,h+1.1,b);add(g,new THREE.ConeGeometry(.75,1.2,4),flat('#5a6a5a'),a,h+2.8,b,Math.PI/4);const cc=mkc(8,8),cx=cc.getContext('2d');PP(cx,c,0,0,8,8);PP(cx,'#f4f2ec',1,1,6,6);PP(cx,'#2a2230',4,2,1,3);PP(cx,'#2a2230',4,4,2,1);const cl=new THREE.Mesh(new THREE.PlaneGeometry(.6,.6),new THREE.MeshLambertMaterial({map:TX(cc),emissive:new THREE.Color(.3,.28,.2)}));cl.position.set(a,h+1.6,b+.46);g.add(cl);}});
   // the quay: a stone promenade on the water's edge, the bell tower, a footbridge arch
-  const[qx,qz]=L(115.8575,-31.9594);const deck=mkc(32,32),dx=deck.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?3:0);X<32;X+=6){PP(dx,['#d8d0bc','#c8c0ac','#e2dac6'][(X+y)%3],X,y,6,4);PP(dx,'#a8a090',X,y+3,6,1);}
-  const dt=TX(deck,true);dt.repeat.set(4,2);const dk=add(g,new THREE.BoxGeometry(9,.5,4),new THREE.MeshLambertMaterial({map:dt}),qx,.05,qz-1.6);
+  const GU=(wx,wz)=>[(wx-gx)/KS,(wz-gz)/KS];// world -> this group
+  const[qx,qz]=KS<1?GU(EQB.x-EQB.rx-1.2,EQB.z+.7):L(115.8575,-31.9594);const deck=mkc(32,32),dx=deck.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?3:0);X<32;X+=6){PP(dx,['#d8d0bc','#c8c0ac','#e2dac6'][(X+y)%3],X,y,6,4);PP(dx,'#a8a090',X,y+3,6,1);}
+  const dt=TX(deck,true);dt.repeat.set(4,2);const dk=KS<1?add(g,new THREE.BoxGeometry(2.2,.5,7.5),new THREE.MeshLambertMaterial({map:dt}),...(([a,b])=>[a,.05,b])(GU(EQB.x-EQB.rx-.45,EQB.z))):add(g,new THREE.BoxGeometry(9,.5,4),new THREE.MeshLambertMaterial({map:dt}),qx,.05,qz-1.6);
   const bx=qx,bz=qz;const glc=mkc(16,64),gx2=glc.getContext('2d');for(let y=0;y<64;y++)for(let X=0;X<16;X++)PP(gx2,['#a8d8e4','#7ab8cc','#5a9ab4'][(X+((y/4)|0))%3],X,y);for(let y=0;y<64;y+=6)PP(gx2,'#e8f4f8',0,y,16,1);
   const gm=new THREE.MeshLambertMaterial({map:TX(glc,true),emissive:new THREE.Color(.25,.32,.36)});
   add(g,new THREE.CylinderGeometry(.35,1.1,8.5,6),gm,bx,4.25,bz);add(g,new THREE.ConeGeometry(.35,2.4,6),gm,bx,9.7,bz);
   [-1,1].forEach(s=>{const w=add(g,new THREE.BoxGeometry(.18,6.2,1.1),flat('#b87848'),bx+s*.75,3.4,bz-.2);w.rotation.z=s*.1;});
   add(g,new THREE.CylinderGeometry(1.6,1.8,.4,10),flat('#d8d0bc'),bx,.2,bz);
   const bl=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshBasicMaterial({color:0xfff2c0}));bl.position.set(bx,7.8,bz);g.add(bl);O.bell=bl;
-  const arch=add(g,new THREE.TorusGeometry(2.4,.12,6,20,Math.PI),flat('#f4f2ec'),qx-4.5,.2,qz-.4);arch.rotation.y=Math.PI/2;
+  const arch=KS<1?add(g,new THREE.TorusGeometry(2.4,.16,6,20,Math.PI),flat('#f4f2ec'),...(([a,b])=>[a,.2,b])(GU(EQB.x,EQB.z+EQB.rz+.9))):add(g,new THREE.TorusGeometry(2.4,.12,6,20,Math.PI),flat('#f4f2ec'),qx-4.5,.2,qz-.4);if(KS===1)arch.rotation.y=Math.PI/2;// owroads2: the footbridge spans the inlet mouth
   // street lamps and street trees along the terrace
   for(let k=0;k<9;k++){const a=-12+k*3,b=-1.2;if(!free(a,b,.3))continue;add(g,new THREE.CylinderGeometry(.06,.08,2.4,5),flat('#4a4e54'),a,1.2,b);const l=new THREE.Mesh(new THREE.BoxGeometry(.3,.2,.3),new THREE.MeshBasicMaterial({color:0x3a3a30}));l.position.set(a,2.45,b);g.add(l);(O.lamps||(O.lamps=[])).push(l);
-    if(k%2)PL.push([gx+a+.8,groundAt(gx+a+.8,gz+b),gz+b,2,3.2,1]);}
+    if(k%2)PL.push([gx+(a+.8)*KS,groundAt(gx+(a+.8)*KS,gz+b*KS),gz+b*KS,2,3.2*Math.sqrt(KS),1]);}
   // Kings Park's edge: Norfolk pines and gums along the escarpment above the river
   for(let k=0;k<26;k++){const lo=115.8455+k*.00028,la=-31.9575-k*.00012,p=G(lo,la),x=p[0]+(HSH(k,1)-.5)*2,z=p[1]+(HSH(k,2)-.5)*2;if(landAt(x,z)&&!onRoad(x,z,2.6))PL.push([x,groundAt(x,z)-.05,z,k%3?0:4,k%3?4.4:5.6,1]);}
-  g.add(DET);O.cbdG=g;}
+  g.add(DET);O.cbdG=g0;}

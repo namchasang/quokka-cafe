@@ -22,7 +22,7 @@ if(T.sp){const t=T.sp,g=t.g;hideOld(t);const[gx,gz]=gpos(t);
   const mc=mkc(32,32),mx=mc.getContext('2d');face(mx,null,0,0,32,32,{base:'#f6f2e8',kind:'plaster',win:1,rows:2,door:true,seed:61,litP:0});add(g,new THREE.CylinderGeometry(1,1.45,4.2,10),new THREE.MeshLambertMaterial({map:TX(mc)}),-3,2.1,0);
   add(g,new THREE.ConeGeometry(1.2,1.3,10),flat('#4a3a2e'),-3,4.85,0);const sl=mkc(8,32),sx=sl.getContext('2d');PP(sx,'#e8e2d4',0,0,8,32);for(let y=2;y<32;y+=3)PP(sx,'#7a6a58',1,y,6,1);PP(sx,'#7a6a58',3,0,2,32);
   const sails=new THREE.Group();sails.position.set(-3,4.4,1.1);g.add(sails);const sm2=new THREE.MeshLambertMaterial({map:TX(sl),side:THREE.DoubleSide});[0,1].forEach(k=>{const s=add(sails,new THREE.BoxGeometry(.45,5.6,.05),sm2,0,0,0);s.rotation.z=k?.8:-.8;});O.sails=sails;
-  [[3,-4,2.4,2.4,7,{seed:71,sp:'#ece6da',punch:1}],[6.5,-3,2.4,2.2,9,{seed:72,gl:['#a8d0dc','#78a8bc','#4a7a96']}],[9.5,-5,2.2,2.2,6,{seed:73,sp:'#d8ccb8',punch:1}]].forEach(([a,b,w,d,h,o])=>{if(!onRoad(gx+a,gz+b,3.5))tower(g,a,b,w,d,h,o);});
+  [[3,-4,2.4,2.4,7,{seed:71,sp:'#ece6da',punch:1}],[6.5,-3,2.4,2.2,9,{seed:72,gl:['#a8d0dc','#78a8bc','#4a7a96']}],[9.5,-5,2.2,2.2,6,{seed:73,sp:'#d8ccb8',punch:1}]].forEach(([a,b,w,d,h,o])=>{if(OWR2)for(let k=0;k<8&&!(landAt(gx+a,gz+b)&&landAt(gx+a,gz+b-1.4)&&landAt(gx+a-1.2,gz+b)&&landAt(gx+a+1.2,gz+b));k++)b+=.5;/* owroads2: stand on the foreshore, not in the river */if(!onRoad(gx+a,gz+b,3.5))tower(g,a,b,w,d,h,o);});
   [[2,2,'#efe3c4'],[5,3,'#e8d0a0']].forEach(([a,b,c],i)=>{if(!onRoad(gx+a,gz+b,3))blockB(g,a,b,2.6,2.2,1.6,{base:c,kind:'plaster',seed:80+i,gable:.8,roofCol:'#b8562e',win:2});});
   for(let k=0;k<7;k++){const a=-1+k*1.6,b=5.5+(k%2)*.4,x=gx+a,z=gz+b;if(landAt(x,z))PL.push([x,groundAt(x,z)-.05,z,5,3.6+(k%3)*.4,1]);}}
 // --- Victoria Park: Albany Highway shopfronts with awnings and signs ---
@@ -37,6 +37,11 @@ if(T.air){const t=T.air,g=t.g;hideOld(t);
   const plane=(x,z,ry,tail)=>{const p=new THREE.Group();p.position.set(x,0,z);p.rotation.y=ry;g.add(p);const f=add(p,new THREE.CylinderGeometry(.6,.6,8,10),flat('#f4f4f2'),0,1.3,0);f.rotation.x=Math.PI/2;add(p,new THREE.ConeGeometry(.6,1.2,10),flat('#f4f4f2'),0,1.3,4.6).rotation.x=Math.PI/2;
     add(p,new THREE.BoxGeometry(9,.12,1.6),flat('#e8e8e6'),0,1.1,.2);add(p,new THREE.BoxGeometry(3,.1,.9),flat('#e8e8e6'),0,1.5,-3.6);add(p,new THREE.BoxGeometry(.12,1.8,1.3),flat(tail),0,2.4,-3.6);
     [-2,2].forEach(s=>add(p,new THREE.CylinderGeometry(.3,.3,1,8),flat('#9aa0a6'),s,.8,.6).rotation.x=Math.PI/2);for(let k=-3;k<=3;k++)add(p,new THREE.BoxGeometry(.05,.22,.2),flat('#2a3038'),.61,1.5,k*.9);};
-  plane(-4,-9,0,'#2a9a8a');plane(4,-9.5,.2,'#e86a1a');
+  if(OWR2){plane(-5.2,-7.4,0,'#2a9a8a');plane(5.2,-7.4,0,'#e86a1a');// owroads2 (Paul, Nov 2026): planes wait at the gates, the runway stays clear
+    // Airport Central: the train ends at its own station west of the terminal (a platform, a canopy, a glass box and a footbridge to the terminal)
+    const sx=AIRST[0]-t.g.position.x,sz=AIRST[1]-t.g.position.z;add(g,new THREE.BoxGeometry(7,.35,1.3),flat('#c8c4b8'),sx,.18,sz+1.25);add(g,new THREE.BoxGeometry(7.2,.12,1.6),flat('#e8ecee'),sx,1.9,sz+1.25);
+    [-3,-1,1,3].forEach(k=>add(g,new THREE.BoxGeometry(.1,1.6,.1),flat('#9aa0a6'),sx+k,1.1,sz+1.8));const[sa,sg]=towerTex(3,1.6,{seed:35,gl:['#b8d8e8','#88b4cc','#5a88a8'],sp:'#d8dcde'});add(g,new THREE.BoxGeometry(3,1.6,1.8),litMat(sa,sg),sx+1,.8,sz+3);
+    const fb=add(g,new THREE.BoxGeometry(Math.max(1,-8-sx-2.5),.5,.9),flat('#e8ecee'),(sx+2.5-8)/2,1.9,sz+3);fb.castShadow=true;}
+  else{plane(-4,-9,0,'#2a9a8a');plane(4,-9.5,.2,'#e86a1a');}
   const rw=mkc(16,64),rx2=rw.getContext('2d');PP(rx2,'#55575c',0,0,16,64);for(let y=0;y<64;y+=8)PP(rx2,'#f4f2ec',7,y,2,4);PP(rx2,'#f4f2ec',1,0,1,64);PP(rx2,'#f4f2ec',14,0,1,64);for(let k=0;k<60;k++)PP(rx2,'#4a4c50',HSH(k,1)*16,HSH(k,2)*64);
-  const rt2=TX(rw,true);rt2.repeat.set(1,6);const r=add(g,new THREE.PlaneGeometry(3,40),new THREE.MeshLambertMaterial({map:rt2}),-14,.12,-6);r.rotation.x=-Math.PI/2;r.rotation.z=Math.PI/2;r.castShadow=false;}
+  const rt2=TX(rw,true);rt2.repeat.set(1,6);const r=OWR2?add(g,new THREE.PlaneGeometry(3.6,46),new THREE.MeshLambertMaterial({map:rt2}),-12,.12,-15):add(g,new THREE.PlaneGeometry(3,40),new THREE.MeshLambertMaterial({map:rt2}),-14,.12,-6);if(OWR2)rt2.repeat.set(1,7);r.rotation.x=-Math.PI/2;r.rotation.z=Math.PI/2;r.castShadow=false;}

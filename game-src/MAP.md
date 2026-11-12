@@ -72,130 +72,131 @@ Find code: `grep -n 'name' game-src/*`.
 | 064-customers.js | 5128-5172 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
 | 065-movement.js | 5173-5231 | 9 | groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG, applyTime |
 | 066-overlays.js | 5232-5330 | 29 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
-| 067-maps-quest-guidance.js | 5331-5451 | 20 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
-| 068-island-scale-spread-island-out-runs-on.js | 5452-5494 | 4 | islandWarp, islandData |
-| 069-camera-render.js | 5495-5580 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
-| 070-island-scale-wave-a-settlement-heritag.js | 5581-5739 | 28 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
-| 071-island-scale-wave-b-north-coast-bays-s.js | 5740-5808 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
-| 072-inside-oliver-hill-tunnels-with-a-torc.js | 5809-5937 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
-| 073-island-scale-wave-c-salmon-bay-henriet.js | 5938-5983 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
-| 074-snorkelling-out-to-old-wreck-at-henrie.js | 5984-6055 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
-| 075-island-scale-phase-6-six-island-lookou.js | 6056-6137 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
-| 076-phase-8-east-cape-and-south-point-get.js | 6138-6197 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
-| 077-perth-cbd-city-across-river-from-south.js | 6198-6327 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
-| 078-city-detail-for-perth-cbd-a-look-lab-l.js | 6328-6751 | 52 | CITY_DETAIL_LIVE, CDET |
-| 079-part.js | 6752-6779 | 3 |  |
-| 080-perth-airport-look-lab-area-lab-or-air.js | 6780-6930 | 21 | AIR_LIVE, AIR, AIRB, airWalk |
-| 081-hooks-zone-travel-map-story.js | 6931-7167 | 34 | FREO_DETAIL_LIVE, FHOMES_LIVE, FDET |
-| 082-more-from-paul-s-perth-photos-same-loo.js | 7168-7236 | 8 |  |
-| 083-fremantle-map-closer-to-real-town-same.js | 7237-7312 | 11 | FREO_LAND |
-| 084-st-george-s-cathedral-on-st-georges-te.js | 7313-7360 | 5 |  |
-| 085-fremantle-from-paul-s-street-photos-sa.js | 7361-7501 | 20 | FREO2_LIVE |
-| 086-fremantle-town-plan-same-look-lab-laye.js | 7502-7623 | 15 |  |
-| 087-perth-cbd-fill-empty-corners-same-look.js | 7624-7681 | 7 |  |
-| 088-perth-cbd-busy-footpaths-same-look-lab.js | 7682-7763 | 10 |  |
-| 089-fremantle-opened-up-look-lab-lab-or-fr.js | 7764-8080 | 45 | FREO4_LIVE, FREO5_LIVE |
-| 090-island-loop-bus-a-19-stop-loop-bus-lik.js | 8081-8126 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
-| 091-tidy-island-after-it-grows-nothing-on.js | 8127-8236 | 13 | flipIslandSigns, hot |
-| 092-live-mode-live-1-kip-runs-caf-on-his-o.js | 8237-8311 | 8 | LIVEM |
-| 093-look-lab-landscape-layers-of-each-real.js | 8312-8497 | 25 | LAB |
-| 094-hd-plants-every-tree-bush-flower-and-g.js | 8498-8565 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
-| 095-layered-pixel-trees-2-5d-look-lab-laye.js | 8566-8606 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
-| 096-roo-road-rescue-cars-3d-shared-with-qu.js | 8607-8767 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
-| 097-car-dealership-on-teddington-rd-victor.js | 8768-8846 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
-| 098-world-map-engine-shared-with-mockup.js | 8847-8920 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
-| 099-sprites.js | 8921-8969 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
-| 100-loop.js | 8970-9015 | 5 | last, frame, label, perth, aus |
-| 101-city-walls-and-world-map-look-lab-lab.js | 9016-9155 | 21 | WORLD_LIVE, OW3D_ON, TOWN_LINK, TOWN_NAME, linkTo, linkSignText, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF |
-| 102-3d-overworld-paul-approved-oct-2026-re.js | 9156-9169 | 6 | WORLD3D_LIVE, OW_LOOK2_LIVE, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
-| 103-const-real-w-600-h-400-land-4aaab.js | 9170-9170 | 117 | embedded data, do not open |
-| 104-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 9171-9199 | 3 | G, LAND, ELEV, elevAt, landAt, DL, R, P, fade, noise |
-| 105-const-owbk-lo-0-45-hi-1-2-main-w-300-h.js | 9200-9200 | 126 | embedded data, do not open |
-| 106-const-owbake-on-nobake-b-test-location.js | 9201-9215 | 2 | OWBAKE_ON, owBakeDec, BKM, bakeMain, OWBAKEV, OWBAKE2 |
-| 107-const-nd-nx0-40-cell-4-nw-120-nr-1108.js | 9216-9216 | 176 | embedded data, do not open |
-| 108-paul-nov-2026-country-drives-50-shorte.js | 9217-9271 | 7 | NC |
-| 109-south-extension-look-lab-ow2-paul-nov.js | 9272-9276 | 0 | SOUTH |
-| 110-const-sd0-cell-6-nt0-300-nt-70-nr-729.js | 9277-9277 | 68 | embedded data, do not open |
-| 111-const-k-5-sd0-cell-k-sd0-nt0-k-sd0-la.js | 9278-9328 | 7 | CBDP, ROADS, RAIL, segDist, onRoad, deckH, groundAt, BLOCK |
-| 112-three-js.js | 9329-9396 | 11 | cv, PIX, scene, lin, skyC, hemi, DETAIL, wc, wT, water |
-| 113-low-poly-helpers.js | 9397-9438 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
-| 114-kip-pixel-sprite-and-little-retro-car.js | 9439-9483 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
-| 115-driving-buttons-gas-brake-steer.js | 9484-9526 | 6 | DRV, mm, drawMini, resize, last, frame |
-| 116-north-extension-ground-sea-roads-edge.js | 9527-9709 | 26 | NORTHbuild, NORTHpost |
-| 117-town-look-on-3d-overworld-look-lab-ow2.js | 9710-9768 | 7 | OWT, OWTOWN, O, mkc, TX, PP, RK, shc, rng, HSH |
-| 118-1-pixel-facades-16-px-per-unit-town-pa.js | 9769-9808 | 4 | face, roofC, MP, MB, mitchD, railD, clearAt |
-| 119-2-houses-one-atlas-of-facades-old-inst.js | 9809-9923 | 16 | HW, hAt, WALLS, hDayT, houseGeo, houseMat, roofT, roofMat, SRC, tvSrc |
-| 120-4-outback-red-desert-inland-of-both-ma.js | 9924-9965 | 5 | X1, isOB, obD, obEdge, dune, OBH, obRamp, obMat, obGrid, obA |
-| 121-5-landmarks-in-miniature-towns-keep-th.js | 9966-10089 | 15 | T, hideOld, add, flat, blockB, tileC, tinC, gableGeo, towerTex, tower |
-| 122-fremantle-limestone-streets-with-veran.js | 10090-10131 | 7 |  |
-| 123-a-lighthouse-island-across-water-west.js | 10132-10280 | 24 | CL_S, gate2, OWTHIN |
-| 124-9-suburbs-rebuilt-paul-nov-2026-fewer.js | 10281-10426 | 20 | OWSUB, TS0, hs, rnd, BK, addSeg, addPL, rdD, fwD, TAV |
-| 125-2-geometry-merged-per-chunk-base-far-n.js | 10427-10505 | 11 | GB, rq, rsub, FR, W3, box, all, hip, gableR, cyl |
-| 126-3-plan-arterial-grid-suburbs-cells-cen.js | 10506-10593 | 11 | CX, zLo, cbd, I0, cellOf, CELLS, isCell, ART, artOK, runs |
-| 127-5-coast-towns-north-and-south-a-main-s.js | 10594-10643 | 7 | COAST, coastTown, RIBX, footOn, ribNear, AJ |
-| 128-street-ends-and-crossings-paul-nov-202.js | 10644-10773 | 16 | APR, BULB, nH, HOUSES, markBlock, lotDetail |
-| 129-7-local-centres.js | 10774-10838 | 8 | F_ANG, signC, bldg, centre, centreDetail, coastCentre, parkDetail |
-| 130-8-freeway-extras-noise-walls-where-hou.js | 10839-10890 | 8 | RAMPS, tD, MAT, mk, built, buildDet, bG, LM, tick, bySt |
-| 131-6-ground-crisp-grain-near-kip-towns-ro.js | 10891-10943 | 7 | grainVS, GU, grainFS, addGrain |
-| 132-9-roads-that-join-connectors-from-ever.js | 10944-11053 | 18 |  |
-| 133-roads-as-one-system-paul-nov-2026-kit.js | 11054-11133 | 14 |  |
-| 134-8-light-render-to-a-target-then-towns.js | 11134-11182 | 7 | rt, post, pScene, vs |
-| 135-regional-towns-paul-nov-2026-every-coa.js | 11183-11370 | 23 | L2, L2hash, L2paint, L2objects |
-| 136-cinematic-look-lab-lab-or-cine-until-c.js | 11371-11453 | 9 | CINEMA, cineInit, _cv, cineTick |
-| 137-ref-look-lab-lab-or-ref-paul-s-photos.js | 11454-11591 | 20 | REF_LIVE |
-| 138-map-editor-look-lab-open-game-with-edi.js | 11592-11696 | 16 | EDIT_ON |
-| 139-stations-and-ports-paul-oct-2026-walk.js | 11697-11885 | 23 | HUBS, openHub, hubGo, MTR_LIVE, MTR, mtrPZ, mtrBuild |
-| 140-train-cycle-in-doors-open-wait-doors-s.js | 11886-11949 | 6 | mtrTrainTick, mtrDoorAt, mtrBoardMenu, mtrGo, mtrRideTick, mtrHop |
-| 141-see-through-roofs-and-walls-between-ca.js | 11950-11990 | 5 | _mtrRay, mtrSeeList, mtrSeeThrough, TOURS, TOUR_DESK |
-| 142-const-tour-page-u003c-doctype-html-u00.js | 11991-11991 | 51 | embedded data, do not open |
-| 143-function-opentours-opentravel-day-tour.js | 11992-12044 | 7 | openTours, TOUR, startTour, endTour, TRIP_BUILD, X1, R, cl, MC, put |
-| 144-desert-loop-one-way-sandy-and-desert-v.js | 12045-12107 | 6 | V3, LOOP, TRAIL, LOOPL, LP, dfield, DFL, fget, loopD, inR |
-| 145-spires-ten-shapes-sculpted-and-ao-bake.js | 12108-12108 | 0 |  |
-| 146-const-spd-spirea-p-jqjq-waa5gfq-oaiqfq.js | 12109-12109 | 24 | embedded data, do not open |
-| 147-const-b64-s-t-const-bin-atob-s-u-new-u.js | 12110-12167 | 6 | b64, stoneTile, STEX, SPM, SHAPES, KEEP, free, SGRID, spAdd, spHit |
-| 148-discovery-centre-limestone-blocks-a-sa.js | 12168-12255 | 12 | litMat, STONE, h0, boardTex, SIGNMATS, board, BOARDS, loopSpot |
-| 149-car-park-pale-bitumen-white-bays-timbe.js | 12256-12303 | 6 | PIC |
-| 150-coastal-heath-and-low-trees-pixel-shru.js | 12304-12388 | 11 | PL, HP, HEATH, LTREE, PSH, plantAt, vanSide, vanEnd, pxF, car |
-| 151-animals-emus-painted-like-kip-light-fr.js | 12389-12431 | 6 | emu32, tod, pinSave, reward, readBoard, SUN |
-| 152-life-sunset-glow-emus-at-dusk-kangaroo.js | 12432-12462 | 3 | EMU, _c |
-| 153-var-esp-d-x0-1260-z0-60-nx-201-nz-131.js | 12463-12463 | 68 | embedded data, do not open |
-| 154-v-p-aooan-se6og4uooa6uroo-ngfhc0xxyfyb.js | 12464-13072 | 88 | TRIP_BUILD |
-| 155-part.js | 13073-13074 | 0 | TRIP_BUILD |
-| 156-lancelin-sand-dunes-zone-lan-x-850-970.js | 13075-13078 | 0 |  |
-| 157-const-lan-data-x0-830-z0-75-nx-161-nz.js | 13079-13079 | 82 | embedded data, do not open |
-| 158-const-d-lan-data-x0-d-x0-z0-d-z0-nx-d.js | 13080-13648 | 73 |  |
-| 159-day-trip-busselton-jetty-zone-bus-x-11.js | 13649-14377 | 103 | TRIP_BUILD |
-| 160-day-trip-cervantes-zone-cer-x-1450-157.js | 14378-14946 | 80 | TRIP_BUILD |
-| 161-regional-towns-paul-nov-2026-one-small.js | 14947-15370 | 59 | RTOWN, TRIP_BUILD |
-| 162-part.js | 15371-15372 | 0 |  |
-| 163-day-trip-places-look-lab-trip-paul-nov.js | 15373-15423 | 6 | TRIP_LIVE, TRIPS, TRIP_BUILD, tripOf, tripWalk, tripH, OWTRIP, owTripEnter, owTripBack, tripEnsure |
-| 164-regional-towns-paul-nov-2026-outer-wor.js | 15424-15463 | 5 | PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxImgHash, pxRedrawn, pxSnapHex |
-| 165-a-pixel-face-for-a-plain-coloured-prop.js | 15464-15505 | 6 | pxFace, PXGLASS, pxGlassy, pxOneLook, pxPopTick |
-| 166-albany-highway-like-paul-s-photos-look.js | 15506-15683 | 22 | VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
-| 167-perth-station-pixel-look-1890s-front-i.js | 15684-16090 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
-| 168-paul-perth-library-shared-with-every-p.js | 16091-16154 | 3 | P |
-| 169-light-from-above-inside-a-blob-of-foli.js | 16155-16196 | 2 | MC, T |
-| 170-render-mode-default-srgb-output-meshst.js | 16197-16253 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
-| 171-cut-out-card-leaves-lace-grass-alpha-t.js | 16254-16344 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
-| 172-island-cottage-limestone-or-board-plas.js | 16345-16391 | 7 |  |
-| 173-ppl-lib-end.js | 16392-16544 | 19 | cwWalk, cwBuild, CW |
-| 174-wellington-st-four-lanes-with-a-median.js | 16545-16606 | 8 | wel4Build, pxbLaneClear |
-| 175-skewed-roofs-paul-nov-2026-a-four-side.js | 16607-16704 | 14 | pxFixDiamonds, SEA2_LIVE, whale32, spout32, BOAT, sea2Build, sea2Place, sea2Water, sea2Tick, sea2Drive |
-| 176-rottnest-declutter-paul-nov-2026-littl.js | 16705-16766 | 8 | pxDeclutter, SP2_LIVE, spBuild_sky |
-| 177-detail-2-look-lab-det2-paul-nov-2026-s.js | 16767-16822 | 9 | DET2_LIVE, det2Build |
-| 178-towns-with-room-to-breathe-look-lab-to.js | 16823-17004 | 23 | T2, t2Tex, t2Lit, T2M, t2Col, t2Zone, T2V, town2Mark |
-| 179-1-fewer-houses-south-perth-bungalows-a.js | 17005-17049 | 6 | town2Thin |
-| 180-a-rebuilt-fremantle-cottage-every-face.js | 17050-17119 | 11 | t2Cottage, t2Fence, t2Like, t2Garden |
-| 181-2-richer-roofs-doors-and-windows-on-to.js | 17120-17202 | 13 | town2Skin, town2Painter, town2QDetail, town2QRim, town2Quokka |
-| 182-perth-houses-from-roo-road-rescue-look.js | 17203-17259 | 5 | T3H |
-| 183-build-one-house-kind-brick-cottage-fed.js | 17260-17371 | 13 | t3House, t3Plant |
-| 184-south-perth-filler-houses-become-roo-r.js | 17372-17626 | 36 | town3Houses, mapfixBuild, mapfixSquareSP, mapfixFreoShops, pxbSig, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick |
-| 185-home3-look-lab-home2-paul-nov-2026-hom.js | 17627-17692 | 6 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
-| 186-home4-paul-nov-2026-home-screen-shows.js | 17693-17751 | 8 | H4, h4Busy, H4_BUILD, h4Step, h4Pass, h4Mark, t2Targets, pxbCatchUp, pxbTick, tex3Scene |
-| 187-hd-pixel-set-on-rottnest-only-look-lab.js | 17752-17791 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 188-garden-meadow-look-lab-toon.js | 17792-17858 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
-| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17859-18000 | 19 | TREE3D_LIVE, TREE3D |
-| 188-toon-characters-look-lab-toon.js | 18001-18078 | 9 | TOON_LIVE, TOON |
-| 188-paint-look-look-lab-toon.js | 18079-18133 | 5 | PAINT_LIVE, PAINT |
-| 188-auth.js | 18134-18212 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18213-18234 | 3 | SHOT |
+| 067-maps-quest-guidance.js | 5331-5454 | 20 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
+| 068-island-scale-spread-island-out-runs-on.js | 5455-5497 | 4 | islandWarp, islandData |
+| 069-camera-render.js | 5498-5583 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
+| 070-island-scale-wave-a-settlement-heritag.js | 5584-5742 | 28 | WAV1, islGround, islGroundBlock, islAddGround, ISC, iscGrid, islOldLake, islSiteOK, islFindSite, islClear |
+| 071-island-scale-wave-b-north-coast-bays-s.js | 5743-5811 | 10 | WB, wbS, SPOT, spotOpen, spotPos, spotTick, spotXY, spotTap, spotClose, srand |
+| 072-inside-oliver-hill-tunnels-with-a-torc.js | 5812-5940 | 22 | tunnelDraw, tunnelTour, wbTargets, WB_SPOT, wbSmin, wbCoastZ, wbGrad, wbCarve, wbClearWet, wbUmbrella |
+| 073-island-scale-wave-c-salmon-bay-henriet.js | 5941-5986 | 8 | WC, wcS, binoWrap, seaView, WHALE_ART, lookoutWatch, SEAL_ART, sealView |
+| 074-snorkelling-out-to-old-wreck-at-henrie.js | 5987-6058 | 13 | WRECK_ART, wreckDive, wcTargets, WC_SPOT |
+| 075-island-scale-phase-6-six-island-lookou.js | 6059-6140 | 14 | LK, lkS, VISTA_ART, vistaDraw, LOOKOUTS, lkDone, lkView, lkTargets, lkTrail, lkPlatform |
+| 076-phase-8-east-cape-and-south-point-get.js | 6141-6200 | 10 | P8, p8S, BIRD_ART, birdHide, p8Targets, P8_SPOT |
+| 077-perth-cbd-city-across-river-from-south.js | 6201-6330 | 24 | CBDB, CBD, cbdWalk, cbdNPC, bellView, cbdTargets, ferryCross, cbdArrive, CBD_SPOT |
+| 078-city-detail-for-perth-cbd-a-look-lab-l.js | 6331-6754 | 52 | CITY_DETAIL_LIVE, CDET |
+| 079-part.js | 6755-6782 | 3 |  |
+| 080-perth-airport-look-lab-area-lab-or-air.js | 6783-6933 | 21 | AIR_LIVE, AIR, AIRB, airWalk |
+| 081-hooks-zone-travel-map-story.js | 6934-7170 | 34 | FREO_DETAIL_LIVE, FHOMES_LIVE, FDET |
+| 082-more-from-paul-s-perth-photos-same-loo.js | 7171-7239 | 8 |  |
+| 083-fremantle-map-closer-to-real-town-same.js | 7240-7315 | 11 | FREO_LAND |
+| 084-st-george-s-cathedral-on-st-georges-te.js | 7316-7363 | 5 |  |
+| 085-fremantle-from-paul-s-street-photos-sa.js | 7364-7504 | 20 | FREO2_LIVE |
+| 086-fremantle-town-plan-same-look-lab-laye.js | 7505-7626 | 15 |  |
+| 087-perth-cbd-fill-empty-corners-same-look.js | 7627-7684 | 7 |  |
+| 088-perth-cbd-busy-footpaths-same-look-lab.js | 7685-7766 | 10 |  |
+| 089-fremantle-opened-up-look-lab-lab-or-fr.js | 7767-8083 | 45 | FREO4_LIVE, FREO5_LIVE |
+| 090-island-loop-bus-a-19-stop-loop-bus-lik.js | 8084-8129 | 6 | XPL_STOPS, XPL, islInland, coachRide, coachMinutes |
+| 091-tidy-island-after-it-grows-nothing-on.js | 8130-8239 | 13 | flipIslandSigns, hot |
+| 092-live-mode-live-1-kip-runs-caf-on-his-o.js | 8240-8314 | 8 | LIVEM |
+| 093-look-lab-landscape-layers-of-each-real.js | 8315-8500 | 25 | LAB |
+| 094-hd-plants-every-tree-bush-flower-and-g.js | 8501-8568 | 8 | PLANT_HD, plantHD, plantSway, plantHDApply |
+| 095-layered-pixel-trees-2-5d-look-lab-laye.js | 8569-8609 | 4 | TREE_LAYERS_LIVE, TLAY, treeLayerPaint, treeLayersApply, treeLayersTick |
+| 096-roo-road-rescue-cars-3d-shared-with-qu.js | 8610-8770 | 17 | RRR, stdM, glowTex, CARS, PLATES, makeCar3 |
+| 097-car-dealership-on-teddington-rd-victor.js | 8771-8849 | 10 | DEALER_LIVE, DEALER, DEALER_STOCK, CAR_SPR, carSel |
+| 098-world-map-engine-shared-with-mockup.js | 8850-8923 | 8 | wmBuild, W, rnd, mask, pM, dist, land, nearWater, base, P |
+| 099-sprites.js | 8924-8972 | 6 | spr, KP, KIP, IC, CP, CAR, BOAT, GULL, wmPath, kip |
+| 100-loop.js | 8973-9018 | 5 | last, frame, label, perth, aus |
+| 101-city-walls-and-world-map-look-lab-lab.js | 9019-9158 | 21 | WORLD_LIVE, OW3D_ON, TOWN_LINK, TOWN_NAME, linkTo, linkSignText, WORLD, SIGNS_LIVE, ROAD_Z, SIGN_DEF |
+| 102-3d-overworld-paul-approved-oct-2026-re.js | 9159-9173 | 6 | WORLD3D_LIVE, OW_LOOK2_LIVE, OW_SUB2, OW3D_CSS, OW3D_HTML, OW3DBuild, OPEN, $, WX |
+| 103-const-real-w-600-h-400-land-4aaab.js | 9174-9174 | 117 | embedded data, do not open |
+| 104-const-g-lon-lat-lon-115-73-25-wx-lat-3.js | 9175-9213 | 5 | G, LAND, ELEV, elevAt, landAt, EQB, DL, R, P, fade |
+| 105-const-owbk-lo-0-45-hi-1-2-main-w-300-h.js | 9214-9214 | 126 | embedded data, do not open |
+| 106-const-owbake-on-nobake-b-test-location.js | 9215-9229 | 2 | OWBAKE_ON, owBakeDec, BKM, bakeMain, OWBAKEV, OWBAKE2 |
+| 107-const-nd-nx0-40-cell-4-nw-120-nr-1108.js | 9230-9230 | 176 | embedded data, do not open |
+| 108-paul-nov-2026-country-drives-50-shorte.js | 9231-9285 | 7 | NC |
+| 109-south-extension-look-lab-ow2-paul-nov.js | 9286-9290 | 0 | SOUTH |
+| 110-const-sd0-cell-6-nt0-300-nt-70-nr-729.js | 9291-9291 | 68 | embedded data, do not open |
+| 111-const-k-5-sd0-cell-k-sd0-nt0-k-sd0-la.js | 9292-9343 | 7 | CBDP, ROADS, AIRST, RAIL, segDist, onRoad, deckH, groundAt, BLOCK |
+| 112-three-js.js | 9344-9413 | 11 | cv, PIX, scene, lin, skyC, hemi, DETAIL, wc, wT, water |
+| 113-low-poly-helpers.js | 9414-9455 | 7 | MC, box, cone, cyl, sprite, blobTree, TREES, TOWNS, ring, town |
+| 114-kip-pixel-sprite-and-little-retro-car.js | 9456-9500 | 9 | kipFrames, kipT, kip, shadow, CARBODY, ST, DRAWS, keys, stick, TOUCH |
+| 115-driving-buttons-gas-brake-steer.js | 9501-9543 | 6 | DRV, mm, drawMini, resize, last, frame |
+| 116-north-extension-ground-sea-roads-edge.js | 9544-9726 | 26 | NORTHbuild, NORTHpost |
+| 117-town-look-on-3d-overworld-look-lab-ow2.js | 9727-9804 | 9 | OWT, OWTOWN, O, mkc, TX, PP, RK, shc, rng, HSH |
+| 118-1-pixel-facades-16-px-per-unit-town-pa.js | 9805-9844 | 4 | face, roofC, MP, MB, mitchD, railD, clearAt |
+| 119-2-houses-one-atlas-of-facades-old-inst.js | 9845-9959 | 16 | HW, hAt, WALLS, hDayT, houseGeo, houseMat, roofT, roofMat, SRC, tvSrc |
+| 120-4-outback-red-desert-inland-of-both-ma.js | 9960-10001 | 5 | X1, isOB, obD, obEdge, dune, OBH, obRamp, obMat, obGrid, obA |
+| 121-5-landmarks-in-miniature-towns-keep-th.js | 10002-10130 | 16 | T, hideOld, add, flat, blockB, tileC, tinC, gableGeo, towerTex, tower |
+| 122-fremantle-limestone-streets-with-veran.js | 10131-10177 | 9 |  |
+| 123-a-lighthouse-island-across-water-west.js | 10178-10326 | 24 | CL_S, gate2, OWTHIN |
+| 124-9-suburbs-rebuilt-paul-nov-2026-fewer.js | 10327-10472 | 20 | OWSUB, TS0, hs, rnd, BK, addSeg, addPL, rdD, fwD, TAV |
+| 125-2-geometry-merged-per-chunk-base-far-n.js | 10473-10554 | 11 | GB, rq, rsub, FR, W3, box, all, hip, gableR, cyl |
+| 126-3-plan-arterial-grid-suburbs-cells-cen.js | 10555-10642 | 11 | CX, zLo, cbd, I0, cellOf, CELLS, isCell, ART, artOK, runs |
+| 127-5-coast-towns-north-and-south-a-main-s.js | 10643-10692 | 7 | COAST, coastTown, RIBX, footOn, ribNear, AJ |
+| 128-street-ends-and-crossings-paul-nov-202.js | 10693-10830 | 17 | APR, BULB, nH, HOUSES, markBlock, lotDetail |
+| 129-7-local-centres.js | 10831-10895 | 8 | F_ANG, signC, bldg, centre, centreDetail, coastCentre, parkDetail |
+| 130-8-freeway-extras-noise-walls-where-hou.js | 10896-10947 | 8 | RAMPS, tD, MAT, mk, built, buildDet, bG, LM, tick, bySt |
+| 131-6-ground-crisp-grain-near-kip-towns-ro.js | 10948-11000 | 7 | grainVS, GU, grainFS, addGrain |
+| 132-9-roads-that-join-connectors-from-ever.js | 11001-11110 | 18 |  |
+| 133-roads-as-one-system-paul-nov-2026-kit.js | 11111-11190 | 14 |  |
+| 133b-owroads2-one-network-look-lab.js | 11191-11192 | 0 |  |
+| 134-8-light-render-to-a-target-then-towns.js | 11193-11241 | 7 | rt, post, pScene, vs |
+| 135-regional-towns-paul-nov-2026-every-coa.js | 11242-11429 | 23 | L2, L2hash, L2paint, L2objects |
+| 136-cinematic-look-lab-lab-or-cine-until-c.js | 11430-11512 | 9 | CINEMA, cineInit, _cv, cineTick |
+| 137-ref-look-lab-lab-or-ref-paul-s-photos.js | 11513-11650 | 20 | REF_LIVE |
+| 138-map-editor-look-lab-open-game-with-edi.js | 11651-11755 | 16 | EDIT_ON |
+| 139-stations-and-ports-paul-oct-2026-walk.js | 11756-11944 | 23 | HUBS, openHub, hubGo, MTR_LIVE, MTR, mtrPZ, mtrBuild |
+| 140-train-cycle-in-doors-open-wait-doors-s.js | 11945-12008 | 6 | mtrTrainTick, mtrDoorAt, mtrBoardMenu, mtrGo, mtrRideTick, mtrHop |
+| 141-see-through-roofs-and-walls-between-ca.js | 12009-12049 | 5 | _mtrRay, mtrSeeList, mtrSeeThrough, TOURS, TOUR_DESK |
+| 142-const-tour-page-u003c-doctype-html-u00.js | 12050-12050 | 51 | embedded data, do not open |
+| 143-function-opentours-opentravel-day-tour.js | 12051-12103 | 7 | openTours, TOUR, startTour, endTour, TRIP_BUILD, X1, R, cl, MC, put |
+| 144-desert-loop-one-way-sandy-and-desert-v.js | 12104-12166 | 6 | V3, LOOP, TRAIL, LOOPL, LP, dfield, DFL, fget, loopD, inR |
+| 145-spires-ten-shapes-sculpted-and-ao-bake.js | 12167-12167 | 0 |  |
+| 146-const-spd-spirea-p-jqjq-waa5gfq-oaiqfq.js | 12168-12168 | 24 | embedded data, do not open |
+| 147-const-b64-s-t-const-bin-atob-s-u-new-u.js | 12169-12226 | 6 | b64, stoneTile, STEX, SPM, SHAPES, KEEP, free, SGRID, spAdd, spHit |
+| 148-discovery-centre-limestone-blocks-a-sa.js | 12227-12314 | 12 | litMat, STONE, h0, boardTex, SIGNMATS, board, BOARDS, loopSpot |
+| 149-car-park-pale-bitumen-white-bays-timbe.js | 12315-12362 | 6 | PIC |
+| 150-coastal-heath-and-low-trees-pixel-shru.js | 12363-12447 | 11 | PL, HP, HEATH, LTREE, PSH, plantAt, vanSide, vanEnd, pxF, car |
+| 151-animals-emus-painted-like-kip-light-fr.js | 12448-12490 | 6 | emu32, tod, pinSave, reward, readBoard, SUN |
+| 152-life-sunset-glow-emus-at-dusk-kangaroo.js | 12491-12521 | 3 | EMU, _c |
+| 153-var-esp-d-x0-1260-z0-60-nx-201-nz-131.js | 12522-12522 | 68 | embedded data, do not open |
+| 154-v-p-aooan-se6og4uooa6uroo-ngfhc0xxyfyb.js | 12523-13131 | 88 | TRIP_BUILD |
+| 155-part.js | 13132-13133 | 0 | TRIP_BUILD |
+| 156-lancelin-sand-dunes-zone-lan-x-850-970.js | 13134-13137 | 0 |  |
+| 157-const-lan-data-x0-830-z0-75-nx-161-nz.js | 13138-13138 | 82 | embedded data, do not open |
+| 158-const-d-lan-data-x0-d-x0-z0-d-z0-nx-d.js | 13139-13707 | 73 |  |
+| 159-day-trip-busselton-jetty-zone-bus-x-11.js | 13708-14436 | 103 | TRIP_BUILD |
+| 160-day-trip-cervantes-zone-cer-x-1450-157.js | 14437-15005 | 80 | TRIP_BUILD |
+| 161-regional-towns-paul-nov-2026-one-small.js | 15006-15429 | 59 | RTOWN, TRIP_BUILD |
+| 162-part.js | 15430-15431 | 0 |  |
+| 163-day-trip-places-look-lab-trip-paul-nov.js | 15432-15482 | 6 | TRIP_LIVE, TRIPS, TRIP_BUILD, tripOf, tripWalk, tripH, OWTRIP, owTripEnter, owTripBack, tripEnsure |
+| 164-regional-towns-paul-nov-2026-outer-wor.js | 15483-15522 | 5 | PXPAL, PXSNAP, pxSnap, pxSnapCanvas, pxImgHash, pxRedrawn, pxSnapHex |
+| 165-a-pixel-face-for-a-plain-coloured-prop.js | 15523-15564 | 6 | pxFace, PXGLASS, pxGlassy, pxOneLook, pxPopTick |
+| 166-albany-highway-like-paul-s-photos-look.js | 15565-15742 | 22 | VP2_ON, vp2Build, BLD3_ON, pxbBuild_kingstown |
+| 167-perth-station-pixel-look-1890s-front-i.js | 15743-16149 | 44 | pxbBuild_perthstn, pxbBuild_freohotel |
+| 168-paul-perth-library-shared-with-every-p.js | 16150-16213 | 3 | P |
+| 169-light-from-above-inside-a-blob-of-foli.js | 16214-16255 | 2 | MC, T |
+| 170-render-mode-default-srgb-output-meshst.js | 16256-16312 | 6 | MODE, Mat, colr, PPM, cv, px, S, sh, tex, MAT |
+| 171-cut-out-card-leaves-lace-grass-alpha-t.js | 16313-16403 | 13 | card, sign, RAMPS, leafCanvas, crown, barkCanvas, trunk, grassCanvas, reg, light |
+| 172-island-cottage-limestone-or-board-plas.js | 16404-16450 | 7 |  |
+| 173-ppl-lib-end.js | 16451-16603 | 19 | cwWalk, cwBuild, CW |
+| 174-wellington-st-four-lanes-with-a-median.js | 16604-16665 | 8 | wel4Build, pxbLaneClear |
+| 175-skewed-roofs-paul-nov-2026-a-four-side.js | 16666-16763 | 14 | pxFixDiamonds, SEA2_LIVE, whale32, spout32, BOAT, sea2Build, sea2Place, sea2Water, sea2Tick, sea2Drive |
+| 176-rottnest-declutter-paul-nov-2026-littl.js | 16764-16825 | 8 | pxDeclutter, SP2_LIVE, spBuild_sky |
+| 177-detail-2-look-lab-det2-paul-nov-2026-s.js | 16826-16881 | 9 | DET2_LIVE, det2Build |
+| 178-towns-with-room-to-breathe-look-lab-to.js | 16882-17063 | 23 | T2, t2Tex, t2Lit, T2M, t2Col, t2Zone, T2V, town2Mark |
+| 179-1-fewer-houses-south-perth-bungalows-a.js | 17064-17108 | 6 | town2Thin |
+| 180-a-rebuilt-fremantle-cottage-every-face.js | 17109-17178 | 11 | t2Cottage, t2Fence, t2Like, t2Garden |
+| 181-2-richer-roofs-doors-and-windows-on-to.js | 17179-17261 | 13 | town2Skin, town2Painter, town2QDetail, town2QRim, town2Quokka |
+| 182-perth-houses-from-roo-road-rescue-look.js | 17262-17318 | 5 | T3H |
+| 183-build-one-house-kind-brick-cottage-fed.js | 17319-17430 | 13 | t3House, t3Plant |
+| 184-south-perth-filler-houses-become-roo-r.js | 17431-17685 | 36 | town3Houses, mapfixBuild, mapfixSquareSP, mapfixFreoShops, pxbSig, pxbScene, PXB_DOORS, pxbSee, pxbDoorsTick |
+| 185-home3-look-lab-home2-paul-nov-2026-hom.js | 17686-17751 | 6 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
+| 186-home4-paul-nov-2026-home-screen-shows.js | 17752-17810 | 8 | H4, h4Busy, H4_BUILD, h4Step, h4Pass, h4Mark, t2Targets, pxbCatchUp, pxbTick, tex3Scene |
+| 187-hd-pixel-set-on-rottnest-only-look-lab.js | 17811-17850 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
+| 188-garden-meadow-look-lab-toon.js | 17851-17917 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
+| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17918-18059 | 19 | TREE3D_LIVE, TREE3D |
+| 188-toon-characters-look-lab-toon.js | 18060-18137 | 9 | TOON_LIVE, TOON |
+| 188-paint-look-look-lab-toon.js | 18138-18192 | 5 | PAINT_LIVE, PAINT |
+| 188-auth.js | 18193-18271 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18272-18293 | 3 | SHOT |

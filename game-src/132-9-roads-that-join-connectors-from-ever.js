@@ -11,7 +11,7 @@
     const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;pad(p[0]+r[0]*tt,p[1]+r[1]*tt,3.2);np++;}
   O.roadFix=[nc,np];
 // fix 2 (Paul, Nov 2026): landmarks never stand on a road. Parts that sit together move together, to the nearest clear spot on land (west first), and get a collider.
-{const RDX=(x,z,w)=>onRoad(x,z,w)||(O.conns||[]).some(c=>segDist(x,z,c[0],c[1])<w);const moved=[];['cbd','freo','sp','vp','air','hi'].forEach(id=>{const t=T[id];if(!t)return;const g=t.g;g.updateMatrixWorld(true);const kids=g.children.filter(c=>c.visible&&c!==t.rg&&c!==O.cbdDet);
+{const RDX=(x,z,w)=>onRoad(x,z,w)||(O.conns||[]).some(c=>segDist(x,z,c[0],c[1])<w);const moved=[];['cbd','freo','sp','vp','air','hi'].forEach(id=>{const t=T[id];if(!t)return;const g=t.g;g.updateMatrixWorld(true);const kids=g.children.filter(c=>c.visible&&c!==t.rg&&c!==O.cbdDet&&!c.userData.owKeep);/* owroads2: the hand-placed CBD stays put */
   const info=kids.map(c=>{const b=new THREE.Box3().setFromObject(c);const h=b.max.y-b.min.y,w1=b.max.x-b.min.x,w2=b.max.z-b.min.z;return{c,x:(b.min.x+b.max.x)/2,z:(b.min.z+b.max.z)/2,r:(h>.6?Math.min(w1,w2):Math.max(w1,w2)*.8)/2,h};}).filter(q=>isFinite(q.x));
   const par=info.map((_,i)=>i),f=i=>par[i]===i?i:(par[i]=f(par[i]));info.forEach((a,i)=>info.forEach((b,j)=>{if(j>i&&Math.hypot(a.x-b.x,a.z-b.z)<1.8)par[f(i)]=f(j);}));
   const CLS={};info.forEach((q,i)=>(CLS[f(i)]||(CLS[f(i)]=[])).push(q));

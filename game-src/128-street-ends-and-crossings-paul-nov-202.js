@@ -13,7 +13,7 @@ const APR=[];O.subAprons=APR;
     let m=near(e[0],e[1],s,6);
     if(!m){for(let t=.5;t<=4.5&&!m;t+=.5){const x=e[0]+dx*t,z=e[1]+dz*t;const k=near(x,z,s,.6);if(k)m=k;}}
     if(m&&m.d>.2&&!landRun(e,m.p))m=null;
-    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,3.4,3.4,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
+    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,5.2,5.2,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
     const oh=m.rib?m.rib/2:half(m.s);let nx=e[0]-m.p[0],nz=e[1]-m.p[1],nl=Math.hypot(nx,nz);if(nl<.2){nx=-dx;nz=-dz;nl=1;}nx/=nl;nz/=nl;
     // close a gap: run the street on to the other road
     const reach=m.rib?Math.max(.6,oh-.5):m.s.kind==='art'?3.0:s.kind==='lane'?Math.max(.2,oh-.6):oh+.1;
@@ -21,12 +21,16 @@ const APR=[];O.subAprons=APR;
     // the apron over the arterial's verge and footpath (or a small one where a lane meets a street)
     if(m.s&&m.s.kind==='art'){const a0=2.3,a1=Math.max(3.45,Math.min(m.d,4.5)),c=(a0+a1)/2;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,a1-a0,asw(s)+.35,Math.atan2(nx,nz)]);nA++;}
     else if(m.rib){const c=m.rib/4;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,m.rib/2+.1,asw(s)+.6,Math.atan2(nx,nz),1]);nA++;}
+    else if(m.s&&(m.s.kind==='local'||m.s.kind==='main')&&(s.kind==='local'||s.kind==='main')){const L=3;STREETS.push({P:[[m.p[0]+nx*L/2,m.p[1]+nz*L/2]],kind:'tj',ang:Math.atan2(nx,nz),w:s.kind==='main'?3:2.5,L});nA++;}// a proper tee (Paul, Nov 2026)
     else if(s.kind==='lane'&&m.s){const a0=Math.max(0,oh-.75),a1=oh+.35,c=(a0+a1)/2;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,a1-a0,1.0,Math.atan2(nx,nz)]);nA++;}});});
   // streets crossing streets (not at their ends): an apron disc over the kerbs
   for(let a=0;a<SL.length;a++){const s=SL[a];if(s.kind==='art')continue;for(let i=1;i<s.P.length;i++){const p=s.P[i-1],r=[s.P[i][0]-p[0],s.P[i][1]-p[1]];const L=BKS.get(bk2(p[0],p[1]))||[];
     for(const g of L){const t2=g[2];if(t2===s||t2.kind==='art'||SL.indexOf(t2)<a)continue;const q=g[0],u=[g[1][0]-q[0],g[1][1]-q[1]],den=r[0]*u[1]-r[1]*u[0];if(Math.abs(den)<1e-6)continue;
       const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;const x=p[0]+r[0]*tt,z=p[1]+r[1]*tt;
-      if(STREETS.some(o=>(o.kind==='xpad'||o.kind==='rab')&&Math.hypot(o.P[0][0]-x,o.P[0][1]-z)<1.5))continue;STREETS.push({P:[[x,z]],kind:'xpad',r:Math.max(half(s),half(t2))+.15});nX++;}}}
+      if(STREETS.some(o=>(o.kind==='xpad'||o.kind==='rab'||o.kind==='xst'||o.kind==='mrab')&&Math.hypot(o.P[0][0]-x,o.P[0][1]-z)<1.5))continue;
+      // Paul (Nov 2026, from his photos): lanes meet at a small roundabout; streets cross at a crossroads with zebras and stop lines
+      if(s.kind==='lane'||t2.kind==='lane')STREETS.push({P:[[x,z]],kind:'mrab',r:Math.max(half(s),half(t2))+.75});
+      else STREETS.push({P:[[x,z]],kind:'xst',a1:Math.atan2(r[0],r[1]),a2:Math.atan2(u[0],u[1]),w1:s.kind==='main'?3:2.5,w2:t2.kind==='main'?3:2.5});nX++;}}}
   // streets that cross a highway: a junction box over the crossing
   SL.forEach(s=>{if(s.kind==='art')return;for(let i=1;i<s.P.length;i++){const p=s.P[i-1],r=[s.P[i][0]-p[0],s.P[i][1]-p[1]];for(const R of RIBX){const P=R.P;for(let k=1;k<P.length;k++){const q=P[k-1],u=[P[k][0]-q[0],P[k][1]-q[1]],den=r[0]*u[1]-r[1]*u[0];if(Math.abs(den)<1e-6)continue;
     const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;const x=p[0]+r[0]*tt,z=p[1]+r[1]*tt;if(MP&&fwD(x,z)<8)continue;
@@ -35,8 +39,12 @@ const APR=[];O.subAprons=APR;
 APR.forEach(a=>rbox(a[0],a[1],a[2],a[3],a[4],'asph',.1,!!a[5]));
 // streets into chunk geometry
 STREETS.forEach(s=>{const P=s.P;
-  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'asph',.12,true);return;}
-  if(s.kind==='bulb'){disc(B(P[0][0],P[0][1]),P[0][0],P[0][1],1.75,.07,UV.asph,12);return;}
+  if((s.kind==='bulb'||s.kind==='abulb'||s.kind==='xpad')&&(()=>{const[x,z]=P[0];if(MP&&fwD(x,z)<9)return true;const rb=ribNear(x,z,9);return rb&&rb.d<rb.w/2+2.6;})())return;// nothing round left lying on a highway (Paul, Nov 2026)
+  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
+  if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.05,.07,UV.asph,24);ring(g,x,z,2.0,2.12,.16,UV.kerb,24);ring(g,x,z,2.12,2.5,.11,UV.path,24);RKCIR.push([x,z,2.0]);return;}// a cul-de-sac: asphalt circle, kerb, footpath
+  if(s.kind==='xst'){const[x,z]=P[0];rbox(x,z,s.w2+2,s.w1,s.a1,'xarm',0,false);rbox(x,z,s.w1+2,s.w2,s.a2,'xarm2',0,false);return;}
+  if(s.kind==='tj'){const[x,z]=P[0];rbox(x,z,s.L,s.w,s.ang,'tarm',0,false);return;}
+  if(s.kind==='mrab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,s.r,.07,UV.asph,16);const F=FR(x,gy(x,z)+.08,z,0,bake(x,z));cyl(g,F,0,0,0,s.r*.36,.1,12,UV.kerb,UV.island);ring(g,x,z,s.r*.36,s.r*.36+.08,.1,UV.kerb,12);return;}
   if(s.kind==='rab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.1,.075,UV.asph,14);const F=FR(x,gy(x,z)+.07,z,0,bake(x,z));cyl(g,F,0,0,0,.95,.14,12,UV.kerb,UV.island);plant(x,z,3,2.4);return;}
   if(s.kind==='rab2'){const[x,z]=P[0],g=B(x,z);rbox(x,z,6.6,6.6,0,'asph',.1,false);disc(g,x,z,4,.09,UV.asph,18);const F=FR(x,gy(x,z)+.09,z,0,bake(x,z));cyl(g,F,0,0,0,2,.16,16,UV.kerb,UV.island);plant(x,z,13,4.2);plant(x+.9,z+.6,5,2.8);return;}
   if(s.kind==='pad'){const[x,z]=P[0],v=s.v;if(v&&v.arms.length===2&&v.arms[0][0].h===v.arms[1][0].h)return;rbox(x,z,6.6,6.6,0,'asph',.11,false);return;}
@@ -44,7 +52,7 @@ STREETS.forEach(s=>{const P=s.P;
   strip(null,P,w,uv,yo,s.kind==='art'?2:s.kind==='lane'?.8:1.25);/*one strip per street: no notches where chunk slices met*/
   // street trees on the verges and pads at the junctions
   if(s.kind==='local'||s.kind==='main')for(let i=2;i<P.length-1;i+=3){const a=P[i-1],b=P[i],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1;const sd=(i/3|0)%2?1:-1,x=b[0]+dz/l*1.05*sd,z=b[1]-dx/l*1.05*sd;if(hs(x,z)<.55&&occ(x,z)<2)plant(x,z,[2,3,1,11][((hs(z,x)*4)|0)],1.6+hs(x,z)*.9);}
-  if(s.kind!=='art'&&s.kind!=='lane'&&P.length>1)[P[0],P[P.length-1]].forEach(p=>disc(B(p[0],p[1]),p[0],p[1],1.35,.065,UV.asph,10));});
+  /* the grey end discs are gone (Paul, Nov 2026): tees, crossroads, roundabouts and cul-de-sacs draw their own junctions */});
 
 // signals at the centre crossroads: a zebra slab, four poles with heads (bulbs are one instanced mesh, phases shared with the traffic)
 const BULB=[],SIGO=[];

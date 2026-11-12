@@ -504,7 +504,7 @@ var HOME2_LIVE=true;
       <p class="mapq" id="mapQuest"></p>
       <div class="legend big"><span><i class="lg-you"></i>You (cone = camera view)</span><span><i class="lg-quest"></i>Quest goal</span><span><i class="lg-npc"></i>Gus · Nana Wren</span><span><i class="lg-wild"></i>Wild quokka</span><span><i class="lg-tourist"></i>Tourist</span><span><i class="lg-lore"></i>Lore stone</span><span><i class="lg-cafe"></i>Quokka Cafe</span><span><i class="lg-cottage"></i>Settlement cottage</span><span class="lg-sp" hidden><i class="lg-home"></i>Home for sale</span><span class="lg-sp" hidden><i class="lg-myhome"></i>Your home</span><span><i class="lg-light"></i>Lighthouse</span><span><i class="lg-shell"></i>Lost shell</span><span><i class="lg-lake"></i>Pink salt lake</span><span><i class="lg-trail"></i>Limestone trail</span><span><i class="lg-beach"></i>Beach</span><span><i class="lg-tree"></i>Pine / tea tree</span><span><i class="lg-reef"></i>Reef</span></div>
       <p class="mapq" id="ftHint" hidden></p>
-      <div class="btns"><button class="btn" id="ftGo" type="button" hidden>Fast travel</button><button class="btn" id="mapPerth" type="button">Perth map</button><button class="btn ghost" id="mapClose" type="button">Close</button></div>
+      <div class="btns"><button class="btn" id="ftGo" type="button" hidden>Fast travel</button><button class="btn" id="mapOW" type="button" hidden>Outer world</button><button class="btn" id="mapPerth" type="button">Perth map</button><button class="btn ghost" id="mapClose" type="button">Close</button></div>
     </div>
   </div>
 
@@ -5411,7 +5411,10 @@ function updateQuestUI(dt,t){curQuest=running?questTarget():null;
 function openMap(){if(!running||overlay)return;mapMode='zone';ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;$('#mapOv .legend').hidden=false;$('#mapQuest').hidden=false;if($('#mapPerth'))$('#mapPerth').textContent='Perth map';const c=$('#bigMap'),x=c.getContext('2d');const zq=zoneOf(player.x);if(zq==='island'){if(!bigBase)bigBase=renderMapBase(c.width,c.height,2.6,true);x.drawImage(bigBase,0,0);}else x.drawImage(zoneBase(zq,true),0,0);drawMapDynamic(x,c.width,c.height,2.6,performance.now()/1000,questTarget(),ZONE_B(zq));const ZN={island:['Island map','Rottnest Island \u00b7 Western Australia'],sp:['South Perth','Mends Street Jetty \u00b7 Swan River'],freo:['Fremantle','Port city \u00b7 Fremantle'],hi:[ZONE_DEF.hi.title,ZONE_DEF.hi.eb],vp:[ZONE_DEF.vp.title,ZONE_DEF.vp.eb],cbd:[ZONE_DEF.cbd.title,ZONE_DEF.cbd.eb]}[zq]||[ZONE_DEF[zq]?ZONE_DEF[zq].title:'Map',ZONE_DEF[zq]?ZONE_DEF[zq].eb:''];$('#mapOv h2').textContent=ZN[0];$('#mapOv .eyebrow').textContent=ZN[1];
   document.querySelectorAll('#mapOv .lg-sp').forEach(e=>e.hidden=zq!=='sp');
   const q=questTarget();$('#mapQuest').textContent=q?'Current goal: '+q.label:'All quests done. Explore freely.';showOverlay('map');}
-$('#mm').addEventListener('click',openMap);
+// Game Master: an 'Outer world' button on the map page (Paul, Nov 2026); not while visiting another island
+{const _om=openMap;openMap=function(){_om.apply(this,arguments);const b=$('#mapOW');if(b)b.hidden=!(typeof isGM==='function'&&isGM()&&typeof OW3D_ON!=='undefined'&&OW3D_ON&&!VISIT&&typeof openWorld==='function');};
+  const b=$('#mapOW');if(b)b.addEventListener('click',()=>{if(!isGM()||VISIT||typeof openWorld!=='function')return;hideOverlays();setTimeout(()=>openWorld(zoneOf(player.x),'e'),60);});}
+$('#mm').addEventListener('click',()=>openMap());
 // fit the big map canvas inside the full-screen map, keeping its shape (clicks still map correctly because the canvas itself is sized)
 function mapFit(){const w=$('#mapFit'),c=$('#bigMap');if(!w||!c||$('#mapOv').hidden)return;const W=w.clientWidth,H=w.clientHeight;if(!W||!H)return;const k=Math.min(W/c.width,H/c.height);c.style.width=Math.floor(c.width*k)+'px';c.style.height=Math.floor(c.height*k)+'px';}
 addEventListener('resize',()=>setTimeout(mapFit,50));
@@ -9021,7 +9024,7 @@ return{get open(){return open;},
 var WORLD_LIVE=true;
 // ---------- town links (Paul, Oct 2026): the 3D overworld stays in the Look Lab; out on the road, each sign leads to the next town ----------
 // CBD east -> Heirisson Island -> Victoria Park -> the airport; CBD west -> Fremantle; Fremantle west -> South Perth (Canning Hwy) -> Victoria Park.
-var OW3D_ON=/[?&#](lab|ow3d|ow2|owgo)\b/.test(location.search+location.hash);
+var OW3D_ON=/[?&#](lab|ow3d|ow2|owgo)\b/.test(location.search+location.hash)||(()=>{try{return localStorage.getItem('qc-gm')==='1';}catch(e){return false;}})();// a Game Master account can always open the outer world (Paul, Nov 2026)
 var TOWN_LINK={cbd:{w:'freo',e:'hi'},hi:{w:'cbd',e:'vp'},vp:{w:'hi',e:'air'},air:{w:'vp',e:null},freo:{w:'sp',e:'cbd'},sp:{w:'freo',e:'vp'}};
 var TOWN_NAME={sp:'South Perth',freo:'Fremantle',hi:'Heirisson Island',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport',island:'Rottnest Island'};
 function linkTo(zone,side){const L=TOWN_LINK[zone];return L?L[side]:null;}
@@ -9157,7 +9160,8 @@ if(WORLD.on)(()=>{
 // Replaces the flat world map when you leave a town by its highway sign. Its own renderer and canvas; the town scene pauses.
 // Terrain: Terrain Tiles on AWS. Ten layers like the town models. Rottnest is reached from the B-Shed ferry.
 var WORLD3D_LIVE=false;// taken off the live game (Paul, Oct 2026): develop it in the Look Lab first (?lab, ?ow3d, ?ow2)
-var OW_LOOK2_LIVE=false;var OW_SUB2=!/[?&#]oldsub\b/.test(location.search+location.hash);// Paul (Nov 2026): suburbs rebuilt (fewer, proper houses, street hierarchy, local centres); ?oldsub shows the old carpet// Look Lab (?lab or ?ow2): pixel-art ground, suburbs, pixel trees, clouds
+var OW_LOOK2_LIVE=false;var OWR2_LIVE=false,OWR2=OWR2_LIVE||/[?&#](ow2|owroads2)\b/.test(location.search+location.hash);// owroads2 (Paul, Nov 2026): one road network, CBD on its real spots, junctions from his photos
+var OW_SUB2=!/[?&#]oldsub\b/.test(location.search+location.hash);// Paul (Nov 2026): suburbs rebuilt (fewer, proper houses, street hierarchy, local centres); ?oldsub shows the old carpet// Look Lab (?lab or ?ow2): pixel-art ground, suburbs, pixel trees, clouds
 const OW3D_CSS='\n/* Layout: one full-screen game view; HUD panels float in the corners like an old RPG overworld */\n#owRoot{--night:#141a2e;--panel:rgba(20,26,46,.82);--ink:#f5ecd8;--dim:#a9b3cf;--gold:#ffd34d;--edge:#3a4670;\n  --disp:"Pixelify Sans","Courier New",monospace;--body:"M PLUS Rounded 1c",system-ui,sans-serif;color-scheme:dark}\n#owRoot{position:fixed;inset:0;z-index:70;background:var(--night);color:var(--ink);font-family:var(--body);overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}\n#ow_c{position:fixed;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;display:block}\n.owhud{position:fixed;background:var(--panel);border:2px solid var(--edge);border-radius:6px;padding:8px 10px}\n#ow_place{top:calc(10px + env(safe-area-inset-top,0px));left:max(10px,env(safe-area-inset-left,0px));max-width:min(70vw,360px)}\n#ow_place b{font-family:var(--disp);font-size:18px;color:var(--gold);display:block}\n#ow_place span{font-size:12px;color:var(--dim)}\n#ow_msg{left:50%;top:calc(18% + env(safe-area-inset-top,0px));transform:translateX(-50%);font-family:var(--disp);font-size:17px;text-align:center;min-width:220px;display:none}\n#ow_mini{right:max(10px,env(safe-area-inset-right,0px));top:calc(58px + env(safe-area-inset-top,0px));padding:4px;opacity:.92}\n#ow_mini canvas{display:block;width:min(34vw,180px);image-rendering:pixelated}\n#ow_btns{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(104px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;align-items:flex-end}\n#ow_btns button,#ow_top button{font-family:var(--disp);font-size:15px;background:var(--panel);color:var(--ink);border:2px solid var(--edge);border-radius:8px;padding:9px 14px;cursor:pointer}\n#ow_btns button.main{background:var(--gold);color:#141a2e;border-color:var(--gold)}\n#ow_btns button:focus-visible,#ow_top button:focus-visible{outline:2px solid var(--ink)}\n#ow_top{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));display:flex;gap:6px}\n#ow_help{left:max(10px,env(safe-area-inset-left,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));font-size:11px;color:var(--dim);max-width:46vw}\n#owRoot [hidden],#owRoot[hidden]{display:none!important}\n@media (max-width:640px){#ow_place{top:calc(58px + env(safe-area-inset-top,0px));max-width:calc(100vw - min(34vw,180px) - 44px)}#ow_place b{font-size:16px}#ow_top button{padding:8px 10px;font-size:14px}}\n#ow_layp{top:calc(84px + env(safe-area-inset-top,0px));left:max(10px,env(safe-area-inset-left,0px));display:grid;gap:4px;max-height:60vh;overflow:auto;width:220px}#ow_layp label{display:grid;grid-template-columns:16px 12px 1fr auto;gap:6px;align-items:center;font-size:12px;cursor:pointer}#ow_layp i{width:10px;height:10px;border-radius:2px}#ow_layp small{color:var(--dim)}#ow_layp input{margin:0;accent-color:var(--gold)}\n#ow_drive{position:fixed;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}#ow_drive>div{display:flex;gap:10px;pointer-events:auto}\n#ow_drive button{width:74px;height:74px;border-radius:50%;font-family:var(--disp);font-size:15px;background:var(--panel);color:var(--ink);border:2px solid var(--edge);touch-action:none;-webkit-user-select:none;user-select:none}#ow_drive button.on{background:var(--gold);color:#141a2e}#ow_drive .gas{background:#2e7a3e;border-color:#3ec46a}#ow_drive .brk{background:#7a2a2a;border-color:#d8323a}\n#ow_stick{position:fixed;width:110px;height:110px;border-radius:50%;border:2px solid rgba(245,236,216,.35);display:none;pointer-events:none}\n#ow_stick i{position:absolute;left:35px;top:35px;width:40px;height:40px;border-radius:50%;background:rgba(245,236,216,.45)}\n';
 const OW3D_HTML='\n<canvas id="ow_c"></canvas>\n<div class="owhud" id="ow_place"><b id="ow_pName">Swan River</b><span id="ow_pNote">Walk or drive · towns glow gold</span></div>\n<div class="owhud" id="ow_msg"></div>\n<div id="ow_top"><button type="button" id="ow_back">Back to town</button><button type="button" id="ow_bLay">Layers</button><button type="button" id="ow_bTime">Dusk</button></div>\n<div class="owhud" id="ow_layp" hidden><b style="font-family:var(--disp);color:var(--gold)">Ten layers</b><div id="ow_laylist"></div><button type="button" id="ow_bTint">Tint layers</button></div>\n<div id="ow_btns"><button type="button" id="ow_bAct" class="main">Enter</button><div style="display:flex;gap:6px"><button type="button" id="ow_bRotL" aria-label="Turn camera left">⟲</button><button type="button" id="ow_bCar">Get in car</button><button type="button" id="ow_bRotR" aria-label="Turn camera right">⟳</button></div></div>\n<div class="owhud" id="ow_mini"><canvas id="ow_mm" width="150" height="100"></canvas></div>\n<div class="owhud" id="ow_help">Walk: drag or WASD · Car: GAS / BRAKE / ◀ ▶ (or arrow keys) · Pinch or scroll to zoom · ⟲ ⟳ turn the camera 45° when walking</div>\n<div id="ow_stick"><i></i></div>\n<div id="ow_drive" hidden><div><button type="button" data-k="l" aria-label="Steer left">◀</button><button type="button" data-k="r" aria-label="Steer right">▶</button></div><div><button type="button" class="brk" data-k="b">BRAKE</button><button type="button" class="gas" data-k="g">GAS</button></div></div>\n';
 function OW3DBuild(root,hooks){
@@ -9173,10 +9177,14 @@ const LAND=new Uint8Array(WX*WZ);{const b=atob(REAL.land);for(let i=0;i<WX*WZ;i+
 const ELEV=new Float32Array(REAL.hw*REAL.hh);{const b=atob(REAL.elev);for(let i=0;i<ELEV.length;i++)ELEV[i]=b.charCodeAt(i)/2-40;}
 const elevAt=(x,z)=>{x=Math.max(0,Math.min(REAL.hw-1.001,x-.5));z=Math.max(0,Math.min(REAL.hh-1.001,z-.5));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*REAL.hw+x0,W2=REAL.hw;return (ELEV[i]*(1-fx)+ELEV[i+1]*fx)*(1-fz)+(ELEV[i+W2]*(1-fx)+ELEV[i+W2+1]*fx)*fz;};
 const landAt=(x,z)=>{if(z<0&&NORTH)return NORTH.land(x,z);if(z>=WZ&&SOUTH)return SOUTH.land(x,z);x|=0;z|=0;return x>=0&&z>=0&&x<WX&&z<WZ&&LAND[z*WX+x]===1;};
+// owroads2 (Paul, Nov 2026): Elizabeth Quay, a small inlet cut into the city shore with its mouth on Perth Water
+const EQB=(()=>{const c=G(115.8578,-31.9588);return{x:c[0]+.2,z:c[1]-.2,rx:2.5,rz:1.7};})();
+if(OWR2)for(let z=Math.floor(EQB.z-3);z<=EQB.z+4;z++)for(let x=Math.floor(EQB.x-3);x<=EQB.x+3;x++){const dx=(x+.5-EQB.x)/EQB.rx,dz=(z+.5-EQB.z)/EQB.rz;if(dx*dx+dz*dz<1||(Math.abs(x+.5-EQB.x)<.8&&z+.5>EQB.z&&z+.5<EQB.z+4))LAND[z*WX+x]=0;}
 // distance to the shore (both sides)
 const DL=new Float32Array(WX*WZ).fill(1e9),DW=new Float32Array(WX*WZ).fill(1e9);
 (()=>{const bfs=(D,src)=>{const q=[];for(let i=0;i<WX*WZ;i++)if(src(i)){D[i]=0;q.push(i);}for(let h=0;h<q.length;h++){const i=q[h],x=i%WX,z=(i/WX)|0;for(const[dx,dz]of[[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,nz=z+dz;if(nx<0||nz<0||nx>=WX||nz>=WZ)continue;const j=nz*WX+nx;if(D[j]>D[i]+1){D[j]=D[i]+1;q.push(j);}}}};
   bfs(DL,i=>!LAND[i]);bfs(DW,i=>LAND[i]);})();
+if(OWR2)for(let z=Math.floor(EQB.z-3);z<=EQB.z+4;z++)for(let x=Math.floor(EQB.x-3);x<=EQB.x+3;x++){const i=z*WX+x;if(!LAND[i])DW[i]=Math.max(DW[i],3.5);}// the quay basin is deep, dark water (not shore foam)
 // ---------- noise ----------
 const R=(s=>()=>(s=(s*16807)%2147483647)/2147483647)(1829);
 const P=new Uint8Array(512);for(let i=0;i<256;i++)P[i]=i;for(let i=255;i>0;i--){const j=(R()*(i+1))|0;[P[i],P[j]]=[P[j],P[i]];}for(let i=0;i<256;i++)P[i+256]=P[i];
@@ -9190,6 +9198,12 @@ for(let z=0;z<WZ;z++)for(let x=0;x<WX;x++){const i=z*WX+x;let h;
   if(LAND[i]){const d=DL[i],m=Math.max(0,elevAt(x,z));h=.45+Math.min(d,3)*.1+Math.min(m,70)*.045*ss(0,4,d)+(fbm(x*.03,z*.03))*.15;}// real ground, 1 m ≈ .045 units: hills stay gentle
   else{h=-.8-Math.min(DW[i],12)*.12;}
   HG[i]=h;}
+// owroads2 (Paul, Nov 2026): protected areas. Once set, later map passes (rescale, road rebuilds, smoothing, thinning, new layers)
+// must skip these boxes: the Perth CBD with Elizabeth Quay, the Swan River at Perth Water, and South Perth (see CLAUDE.md)
+const OW_PROTECT=[{n:'Perth CBD',a:G(115.843,-31.947),b:G(115.872,-31.9605)},{n:'Swan River (Perth Water)',a:G(115.842,-31.956),b:G(115.882,-31.972)},{n:'South Perth',a:G(115.842,-31.966),b:G(115.872,-31.982)}];
+const owProtected=(x,z,m)=>{m=m||0;return OW_PROTECT.some(r=>x>=r.a[0]-m&&x<=r.b[0]+m&&z>=r.a[1]-m&&z<=r.b[1]+m);};
+// smoother ground (owroads2): two gentle blur passes over the land, not at the shore and not in the protected areas
+if(OWR2){const T2=new Float32Array(HG);for(let pass=0;pass<2;pass++){T2.set(HG);for(let z=1;z<WZ-1;z++)for(let x=1;x<WX-1;x++){const i=z*WX+x;if(!LAND[i]||DL[i]<3||owProtected(x,z,2))continue;let s=0,n=0;for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){const j=i+dz*WX+dx;if(LAND[j]){s+=T2[j]*(dx||dz?1:2);n+=dx||dz?1:2;}}HG[i]=s/n;}}}
 const H=(x,z)=>{if(z<0&&NORTH)return NORTH.H(x,z);if(z>WZ&&SOUTH)return SOUTH.H(x,z);x=Math.max(0,Math.min(WX-1.001,x));z=Math.max(0,Math.min(WZ-1.001,z));const x0=x|0,z0=z|0,fx=x-x0,fz=z-z0,i=z0*WX+x0;return lerp(lerp(HG[i],HG[i+1],fx),lerp(HG[i+WX],HG[i+WX+1],fx),fz);};
 // ---------- North extension (Look Lab, Paul Nov 2026): drive from Perth CBD up the coast to Lancelin, the Pinnacles and Cervantes ----------
 // Real coastline and elevation (Terrain Tiles on AWS, z12) in a straightened corridor joined to the north edge of the map (z<0):
@@ -9315,12 +9329,13 @@ const ROADS=[
  {n:'Stirling Hwy',p:[G(115.752,-32.047),G(115.758,-32.03),G(115.763,-32.005),G(115.77,-31.985),G(115.79,-31.981),G(115.81,-31.979),G(115.822,-31.972),G(115.835,-31.965),G(115.852,-31.955)]},
  {n:'Canning Hwy',p:[G(115.757,-32.04),G(115.775,-32.035),G(115.8,-32.025),G(115.83,-32.01),G(115.85,-31.99),G(115.865,-31.978),G(115.879,-31.966)]},
  {n:'Kwinana Fwy',p:[G(115.852,-31.955),G(115.85,-31.962),G(115.851,-31.968),G(115.855,-31.985),G(115.857,-32.01),G(115.858,-32.07)]},
- {n:'Riverside Dr',p:[G(115.852,-31.958),G(115.865,-31.96),G(115.879,-31.962)]},
+ {n:'Riverside Dr',p:OWR2?[G(115.852,-31.958),G(115.8552,-31.9576),G(115.8562,-31.9569),G(115.8594,-31.9569),G(115.8606,-31.9577),G(115.865,-31.96),G(115.879,-31.962)]:[G(115.852,-31.958),G(115.865,-31.96),G(115.879,-31.962)]},// owroads2: loops north round Elizabeth Quay like the real one
  {n:'Great Eastern Hwy',p:[G(115.879,-31.962),G(115.89,-31.957),G(115.915,-31.95),G(115.94,-31.945),G(115.965,-31.942)]},
  {n:'Albany Hwy',p:[G(115.884,-31.966),G(115.896,-31.978),G(115.91,-31.995),G(115.93,-32.02),G(115.962,-32.052)]},/*runs on out to the edge of the map (it used to stop in the bush)*/
  {n:'Leach Hwy',p:[G(115.775,-32.035),G(115.8,-32.045),G(115.84,-32.05),G(115.857,-32.05)]}];
 if(NORTH)ROADS.push(NORTH.cityRoad);// the coast road's first stretch through the city
-const RAIL=[G(115.747,-32.053),G(115.754,-32.036),G(115.758,-31.995),G(115.785,-31.98),G(115.823,-31.948),G(115.861,-31.951),G(115.9,-31.94),G(115.94,-31.937),G(115.967,-31.938)];
+const AIRST=G(115.9555,-31.9378);// owroads2: Airport Central, the rail's end, west of the terminal
+const RAIL=[G(115.747,-32.053),G(115.754,-32.036),G(115.758,-31.995),G(115.785,-31.98),G(115.823,-31.948),G(115.861,-31.951),G(115.9,-31.94),G(115.94,-31.937),OWR2?AIRST:G(115.967,-31.938)];
 const segDist=(px,pz,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz;let t=L?((px-a[0])*dx+(pz-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(a[0]+dx*t),pz-(a[1]+dz*t));};
 const onRoad=(x,z,w=2.4)=>(z<40&&NORTH&&NORTH.onRoad(x,z,w))||(z>WZ-12&&SOUTH&&SOUTH.onRoad(x,z,w))||ROADS.some(r=>r.p.some((a,i)=>i&&segDist(x,z,r.p[i-1],a)<w));
 const deckH=(x,z)=>Math.max(H(x,z),1.4);// bridges carry the road over the water
@@ -9376,6 +9391,8 @@ const RIBS=[];/*every road ribbon (mesh, points, width): the road kit re-skins a
 const ribbon=(pts,w,mat,yo,deck)=>{const P2=[];for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L));for(let k=(i>1?1:0);k<=n;k++)P2.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n]);}
   /*heights first: both edges sampled (no ground through the asphalt), then the grade capped at .22 by raising the low side (no steps)*/const YS=P2.map((p,i)=>{const q=P2[Math.min(P2.length-1,i+1)],o=P2[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;return Math.max(deck?deckH(p[0],p[1]):H(p[0],p[1]),H(p[0]+.9,p[1]),H(p[0]-.9,p[1]),H(p[0],p[1]+.9),H(p[0],p[1]-.9),H(p[0]-dz*w/2,p[1]+dx*w/2),H(p[0]+dz*w/2,p[1]-dx*w/2))+yo+.04;});
   for(let i=1;i<YS.length;i++)YS[i]=Math.max(YS[i],YS[i-1]-.22*Math.hypot(P2[i][0]-P2[i-1][0],P2[i][1]-P2[i-1][1]));for(let i=YS.length-2;i>=0;i--)YS[i]=Math.max(YS[i],YS[i+1]-.22*Math.hypot(P2[i][0]-P2[i+1][0],P2[i][1]-P2[i+1][1]));
+  /*owroads2: no waves - a long moving average along the road (the deck never drops under the centre line), then the grade cap again*/if(OWR2&&YS.length>4){const B=YS.slice(),K=5;for(let i=0;i<YS.length;i++){let a=0,n=0;for(let j=Math.max(0,i-K);j<=Math.min(YS.length-1,i+K);j++){a+=B[j];n++;}const p=P2[i],fl=(deck?deckH(p[0],p[1]):H(p[0],p[1]))+yo+.06;YS[i]=Math.max(fl,a/n);}
+    for(let i=1;i<YS.length;i++)YS[i]=Math.max(YS[i],YS[i-1]-.16*Math.hypot(P2[i][0]-P2[i-1][0],P2[i][1]-P2[i-1][1]));for(let i=YS.length-2;i>=0;i--)YS[i]=Math.max(YS[i],YS[i+1]-.16*Math.hypot(P2[i][0]-P2[i+1][0],P2[i][1]-P2[i+1][1]));}
   const v=[],uv=[],idx=[];let acc=0;P2.forEach((p,i)=>{const q=P2[Math.min(P2.length-1,i+1)],o=P2[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;if(i)acc+=Math.hypot(p[0]-P2[i-1][0],p[1]-P2[i-1][1]);
     const y=YS[i];[-1,1].forEach(s=>{v.push(p[0]-dz*w/2*s,y,p[1]+dx*w/2*s);uv.push(s<0?0:1,acc/w);});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';scene.add(m);RIBS.push({m,pts,w,yo,P2});return P2;};
@@ -9755,6 +9772,25 @@ const RK=(()=>{const hs=(a,b)=>L2hash(a*1.37+.11,b*.91+.7);const A=['#56585d','#
       if(arrows){const ax=(road[0]+w/2)/2*k,ay=(stop0+.6)*k;P(x,W,ax-.06*k,ay,.12*k,.7*k);P(x,W,ax-.22*k,ay+.62*k,.44*k,.12*k);P(x,W,ax-.12*k,ay+.74*k,.24*k,.1*k);}x.restore();}return c;};
   R.city=()=>box(256,11,[1.5,9.5],.25,1.15,1.45,true);
   R.cross=()=>box(256,6.5,[.85,5.65],.12,.7,.95,false);
+  // street crossroads (Paul, Nov 2026, from his photos): one arm 2.5 across x 4.5 along; the middle 2.5 is the whole crossing (both carriageways,
+  // footpath corners) so the two crossed arms match there; the arm ends carry the zebra crossing and a stop line on the inbound half
+  R.xarm=()=>{const SW=128,w=2.5,L=4.5,k=SW/w,SH=Math.round(L*k),[c,x]=cv(SW,SH),a0=.5625,a1=1.9375,m0=(L-w)/2,m1=m0+w;const g=['#6a9a44','#78a64c'];
+    for(let X=0;X<SW;X++)for(let y=0;y<SH;y++)P(x,g[hs(X,y)<.5?0:1],X,y,1,1);
+    [[.094,.344],[2.0625,.344]].forEach(([u,d])=>{P(x,'#d8d2c4',u*k,0,d*k,SH);for(let y=0;y<SH;y+=10)P(x,'#c4bcac',u*k,y,d*k,1);});
+    P(x,'#d8d2c4',0,m0*k,SW,w*k);asph(x,a0*k,0,(a1-a0)*k,SH,29);asph(x,0,(m0+a0)*k,SW,(a1-a0)*k,31);
+    [[a0-.03,0,.0625,m0+a0],[a1-.03,0,.0625,m0+a0],[a0-.03,m0+a1,.0625,L-m0-a1],[a1-.03,m0+a1,.0625,L-m0-a1]].forEach(([u,v,du,dv])=>P(x,KB,u*k,v*k,du*k,dv*k));
+    [[0,m0+a0-.03],[a1,m0+a0-.03],[0,m0+a1-.03],[a1,m0+a1-.03]].forEach(([u,v])=>P(x,KB,u*k,v*k,a0*k,.0625*k));
+    for(const[e,dir]of[[0,1],[L,-1]]){for(let u=a0+.08;u+.16<=a1-.06;u+=.3)P(x,W,u*k,(dir>0?e+.18:e-.18-.62)*k,.16*k,.62*k);
+      const sv=dir>0?e+.92:e-.92-.1;P(x,W,(dir>0?a0+.06:(a0+a1)/2+.02)*k,sv*k,((a1-a0)/2-.08)*k,.1*k);}
+    return c;};
+  // a street tee: the side street's mouth (2.5 across x 3 along); the bottom of the canvas is the through street's centre line
+  R.tarm=()=>{const SW=128,w=2.5,L=3,k=SW/w,SH=Math.round(L*k),[c,x]=cv(SW,SH),a0=.5625,a1=1.9375,Y=v=>SH-v*k;const g=['#6a9a44','#78a64c'];
+    for(let X=0;X<SW;X++)for(let y=0;y<SH;y++)P(x,g[hs(X,y)<.5?0:1],X,y,1,1);
+    [[.094,.344],[2.0625,.344]].forEach(([u,d])=>P(x,'#d8d2c4',u*k,0,d*k,Y(1.25)));P(x,'#d8d2c4',0,Y(1.25),SW,(1.25-.6875)*k);
+    asph(x,0,Y(.6875),SW,.6875*k,37);asph(x,a0*k,0,(a1-a0)*k,Y(.6875),41);
+    P(x,KB,0,Y(.6875)-.03*k,a0*k,.0625*k);P(x,KB,a1*k,Y(.6875)-.03*k,SW-a1*k,.0625*k);P(x,KB,(a0-.03)*k,0,.0625*k,Y(.6875));P(x,KB,(a1-.03)*k,0,.0625*k,Y(.6875));
+    for(let u=a0+.08;u+.16<=a1-.06;u+=.3)P(x,W,u*k,Y(1.95),.16*k,.62*k);P(x,W,(a0+.06)*k,Y(1.32),((a1-a0)/2-.08)*k,.1*k);
+    for(let v=.1;v<1.1;v+=.3)P(x,W,((a0+a1)/2+.02)*k,Y(v+.15),((a1-a0)/2-.1)*k,.06*k);return c;};
   R.tee=()=>{const S=128,[c,x]=cv(S,S);asph(x,0,0,S,S,23);return c;};
   const MC={};R.mat=(key,mk,o)=>MC[key]||(MC[key]=new THREE.MeshLambertMaterial(Object.assign({map:R.tex(mk())},o||{})));
   return R;})();
@@ -10037,9 +10073,13 @@ function tower2(g,x,z,o){const w=o.w,d=o.d||o.w,h=o.h,ry=o.ry||0,tp=flat(o.roof|
   if(o.mast){add(g,new THREE.CylinderGeometry(.05,.1,o.mast,5),flat('#e8ecf0'),x,y+(o.crown?o.ch||2.4:0)+o.mast/2,z);}
   const L=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,.2),new THREE.MeshBasicMaterial({color:0xd8323a}));L.position.set(x,y+(o.crown?(o.ch||2.4):.5)+(o.mast||0)+.1,z);g.add(L);(O.beacons||(O.beacons=[])).push(L);
   return y;}
-if(T.cbd){const t=T.cbd,g=t.g;hideOld(t);const[gx,gz]=gpos(t);const L=(lo,la)=>{const p=G(lo,la);return[(p[0]-gx)*2,(p[1]-gz)*2];};
+if(T.cbd){const t=T.cbd,g0=t.g;hideOld(t);const[gx,gz]=gpos(t);
+  // owroads2 (Paul, Nov 2026): at the half-size map the CBD was spread over twice its real area (towers on roads, the quay in the river);
+  // now everything sits on its real spot at half size (a scaled sub-group), as in the earlier version Paul liked
+  const KS=OWR2?.5:1,g=KS===1?g0:new THREE.Group();if(g!==g0){g.scale.setScalar(KS);g.userData.owKeep=1;g0.add(g);}
+  const L=(lo,la)=>{const p=G(lo,la);return[(p[0]-gx)*2,(p[1]-gz)*2];};
   const railNear=(x,z,r)=>RAIL.some((a,i)=>i&&segDist(x,z,RAIL[i-1],a)<r);
-  const free=(a,b,r)=>{const x=gx+a,z=gz+b;return landAt(x,z)&&!onRoad(x,z,r+2.3)&&!railNear(x,z,r+2);};
+  const free=(a,b,r)=>{const x=gx+a*KS,z=gz+b*KS;r*=KS;return landAt(x,z)&&!onRoad(x,z,r+(KS<1?1.6:2.3))&&!railNear(x,z,r+(KS<1?1.2:2));};
   const GLB=['#b4d4e6','#8ab4cc','#5e8aaa','#3e6688'],GLT=['#a8dcd4','#78b8b4','#4a9294','#2e6e74'],GLS=['#c8d4e0','#98aabc','#6a809a','#465c78'],GLBR=['#d8c4a0','#b0966e','#86704c','#5e4c34'];
   const TW=[// [lon,lat, spec]
     [115.8566,-31.9546,{w:2.2,h:30,seed:1,gl:GLS,tiers:[[.62,1,1],[.24,.82,.82],[.14,.62,.62]],crown:'frame',mast:5}],
@@ -10065,28 +10105,29 @@ if(T.cbd){const t=T.cbd,g=t.g;hideOld(t);const[gx,gz]=gpos(t);const L=(lo,la)=>{
   // Paul (Nov 2026): half the CBD towers. The signature ones stay (the tallest with its frame crown, the slanted and pyramid crowns, the octagon,
   // the tiered ones, two sandstone-faced blocks); the generic flat-topped fillers go and their sites become small paved plazas with trees and benches.
   const ALL=/[?&#]allcbd\b/.test(location.search+location.hash),RANK=[1,4,5,6,8,2,3,15,7,16,12,17,10,11,19,9,13,14,18,20];const plz=(()=>{const c=mkc(32,32),x=c.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?2:0);X<32;X+=4){PP(x,['#d8d0bc','#cfc6b0','#e2dac6'][(X*3+y)%3],X,y,4,4);PP(x,'#b8b09c',X,y+3,4,1);}return new THREE.MeshLambertMaterial({map:TX(c)});})();
-  const fit=TW.filter(([lo,la,o])=>{const[a,b]=L(lo,la);return free(a,b,Math.max(o.w,o.d||o.w)*.5+.6);}),keep=new Set(fit.map(q=>q[2].seed).sort((p,q)=>RANK.indexOf(p)-RANK.indexOf(q)).slice(0,ALL?99:Math.ceil(fit.length/2)));
-  let n=0,nP=0;fit.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!keep.has(o.seed)){const pw=o.w+1.4;add(g,new THREE.BoxGeometry(pw,.1,pw),plz,a,.05,b).castShadow=false;[[-1,-1],[1,1]].forEach(([p,q])=>{const x=gx+a+p*pw*.32,z=gz+b+q*pw*.32;PL.push([x,groundAt(x,z),z,2,2.8,1]);});add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a+.5,.2,b-.4);add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a-.5,.2,b+.4);nP++;return;}tower2(g,a,b,o);n++;});O.cbdTowers=n;O.cbdPlazas=nP;O.cbdKept=[...keep];
+  const fit=TW.filter(([lo,la,o])=>{const[a,b]=L(lo,la);return free(a,b,Math.max(o.w,o.d||o.w)*.5+.6);}),keep=new Set(fit.map(q=>q[2].seed).sort((p,q)=>RANK.indexOf(p)-RANK.indexOf(q)).slice(0,ALL?99:KS<1?8:Math.ceil(fit.length/2)));
+  let n=0,nP=0;fit.forEach(([lo,la,o])=>{const[a,b]=L(lo,la);if(!keep.has(o.seed)){const pw=o.w+1.4;add(g,new THREE.BoxGeometry(pw,.1,pw),plz,a,.05,b).castShadow=false;[[-1,-1],[1,1]].forEach(([p,q])=>{const x=gx+(a+p*pw*.32)*KS,z=gz+(b+q*pw*.32)*KS;PL.push([x,groundAt(x,z),z,2,2.8,1]);});add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a+.5,.2,b-.4);add(g,new THREE.BoxGeometry(.9,.22,.3),flat('#8a6a4a'),a-.5,.2,b+.4);nP++;return;}tower2(g,a,b,o);n++;});O.cbdTowers=n;O.cbdPlazas=nP;O.cbdKept=[...keep];
   // heritage sandstone: a town hall with a clock turret, a few low old blocks with verandahs
   [[115.8598,-31.9532,3,2.4,2.2,'#e0c89a',1],[115.8575,-31.9536,2.6,2,1.8,'#e8d8b0',0],[115.8618,-31.9564,2.4,2,1.6,'#d8c098',0],[115.8548,-31.9548,2.2,2,1.7,'#e4d0a8',0]].forEach(([lo,la,w,d,h,c,clock],i)=>{const[a,b]=L(lo,la);if(!free(a,b,w*.5+.4))return;
     blockB(g,a,b,w,d,h,{base:c,kind:'stone',rows:2,win:Math.floor(w*1.6),seed:140+i,parapet:1,frame:'#f4ecd8',awn:i?['#c8344a','#2f6a74','#3e7d5c'][i%3]:null});
     if(clock){add(g,new THREE.BoxGeometry(.9,2.2,.9),flat(c),a,h+1.1,b);add(g,new THREE.ConeGeometry(.75,1.2,4),flat('#5a6a5a'),a,h+2.8,b,Math.PI/4);const cc=mkc(8,8),cx=cc.getContext('2d');PP(cx,c,0,0,8,8);PP(cx,'#f4f2ec',1,1,6,6);PP(cx,'#2a2230',4,2,1,3);PP(cx,'#2a2230',4,4,2,1);const cl=new THREE.Mesh(new THREE.PlaneGeometry(.6,.6),new THREE.MeshLambertMaterial({map:TX(cc),emissive:new THREE.Color(.3,.28,.2)}));cl.position.set(a,h+1.6,b+.46);g.add(cl);}});
   // the quay: a stone promenade on the water's edge, the bell tower, a footbridge arch
-  const[qx,qz]=L(115.8575,-31.9594);const deck=mkc(32,32),dx=deck.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?3:0);X<32;X+=6){PP(dx,['#d8d0bc','#c8c0ac','#e2dac6'][(X+y)%3],X,y,6,4);PP(dx,'#a8a090',X,y+3,6,1);}
-  const dt=TX(deck,true);dt.repeat.set(4,2);const dk=add(g,new THREE.BoxGeometry(9,.5,4),new THREE.MeshLambertMaterial({map:dt}),qx,.05,qz-1.6);
+  const GU=(wx,wz)=>[(wx-gx)/KS,(wz-gz)/KS];// world -> this group
+  const[qx,qz]=KS<1?GU(EQB.x-EQB.rx-1.2,EQB.z+.7):L(115.8575,-31.9594);const deck=mkc(32,32),dx=deck.getContext('2d');for(let y=0;y<32;y+=4)for(let X=-(y%8?3:0);X<32;X+=6){PP(dx,['#d8d0bc','#c8c0ac','#e2dac6'][(X+y)%3],X,y,6,4);PP(dx,'#a8a090',X,y+3,6,1);}
+  const dt=TX(deck,true);dt.repeat.set(4,2);const dk=KS<1?add(g,new THREE.BoxGeometry(2.2,.5,7.5),new THREE.MeshLambertMaterial({map:dt}),...(([a,b])=>[a,.05,b])(GU(EQB.x-EQB.rx-.45,EQB.z))):add(g,new THREE.BoxGeometry(9,.5,4),new THREE.MeshLambertMaterial({map:dt}),qx,.05,qz-1.6);
   const bx=qx,bz=qz;const glc=mkc(16,64),gx2=glc.getContext('2d');for(let y=0;y<64;y++)for(let X=0;X<16;X++)PP(gx2,['#a8d8e4','#7ab8cc','#5a9ab4'][(X+((y/4)|0))%3],X,y);for(let y=0;y<64;y+=6)PP(gx2,'#e8f4f8',0,y,16,1);
   const gm=new THREE.MeshLambertMaterial({map:TX(glc,true),emissive:new THREE.Color(.25,.32,.36)});
   add(g,new THREE.CylinderGeometry(.35,1.1,8.5,6),gm,bx,4.25,bz);add(g,new THREE.ConeGeometry(.35,2.4,6),gm,bx,9.7,bz);
   [-1,1].forEach(s=>{const w=add(g,new THREE.BoxGeometry(.18,6.2,1.1),flat('#b87848'),bx+s*.75,3.4,bz-.2);w.rotation.z=s*.1;});
   add(g,new THREE.CylinderGeometry(1.6,1.8,.4,10),flat('#d8d0bc'),bx,.2,bz);
   const bl=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshBasicMaterial({color:0xfff2c0}));bl.position.set(bx,7.8,bz);g.add(bl);O.bell=bl;
-  const arch=add(g,new THREE.TorusGeometry(2.4,.12,6,20,Math.PI),flat('#f4f2ec'),qx-4.5,.2,qz-.4);arch.rotation.y=Math.PI/2;
+  const arch=KS<1?add(g,new THREE.TorusGeometry(2.4,.16,6,20,Math.PI),flat('#f4f2ec'),...(([a,b])=>[a,.2,b])(GU(EQB.x,EQB.z+EQB.rz+.9))):add(g,new THREE.TorusGeometry(2.4,.12,6,20,Math.PI),flat('#f4f2ec'),qx-4.5,.2,qz-.4);if(KS===1)arch.rotation.y=Math.PI/2;// owroads2: the footbridge spans the inlet mouth
   // street lamps and street trees along the terrace
   for(let k=0;k<9;k++){const a=-12+k*3,b=-1.2;if(!free(a,b,.3))continue;add(g,new THREE.CylinderGeometry(.06,.08,2.4,5),flat('#4a4e54'),a,1.2,b);const l=new THREE.Mesh(new THREE.BoxGeometry(.3,.2,.3),new THREE.MeshBasicMaterial({color:0x3a3a30}));l.position.set(a,2.45,b);g.add(l);(O.lamps||(O.lamps=[])).push(l);
-    if(k%2)PL.push([gx+a+.8,groundAt(gx+a+.8,gz+b),gz+b,2,3.2,1]);}
+    if(k%2)PL.push([gx+(a+.8)*KS,groundAt(gx+(a+.8)*KS,gz+b*KS),gz+b*KS,2,3.2*Math.sqrt(KS),1]);}
   // Kings Park's edge: Norfolk pines and gums along the escarpment above the river
   for(let k=0;k<26;k++){const lo=115.8455+k*.00028,la=-31.9575-k*.00012,p=G(lo,la),x=p[0]+(HSH(k,1)-.5)*2,z=p[1]+(HSH(k,2)-.5)*2;if(landAt(x,z)&&!onRoad(x,z,2.6))PL.push([x,groundAt(x,z)-.05,z,k%3?0:4,k%3?4.4:5.6,1]);}
-  g.add(DET);O.cbdG=g;}
+  g.add(DET);O.cbdG=g0;}
 // --- Fremantle: limestone streets with verandahs, the round gaol-house on its hill, cranes, containers, the wheel and a ferry ---
 if(T.freo){const t=T.freo,g=t.g;hideOld(t);const[gx,gz]=gpos(t);
   const rhT=mkc(96,24),rx=rhT.getContext('2d');face(rx,null,0,0,96,24,{base:'#e4d4ac',kind:'stone',win:8,door:true,seed:44,frame:'#f4ecd8',litP:0});
@@ -10111,7 +10152,7 @@ if(T.sp){const t=T.sp,g=t.g;hideOld(t);const[gx,gz]=gpos(t);
   const mc=mkc(32,32),mx=mc.getContext('2d');face(mx,null,0,0,32,32,{base:'#f6f2e8',kind:'plaster',win:1,rows:2,door:true,seed:61,litP:0});add(g,new THREE.CylinderGeometry(1,1.45,4.2,10),new THREE.MeshLambertMaterial({map:TX(mc)}),-3,2.1,0);
   add(g,new THREE.ConeGeometry(1.2,1.3,10),flat('#4a3a2e'),-3,4.85,0);const sl=mkc(8,32),sx=sl.getContext('2d');PP(sx,'#e8e2d4',0,0,8,32);for(let y=2;y<32;y+=3)PP(sx,'#7a6a58',1,y,6,1);PP(sx,'#7a6a58',3,0,2,32);
   const sails=new THREE.Group();sails.position.set(-3,4.4,1.1);g.add(sails);const sm2=new THREE.MeshLambertMaterial({map:TX(sl),side:THREE.DoubleSide});[0,1].forEach(k=>{const s=add(sails,new THREE.BoxGeometry(.45,5.6,.05),sm2,0,0,0);s.rotation.z=k?.8:-.8;});O.sails=sails;
-  [[3,-4,2.4,2.4,7,{seed:71,sp:'#ece6da',punch:1}],[6.5,-3,2.4,2.2,9,{seed:72,gl:['#a8d0dc','#78a8bc','#4a7a96']}],[9.5,-5,2.2,2.2,6,{seed:73,sp:'#d8ccb8',punch:1}]].forEach(([a,b,w,d,h,o])=>{if(!onRoad(gx+a,gz+b,3.5))tower(g,a,b,w,d,h,o);});
+  [[3,-4,2.4,2.4,7,{seed:71,sp:'#ece6da',punch:1}],[6.5,-3,2.4,2.2,9,{seed:72,gl:['#a8d0dc','#78a8bc','#4a7a96']}],[9.5,-5,2.2,2.2,6,{seed:73,sp:'#d8ccb8',punch:1}]].forEach(([a,b,w,d,h,o])=>{if(OWR2)for(let k=0;k<8&&!(landAt(gx+a,gz+b)&&landAt(gx+a,gz+b-1.4)&&landAt(gx+a-1.2,gz+b)&&landAt(gx+a+1.2,gz+b));k++)b+=.5;/* owroads2: stand on the foreshore, not in the river */if(!onRoad(gx+a,gz+b,3.5))tower(g,a,b,w,d,h,o);});
   [[2,2,'#efe3c4'],[5,3,'#e8d0a0']].forEach(([a,b,c],i)=>{if(!onRoad(gx+a,gz+b,3))blockB(g,a,b,2.6,2.2,1.6,{base:c,kind:'plaster',seed:80+i,gable:.8,roofCol:'#b8562e',win:2});});
   for(let k=0;k<7;k++){const a=-1+k*1.6,b=5.5+(k%2)*.4,x=gx+a,z=gz+b;if(landAt(x,z))PL.push([x,groundAt(x,z)-.05,z,5,3.6+(k%3)*.4,1]);}}
 // --- Victoria Park: Albany Highway shopfronts with awnings and signs ---
@@ -10126,9 +10167,14 @@ if(T.air){const t=T.air,g=t.g;hideOld(t);
   const plane=(x,z,ry,tail)=>{const p=new THREE.Group();p.position.set(x,0,z);p.rotation.y=ry;g.add(p);const f=add(p,new THREE.CylinderGeometry(.6,.6,8,10),flat('#f4f4f2'),0,1.3,0);f.rotation.x=Math.PI/2;add(p,new THREE.ConeGeometry(.6,1.2,10),flat('#f4f4f2'),0,1.3,4.6).rotation.x=Math.PI/2;
     add(p,new THREE.BoxGeometry(9,.12,1.6),flat('#e8e8e6'),0,1.1,.2);add(p,new THREE.BoxGeometry(3,.1,.9),flat('#e8e8e6'),0,1.5,-3.6);add(p,new THREE.BoxGeometry(.12,1.8,1.3),flat(tail),0,2.4,-3.6);
     [-2,2].forEach(s=>add(p,new THREE.CylinderGeometry(.3,.3,1,8),flat('#9aa0a6'),s,.8,.6).rotation.x=Math.PI/2);for(let k=-3;k<=3;k++)add(p,new THREE.BoxGeometry(.05,.22,.2),flat('#2a3038'),.61,1.5,k*.9);};
-  plane(-4,-9,0,'#2a9a8a');plane(4,-9.5,.2,'#e86a1a');
+  if(OWR2){plane(-5.2,-7.4,0,'#2a9a8a');plane(5.2,-7.4,0,'#e86a1a');// owroads2 (Paul, Nov 2026): planes wait at the gates, the runway stays clear
+    // Airport Central: the train ends at its own station west of the terminal (a platform, a canopy, a glass box and a footbridge to the terminal)
+    const sx=AIRST[0]-t.g.position.x,sz=AIRST[1]-t.g.position.z;add(g,new THREE.BoxGeometry(7,.35,1.3),flat('#c8c4b8'),sx,.18,sz+1.25);add(g,new THREE.BoxGeometry(7.2,.12,1.6),flat('#e8ecee'),sx,1.9,sz+1.25);
+    [-3,-1,1,3].forEach(k=>add(g,new THREE.BoxGeometry(.1,1.6,.1),flat('#9aa0a6'),sx+k,1.1,sz+1.8));const[sa,sg]=towerTex(3,1.6,{seed:35,gl:['#b8d8e8','#88b4cc','#5a88a8'],sp:'#d8dcde'});add(g,new THREE.BoxGeometry(3,1.6,1.8),litMat(sa,sg),sx+1,.8,sz+3);
+    const fb=add(g,new THREE.BoxGeometry(Math.max(1,-8-sx-2.5),.5,.9),flat('#e8ecee'),(sx+2.5-8)/2,1.9,sz+3);fb.castShadow=true;}
+  else{plane(-4,-9,0,'#2a9a8a');plane(4,-9.5,.2,'#e86a1a');}
   const rw=mkc(16,64),rx2=rw.getContext('2d');PP(rx2,'#55575c',0,0,16,64);for(let y=0;y<64;y+=8)PP(rx2,'#f4f2ec',7,y,2,4);PP(rx2,'#f4f2ec',1,0,1,64);PP(rx2,'#f4f2ec',14,0,1,64);for(let k=0;k<60;k++)PP(rx2,'#4a4c50',HSH(k,1)*16,HSH(k,2)*64);
-  const rt2=TX(rw,true);rt2.repeat.set(1,6);const r=add(g,new THREE.PlaneGeometry(3,40),new THREE.MeshLambertMaterial({map:rt2}),-14,.12,-6);r.rotation.x=-Math.PI/2;r.rotation.z=Math.PI/2;r.castShadow=false;}
+  const rt2=TX(rw,true);rt2.repeat.set(1,6);const r=OWR2?add(g,new THREE.PlaneGeometry(3.6,46),new THREE.MeshLambertMaterial({map:rt2}),-12,.12,-15):add(g,new THREE.PlaneGeometry(3,40),new THREE.MeshLambertMaterial({map:rt2}),-14,.12,-6);if(OWR2)rt2.repeat.set(1,7);r.rotation.x=-Math.PI/2;r.rotation.z=Math.PI/2;r.castShadow=false;}
 // --- a lighthouse island across the water, west of Fremantle (seen from the coast) ---
 {const ix=-50,iz=150,g=new THREE.Group();g.position.set(ix,0,iz);g.userData.L='mark';scene.add(g);
   const sd=mkc(64,64),sx=sd.getContext('2d');for(let y=0;y<64;y++)for(let X=0;X<64;X++){const n=HSH(X,y);PP(sx,n<.3?'#d8c898':n<.8?'#e8d8aa':'#a8a070',X,y);}const isl=add(g,new THREE.CylinderGeometry(18,22,2,24),new THREE.MeshLambertMaterial({map:TX(sd,true)}),0,-.2,0);isl.scale.z=.45;
@@ -10479,7 +10525,7 @@ function rdisc(x,z,rad,yo,n,k){const top=yo>=.08,g=rgb(top?'asph2':'asph',x,z),Y
   for(let i=0;i<n;i++){const a0=i/n*6.283,a1=(i+1)/n*6.283,p1=[x+Math.cos(a1)*rad,0,z+Math.sin(a1)*rad],p0=[x+Math.cos(a0)*rad,0,z+Math.sin(a0)*rad];p1[1]=gy(p1[0],p1[2])+Y;p0[1]=gy(p0[0],p0[2])+Y;
     g.poly([C,p1,p0],[[x/2,z/2],[p1[0]/2,p1[2]/2],[p0[0]/2,p0[2]/2]],c);}RKCIR.push([x,z,rad-.1,rad===2.1?1.1:rad===4?2.2:0]);}
 // a flat box (junction box, apron): centre x,z, size a (along ang) x b, turned by ang; follows the ground, or covers the highway under it
-function rbox(x,z,a,b,ang,kind,yo,cover){yo=kind==='cross'?.15:cover?.14:Math.max(yo,.12);const na=Math.max(1,Math.ceil(a/1.1)),nb=Math.max(1,Math.ceil(b/1.1)),c=Math.cos(ang),s=Math.sin(ang),g=rgb(kind==='asph'&&cover?'box':kind,x,z),kk=bake(x,z),V=[];
+function rbox(x,z,a,b,ang,kind,yo,cover){yo=kind==='cross'?.15:kind==='xarm'?.14:kind==='xarm2'?.16:kind==='tarm'?.15:cover?.14:Math.max(yo,.12);const na=Math.max(1,Math.ceil(a/1.1)),nb=Math.max(1,Math.ceil(b/1.1)),c=Math.cos(ang),s=Math.sin(ang),g=rgb(kind==='asph'&&cover?'box':kind,x,z),kk=bake(x,z),V=[];
   for(let j=0;j<=nb;j++)for(let i=0;i<=na;i++){const lx=-b/2+b*j/nb,lz=-a/2+a*i/na,X=x+lx*c+lz*s,Z=z-lx*s+lz*c;V.push([X,Math.max(gy(X,Z)+yo,cover?rkCover(X,Z):-99),Z,j/nb,i/na]);}
   const U=v=>kind==='asph'?[v[0]/2,v[2]/2]:[v[3],v[4]];
   for(let j=0;j<nb;j++)for(let i=0;i<na;i++){const q=[V[j*(na+1)+i],V[j*(na+1)+i+1],V[(j+1)*(na+1)+i+1],V[(j+1)*(na+1)+i]];g.poly(q.map(v=>[v[0],v[1],v[2]]),q.map(U),kk);}
@@ -10489,7 +10535,7 @@ O.subCarr=(x,z)=>{for(const c of RKCIR)if(Math.abs(c[0]-x)<c[2]&&Math.abs(c[1]-z
 const RKH=new Map();
 function rbuild(){RKSEG.forEach(s=>{const i0=Math.floor((Math.min(s[0][0],s[1][0])-3)/8),i1=Math.floor((Math.max(s[0][0],s[1][0])+3)/8),j0=Math.floor((Math.min(s[0][1],s[1][1])-3)/8),j1=Math.floor((Math.max(s[0][1],s[1][1])+3)/8);
     for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=i*100003+j;let L=RKH.get(k);if(!L)RKH.set(k,L=[]);L.push(s);}});
-  const MK={street:RK.street,art:RK.art,lane:RK.lane,ramp:RK.ramp,asph:RK.asph,asph2:RK.asph,box:RK.asph,cross:RK.cross},PO={lane:0,ramp:1,street:2,art:3,asph:4,asph2:5,box:6,cross:7};let n=0;
+  const MK={street:RK.street,art:RK.art,lane:RK.lane,ramp:RK.ramp,asph:RK.asph,asph2:RK.asph,box:RK.asph,cross:RK.cross,xarm:RK.xarm,xarm2:RK.xarm,tarm:RK.tarm},PO={lane:0,ramp:1,street:2,art:3,asph:4,asph2:5,box:6,cross:7,xarm:6,xarm2:8,tarm:7};let n=0;
   RKG.forEach(gb=>{if(!gb.I.length)return;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(gb.P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(gb.N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(gb.U,2));g.setAttribute('color',new THREE.Float32BufferAttribute(gb.C,3));
     g.setIndex(gb.P.length/3>65535?new THREE.Uint32BufferAttribute(gb.I,1):new THREE.Uint16BufferAttribute(gb.I,1));g.computeBoundingSphere();
     const po=PO[gb.kind]||0,me=new THREE.Mesh(g,RK.mat('sub'+gb.kind,MK[gb.kind],{vertexColors:true,side:THREE.DoubleSide,polygonOffset:po>0,polygonOffsetFactor:-po*.5,polygonOffsetUnits:-po*2}));me.receiveShadow=true;me.userData.L='roads';me.name='rk:'+gb.kind;me.matrixAutoUpdate=false;me.updateMatrix();scene.add(me);n++;});O.subRoadMeshes=n;}
@@ -10497,6 +10543,9 @@ function strip(g,P,w,r,yo,tl,k){if(RKS(r))return rstrip(P,w,RKS(r),yo,tl,k);cons
   const L=[],Rr=[];for(let i=0;i<D.length;i++){const p=D[Math.max(0,i-1)],q=D[Math.min(D.length-1,i+1)];let dx=q[0]-p[0],dz=q[1]-p[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const x=D[i][0],z=D[i][1],y=gy(x,z)+yo;L.push([x-dz*w/2,y,z+dx*w/2]);Rr.push([x+dz*w/2,y,z-dx*w/2]);}
   for(let i=1;i<D.length;i++){const c=(k||1)*bake(D[i][0],D[i][1]);g.poly([L[i-1],Rr[i-1],Rr[i],L[i]],[[r[0],r[1]],[r[2],r[1]],[r[2],r[3]],[r[0],r[3]]],c);}}
 function disc(g,x,z,rad,yo,r,n,k){if(r===UV.asph)return rdisc(x,z,rad,yo,n,k);const y=gy(x,z)+yo,c=(k||1)*bake(x,z);for(let i=0;i<n;i++){const a0=i/n*6.283,a1=(i+1)/n*6.283;g.poly([[x,y,z],[x+Math.cos(a1)*rad,y,z+Math.sin(a1)*rad],[x+Math.cos(a0)*rad,y,z+Math.sin(a0)*rad]],[[(r[0]+r[2])/2,(r[1]+r[3])/2],[r[0]+(r[2]-r[0])*(.5+.5*Math.cos(a1)),r[1]+(r[3]-r[1])*(.5+.5*Math.sin(a1))],[r[0]+(r[2]-r[0])*(.5+.5*Math.cos(a0)),r[1]+(r[3]-r[1])*(.5+.5*Math.sin(a0))]],c);}}
+// a flat ring (kerb, footpath round a cul-de-sac) in the atlas
+function ring(g,x,z,r0,r1,yo,r,n,k){const c=(k||1)*bake(x,z),Y=(X,Z)=>gy(X,Z)+yo;for(let i=0;i<n;i++){const a0=i/n*6.283,a1=(i+1)/n*6.283,P0=[x+Math.cos(a0)*r0,0,z+Math.sin(a0)*r0],P1=[x+Math.cos(a1)*r0,0,z+Math.sin(a1)*r0],Q0=[x+Math.cos(a0)*r1,0,z+Math.sin(a0)*r1],Q1=[x+Math.cos(a1)*r1,0,z+Math.sin(a1)*r1];
+  [P0,P1,Q0,Q1].forEach(p=>p[1]=Y(p[0],p[2]));const u0=r[0]+(r[2]-r[0])*i/n,u1=r[0]+(r[2]-r[0])*(i+1)/n;g.poly([P0,Q0,Q1,P1],[[u0,r[1]],[u0,r[3]],[u1,r[3]],[u1,r[1]]],c);}}
 // chunks
 const CS=32,CH=new Map(),ck=(x,z)=>(Math.floor(x/CS)+200)*1000+(Math.floor(z/CS)+200);
 const chunk=(x,z)=>{const k=ck(x,z);let c=CH.get(k);if(!c){c={k,cx:(Math.floor(x/CS)+.5)*CS,cz:(Math.floor(z/CS)+.5)*CS,base:new GB(),det:[],mesh:null,dm:null};CH.set(k,c);}return c;};
@@ -10564,7 +10613,7 @@ function modCell(c){const mask=(x,z)=>subA(x,z),north=c.north;const A=.6+c.h*.7,
       if(myslot===park){const len=(bEnd-b0)*sd;PARKS.push({kind:'pocket',x:c.x0+a,z:c.z0+(b0+bEnd)/2,th:0,w:2*MLD+SWD-.6,d:len,c});markRect(c.x0+a,c.z0+(b0+bEnd)/2,0,2*MLD+SWD,len,1);return;}
       const P=[];DBG.st=(DBG.st||0)+1;for(let b=b0;sd<0?b>=bEnd-.01:b<=bEnd+.01;b+=sd){const p=cellP(c,a,b);if(!landAt(p[0],p[1])){DBG.sl=(DBG.sl||0)+1;break;}if(!free(p[0],p[1],-1.2)){DBG.sf=(DBG.sf||0)+1;break;}if(inCen(c,a,b,1.4)){DBG.sc=(DBG.sc||0)+1;break;}P.push(p);}if(P.length>4)DBG.sok=(DBG.sok||0)+1;
       const len=(P.length-1);if(len<4.5)return;const pe=P[P.length-1];
-      addStreet(P,'local');STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,3.4,3.4,2);
+      addStreet(P,'local');STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,5.2,5.2,2);
       // lots along both sides (front edge on the verge), facing the stub, and one past the turning circle when there is room
       [-1,1].forEach(sx=>{let e=b0;for(let q=0;q<=MLD+.01;q+=.8){const v=bcol(a+sx*(SWD/2+q))+sd*(SWD/2+.15);e=sd>0?Math.max(e,v):Math.min(e,v);}const t0=(e-b0)*sd;for(let t=t0;t+MLF<=len+.3;t+=MLF){const b=b0+sd*(t+MLF/2);const fx=c.x0+a+sx*SWD/2,fz=c.z0+b;if(inCen(c,a+sx*(SWD/2+MLD/2),b,0))continue;addLot(fx,fz,Math.atan2(-sx,0),MLF,MLD,c.style,north,mask);}});
       });
@@ -10656,7 +10705,7 @@ const APR=[];O.subAprons=APR;
     let m=near(e[0],e[1],s,6);
     if(!m){for(let t=.5;t<=4.5&&!m;t+=.5){const x=e[0]+dx*t,z=e[1]+dz*t;const k=near(x,z,s,.6);if(k)m=k;}}
     if(m&&m.d>.2&&!landRun(e,m.p))m=null;
-    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,3.4,3.4,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
+    if(!m){if(s.kind!=='lane'){STREETS.push({P:[e.slice()],kind:'bulb'});markRect(e[0],e[1],0,5.2,5.2,2);}else STREETS.push({P:[e.slice()],kind:'xpad',r:.7});nB++;return;}
     const oh=m.rib?m.rib/2:half(m.s);let nx=e[0]-m.p[0],nz=e[1]-m.p[1],nl=Math.hypot(nx,nz);if(nl<.2){nx=-dx;nz=-dz;nl=1;}nx/=nl;nz/=nl;
     // close a gap: run the street on to the other road
     const reach=m.rib?Math.max(.6,oh-.5):m.s.kind==='art'?3.0:s.kind==='lane'?Math.max(.2,oh-.6):oh+.1;
@@ -10664,12 +10713,16 @@ const APR=[];O.subAprons=APR;
     // the apron over the arterial's verge and footpath (or a small one where a lane meets a street)
     if(m.s&&m.s.kind==='art'){const a0=2.3,a1=Math.max(3.45,Math.min(m.d,4.5)),c=(a0+a1)/2;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,a1-a0,asw(s)+.35,Math.atan2(nx,nz)]);nA++;}
     else if(m.rib){const c=m.rib/4;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,m.rib/2+.1,asw(s)+.6,Math.atan2(nx,nz),1]);nA++;}
+    else if(m.s&&(m.s.kind==='local'||m.s.kind==='main')&&(s.kind==='local'||s.kind==='main')){const L=3;STREETS.push({P:[[m.p[0]+nx*L/2,m.p[1]+nz*L/2]],kind:'tj',ang:Math.atan2(nx,nz),w:s.kind==='main'?3:2.5,L});nA++;}// a proper tee (Paul, Nov 2026)
     else if(s.kind==='lane'&&m.s){const a0=Math.max(0,oh-.75),a1=oh+.35,c=(a0+a1)/2;APR.push([m.p[0]+nx*c,m.p[1]+nz*c,a1-a0,1.0,Math.atan2(nx,nz)]);nA++;}});});
   // streets crossing streets (not at their ends): an apron disc over the kerbs
   for(let a=0;a<SL.length;a++){const s=SL[a];if(s.kind==='art')continue;for(let i=1;i<s.P.length;i++){const p=s.P[i-1],r=[s.P[i][0]-p[0],s.P[i][1]-p[1]];const L=BKS.get(bk2(p[0],p[1]))||[];
     for(const g of L){const t2=g[2];if(t2===s||t2.kind==='art'||SL.indexOf(t2)<a)continue;const q=g[0],u=[g[1][0]-q[0],g[1][1]-q[1]],den=r[0]*u[1]-r[1]*u[0];if(Math.abs(den)<1e-6)continue;
       const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;const x=p[0]+r[0]*tt,z=p[1]+r[1]*tt;
-      if(STREETS.some(o=>(o.kind==='xpad'||o.kind==='rab')&&Math.hypot(o.P[0][0]-x,o.P[0][1]-z)<1.5))continue;STREETS.push({P:[[x,z]],kind:'xpad',r:Math.max(half(s),half(t2))+.15});nX++;}}}
+      if(STREETS.some(o=>(o.kind==='xpad'||o.kind==='rab'||o.kind==='xst'||o.kind==='mrab')&&Math.hypot(o.P[0][0]-x,o.P[0][1]-z)<1.5))continue;
+      // Paul (Nov 2026, from his photos): lanes meet at a small roundabout; streets cross at a crossroads with zebras and stop lines
+      if(s.kind==='lane'||t2.kind==='lane')STREETS.push({P:[[x,z]],kind:'mrab',r:Math.max(half(s),half(t2))+.75});
+      else STREETS.push({P:[[x,z]],kind:'xst',a1:Math.atan2(r[0],r[1]),a2:Math.atan2(u[0],u[1]),w1:s.kind==='main'?3:2.5,w2:t2.kind==='main'?3:2.5});nX++;}}}
   // streets that cross a highway: a junction box over the crossing
   SL.forEach(s=>{if(s.kind==='art')return;for(let i=1;i<s.P.length;i++){const p=s.P[i-1],r=[s.P[i][0]-p[0],s.P[i][1]-p[1]];for(const R of RIBX){const P=R.P;for(let k=1;k<P.length;k++){const q=P[k-1],u=[P[k][0]-q[0],P[k][1]-q[1]],den=r[0]*u[1]-r[1]*u[0];if(Math.abs(den)<1e-6)continue;
     const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;const x=p[0]+r[0]*tt,z=p[1]+r[1]*tt;if(MP&&fwD(x,z)<8)continue;
@@ -10678,8 +10731,12 @@ const APR=[];O.subAprons=APR;
 APR.forEach(a=>rbox(a[0],a[1],a[2],a[3],a[4],'asph',.1,!!a[5]));
 // streets into chunk geometry
 STREETS.forEach(s=>{const P=s.P;
-  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'asph',.12,true);return;}
-  if(s.kind==='bulb'){disc(B(P[0][0],P[0][1]),P[0][0],P[0][1],1.75,.07,UV.asph,12);return;}
+  if((s.kind==='bulb'||s.kind==='abulb'||s.kind==='xpad')&&(()=>{const[x,z]=P[0];if(MP&&fwD(x,z)<9)return true;const rb=ribNear(x,z,9);return rb&&rb.d<rb.w/2+2.6;})())return;// nothing round left lying on a highway (Paul, Nov 2026)
+  if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
+  if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.05,.07,UV.asph,24);ring(g,x,z,2.0,2.12,.16,UV.kerb,24);ring(g,x,z,2.12,2.5,.11,UV.path,24);RKCIR.push([x,z,2.0]);return;}// a cul-de-sac: asphalt circle, kerb, footpath
+  if(s.kind==='xst'){const[x,z]=P[0];rbox(x,z,s.w2+2,s.w1,s.a1,'xarm',0,false);rbox(x,z,s.w1+2,s.w2,s.a2,'xarm2',0,false);return;}
+  if(s.kind==='tj'){const[x,z]=P[0];rbox(x,z,s.L,s.w,s.ang,'tarm',0,false);return;}
+  if(s.kind==='mrab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,s.r,.07,UV.asph,16);const F=FR(x,gy(x,z)+.08,z,0,bake(x,z));cyl(g,F,0,0,0,s.r*.36,.1,12,UV.kerb,UV.island);ring(g,x,z,s.r*.36,s.r*.36+.08,.1,UV.kerb,12);return;}
   if(s.kind==='rab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.1,.075,UV.asph,14);const F=FR(x,gy(x,z)+.07,z,0,bake(x,z));cyl(g,F,0,0,0,.95,.14,12,UV.kerb,UV.island);plant(x,z,3,2.4);return;}
   if(s.kind==='rab2'){const[x,z]=P[0],g=B(x,z);rbox(x,z,6.6,6.6,0,'asph',.1,false);disc(g,x,z,4,.09,UV.asph,18);const F=FR(x,gy(x,z)+.09,z,0,bake(x,z));cyl(g,F,0,0,0,2,.16,16,UV.kerb,UV.island);plant(x,z,13,4.2);plant(x+.9,z+.6,5,2.8);return;}
   if(s.kind==='pad'){const[x,z]=P[0],v=s.v;if(v&&v.arms.length===2&&v.arms[0][0].h===v.arms[1][0].h)return;rbox(x,z,6.6,6.6,0,'asph',.11,false);return;}
@@ -10687,7 +10744,7 @@ STREETS.forEach(s=>{const P=s.P;
   strip(null,P,w,uv,yo,s.kind==='art'?2:s.kind==='lane'?.8:1.25);/*one strip per street: no notches where chunk slices met*/
   // street trees on the verges and pads at the junctions
   if(s.kind==='local'||s.kind==='main')for(let i=2;i<P.length-1;i+=3){const a=P[i-1],b=P[i],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1;const sd=(i/3|0)%2?1:-1,x=b[0]+dz/l*1.05*sd,z=b[1]-dx/l*1.05*sd;if(hs(x,z)<.55&&occ(x,z)<2)plant(x,z,[2,3,1,11][((hs(z,x)*4)|0)],1.6+hs(x,z)*.9);}
-  if(s.kind!=='art'&&s.kind!=='lane'&&P.length>1)[P[0],P[P.length-1]].forEach(p=>disc(B(p[0],p[1]),p[0],p[1],1.35,.065,UV.asph,10));});
+  /* the grey end discs are gone (Paul, Nov 2026): tees, crossroads, roundabouts and cul-de-sacs draw their own junctions */});
 
 // signals at the centre crossroads: a zebra slab, four poles with heads (bulbs are one instanced mesh, phases shared with the traffic)
 const BULB=[],SIGO=[];
@@ -10954,7 +11011,7 @@ float wdep(vec2 w){if(w.y>=${WZ}.&&uSG2.y>0.)return sdep(w);if(w.y>=0.&&w.x>=0.&
     const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;pad(p[0]+r[0]*tt,p[1]+r[1]*tt,3.2);np++;}
   O.roadFix=[nc,np];
 // fix 2 (Paul, Nov 2026): landmarks never stand on a road. Parts that sit together move together, to the nearest clear spot on land (west first), and get a collider.
-{const RDX=(x,z,w)=>onRoad(x,z,w)||(O.conns||[]).some(c=>segDist(x,z,c[0],c[1])<w);const moved=[];['cbd','freo','sp','vp','air','hi'].forEach(id=>{const t=T[id];if(!t)return;const g=t.g;g.updateMatrixWorld(true);const kids=g.children.filter(c=>c.visible&&c!==t.rg&&c!==O.cbdDet);
+{const RDX=(x,z,w)=>onRoad(x,z,w)||(O.conns||[]).some(c=>segDist(x,z,c[0],c[1])<w);const moved=[];['cbd','freo','sp','vp','air','hi'].forEach(id=>{const t=T[id];if(!t)return;const g=t.g;g.updateMatrixWorld(true);const kids=g.children.filter(c=>c.visible&&c!==t.rg&&c!==O.cbdDet&&!c.userData.owKeep);/* owroads2: the hand-placed CBD stays put */
   const info=kids.map(c=>{const b=new THREE.Box3().setFromObject(c);const h=b.max.y-b.min.y,w1=b.max.x-b.min.x,w2=b.max.z-b.min.z;return{c,x:(b.min.x+b.max.x)/2,z:(b.min.z+b.max.z)/2,r:(h>.6?Math.min(w1,w2):Math.max(w1,w2)*.8)/2,h};}).filter(q=>isFinite(q.x));
   const par=info.map((_,i)=>i),f=i=>par[i]===i?i:(par[i]=f(par[i]));info.forEach((a,i)=>info.forEach((b,j)=>{if(j>i&&Math.hypot(a.x-b.x,a.z-b.z)<1.8)par[f(i)]=f(j);}));
   const CLS={};info.forEach((q,i)=>(CLS[f(i)]||(CLS[f(i)]=[])).push(q));
@@ -11131,6 +11188,8 @@ try{const t0=performance.now(),RS={};O.ribs=RIBS;
       if(Math.hypot(p.x-px,p.z-pz)<3.2&&ST.inCar){c.s-=c.v*c.dir*dt;return;}c.g.position.set(p.x,deckH(p.x,p.z)+.2,p.z);c.g.rotation.y=p.a;});};
   O.carsN=CARS.length;O.roadsT=RT.length;}
 
+// ===== owroads2 (Look Lab ?ow2, Paul Nov 2026): one joined road network at the half-size map, no loose road bits =====
+if(/[?&#]owdbg\b/.test(location.search+location.hash))window.__OWX={ST,cam,scene,renderer,H,HG,LAND,ROADS,RAIL,RIBS,onRoad,canGo,landAt,deckH,groundAt,O,N,SOUTH,NORTH,MP,WX,WZ,G,segDist};
 // ===== 8. light: render to a target, then the towns' post look (depth outline, warm light / cool shade), heat shimmer over the outback =====
 const rt=new THREE.WebGLRenderTarget(2,2,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter,depthBuffer:true});rt.texture.encoding=THREE.sRGBEncoding;rt.depthTexture=new THREE.DepthTexture(2,2);rt.depthTexture.type=THREE.UnsignedIntType;
 const post=new THREE.ShaderMaterial({uniforms:{tD:{value:rt.texture},tZ:{value:rt.depthTexture},res:{value:new THREE.Vector2(2,2)},nf:{value:new THREE.Vector2(cam.near,cam.far)},tint:{value:new THREE.Vector3(1,1,1)},uT:{value:0},uSh:{value:0}},

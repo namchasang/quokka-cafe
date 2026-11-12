@@ -43,7 +43,7 @@ var HOME2_LIVE=true;
       <p class="mapq" id="mapQuest"></p>
       <div class="legend big"><span><i class="lg-you"></i>You (cone = camera view)</span><span><i class="lg-quest"></i>Quest goal</span><span><i class="lg-npc"></i>Gus · Nana Wren</span><span><i class="lg-wild"></i>Wild quokka</span><span><i class="lg-tourist"></i>Tourist</span><span><i class="lg-lore"></i>Lore stone</span><span><i class="lg-cafe"></i>Quokka Cafe</span><span><i class="lg-cottage"></i>Settlement cottage</span><span class="lg-sp" hidden><i class="lg-home"></i>Home for sale</span><span class="lg-sp" hidden><i class="lg-myhome"></i>Your home</span><span><i class="lg-light"></i>Lighthouse</span><span><i class="lg-shell"></i>Lost shell</span><span><i class="lg-lake"></i>Pink salt lake</span><span><i class="lg-trail"></i>Limestone trail</span><span><i class="lg-beach"></i>Beach</span><span><i class="lg-tree"></i>Pine / tea tree</span><span><i class="lg-reef"></i>Reef</span></div>
       <p class="mapq" id="ftHint" hidden></p>
-      <div class="btns"><button class="btn" id="ftGo" type="button" hidden>Fast travel</button><button class="btn" id="mapPerth" type="button">Perth map</button><button class="btn ghost" id="mapClose" type="button">Close</button></div>
+      <div class="btns"><button class="btn" id="ftGo" type="button" hidden>Fast travel</button><button class="btn" id="mapOW" type="button" hidden>Outer world</button><button class="btn" id="mapPerth" type="button">Perth map</button><button class="btn ghost" id="mapClose" type="button">Close</button></div>
     </div>
   </div>
 

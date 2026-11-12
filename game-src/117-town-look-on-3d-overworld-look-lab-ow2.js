@@ -46,6 +46,25 @@ const RK=(()=>{const hs=(a,b)=>L2hash(a*1.37+.11,b*.91+.7);const A=['#56585d','#
       if(arrows){const ax=(road[0]+w/2)/2*k,ay=(stop0+.6)*k;P(x,W,ax-.06*k,ay,.12*k,.7*k);P(x,W,ax-.22*k,ay+.62*k,.44*k,.12*k);P(x,W,ax-.12*k,ay+.74*k,.24*k,.1*k);}x.restore();}return c;};
   R.city=()=>box(256,11,[1.5,9.5],.25,1.15,1.45,true);
   R.cross=()=>box(256,6.5,[.85,5.65],.12,.7,.95,false);
+  // street crossroads (Paul, Nov 2026, from his photos): one arm 2.5 across x 4.5 along; the middle 2.5 is the whole crossing (both carriageways,
+  // footpath corners) so the two crossed arms match there; the arm ends carry the zebra crossing and a stop line on the inbound half
+  R.xarm=()=>{const SW=128,w=2.5,L=4.5,k=SW/w,SH=Math.round(L*k),[c,x]=cv(SW,SH),a0=.5625,a1=1.9375,m0=(L-w)/2,m1=m0+w;const g=['#6a9a44','#78a64c'];
+    for(let X=0;X<SW;X++)for(let y=0;y<SH;y++)P(x,g[hs(X,y)<.5?0:1],X,y,1,1);
+    [[.094,.344],[2.0625,.344]].forEach(([u,d])=>{P(x,'#d8d2c4',u*k,0,d*k,SH);for(let y=0;y<SH;y+=10)P(x,'#c4bcac',u*k,y,d*k,1);});
+    P(x,'#d8d2c4',0,m0*k,SW,w*k);asph(x,a0*k,0,(a1-a0)*k,SH,29);asph(x,0,(m0+a0)*k,SW,(a1-a0)*k,31);
+    [[a0-.03,0,.0625,m0+a0],[a1-.03,0,.0625,m0+a0],[a0-.03,m0+a1,.0625,L-m0-a1],[a1-.03,m0+a1,.0625,L-m0-a1]].forEach(([u,v,du,dv])=>P(x,KB,u*k,v*k,du*k,dv*k));
+    [[0,m0+a0-.03],[a1,m0+a0-.03],[0,m0+a1-.03],[a1,m0+a1-.03]].forEach(([u,v])=>P(x,KB,u*k,v*k,a0*k,.0625*k));
+    for(const[e,dir]of[[0,1],[L,-1]]){for(let u=a0+.08;u+.16<=a1-.06;u+=.3)P(x,W,u*k,(dir>0?e+.18:e-.18-.62)*k,.16*k,.62*k);
+      const sv=dir>0?e+.92:e-.92-.1;P(x,W,(dir>0?a0+.06:(a0+a1)/2+.02)*k,sv*k,((a1-a0)/2-.08)*k,.1*k);}
+    return c;};
+  // a street tee: the side street's mouth (2.5 across x 3 along); the bottom of the canvas is the through street's centre line
+  R.tarm=()=>{const SW=128,w=2.5,L=3,k=SW/w,SH=Math.round(L*k),[c,x]=cv(SW,SH),a0=.5625,a1=1.9375,Y=v=>SH-v*k;const g=['#6a9a44','#78a64c'];
+    for(let X=0;X<SW;X++)for(let y=0;y<SH;y++)P(x,g[hs(X,y)<.5?0:1],X,y,1,1);
+    [[.094,.344],[2.0625,.344]].forEach(([u,d])=>P(x,'#d8d2c4',u*k,0,d*k,Y(1.25)));P(x,'#d8d2c4',0,Y(1.25),SW,(1.25-.6875)*k);
+    asph(x,0,Y(.6875),SW,.6875*k,37);asph(x,a0*k,0,(a1-a0)*k,Y(.6875),41);
+    P(x,KB,0,Y(.6875)-.03*k,a0*k,.0625*k);P(x,KB,a1*k,Y(.6875)-.03*k,SW-a1*k,.0625*k);P(x,KB,(a0-.03)*k,0,.0625*k,Y(.6875));P(x,KB,(a1-.03)*k,0,.0625*k,Y(.6875));
+    for(let u=a0+.08;u+.16<=a1-.06;u+=.3)P(x,W,u*k,Y(1.95),.16*k,.62*k);P(x,W,(a0+.06)*k,Y(1.32),((a1-a0)/2-.08)*k,.1*k);
+    for(let v=.1;v<1.1;v+=.3)P(x,W,((a0+a1)/2+.02)*k,Y(v+.15),((a1-a0)/2-.1)*k,.06*k);return c;};
   R.tee=()=>{const S=128,[c,x]=cv(S,S);asph(x,0,0,S,S,23);return c;};
   const MC={};R.mat=(key,mk,o)=>MC[key]||(MC[key]=new THREE.MeshLambertMaterial(Object.assign({map:R.tex(mk())},o||{})));
   return R;})();
