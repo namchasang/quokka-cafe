@@ -73,6 +73,7 @@ const TOON={on:TOON_LIVE||/[?&#]toon\b/.test(location.search+location.hash),list
       const sw=Math.sin(e.ph)*.62*e.amp;e.u.uSw.value=e.q?sw*.6:sw;const k=e.g.scale.x;
       e.g.position.set(s.position.x,s.position.y+Math.abs(Math.sin(e.ph))*(e.q?.09:.025)*e.amp*k,s.position.z);}
     requestAnimationFrame(TK);})();
+  TOON.human=(v,h)=>model({k:'human',v},h);// for riders on bikes (188-critters)
   window.__TOON=TOON;
   try{console.log('T3D toon '+TOON.list.length+' on '+TOON.list.filter(e=>e.on).length);}catch(e){}
 })();

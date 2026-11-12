@@ -196,14 +196,14 @@ Find code: `grep -n 'name' game-src/*`.
 | 187-hd-pixel-set-on-rottnest-only-look-lab.js | 17856-17895 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
 | 188-garden-meadow-look-lab-toon.js | 17896-17962 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
 | 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17963-18107 | 19 | TREE3D_LIVE, TREE3D |
-| 188-toon-characters-look-lab-toon.js | 18108-18185 | 9 | TOON_LIVE, TOON |
-| 188-paint-look-look-lab-toon.js | 18186-18241 | 5 | PAINT_LIVE, PAINT |
-| 188-sea-beach-look-lab-toon.js | 18242-18299 | 6 | SEA3_LIVE, SEA3 |
-| 188-build-smooth-look-lab-toon.js | 18300-18359 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 18360-18408 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 18409-18441 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 18442-18502 | 7 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 18503-18533 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 18534-18550 | 2 | RAILCLR |
-| 188-auth.js | 18551-18629 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18630-18651 | 3 | SHOT |
+| 188-toon-characters-look-lab-toon.js | 18108-18186 | 9 | TOON_LIVE, TOON |
+| 188-paint-look-look-lab-toon.js | 18187-18242 | 5 | PAINT_LIVE, PAINT |
+| 188-sea-beach-look-lab-toon.js | 18243-18300 | 6 | SEA3_LIVE, SEA3 |
+| 188-build-smooth-look-lab-toon.js | 18301-18360 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 18361-18409 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 18410-18442 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 18443-18503 | 7 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 18504-18534 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 18535-18551 | 2 | RAILCLR |
+| 188-auth.js | 18552-18630 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18631-18652 | 3 | SHOT |

@@ -18180,6 +18180,7 @@ const TOON={on:TOON_LIVE||/[?&#]toon\b/.test(location.search+location.hash),list
       const sw=Math.sin(e.ph)*.62*e.amp;e.u.uSw.value=e.q?sw*.6:sw;const k=e.g.scale.x;
       e.g.position.set(s.position.x,s.position.y+Math.abs(Math.sin(e.ph))*(e.q?.09:.025)*e.amp*k,s.position.z);}
     requestAnimationFrame(TK);})();
+  TOON.human=(v,h)=>model({k:'human',v},h);// for riders on bikes (188-critters)
   window.__TOON=TOON;
   try{console.log('T3D toon '+TOON.list.length+' on '+TOON.list.filter(e=>e.on).length);}catch(e){}
 })();
@@ -18472,11 +18473,11 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
     const tube=(a,b,m)=>{const d=new THREE.Vector3().subVectors(b,a),L=d.length();const c=new THREE.CylinderGeometry(.022,.022,L,6);c.translate(0,L/2,0);c.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize())));c.translate(a.x,a.y,a.z);return mesh(c,m);};
     const V=(y,z)=>new THREE.Vector3(0,y,z);[[V(.29,.42),V(.62,.3)],[V(.62,.3),V(.62,-.12)],[V(.62,-.12),V(.29,-.42)],[V(.29,-.42),V(.32,0)],[V(.32,0),V(.62,.3)],[V(.32,0),V(.62,-.12)],[V(.62,.3),V(.74,.28)],[V(.62,-.12),V(.68,-.12)]].forEach(([a,b])=>g.add(tube(a,b,F)));
     g.add(mesh(new THREE.BoxGeometry(.3,.025,.05),T,0,.75,.28));g.add(mesh(new THREE.BoxGeometry(.1,.04,.18),T,0,.7,-.13));
-    const body=mesh(new THREE.BoxGeometry(.24,.34,.18),C,0,.95,-.02);body.rotation.x=.35;g.add(body);g.add(mesh(new THREE.SphereGeometry(.11,12,10),S,0,1.2,.1));
-    const helm=mesh(new THREE.SphereGeometry(.125,12,8,0,6.283,0,1.6),C,0,1.24,.1);g.add(helm);
-    [-1,1].forEach(s=>{const a=mesh(new THREE.BoxGeometry(.06,.06,.3),C,s*.1,1.0,.18);a.rotation.x=.6;g.add(a);});
-    const legs=[-1,1].map(s=>{const l=new THREE.Group();l.position.set(s*.07,.72,-.1);l.add(mesh(new THREE.BoxGeometry(.08,.36,.08).translate(0,-.18,0),P));g.add(l);return l;});
-    g.userData={wheels,legs};return g;}
+    // the rider is the same toon person as the walkers (Paul, Nov 2026), sitting on the saddle, leaning to the bars, pedalling
+    let legs=[],u=null;const LOOK=[{skin:'#f1c7a0',hair:'#6b4226',shirt:SH[i%SH.length],pants:'#3b4a6b'},{skin:'#c99472',hair:'#2a2420',shirt:SH[(i+2)%SH.length],pants:'#2f3b5c'},{skin:'#f6d2b0',hair:'#d8b25a',shirt:SH[(i+4)%SH.length],pants:'#5a4a3a'},{skin:'#8d5a3b',hair:'#1d1712',shirt:SH[(i+1)%SH.length],pants:'#3a3a3a'}][i%4];
+    if(typeof TOON!=='undefined'&&TOON.human){const m=TOON.human(Object.assign({hat:i%3===0?C.color.getStyle():null},LOOK),1.45);const k=m.g.scale.x;m.g.position.set(0,.74-.3*k,-.12);m.g.rotation.x=.28;g.add(m.g);u=m.u;}
+    else{const body=mesh(new THREE.BoxGeometry(.24,.34,.18),C,0,.95,-.02);g.add(body);}
+    g.userData={wheels,legs,u};return g;}
   // ---- follow the sprites ----
   const mats=m=>{const out=[];const F=m.userData&&m.userData.frames;if(F)F.forEach(f=>{try{const r=mkFrame(f);if(r&&r.m)out.push(r.m);}catch(e){}});if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(x=>out.push(x));return out;};
   const hide=m=>{if(m.__c3h)return;m.__c3h=1;m.__c3s=m.castShadow;m.castShadow=false;mats(m).forEach(x=>{if(!x.__c3){x.__c3=1;x.__vis=x.visible;}x.visible=false;});};
@@ -18497,7 +18498,7 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
       M.position.set(x,s.position.y,z);M.rotation.y=e.head;
       if(e.kind==='b'){const f=Math.sin(t*22+e.i)*1.1;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.position.y=s.position.y-.05;}
       else if(e.kind==='g'){const f=Math.sin(t*3+e.i)*.25;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.rotation.z=Math.sin(t*.7+e.i)*.15;}
-      else{M.position.y=0;e.wa=(e.wa||0)+.25;M.userData.wheels.forEach(w=>w.rotation.x=e.wa);M.userData.legs.forEach((l,j)=>l.rotation.x=Math.sin(e.wa+j*Math.PI)*.6);}}}
+      else{M.position.y=0;e.wa=(e.wa||0)+.25;M.userData.wheels.forEach(w=>w.rotation.x=e.wa);M.userData.legs.forEach((l,j)=>l.rotation.x=Math.sin(e.wa+j*Math.PI)*.6);if(M.userData.u)M.userData.u.uSw.value=Math.sin(e.wa*.6)*.7;}}}
   (function loop(){try{tick();}catch(err){if(!CRIT3.err){CRIT3.err=1;console.warn('crit3',err);}}requestAnimationFrame(loop);})();
 })();
 // ---------- The Basin lookout (Look Lab: ?toon until BASIN_LIVE is true) ----------
