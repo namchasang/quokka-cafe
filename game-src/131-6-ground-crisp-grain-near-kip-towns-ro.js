@@ -27,10 +27,10 @@ if(N&&N.groundMat)addGrain(N.groundMat,'diffuseColor.rgb*=pow(col,vec3(2.2));}')
   const sT=new THREE.DataTexture(sd,WX,WZ,THREE.RGBAFormat);sT.magFilter=sT.minFilter=THREE.LinearFilter;sT.needsUpdate=true;
   let nT=sT,NG=new THREE.Vector4(0,1,1,1);if(N){const D=N.data,n=N.NC*N.NRW,nd=new Uint8Array(n*4);for(let i=0;i<n;i++){nd[i*4]=D.SD[i]>=0?0:Math.min(255,Math.round(-D.SD[i]*8));nd[i*4+3]=255;}nT=new THREE.DataTexture(nd,N.NC,N.NRW,THREE.RGBAFormat);nT.magFilter=nT.minFilter=THREE.LinearFilter;nT.needsUpdate=true;NG.set(N.X0,N.CE,N.NC,N.NRW);}
   let soT=sT,SG=new THREE.Vector4(0,1,1,1),SG2=new THREE.Vector4(0,0,0,0);if(SOUTH){const S=SOUTH,n=S.NC*S.NRW,sd2=new Uint8Array(n*4);for(let i=0;i<n;i++){const v=S.data.SDs[i];sd2[i*4]=v>=0?0:Math.min(255,Math.round(-v*8));sd2[i*4+3]=255;}soT=new THREE.DataTexture(sd2,S.NC,S.NRW,THREE.RGBAFormat);soT.magFilter=soT.minFilter=THREE.LinearFilter;soT.needsUpdate=true;SG.set(S.T0,S.CE,S.NC,S.NRW);SG2.set(S.LA,S.RR,S.PX,S.PZ);}
-  const WU={uS:{value:sT},uN:{value:nT},uNG:{value:NG},uT:{value:0},uX1:{value:X1},uSo:{value:soT},uSG:{value:SG},uSG2:{value:SG2}};O.WU=WU;
+  const WU={uToon:{value:OWTOON?1:0},uS:{value:sT},uN:{value:nT},uNG:{value:NG},uT:{value:0},uX1:{value:X1},uSo:{value:soT},uSG:{value:SG},uSG2:{value:SG2}};O.WU=WU;
   const wm=new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,depthWrite:false});
   wm.onBeforeCompile=sh=>{Object.assign(sh.uniforms,WU);sh.vertexShader='varying vec2 vWW;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvWW=(modelMatrix*vec4(transformed,1.)).xz;');
-    sh.fragmentShader=`uniform sampler2D uS,uN,uSo;uniform vec4 uNG,uSG,uSG2;uniform float uT,uX1;varying vec2 vWW;
+    sh.fragmentShader=`uniform float uToon;uniform sampler2D uS,uN,uSo;uniform vec4 uNG,uSG,uSG2;uniform float uT,uX1;varying vec2 vWW;
 float wh(vec2 p){p=mod(p,1024.);vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float wn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(wh(i),wh(i+vec2(1.,0.)),f.x),mix(wh(i+vec2(0.,1.)),wh(i+vec2(1.,1.)),f.x),f.y);}
 float sdep(vec2 w){if(uSG2.y<1.)return 40.;float LA=uSG2.x,R=uSG2.y,PX=uSG2.z,PZ=uSG2.w,CX=PX+R,CZ=PZ+LA;vec2 st;
@@ -38,7 +38,13 @@ float sdep(vec2 w){if(uSG2.y<1.)return 40.;float LA=uSG2.x,R=uSG2.y,PX=uSG2.z,PZ
  float T1=uSG.x+uSG.y*(uSG.z-1.);if(st.x<0.||st.y<uSG.x||st.y>T1)return 40.;vec2 u=vec2((st.y-uSG.x)/uSG.y+.5,st.x/uSG.y+.5)/uSG.zw;return texture2D(uSo,u).r*31.875;}
 float wdep(vec2 w){if(w.y>=${WZ}.&&uSG2.y>0.)return sdep(w);if(w.y>=0.&&w.x>=0.&&w.x<${WX}.&&w.y<${WZ}.)return texture2D(uS,w/vec2(${WX}.,${WZ}.)).r*31.875;
  if(w.y<0.&&w.x>uNG.x&&w.x<uNG.x+uNG.y*(uNG.z-1.)){vec2 u=vec2((w.x-uNG.x)/uNG.y+.5,(-w.y)/uNG.y+.5)/uNG.zw;return texture2D(uN,u).r*31.875;}return 40.;}
-`+sh.fragmentShader.replace('#include <map_fragment>',`{vec2 pi=floor(vWW*3.),pp=(pi+.5)/3.;float d=wdep(pp)+(wn(pp*.35+uT*.05)-.5)*.6;bool sea=pp.x<37.5||pp.y<0.||pp.y>=float(${WZ});
+`+sh.fragmentShader.replace('#include <map_fragment>',`if(uToon>.5){vec2 wp=vWW;float d=wdep(wp)+(wn(wp*.35+uT*.05)-.5)*.5;bool sea=wp.x<37.5||wp.y<0.||wp.y>=float(${WZ});float dd=max(d,0.);
+ float n1=wn(wp*.35),n2=wn(wp*1.3+7.);vec3 bed=mix(vec3(.88,.86,.78),vec3(.78,.86,.80),smoothstep(.5,6.,dd));float gr=smoothstep(.6,.66,n1*.7+n2*.3)*smoothstep(4.,7.,dd);bed=mix(bed,vec3(.012,.05,.13),gr*.85);
+ float ca=abs(sin((wp.x+wn(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+wn(wp*1.9-uT*.2)*2.)*2.7));bed+=vec3(.12)*pow(1.-ca,7.)*(1.-smoothstep(2.,9.,dd))*(1.-gr);
+ float wd=clamp(.22+dd*.07,0.,.92);vec3 c=mix(bed,vec3(.03,.52,.56)*mix(1.,.6,gr),wd*(1.-gr*.5));c=mix(c,vec3(.02,.38,.59),smoothstep(7.,13.,dd));c=mix(c,vec3(.01,.09,.30),smoothstep(12.,30.,min(dd,30.)));
+ if(!sea)c=mix(vec3(.02,.10,.11),vec3(.006,.04,.08),smoothstep(.3,4.,dd))*(1.+(wn(wp*.7+uT*.2)-.5)*.08);// the river: a calm dark blue-green, no sandy shallows
+ float lace=smoothstep(.35,.65,wn(wp*5.+vec2(uT*.3,0.)))*.6+.4,ph=fract(uT*.08+wn(wp*.12)*.5);float f=exp(-pow((d-.12)/.07,2.))*lace+exp(-pow((d-(.3+ph*.9))/.06,2.))*(1.-ph)*.8*lace;if(!sea)f*=.25;
+ c=mix(c,vec3(.97),clamp(f,0.,1.)*.9);diffuseColor=vec4(c,d<.05?0.:.97);}else{vec2 pi=floor(vWW*3.),pp=(pi+.5)/3.;float d=wdep(pp)+(wn(pp*.35+uT*.05)-.5)*.6;bool sea=pp.x<37.5||pp.y<0.||pp.y>=float(${WZ});
  float bb=(mod(pi.x*2.+pi.y*3.,4.)-1.5)*.18;float k=d<.9?0.:d<2.2?1.:d<4.?2.:d<7.?3.:d<11.?4.:d<17.?5.:6.;if(!sea)k=d<.7?0.:d<1.6?1.:d<3.?2.:d<5.?3.:d<8.?4.:5.;
  k=clamp(floor(k+bb),0.,6.);vec3 S0=vec3(.56,.88,.82),S1=vec3(.36,.8,.78),S2=vec3(.23,.69,.75),S3=vec3(.16,.56,.69),S4=vec3(.13,.43,.63),S5=vec3(.09,.33,.54),S6=vec3(.07,.24,.44);
  vec3 c=k<.5?S0:k<1.5?S1:k<2.5?S2:k<3.5?S3:k<4.5?S4:k<5.5?S5:S6;if(!sea)c=mix(c,vec3(.25,.48,.5),.35);

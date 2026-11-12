@@ -59,6 +59,10 @@ function L2paint(mesh,gc){
     P(['#8a7a58','#a08e66','#b8a476','#ccb886','#dcc898','#e8d8aa','#f4e6be','#9aa070','#b0b47c']),// 3 sand and dune grass
     P(['#28382a','#324632','#3e5438','#4a6440','#58744a','#6a8456','#7e9666','#9c9468','#b0623e','#a86848']),// 4 heath on the hills
     P(['#2f4a24','#3c5e2c','#4a7232','#5a863a','#6e9a44','#86ae52','#a2c068','#5e5c32','#76703c','#8c8446','#a29a54','#b8ae66','#a8583c','#c06c48','#d4845a'])];// 5 turf, dry grass, red dirt
+  if(OWTOON){// Rottnest recipe (Paul, Nov 2026): very white sand, the Tree Lab lawn greens, the seabed pale sand
+    PAL[0]=P(['#f2eedf','#e6e8dc','#c8e2d8','#9ad2cc','#5ab8c0','#2a8aa8','#1a5c8a']);
+    PAL[3]=P(['#cfc5a8','#d9cfb3','#e2d9bf','#e9e1ca','#eee7d2','#f2ecda','#f5f0e2','#8ab070','#a2c080']);
+    PAL[5]=P(['#3a6a30','#447234','#4c7c3a','#55883f','#5f9146','#6a9b4b','#76a652','#6a7a40','#7a8448','#8a8e50','#9a985a','#aaa266','#a8583c','#c06c48','#d4845a']);}
   const BAY=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];L2.PAL=PAL;
   const cv=document.createElement('canvas');cv.width=CW;cv.height=CH;const g=cv.getContext('2d');const img=g.createImageData(CW,CH),D=img.data;
   const ASP=hx('#5c5e62'),KERB=hx('#c8c4b8'),WET=hx('#b4a47e'),FOAM=hx('#f4f4ec'),VERGE=P(['#b8ae8a','#a8a07c','#c8bc98','#9a9470']);
@@ -102,7 +106,7 @@ function L2paint(mesh,gc){
     g.strokeStyle='#f4f2ec';g.lineWidth=.12;g.beginPath();g.ellipse(0,0,3.6,2.5,0,0,7);g.stroke();g.fillStyle='#d8c89a';g.fillRect(-.25,-.6,.5,1.2);g.restore();// an oval with its cricket pitch
     for(let k=0;k<10;k++){const t=k/10*6.283;TREES2.push([x+ca2(t+a)*4.6*1.06,z+sa2(t+a)*3.3*1.06,L2hash(x+k,z)<.3?0:1]);}});
   L2.HOUSES=HOUSES;L2.PARKS=PARKS;L2.TREES2=TREES2;L2.canvas=cv;L2.g=g;L2.KK=KK;L2.RV=RV;
-  const t=new THREE.CanvasTexture(cv);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.anisotropy=4;t.encoding=THREE.sRGBEncoding;L2.tex=t;
+  const t=new THREE.CanvasTexture(cv);t.magFilter=OWTOON?THREE.LinearFilter:THREE.NearestFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.anisotropy=4;t.encoding=THREE.sRGBEncoding;L2.tex=t;
   mesh.material=new THREE.MeshStandardMaterial({map:t,roughness:.95});
   // houses and fences stop Kip and the car (streets and parks stay open)
   BLOCK=new Uint8Array(N);HOUSES.forEach(h=>{for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){const x=Math.round(h.x+dx*.9-.5),z=Math.round(h.z+dz*.9-.5);if(x>=0&&z>=0&&x<WX&&z<WZ)BLOCK[z*WX+x]=1;}});
@@ -178,6 +182,9 @@ function L2objects(){if(!L2)return;
   for(let k=0;k<16;k++){const s3=new THREE.Sprite(new THREE.SpriteMaterial({map:clT,transparent:true,opacity:.92,fog:false,depthWrite:false}));const sc=36+RR()*30;s3.scale.set(sc,sc*.375,1);s3.position.set(RR()*WX*1.4-WX*.2,48+RR()*26,RR()*WZ*1.4-WZ*.2);s3.userData.L='lights';scene.add(s3);L2.clouds.push(s3);}
 }
 
+// Rottnest recipe on the outer world (?ow2&toon): every pixel skin drawn smooth (trees, buildings, props, roads)
+if(OWTOON){const done=new Set();const sm=t=>{if(!t||done.has(t)||t.magFilter!==THREE.NearestFilter)return;done.add(t);t.magFilter=THREE.LinearFilter;if(t.image&&(t.image.width&(t.image.width-1))===0&&(t.image.height&(t.image.height-1))===0){t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;}t.anisotropy=8;t.needsUpdate=true;};
+  const pass=()=>scene.traverse(o=>{if(!o.material)return;(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{['map','emissiveMap'].forEach(k=>sm(m[k]));});});pass();setTimeout(pass,4000);setTimeout(pass,15000);}
 $('ow_back').onclick=()=>hooks.back();
 return{open(from){const t=TOWNS.find(t=>t.id===from);let x,z;if(from==='island'||!t){x=ROTT.x+3;z=ROTT.z+2;}else{x=t.x+7;z=t.z+5;for(let r=0;r<30&&!canGo(x,z);r++){x=t.x+7+Math.cos(r)*r*.6;z=t.z+5+Math.sin(r)*r*.6;}}
     ST.inCar=false;ST.ride=null;ST.speed=0;ST.x=x;ST.z=z;let cx=x+3,cz=z;for(let r=0;r<40;r++){const a=r*.7;if(onRoad(x+Math.cos(a)*r*.5,z+Math.sin(a)*r*.5,2)){cx=x+Math.cos(a)*r*.5;cz=z+Math.sin(a)*r*.5;break;}}ST.carX=cx;ST.carZ=cz;ST.inCar=true;ST.x=cx;ST.z=cz;// always in the car (Paul, Nov 2026): no walking in the outer world; places are entered from the car

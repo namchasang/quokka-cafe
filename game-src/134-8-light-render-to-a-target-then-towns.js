@@ -46,4 +46,5 @@ O.render=function(dt){dt=Math.max(0,Math.min(.05,dt||0));O.t+=dt;const t=O.t;PU.
   if(Math.hypot(px-O.tuftAt[0],pz-O.tuftAt[1])>3){O.tuft(px,pz);O.tuftAt=[px,pz];}
   if(((t*4)|0)!==O.ck){O.ck=(t*4)|0;const cx=cam.position.x,cz=cam.position.z;O.chunks.forEach(c=>{const u=c.userData.c;c.visible=Math.hypot(u[0]-cx,u[1]-cz)<360+u[2];});}
   renderer.getDrawingBufferSize(vs);if(rt.width!==vs.x||rt.height!==vs.y){rt.setSize(vs.x,vs.y);post.uniforms.res.value.copy(vs);}
+  if(OWTOON){renderer.setRenderTarget(null);renderer.render(scene,cam);return;}// no filter, like the Tree Lab
   renderer.setRenderTarget(rt);renderer.render(scene,cam);renderer.setRenderTarget(null);renderer.render(pScene,pCam);};
