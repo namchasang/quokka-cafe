@@ -126,8 +126,8 @@ function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.
     else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
     else if(SG&&!SL&&SG.g.t!=='sand'&&!(SG.g.t!=='tarmac'&&d<beachW)){const t=SG.g.t;if(t==='fairway')c=((Math.floor((SG.u*SG.g.rx+40)/1.6))&1)?[132,196,96]:[146,208,108];else if(t==='green')c=r<.5?[118,198,98]:[126,206,104];else if(t==='bunker')c=r<.5?[240,226,188]:[232,216,176];else c=Math.abs(SG.v)<.08&&((Math.floor((SG.u*SG.g.rx+40)/1.4))&1)?[240,240,232]:(r<.5?[108,112,120]:[118,122,128]);}
     else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(TOON_SAND){// ?toon: the Tree Lab beach, a smooth warm gradient from wet sand at the water to pale dry sand, then golden at the back
-      const u=Math.min(1,d/Math.max(1,beachW)),L=[[0,[181,157,108]],[.14,[201,176,124]],[.28,[230,210,156]],[.85,[234,217,166]],[1,[214,196,140]]];let a=L[0],b=L[L.length-1];for(let q=1;q<L.length;q++)if(u<=L[q][0]){a=L[q-1];b=L[q];break;}
-      const f=(u-a[0])/((b[0]-a[0])||1),sp=(r<.5?.985:1.015)+(n2-.5)*.04;c=[0,1,2].map(q=>(a[1][q]+(b[1][q]-a[1][q])*f)*sp);if(r>.992)c=c.map(v=>v*1.06);else if(r<.006)c=c.map(v=>v*.86);}
+      const u=Math.min(1,d/Math.max(1,beachW)),L=[[0,[176,150,116]],[.14,[196,172,138]],[.3,[214,192,158]],[.85,[220,200,166]],[1,[206,186,150]]];let a=L[0],b=L[L.length-1];for(let q=1;q<L.length;q++)if(u<=L[q][0]){a=L[q-1];b=L[q];break;}
+      const f=(u-a[0])/((b[0]-a[0])||1),sp=(r<.5?.985:1.015)+(n2-.5)*.04;c=[0,1,2].map(q=>(a[1][q]+(b[1][q]-a[1][q])*f)*sp*(u<.5?1-.035*Math.max(0,Math.sin(d*11+n1*3)):1));if(r>.992)c=c.map(v=>v*1.06);else if(r<.006)c=c.map(v=>v*.86);}
     else if(d<.42)c=[222,214,196];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
     else{let t=n1*.62+n2*.38+(r-.5)*.2;if(d<beachW+.8)t+=.18;c=G[t<.32?0:t<.46?1:t<.6?2:t<.72?3:4];
       if(r>.9966)c=[244,220,90];else if(r>.9956)c=[255,255,255];else if(r>.986)c=[176,206,122];else if(r<.014)c=[78,116,56];}

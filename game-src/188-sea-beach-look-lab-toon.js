@@ -24,15 +24,20 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
       sh.fragmentShader=pre+sh.fragmentShader.replace('#include <map_fragment>',`
         vec2 wp=vec2(vWp3.x*uMir,vWp3.z);float d0=s3d(wp);if(uBand>.5&&(d0<0.||d0>1.6))discard;float d=s3d(wp+vec2(sin(uT*.5+wp.y*.9),cos(uT*.4+wp.x*.8))*.06*(1.-uBand));
         float wob=(s3n(wp*.35+uT*.05)-.5)*1.2;float dd=max(d+wob*.35,0.);
-        // Tree Lab sea: sand shows through the shallows, then turquoise, then a calm deep blue
-        vec3 c=mix(${SR('#d8cba0')},${SR('#9adccc')},smoothstep(0.,.7,dd));c=mix(c,${SR('#3fb0c4')},smoothstep(.6,2.6,dd));c=mix(c,${SR('#1f86b4')},smoothstep(2.2,5.5,dd));c=mix(c,${SR('#165c92')},smoothstep(5.,10.,dd));
-        c*=1.+(s3n(wp*.7+vec2(uT*.25,-uT*.15))-.5)*.07+(s3n(wp*1.9-vec2(uT*.35,uT*.2))-.5)*.04;
-        float gl=s3n(wp*3.1+vec2(uT*.7,uT*.4))*s3n(wp*2.2-vec2(uT*.45,-uT*.6));c+=vec3(.25)*smoothstep(.7,.85,gl)*smoothstep(1.,3.,dd);
-        float br=smoothstep(.2,.8,s3n(wp*1.4+vec2(uT*.1,0.)));
-        float ph=fract(uT*.09+s3n(wp*.15)*.6);
-        float f1=exp(-pow((d-.16)/.09,2.))*(.7+.3*br)*(.65+.35*s3n(wp*6.));
-        float f2=exp(-pow((d-(.25+ph*1.1))/.09,2.))*(1.-ph)*.65*br*(.5+.5*s3n(wp*5.+uT));
-        c=mix(c,${SR('#fbfaf4')},clamp(f1+f2,0.,1.)*.8);
+        // Paul's reference (Nov 2026): clear green-teal water you can see the seabed through (sand, darker weed patches, pebbles,
+        // dancing light), deepening to a teal blue; a thin lacy foam line on the sand and a second one just behind it
+        float n1=s3n(wp*.35),n2=s3n(wp*1.3+7.),n3=s3n(wp*4.5+3.);
+        vec3 bed=mix(${SR('#cdb994')},${SR('#9aa27a')},smoothstep(.3,3.,dd));bed=mix(bed,${SR('#3f6a52')},smoothstep(.55,.75,n1*.7+n2*.3)*smoothstep(.4,1.5,dd)*.85);
+        bed*=.9+.2*n3;float peb=smoothstep(.82,.9,s3n(wp*6.+n1*2.));bed=mix(bed,${SR('#5e5a4a')},peb*.6*smoothstep(.3,1.,dd));
+        float ca=abs(sin((wp.x+s3n(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+s3n(wp*1.9-uT*.2)*2.)*2.7));bed+=vec3(.10,.12,.10)*pow(1.-ca,6.)*(1.-smoothstep(1.,5.,dd));
+        float wd=clamp(.28+dd*.11,0.,.95);vec3 c=mix(bed,${SR('#2aa394')},wd);c=mix(c,${SR('#1b7f8e')},smoothstep(4.,10.,dd));c=mix(c,${SR('#14607e')},smoothstep(9.,16.,dd));
+        c*=1.+(s3n(wp*.7+vec2(uT*.25,-uT*.15))-.5)*.06;
+        float lace=smoothstep(.35,.65,s3n(wp*5.+vec2(uT*.3,0.)))*.6+.4;
+        float ph=fract(uT*.08+s3n(wp*.12)*.5);
+        float f1=exp(-pow((d-.12)/.06,2.))*lace;
+        float f2=exp(-pow((d-(.3+ph*.9))/.05,2.))*(1.-ph)*.8*lace;
+        float f3=exp(-pow((d-.55)/.05,2.))*.35*lace*smoothstep(.4,.7,s3n(wp*.8+uT*.05));
+        c=mix(c,${SR('#fbfaf4')},clamp(f1+f2+f3,0.,1.)*.9);
         diffuseColor.rgb=c;`);};m.customProgramCacheKey=()=>'sea3'+band;return m;};const seaM=mkSea(0);
     const ext=60,x1=TB.x1-ext,x2=Math.min(99.5,TB.x2+ext),z1=TB.z1-ext,z2=TB.z2+ext;
     // it lies under every ground mesh (the settlement lawns are separate meshes over the grid's water) and over the old pixel water layers

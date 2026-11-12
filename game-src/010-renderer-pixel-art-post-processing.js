@@ -4,6 +4,8 @@ const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-pe
 const TOONR=/[?&#]toon\b/.test(location.search+location.hash);// ?toon: render like the Tree Lab (Paul, Nov 2026): sharper screen, no pixel post grade
 const DPR=Math.min(window.devicePixelRatio||1,/[?&#]px4\b/.test(location.search+location.hash)||TOONR?2:1.5);// Look Lab ?px4: sharper screen
 renderer.setPixelRatio(DPR);
+// ?toon (Paul, Nov 2026: 'take the filter off, I want the Tree Lab colours'): straight to the screen like the lab, sRGB output with ACES tone mapping, no post pass (?toon&post keeps the old filter to compare)
+const TOONR_POST=/[?&#]post\b/.test(location.search+location.hash);if(TOONR&&!TOONR_POST){renderer.toneMapping=THREE.NoToneMapping;}
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 stage.appendChild(renderer.domElement);
 const scene=new THREE.Scene();

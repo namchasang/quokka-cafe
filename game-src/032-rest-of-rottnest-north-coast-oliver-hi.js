@@ -28,7 +28,14 @@ const WEST={};
       if(cab){add(new THREE.BoxGeometry(.02,.36,.3),GL,1.71,1.24,-.2);add(new THREE.BoxGeometry(.02,.36,.3),GL,1.71,1.24,.2);add(new THREE.CylinderGeometry(.06,.06,.03,10),CR,1.72,.72,0).rotation.z=Math.PI/2;}
       const rg=new THREE.CylinderGeometry(.5,.5,3.5,18);rg.rotateZ(Math.PI/2);const roof=add(rg,RF,0,1.52,0);roof.scale.set(1,.26,1);add(new THREE.BoxGeometry(3.5,.06,1),RF,0,1.5,0);
       add(new THREE.BoxGeometry(3.3,.22,.7),DK,0,.27,0);[-1,1].forEach(e=>add(new THREE.BoxGeometry(.7,.18,.86),ST,e*1.05,.2,0));
-      if(i===0)add(new THREE.BoxGeometry(.25,.1,.95),DK,1.78,.32,0);});}
+      if(i===0)add(new THREE.BoxGeometry(.25,.1,.95),DK,1.78,.32,0);});
+    // the second car is its own body that follows the rails behind the first (Paul: each car turns on the track by itself)
+    {const car2=tr.children[1];tr.remove(car2);car2.position.set(0,0,0);scene.add(car2);WEST.car2=car2;const GAP=3.55,F=new THREE.Vector3();
+      const proj=(x,z)=>{const R=WEST.rail;let best=null,acc=0;for(let i=0;i<R.length-1;i++){const a=R[i],b=R[i+1],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz)||1e-6;let t=((x-a[0])*dx+(z-a[1])*dz)/(L*L);t=Math.max(0,Math.min(1,t));const px=a[0]+dx*t,pz=a[1]+dz*t,d=Math.hypot(x-px,z-pz);if(!best||d<best.d)best={d,s:acc+L*t,tx:dx/L,tz:dz/L};acc+=L;}best.tot=acc;return best;};
+      const at=s=>{const R=WEST.rail;let acc=0;for(let i=0;i<R.length-1;i++){const a=R[i],b=R[i+1],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(s<=acc+L||i===R.length-2){const t=Math.max(0,Math.min(1,(s-acc)/(L||1)));return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,(b[0]-a[0])/(L||1),(b[1]-a[1])/(L||1)];}acc+=L;}return[R[0][0],R[0][1],1,0];};
+      (function loop(){try{car2.visible=tr.visible&&tr.parent===scene;if(car2.visible&&WEST.rail&&WEST.rail.length>1){const p=proj(tr.position.x,tr.position.z);const fx=Math.cos(-tr.rotation.y),fz=Math.sin(-tr.rotation.y),dir=(fx*p.tx+fz*p.tz)>=0?1:-1;
+          const q=at(Math.max(0,Math.min(p.tot,p.s-dir*GAP)));car2.position.set(q[0],tr.position.y,q[1]);let hx=q[2]*dir,hz=q[3]*dir;car2.rotation.y=-Math.atan2(hz,hx);}}catch(e){}requestAnimationFrame(loop);})();}
+  }
   scene.add(tr);WEST.train=tr;
   // Parker Point, Little Salmon Bay, Strickland Bay
   signPost(62.5,5.6,makeSign(['PARKER POINT','SNORKEL TRAIL'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(70.6,5,makeSign(['LITTLE SALMON','BAY'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(82.6,5.4,makeSign(['STRICKLAND','BAY · SURF'],52,20,'#e8735a','#ffffff'),1,.5);
