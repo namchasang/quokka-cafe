@@ -1576,6 +1576,7 @@ function col(x1,z1,x2,z2){colliders.push({x1,z1,x2,z2});}
 // Places in a plateau keep their exact layout (the Settlement and café); everything else moves to where it sits
 // on the 2.5x island. Small groups of objects (a sign and its post, a kiosk and its stools) move together.
 // Old coordinates written in code go through IW() to find their new spot.
+const TOON_SAND=/[?&#]toon\b/.test(location.search+location.hash);// ?toon: a damp darker band of wet sand at the waterline (Paul, Nov 2026)
 const ISL={KX:3,KZ:2,PX:97,PZ:1.7,done:false,cl:[],late:[],plat:[
   {n:'settlement',x:-10,z:1,R:26,T:7}]};
 function isS1(x,z){return[ISL.PX+(x-ISL.PX)*ISL.KX,ISL.PZ+(z-ISL.PZ)*ISL.KZ];}
@@ -1691,7 +1692,7 @@ function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.
     else if(le<1.38+(r-.5)*.12||(SL&&SG.e<1.38+(r-.5)*.12))c=r<.5?[242,236,224]:[226,214,196];
     else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
     else if(SG&&!SL&&SG.g.t!=='sand'&&!(SG.g.t!=='tarmac'&&d<beachW)){const t=SG.g.t;if(t==='fairway')c=((Math.floor((SG.u*SG.g.rx+40)/1.6))&1)?[132,196,96]:[146,208,108];else if(t==='green')c=r<.5?[118,198,98]:[126,206,104];else if(t==='bunker')c=r<.5?[240,226,188]:[232,216,176];else c=Math.abs(SG.v)<.08&&((Math.floor((SG.u*SG.g.rx+40)/1.4))&1)?[240,240,232]:(r<.5?[108,112,120]:[118,122,128]);}
-    else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(d<.42)c=[222,214,196];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
+    else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(d<.42)c=TOON_SAND?(d<.16?[176,156,116]:[198,180,140]):[222,214,196];else if(TOON_SAND&&d<.75)c=[214,198,160];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
     else{let t=n1*.62+n2*.38+(r-.5)*.2;if(d<beachW+.8)t+=.18;c=G[t<.32?0:t<.46?1:t<.6?2:t<.72?3:4];
       if(r>.9966)c=[244,220,90];else if(r>.9956)c=[255,255,255];else if(r>.986)c=[176,206,122];else if(r<.014)c=[78,116,56];}
     const b=1+(vnoise(wx*.05+40,z*.05)-.5)*.14;const k=(j*W+i)*4;D[k]=c[0]*b;D[k+1]=c[1]*b;D[k+2]=c[2]*b;D[k+3]=255;}}}
@@ -18189,6 +18190,49 @@ const PAINT={on:PAINT_LIVE||/[?&#]toon\b/.test(location.search+location.hash),gr
       o.material=Array.isArray(m)?m.map(smoothMat):smoothMat(m);});}
   [0,2500,8000,20000].forEach(t=>setTimeout(()=>{try{pass();}catch(e){console.warn('paint pass',e);}},t));
   setTimeout(()=>{try{console.log('T3D paint ground '+PAINT.ground+' mats '+PAINT.mats);}catch(e){}},21000);
+})();
+// ---------- Sea and beach like the Tree Lab, Rottnest only (Look Lab: ?toon until SEA3_LIVE is true) ----------
+// Paul (Nov 2026): no more pixel water round the island. The sea is one smooth shaded plane: clear turquoise over the sand at the
+// shore deepening to a dark blue, gentle moving ripples and glints, a white foam line on the beach and swash bands that run up the
+// sand and fade. On the land side a damp darker band of wet sand follows the waterline. It reads the island's own distance-to-shore
+// grid (Dg), so every bay, reef edge and jetty keeps its shape. Other maps keep their water.
+const SEA3_LIVE=false;
+const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),built:false};
+(function(){if(!SEA3.on)return;
+  const SR=c=>{const k=new THREE.Color(c);k.convertSRGBToLinear();return `vec3(${k.r.toFixed(4)},${k.g.toFixed(4)},${k.b.toFixed(4)})`;};
+  const NOISE=`float s3h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+    float s3n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(s3h(i),s3h(i+vec2(1,0)),f.x),mix(s3h(i+vec2(0,1)),s3h(i+vec2(1,1)),f.x),f.y);}`;
+  function build(){if(SEA3.built)return;SEA3.built=true;
+    // depth texture from the island grid: r = (water depth + 2) / 12, clamped (land is below 2/12)
+    const W=GW,Hh=GH,data=new Uint8Array(W*Hh*4);
+    for(let j=0;j<Hh;j++)for(let i=0;i<W;i++){const k=j*W+i,d=-Dg[k],v=Math.max(0,Math.min(255,Math.round((d+2)/12*255)));data[k*4]=v;data[k*4+1]=v;data[k*4+2]=v;data[k*4+3]=255;}
+    const tD=new THREE.DataTexture(data,W,Hh,THREE.RGBAFormat);tD.magFilter=THREE.LinearFilter;tD.minFilter=THREE.LinearFilter;tD.wrapS=tD.wrapT=THREE.ClampToEdgeWrapping;tD.needsUpdate=true;
+    const U={tD:{value:tD},uB:{value:new THREE.Vector4(TB.x1,TB.z1,(GW-1)/GR,(GH-1)/GR)},uT:{value:0},uMir:{value:1}};// uMir: the island scene may be drawn mirrored (scene.scale.x = -1)
+    const pre=`uniform sampler2D tD;uniform vec4 uB;uniform float uT;uniform float uMir;varying vec3 vWp3;\n${NOISE}
+      float s3d(vec2 p){vec2 uv=(p-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)return 10.;return texture2D(tD,uv).r*12.-2.;}`;
+    const vtx=sh=>{sh.vertexShader='varying vec3 vWp3;\n'+sh.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvWp3=(modelMatrix*vec4(transformed,1.)).xyz;');};
+    // --- the sea ---
+    const seaM=new THREE.MeshLambertMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2});
+    seaM.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);vtx(sh);
+      sh.fragmentShader=pre+sh.fragmentShader.replace('#include <map_fragment>',`
+        vec2 wp=vec2(vWp3.x*uMir,vWp3.z);float d=s3d(wp+vec2(sin(uT*.5+wp.y*.9),cos(uT*.4+wp.x*.8))*.06);
+        float wob=(s3n(wp*.35+uT*.05)-.5)*1.2;float dd=max(d+wob*.35,0.);
+        vec3 c=mix(${SR('#7fd6c8')},${SR('#36b4c6')},smoothstep(0.,2.2,dd));c=mix(c,${SR('#1d84b6')},smoothstep(1.8,5.,dd));c=mix(c,${SR('#1a64a0')},smoothstep(4.5,9.5,dd));
+        c*=1.+(s3n(wp*.9+vec2(uT*.35,-uT*.2))-.5)*.10+(s3n(wp*2.3-vec2(uT*.5,uT*.3))-.5)*.06;
+        float gl=s3n(wp*3.1+vec2(uT*.7,uT*.4))*s3n(wp*2.2-vec2(uT*.45,-uT*.6));c+=vec3(.55)*smoothstep(.62,.8,gl)*smoothstep(.4,2.5,dd);
+        float br=smoothstep(.25,.75,s3n(wp*1.4+vec2(uT*.1,0.)));
+        float f1=exp(-pow((d-.38)/.15,2.))*(.75+.25*br);
+        float ph=fract(uT*.11+s3n(wp*.15)*.6);float f2=exp(-pow((d-(.45+ph*1.4))/.12,2.))*(1.-ph)*.85*br;
+        float f3=exp(-pow((d-(1.2+fract(uT*.07+.5)*1.8))/.09,2.))*.28*br;
+        c=mix(c,${SR('#ffffff')},clamp(f1+f2+f3,0.,1.)*.92);
+        diffuseColor.rgb=c;`);};
+    const ext=60,x1=TB.x1-ext,x2=Math.min(99.5,TB.x2+ext),z1=TB.z1-ext,z2=TB.z2+ext;
+    // it lies under every ground mesh (the settlement lawns are separate meshes over the grid's water) and over the old pixel water layers
+    const sea=flat(x2-x1,z2-z1,seaM,(x1+x2)/2,-.09,(z1+z2)/2);sea.receiveShadow=true;sea.renderOrder=-1;sea.name='sea3';
+    // wet sand is painted into the ground itself (part 016, beach rule, ?toon): an overlay would also darken the settlement lawns
+    sea.onBeforeRender=()=>{U.uT.value=performance.now()/1000;U.uMir.value=scene.scale.x<0?-1:1;};
+    SEA3.sea=sea;}
+  const wait=()=>{if(typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'){try{build();}catch(e){console.error('sea3',e);}return;}setTimeout(wait,400);};wait();
 })();
 // ---- auth ----
 function authLoad(){try{AUTH.s=JSON.parse(localStorage.getItem('qc-auth')||'null');}catch(e){AUTH.s=null;}}

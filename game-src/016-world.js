@@ -9,6 +9,7 @@ function col(x1,z1,x2,z2){colliders.push({x1,z1,x2,z2});}
 // Places in a plateau keep their exact layout (the Settlement and café); everything else moves to where it sits
 // on the 2.5x island. Small groups of objects (a sign and its post, a kiosk and its stools) move together.
 // Old coordinates written in code go through IW() to find their new spot.
+const TOON_SAND=/[?&#]toon\b/.test(location.search+location.hash);// ?toon: a damp darker band of wet sand at the waterline (Paul, Nov 2026)
 const ISL={KX:3,KZ:2,PX:97,PZ:1.7,done:false,cl:[],late:[],plat:[
   {n:'settlement',x:-10,z:1,R:26,T:7}]};
 function isS1(x,z){return[ISL.PX+(x-ISL.PX)*ISL.KX,ISL.PZ+(z-ISL.PZ)*ISL.KZ];}
@@ -124,7 +125,7 @@ function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.
     else if(le<1.38+(r-.5)*.12||(SL&&SG.e<1.38+(r-.5)*.12))c=r<.5?[242,236,224]:[226,214,196];
     else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
     else if(SG&&!SL&&SG.g.t!=='sand'&&!(SG.g.t!=='tarmac'&&d<beachW)){const t=SG.g.t;if(t==='fairway')c=((Math.floor((SG.u*SG.g.rx+40)/1.6))&1)?[132,196,96]:[146,208,108];else if(t==='green')c=r<.5?[118,198,98]:[126,206,104];else if(t==='bunker')c=r<.5?[240,226,188]:[232,216,176];else c=Math.abs(SG.v)<.08&&((Math.floor((SG.u*SG.g.rx+40)/1.4))&1)?[240,240,232]:(r<.5?[108,112,120]:[118,122,128]);}
-    else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(d<.42)c=[222,214,196];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
+    else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(d<.42)c=TOON_SAND?(d<.16?[176,156,116]:[198,180,140]):[222,214,196];else if(TOON_SAND&&d<.75)c=[214,198,160];else{const t=n2+(r-.5)*.3;c=t>.62?[253,251,244]:t<.35?[236,230,216]:[246,242,232];if(Math.sin(z*5.3+n1*7+wx*.4)>.93)c=[232,226,212];if(r>.996)c=[255,255,255];else if(r<.003)c=[198,160,120];}}
     else{let t=n1*.62+n2*.38+(r-.5)*.2;if(d<beachW+.8)t+=.18;c=G[t<.32?0:t<.46?1:t<.6?2:t<.72?3:4];
       if(r>.9966)c=[244,220,90];else if(r>.9956)c=[255,255,255];else if(r>.986)c=[176,206,122];else if(r<.014)c=[78,116,56];}
     const b=1+(vnoise(wx*.05+40,z*.05)-.5)*.14;const k=(j*W+i)*4;D[k]=c[0]*b;D[k+1]=c[1]*b;D[k+2]=c[2]*b;D[k+3]=255;}}}

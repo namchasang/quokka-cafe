@@ -191,5 +191,6 @@
 188-tree3d-leaf-card-trees-look-lab-tree3d.js
 188-toon-characters-look-lab-toon.js
 188-paint-look-look-lab-toon.js
+188-sea-beach-look-lab-toon.js
 188-auth.js
 189-photo-mode-shot-x-z-hour-weather-zoom.js
