@@ -5,13 +5,13 @@
 // "Copy edits" gives a QCOW1 list to paste to Claude, who builds it into the game for real.
 if(/[?&#]owedit\b/.test(location.search+location.hash))try{(()=>{const KEY='qc-ow-edits-v1';let E=[];try{E=JSON.parse(localStorage.getItem(KEY)||'[]');}catch(e){E=[];}
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(E));}catch(e){}info();};const r1=v=>Math.round(v*10)/10;
-  const ED={on:true,tool:'pan',kind:'street',item:'tree',R:3,cx:ST.carX,cz:ST.carZ,h:70,draw:null,sel:null,applied:false};O.editor=ED;
+  const ED={on:true,blocks:true,zone:'res',tool:'pan',kind:'street',item:'tree',R:3,cx:ST.carX,cz:ST.carZ,h:70,draw:null,sel:null,applied:false};O.editor=ED;
   // ---------- panel ----------
   const st=document.createElement('style');st.textContent=`#owEd{position:absolute;left:8px;bottom:8px;z-index:30;background:rgba(20,26,46,.92);color:#f4f2ec;font:12px/1.3 system-ui,sans-serif;border-radius:10px;padding:8px;max-width:min(560px,96vw);box-shadow:0 4px 18px rgba(0,0,0,.4)}
 #owEd .r{display:flex;flex-wrap:wrap;gap:4px;margin:3px 0}#owEd button{background:#2c3557;color:#f4f2ec;border:1px solid #4a5480;border-radius:7px;padding:6px 8px;font:inherit;cursor:pointer;touch-action:manipulation}
 #owEd button.on{background:#e8b860;color:#1a1a1a;border-color:#e8b860}#owEd .h{opacity:.75;font-size:11px}#owEd b{color:#e8b860}`;document.head.appendChild(st);
   const P=document.createElement('div');P.id='owEd';(document.getElementById('owRoot')||document.body).appendChild(P);
-  const TOOLS=[['pan','Move map'],['select','Pick'],['road','Road'],['rail','Railway'],['item','Add item'],['erase','Erase'],['land','Land'],['water','Water'],['raise','Raise'],['lower','Lower'],['flat','Flatten']];
+  const TOOLS=[['pan','Move map'],['select','Pick'],['road','Road'],['rail','Railway'],['item','Add item'],['zone','Zone'],['erase','Erase'],['land','Land'],['water','Water'],['raise','Raise'],['lower','Lower'],['flat','Flatten']];
   const KINDS=[['lane','Lane (cul-de-sac)'],['street','Street 2 lanes'],['road','Road 4 lanes'],['fwy','Freeway']];
   const ITEMS=[['tree','Tree'],['palm','Palm'],['house','House'],['shop','Shop'],['tower','Tower'],['station','Station'],['carpark','Car park'],['oval','Sports oval'],['court','Sports court'],['play','Playground'],['lamp','Lamp'],['bench','Bench'],['sign','Sign']];
   const btn=(row,id,lab,on,f)=>{const b=document.createElement('button');b.textContent=lab;if(on)b.className='on';b.onclick=e=>{e.stopPropagation();f(id);};row.appendChild(b);return b;};
@@ -19,7 +19,9 @@ if(/[?&#]owedit\b/.test(location.search+location.hash))try{(()=>{const KEY='qc-o
     const r=n=>{const d=document.createElement('div');d.className='r';P.appendChild(d);return d;};
     const a=r();TOOLS.forEach(([id,l])=>btn(a,id,l,ED.tool===id,t=>{finish();ED.tool=t;render();}));
     if(ED.tool==='road'){const b=r();KINDS.forEach(([id,l])=>btn(b,id,l,ED.kind===id,k=>{ED.kind=k;render();}));}
-    if(ED.tool==='road'||ED.tool==='rail'){const b=r();btn(b,0,'On the ground',0,()=>{ED.bridge=false;render();}).className=ED.bridge?'':'on';btn(b,0,'Bridge / overpass',0,()=>{ED.bridge=true;render();}).className=ED.bridge?'on':'';btn(b,0,'Finish line',0,finish);btn(b,0,'Cancel line',0,()=>{dropDraw();render();});}
+    if(ED.tool==='road'){const b=r();btn(b,0,'Blocks (tap / drag)',0,()=>{finish();ED.blocks=true;render();}).className=ED.blocks?'on':'';btn(b,0,'Line (point by point)',0,()=>{ED.blocks=false;render();}).className=ED.blocks?'':'on';}
+    if((ED.tool==='road'&&!ED.blocks)||ED.tool==='rail'){const b=r();btn(b,0,'On the ground',0,()=>{ED.bridge=false;render();}).className=ED.bridge?'':'on';btn(b,0,'Bridge / overpass',0,()=>{ED.bridge=true;render();}).className=ED.bridge?'on':'';btn(b,0,'Finish line',0,finish);btn(b,0,'Cancel line',0,()=>{dropDraw();render();});}
+    if(ED.tool==='zone'){const b=r();[['res','Houses'],['com','Shops'],['office','Towers'],['park','Park'],['car','Car parks']].forEach(([id,l])=>btn(b,id,l,ED.zone===id,k=>{ED.zone=k;render();}));const h=document.createElement('span');h.className='h';h.textContent=' drag a box to fill it';b.appendChild(h);}
     if(ED.tool==='item'){const b=r();ITEMS.forEach(([id,l])=>btn(b,id,l,ED.item===id,k=>{ED.item=k;render();}));}
     if(['erase','land','water','raise','lower','flat'].includes(ED.tool)){const b=r();[[1.5,'S'],[3,'M'],[6,'L'],[12,'XL']].forEach(([v,l])=>btn(b,v,'Brush '+l,ED.R===v,x=>{ED.R=x;render();}));}
     if(ED.sel){const b=r();btn(b,0,'⟲ 15°',0,()=>selOp('rot',Math.PI/12));btn(b,0,'⟳ 15°',0,()=>selOp('rot',-Math.PI/12));btn(b,0,'Bigger',0,()=>selOp('scl',1.1));btn(b,0,'Smaller',0,()=>selOp('scl',1/1.1));btn(b,0,'Copy here',0,()=>{ED.tool='stamp';render();});btn(b,0,'Delete',0,()=>selOp('del'));btn(b,0,'Done',0,()=>{setSel(null);render();});}
@@ -65,17 +67,38 @@ if(/[?&#]owedit\b/.test(location.search+location.hash))try{(()=>{const KEY='qc-o
     else if(k==='bench'){bx(1,.08,.35,'#8a5a3a',0,.4);bx(1,.35,.06,'#8a5a3a',0,.6,-.15);[-.4,.4].forEach(x=>bx(.06,.4,.3,'#4a4e54',x,.2));}
     else if(k==='sign'){cy(.05,.05,2,'#8a8e94',1);bx(1.8,.7,.06,'#1f6a3a',0,2.2);}
     return g;}
+  // ---------- road blocks: a grid per road kind; straight pieces join their neighbours, crossings and corners are plain asphalt ----------
+  const TS={lane:1.6,street:2.5,road:8.4,fwy:10},TILES={},TMESH={};const tkey=(i,j)=>i+','+j;
+  const tileAt=(k,x,z)=>[Math.floor(x/TS[k]),Math.floor(z/TS[k])];
+  function tileQuad(v,uv,ix,x0,z0,x1,z1,rot,u0,u1,vv0,vv1,y){const b=v.length/3;const P=[[x0,z0],[x1,z0],[x1,z1],[x0,z1]];P.forEach(p=>v.push(p[0],groundAt(p[0],p[1])+y,p[1]));const U=rot?[[u0,vv0],[u0,vv1],[u1,vv1],[u1,vv0]]:[[u0,vv0],[u1,vv0],[u1,vv1],[u0,vv1]];U.forEach(q=>uv.push(q[0],q[1]));ix.push(b,b+2,b+1,b,b+3,b+2);}
+  function rebuildTiles(k){if(TMESH[k]){PV.remove(TMESH[k]);TMESH[k].children.forEach(m=>m.geometry.dispose());}const T=TILES[k];if(!T||!T.size){TMESH[k]=null;return;}const S=TS[k],g=new THREE.Group();
+    const A={v:[],uv:[],ix:[]},Bs={v:[],uv:[],ix:[]};const has=(i,j)=>T.has(tkey(i,j));
+    T.forEach(t=>{const[i,j]=t,x0=i*S,z0=j*S,x1=x0+S,z1=z0+S,E=has(i+1,j),W=has(i-1,j),N=has(i,j-1),So=has(i,j+1);const hz=(E||W)&&!(N||So),vt=(N||So)&&!(E||W);
+      if(hz||vt){if(k==='road'||k==='fwy'){const w=4,gap=k==='fwy'?1:.2;[-1,1].forEach(sd=>{const c=S/2+sd*(w/2+gap);if(hz)tileQuad(Bs.v,Bs.uv,Bs.ix,x0,z0+c-w/2,x1,z0+c+w/2,1,0,1,x0/4,x1/4,.17);else tileQuad(Bs.v,Bs.uv,Bs.ix,x0+c-w/2,z0,x0+c+w/2,z1,0,0,1,z0/4,z1/4,.17);});}
+        else{if(hz)tileQuad(Bs.v,Bs.uv,Bs.ix,x0,z0,x1,z1,1,0,1,x0/S,x1/S,.17);else tileQuad(Bs.v,Bs.uv,Bs.ix,x0,z0,x1,z1,0,0,1,z0/S,z1/S,.17);}}
+      else tileQuad(A.v,A.uv,A.ix,x0,z0,x1,z1,0,x0/2,x1/2,z0/2,z1/2,.165);});
+    const mk=(D,mat)=>{if(!D.ix.length)return;const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(D.v,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(D.uv,2));ge.setIndex(D.ix);ge.computeVertexNormals();const m=new THREE.Mesh(ge,mat);m.receiveShadow=true;g.add(m);};
+    mk(A,texMat('asph',RK.asph));mk(Bs,k==='lane'?texMat('lane',RK.lane):k==='street'?texMat('street',RK.street):texMat('fwy',()=>RK.fwy(-1)));PV.add(g);TMESH[k]=g;}
+  function paintTile(k,x,z,erase){const[i,j]=tileAt(k,x,z),key=tkey(i,j);const T=TILES[k]||(TILES[k]=new Map());if(erase?!T.has(key):T.has(key))return false;if(erase)T.delete(key);else T.set(key,[i,j]);return true;}
+  function zoneMesh(e){const g=new THREE.Group(),x0=Math.min(e.x0,e.x1),x1=Math.max(e.x0,e.x1),z0=Math.min(e.z0,e.z1),z1=Math.max(e.z0,e.z1);
+    if(e.k==='park'){const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0).rotateX(-Math.PI/2),M('#6aa040'));m.position.set((x0+x1)/2,groundAt((x0+x1)/2,(z0+z1)/2)+.12,(z0+z1)/2);g.add(m);}
+    const L=e.k==='res'?3:e.k==='com'?3.6:e.k==='office'?4.4:e.k==='car'?6.4:5,hs=(a,b)=>{const v=Math.sin(a*12.99+b*78.23)*43758.5;return v-Math.floor(v);};
+    for(let x=x0+L/2;x<=x1-L/2+.01;x+=L)for(let z=z0+L/2;z<=z1-L/2+.01;z+=L){const k=e.k==='res'?'house':e.k==='com'?'shop':e.k==='office'?'tower':e.k==='car'?'carpark':(hs(x,z)<.5?'tree':'play');if(e.k==='park'&&hs(z,x)<.45)continue;
+      const m=itemMesh(k);const dn=[z-z0,z1-z,x-x0,x1-x],mi=dn.indexOf(Math.min(...dn));m.rotation.y=[Math.PI,0,-Math.PI/2,Math.PI/2][mi];m.position.set(x,groundAt(x,z),z);if(e.k==='office')m.scale.set(1,.6+hs(x,z)*1.2,1);if(e.k==='res')m.scale.setScalar(.85+hs(z,x)*.25);g.add(m);}
+    return g;}
   const placed=new Map();let uid=1;
   function show(e){const id=e._id||(e._id=uid++);let m=null;
     if(e.t==='road'||e.t==='rail')m=roadMesh(e);
     else if(e.t==='add'){m=itemMesh(e.k);m.position.set(e.x,groundAt(e.x,e.z),e.z);m.rotation.y=e.r||0;m.scale.setScalar(e.s||1);m.userData.edId=id;}
+    else if(e.t==='tiles'){e.c.forEach(c=>{const T=TILES[e.k]||(TILES[e.k]=new Map());if(e.del)T.delete(tkey(c[0],c[1]));else T.set(tkey(c[0],c[1]),[c[0],c[1]]);});rebuildTiles(e.k);}
+    else if(e.t==='zone')m=zoneMesh(e);
     else if(e.t==='brush')brush(e);
     else if(e.t==='obj')objApply(e);
     if(m){PV.add(m);placed.set(id,m);}}
   function replay(){E.forEach(show);info();}
   // ---------- brushes: erase (cut triangles / hide instances), land, water, raise, lower, flatten (move ground vertices) ----------
   const LAY=new Set(['roads','build','props','plants','mark','lights']);
-  function brush(e){const R=e.r,R2=R*R;
+  function brush(e){const R=e.r,R2=R*R;if(e.k==='erase')Object.keys(TILES).forEach(k=>{let ch=false;TILES[k].forEach((t,key)=>{const S=TS[k],cx=(t[0]+.5)*S,cz=(t[1]+.5)*S;if((cx-e.x)**2+(cz-e.z)**2<R2){TILES[k].delete(key);ch=true;}});if(ch)rebuildTiles(k);});
     if(e.k==='erase'){const v=new THREE.Vector3(),m4=new THREE.Matrix4(),zero=new THREE.Matrix4().makeScale(0,0,0);scene.traverse(o=>{if(!o.isMesh||o===PV||PV.children.includes(o))return;let a=o;while(a&&a!==scene){if(a===PV)return;a=a.parent;}const L=o.userData.L||(o.parent&&o.parent.userData.L);if(o.userData.L==='ground'||o.userData.L==='water')return;
       if(o.isInstancedMesh){let ch=false;for(let i=0;i<o.count;i++){o.getMatrixAt(i,m4);v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld);if((v.x-e.x)**2+(v.z-e.z)**2<R2){o.setMatrixAt(i,zero);ch=true;}}if(ch)o.instanceMatrix.needsUpdate=true;return;}
       const g=o.geometry;if(!g||!g.attributes.position)return;if(!g.boundingSphere)g.computeBoundingSphere();o.updateMatrixWorld(true);v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld);const br=g.boundingSphere.radius*Math.max(o.matrixWorld.getMaxScaleOnAxis(),1e-6);if(Math.hypot(v.x-e.x,v.z-e.z)>br+R)return;
@@ -108,12 +131,25 @@ if(/[?&#]owedit\b/.test(location.search+location.hash))try{(()=>{const KEY='qc-o
   // ---------- taps and drags ----------
   let down=null;const opts={capture:true};
   cv.addEventListener('pointerdown',e=>{if(!ED.on)return;e.stopImmediatePropagation();e.preventDefault();down={x:e.clientX,y:e.clientY,cx:ED.cx,cz:ED.cz,moved:false,id:e.pointerId,last:null,g:groundHit(e)};
+    if(ED.tool==='road'&&ED.blocks&&down.g){down.tl={t:'tiles',k:ED.kind,c:[]};down.lastT=down.g;if(paintTile(ED.kind,down.g[0],down.g[1]))down.tl.c.push(tileAt(ED.kind,down.g[0],down.g[1]));rebuildTiles(ED.kind);}
     if(ED.tool==='select'&&ED.sel&&down.g&&Math.hypot(down.g[0]-ED.sel.o.position.x,down.g[1]-ED.sel.o.position.z)<4)down.drag=ED.sel.o;cv.setPointerCapture(e.pointerId);},opts);
+  /* hover: a faint yellow frame on the block / brush / spot the pointer is over (Paul Nov 2026) */
+  const HV=new THREE.Group();PV.add(HV);const hvM=new THREE.MeshBasicMaterial({color:0xffe066,transparent:true,opacity:.28,depthWrite:false,depthTest:false,side:THREE.DoubleSide}),hvL=new THREE.MeshBasicMaterial({color:0xffd23a,transparent:true,opacity:.9,depthTest:false,side:THREE.DoubleSide});
+  const hvSq=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),hvM),hvEdge=new THREE.Mesh(new THREE.RingGeometry(.66,.71,4,1,Math.PI/4).rotateX(-Math.PI/2),hvL),hvCi=new THREE.Mesh(new THREE.RingGeometry(.93,1,40).rotateX(-Math.PI/2),hvL),hvDisc=new THREE.Mesh(new THREE.CircleGeometry(1,40).rotateX(-Math.PI/2),hvM);
+  [hvSq,hvEdge,hvCi,hvDisc].forEach(m=>{m.renderOrder=999;HV.add(m);});HV.visible=false;
+  function hover(e){if(!ED.on){HV.visible=false;return;}const g=groundHit(e);if(!g||ED.tool==='pan'){HV.visible=false;return;}HV.visible=true;hvSq.visible=hvEdge.visible=hvCi.visible=hvDisc.visible=false;
+    if(ED.tool==='road'&&ED.blocks){const S=TS[ED.kind],[i,j]=tileAt(ED.kind,g[0],g[1]),cx=(i+.5)*S,cz=(j+.5)*S,y=groundAt(cx,cz)+.4;hvSq.visible=hvEdge.visible=true;hvSq.position.set(cx,y,cz);hvSq.scale.set(S,1,S);hvEdge.position.set(cx,y+.01,cz);hvEdge.scale.set(S,1,S);return;}
+    const r=['erase','land','water','raise','lower','flat'].includes(ED.tool)?ED.R:ED.tool==='road'||ED.tool==='rail'?.8:1.2;const y=groundAt(g[0],g[1])+.4;hvCi.visible=hvDisc.visible=true;hvCi.position.set(g[0],y,g[1]);hvCi.scale.set(r,1,r);hvDisc.position.set(g[0],y,g[1]);hvDisc.scale.set(r,1,r);
+    if((ED.tool==='road'||ED.tool==='rail')&&!ED.blocks){const s2=snap(g);if(s2[0]!==Math.round(g[0]*10)/10||s2[1]!==Math.round(g[1]*10)/10){hvCi.position.set(s2[0],groundAt(s2[0],s2[1])+.4,s2[1]);hvCi.scale.set(1.4,1,1.4);}}}
+  cv.addEventListener('pointermove',e=>{if(ED.on&&e.pointerType!=='touch')hover(e);},opts);
+  cv.addEventListener('pointerleave',()=>{HV.visible=false;});
   cv.addEventListener('pointermove',e=>{if(!ED.on||!down||e.pointerId!==down.id)return;e.stopImmediatePropagation();const dx=e.clientX-down.x,dy=e.clientY-down.y;if(Math.hypot(dx,dy)>6)down.moved=true;if(!down.moved)return;
+    if(ED.tool==='zone'&&down.g){const g=groundHit(e);if(g){down.zb=g;const x0=Math.min(down.g[0],g[0]),x1=Math.max(down.g[0],g[0]),z0=Math.min(down.g[1],g[1]),z1=Math.max(down.g[1],g[1]);HV.visible=true;hvSq.visible=hvEdge.visible=true;hvCi.visible=hvDisc.visible=false;const cx=(x0+x1)/2,cz=(z0+z1)/2,y=groundAt(cx,cz)+.4;hvSq.position.set(cx,y,cz);hvSq.scale.set(x1-x0,1,z1-z0);hvEdge.position.set(cx,y+.01,cz);hvEdge.scale.set(x1-x0,1,z1-z0);}return;}
+    if(down.tl){const g=groundHit(e);if(g){const a=down.lastT,S=TS[ED.kind],n=Math.max(1,Math.ceil(Math.hypot(g[0]-a[0],g[1]-a[1])/(S*.4)));let ch=false;for(let q=1;q<=n;q++){const x=a[0]+(g[0]-a[0])*q/n,z=a[1]+(g[1]-a[1])*q/n;if(paintTile(ED.kind,x,z)){down.tl.c.push(tileAt(ED.kind,x,z));ch=true;}}down.lastT=g;if(ch)rebuildTiles(ED.kind);}return;}
     if(['erase','land','water','raise','lower','flat'].includes(ED.tool)){const g=groundHit(e);if(g&&(!down.last||Math.hypot(g[0]-down.last[0],g[1]-down.last[1])>ED.R*.5)){down.last=g;const b={t:'brush',k:ED.tool,x:r1(g[0]),z:r1(g[1]),r:ED.R};E.push(b);brush(b);ED.dirty=1;}return;}
     if(down.drag){const g=groundHit(e);if(g){const o=down.drag;o.userData.mv=o.userData.mv||{x:o.position.x,z:o.position.z};const wp=new THREE.Vector3();o.parent.worldToLocal(wp.set(g[0],0,g[1]));o.position.x=wp.x;o.position.z=wp.z;box&&box.update();}return;}
     const k=ED.h/innerHeight*1.6;ED.cx=down.cx-dx*k;ED.cz=down.cz-dy*k;},opts);
-  cv.addEventListener('pointerup',e=>{if(!ED.on||!down)return;e.stopImmediatePropagation();const d=down;down=null;if(ED.dirty){ED.dirty=0;save();}
+  cv.addEventListener('pointerup',e=>{if(!ED.on||!down)return;e.stopImmediatePropagation();const d=down;down=null;if(ED.dirty){ED.dirty=0;save();}if(d.tl){if(d.tl.c.length){E.push(d.tl);d.tl._id=uid++;save();}return;}if(ED.tool==='zone'&&d.zb&&d.moved){const en={t:'zone',k:ED.zone,x0:r1(d.g[0]),z0:r1(d.g[1]),x1:r1(d.zb[0]),z1:r1(d.zb[1])};if(Math.abs(en.x1-en.x0)>2&&Math.abs(en.z1-en.z0)>2){E.push(en);show(en);save();}return;}
     if(d.drag&&d.moved){const o=d.drag,mv=o.userData.mv;if(mv){const id=o.userData.edId;if(id){const en=E.find(x=>x._id===id);const wp=new THREE.Vector3();o.getWorldPosition(wp);en.x=r1(wp.x);en.z=r1(wp.z);o.position.y=groundAt(wp.x,wp.z);}else E.push({t:'obj',id:ED.sel.key||(ED.sel.key=(()=>{const p=o.position.clone();o.position.set(mv.x,o.position.y,mv.z);const k=keyOf(o);o.position.copy(p);return k;})()),dx:r1(o.position.x-mv.x),dz:r1(o.position.z-mv.z)});o.userData.mv=null;save();}return;}
     if(d.moved)return;const g=d.g;if(!g)return;
     if(ED.tool==='road'||ED.tool==='rail'){if(!ED.draw){ED.draw=ED.tool==='rail'?{t:'rail',p:[]}:{t:'road',k:ED.kind,p:[]};if(ED.bridge)ED.draw.b=1;}ED.draw.p.push(snap(g));redrawLine();info();return;}
@@ -125,7 +161,7 @@ if(/[?&#]owedit\b/.test(location.search+location.hash))try{(()=>{const KEY='qc-o
   addEventListener('keydown',e=>{if(!ED.on)return;if(e.key==='Enter')finish();if(e.key==='Escape'){dropDraw();setSel(null);}if((e.ctrlKey||e.metaKey)&&e.key==='z')undo();});
   // copies of existing objects are re-made on replay too
   const _show=show;show=function(e){if(e.t==='copy'){const s=findKey(e.id);if(s){const c=s.clone();const wp=new THREE.Vector3();s.getWorldPosition(wp);c.position.copy(s.parent.worldToLocal(new THREE.Vector3(e.x,wp.y,e.z)));s.parent.add(c);}return;}return _show(e);};
-  function undo(){if(ED.draw&&ED.draw.p.length){ED.draw.p.pop();redrawLine();info();return;}const e=E.pop();if(!e)return;save();if(e.t==='add'||e.t==='road'||e.t==='rail'){const m=placed.get(e._id);if(m){PV.remove(m);placed.delete(e._id);}return;}
+  function undo(){if(ED.draw&&ED.draw.p.length){ED.draw.p.pop();redrawLine();info();return;}const e=E.pop();if(!e)return;save();if(e.t==='tiles'){const T=TILES[e.k];if(T)e.c.forEach(c=>{if(e.del)T.set(tkey(c[0],c[1]),c);else T.delete(tkey(c[0],c[1]));});rebuildTiles(e.k);return;}if(e.t==='add'||e.t==='road'||e.t==='rail'||e.t==='zone'){const m=placed.get(e._id);if(m){PV.remove(m);placed.delete(e._id);}return;}
     const b=document.getElementById('owEdInfo');if(b)b.textContent='Undone. Brushes, picks and copies come back fully after reloading the page.';}
   function clearAll(){E=[];save();location.reload();}
   function copy(){const txt='QCOW1 '+JSON.stringify(E.map(e=>{const o=Object.assign({},e);delete o._id;return o;}));const done=()=>{const b=document.getElementById('owEdInfo');if(b)b.textContent='Copied '+E.length+' edits. Paste them to Claude.';};
