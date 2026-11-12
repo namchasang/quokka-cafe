@@ -18,7 +18,18 @@ const WEST={};
     for(let s=0;s<len;s+=.7){const t=new THREE.Mesh(new THREE.BoxGeometry(.18,.05,1),tieM);t.position.set(ax+Math.cos(ang)*s,.03,az+Math.sin(ang)*s);t.rotation.y=-ang;scene.add(t);}
     [-.32,.32].forEach(o=>{const r=new THREE.Mesh(new THREE.BoxGeometry(len+.12,.06,.06),railM);r.position.set((ax+bx)/2-Math.sin(ang)*o,.07,(az+bz)/2+Math.cos(ang)*o);r.rotation.y=-ang;scene.add(r);});}return scene.children.slice(n0);};
   {const ms=buildRail(RAIL);ms.forEach(m=>m.__noWarp=true);ISL.rail={pts:RAIL.map(p=>p.slice()),meshes:ms,build:buildRail};}
-  WEST.rail=RAIL;const tr=new THREE.Group();[0,1,2].forEach(i=>{const c=new THREE.Mesh(new THREE.BoxGeometry(1.7,.9,.9),M(i?'#f1c64a':'#1f5a3a'));c.position.set(-i*1.85,.6,0);c.castShadow=true;tr.add(c);const rf=new THREE.Mesh(new THREE.BoxGeometry(1.8,.1,1),M('#c8344a'));rf.position.set(-i*1.85,1.1,0);tr.add(rf);if(!i){const ch=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.4,8),M('#2a2a30'));ch.position.set(.5,1.3,0);tr.add(ch);}});scene.add(tr);WEST.train=tr;
+  WEST.rail=RAIL;const tr=new THREE.Group();[0,1,2].forEach(i=>{const c=new THREE.Mesh(new THREE.BoxGeometry(1.7,.9,.9),M(i?'#f1c64a':'#1f5a3a'));c.position.set(-i*1.85,.6,0);c.castShadow=true;tr.add(c);const rf=new THREE.Mesh(new THREE.BoxGeometry(1.8,.1,1),M('#c8344a'));rf.position.set(-i*1.85,1.1,0);tr.add(rf);if(!i){const ch=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,.4,8),M('#2a2a30'));ch.position.set(.5,1.3,0);tr.add(ch);}});if(TOON_SAND){// ?toon (Paul, Nov 2026, from his photo): the island's heritage railcar, red below and cream above, a rounded roof,
+    // two big front windows, open sides with a blue canopy edge; a second matching car behind. Front at +x.
+    tr.children.slice().forEach(c=>tr.remove(c));const L=c=>new THREE.MeshLambertMaterial({color:c}),RD=L(0xc23a24),CR=L(0xf4efe2),RF=L(0xf0d8cc),BL=L(0x3a78c8),DK=L(0x23262b),GL=L(0x7fa8c0),ST=L(0x8a8e94);
+    [0,1].forEach(i=>{const g=new THREE.Group();g.position.x=-i*3.55;tr.add(g);const add=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);o.castShadow=true;g.add(o);return o;};
+      add(new THREE.BoxGeometry(3.4,.5,.92),RD,0,.62,0);add(new THREE.BoxGeometry(3.42,.05,.94),CR,0,.89,0);
+      const cab=i===0?.7:0;if(cab)add(new THREE.BoxGeometry(cab,.62,.92),CR,1.35,1.2,0);
+      [-1,1].forEach(sd=>{for(let k=0;k<5;k++){add(new THREE.BoxGeometry(.06,.62,.06),CR,-1.6+k*.62+(cab?0:.3),1.2,sd*.43);}add(new THREE.BoxGeometry(3.4,.12,.04),BL,0,1.46,sd*.47);});
+      if(cab){add(new THREE.BoxGeometry(.02,.36,.3),GL,1.71,1.24,-.2);add(new THREE.BoxGeometry(.02,.36,.3),GL,1.71,1.24,.2);add(new THREE.CylinderGeometry(.06,.06,.03,10),CR,1.72,.72,0).rotation.z=Math.PI/2;}
+      const rg=new THREE.CylinderGeometry(.5,.5,3.5,18);rg.rotateZ(Math.PI/2);const roof=add(rg,RF,0,1.52,0);roof.scale.set(1,.26,1);add(new THREE.BoxGeometry(3.5,.06,1),RF,0,1.5,0);
+      add(new THREE.BoxGeometry(3.3,.22,.7),DK,0,.27,0);[-1,1].forEach(e=>add(new THREE.BoxGeometry(.7,.18,.86),ST,e*1.05,.2,0));
+      if(i===0)add(new THREE.BoxGeometry(.25,.1,.95),DK,1.78,.32,0);});}
+  scene.add(tr);WEST.train=tr;
   // Parker Point, Little Salmon Bay, Strickland Bay
   signPost(62.5,5.6,makeSign(['PARKER POINT','SNORKEL TRAIL'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(70.6,5,makeSign(['LITTLE SALMON','BAY'],56,20,'#2f78a8','#ffffff'),1,.5);signPost(82.6,5.4,makeSign(['STRICKLAND','BAY · SURF'],52,20,'#e8735a','#ffffff'),1,.5);
   WEST.snork=[[62.4,9.4],[63.6,9.8],[70,9.6],[71.4,10.2]].map(([x,z],i)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.14,8,8),M(['#f1c64a','#e8735a','#2f78a8','#c8344a'][i]));scene.add(m);const s=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.3,5),M('#f1c64a'));scene.add(s);return{m,s,x,z,ph:i};});

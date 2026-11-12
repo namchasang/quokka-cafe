@@ -86,6 +86,20 @@ const ferry=new THREE.Group();
  const cab=new THREE.Mesh(new THREE.BoxGeometry(2,.8,1.3),new THREE.MeshLambertMaterial({color:0xf8f4ea}));cab.position.set(-.4,.9,0);cab.castShadow=true;ferry.add(cab);
  const win=new THREE.Mesh(new THREE.BoxGeometry(2.02,.25,1.32),new THREE.MeshLambertMaterial({color:0x3a5470}));win.position.set(-.4,1.05,0);ferry.add(win);
  const fl=new THREE.Mesh(new THREE.BoxGeometry(.06,.9,.06),legMat);fl.position.set(1.4,1.2,0);ferry.add(fl);})();
+// ?toon (Paul, Nov 2026, from his photo of the island ferries): a white catamaran with teal hulls, a blue line, dark tinted windows,
+// a raked wheelhouse on top with a radar mast. Bow at +x, same size and place as the old boat. Fictional, no operator markings.
+if(TOON_SAND){ferry.children.slice().forEach(c=>ferry.remove(c));const L=(c,o)=>new THREE.MeshLambertMaterial(Object.assign({color:c},o||{}));const W=L(0xf6f6f2),T=L(0x3fa59b),B=L(0x2a5aa8),G=L(0x1f2a36,{emissive:0x0a1420}),Gr=L(0x9aa3aa);
+  const ext=(pts,depth,mat)=>{const sh=new THREE.Shape(pts.map(p=>new THREE.Vector2(p[0],p[1])));const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:false});g.translate(0,0,-depth/2);const m=new THREE.Mesh(g,mat);m.castShadow=true;return m;};
+  [-.62,.62].forEach(z=>{const h=ext([[-2.25,-.32],[1.75,-.32],[2.35,.2],[-2.25,.2]],.5,T);h.position.z=z;ferry.add(h);const w=ext([[-2.25,.2],[2.35,.2],[2.45,.42],[-2.25,.42]],.52,W);w.position.z=z;ferry.add(w);});
+  const deck=ext([[-2.25,.3],[2.2,.3],[2.45,.5],[-2.25,.5]],1.8,W);ferry.add(deck);
+  const line=new THREE.Mesh(new THREE.BoxGeometry(4.5,.05,1.83),B);line.position.set(.05,.33,0);ferry.add(line);
+  const cab=ext([[-1.9,.5],[1.1,.5],[1.75,.62],[1.25,1.12],[-1.9,1.12]],1.6,W);ferry.add(cab);
+  const win=ext([[-1.8,.72],[1.2,.72],[1.55,.75],[1.2,1.02],[-1.8,1.02]],1.62,G);ferry.add(win);
+  const top=ext([[-.9,1.12],[.65,1.12],[.95,1.18],[.6,1.48],[-.9,1.48]],1.15,W);ferry.add(top);
+  const tw=ext([[-.8,1.24],[.62,1.24],[.82,1.27],[.6,1.42],[-.8,1.42]],1.17,G);ferry.add(tw);
+  const rail=new THREE.Mesh(new THREE.BoxGeometry(1.2,.22,.03),Gr);[-0.57,.57].forEach(z=>{const r=rail.clone();r.position.set(-1.45,1.25,z);ferry.add(r);});
+  const mast=new THREE.Mesh(new THREE.CylinderGeometry(.03,.04,.6,6),W);mast.position.set(-.1,1.78,0);ferry.add(mast);const rad=new THREE.Mesh(new THREE.BoxGeometry(.5,.05,.1),W);rad.position.set(-.1,1.95,0);ferry.add(rad);
+  const ant=new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.4,5),Gr);ant.position.set(-.1,2.2,0);ferry.add(ant);ferry.children.forEach(c=>c.position.y+=.32);/* the teal hulls ride above the water line */}
 ferry.position.set(-18.8,-.15,6.8);scene.add(ferry);
 // lighthouse
 (()=>{const lx=33.5,lz=-6.3;const t=new THREE.Mesh(new THREE.CylinderGeometry(.95,1.35,6.2,14),lmat(plasterC,[4,4]));t.position.set(lx,3.1,lz);t.castShadow=t.receiveShadow=true;scene.add(t);
