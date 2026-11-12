@@ -4,7 +4,15 @@
 // pictures stay. Tree spots are read from every billboard mesh (the ones with a 'corner' attribute); the kind is guessed from the
 // picture's height and width: tall and narrow = pine, low = bush, else gum, peppermint or a round street tree. Instanced per kind.
 const OW3T={R:46,R2:150,/* trees about as tall as the houses (Paul, Nov 2026) */n:0,ready:false,pts:null,grid:null,uCam:{value:new THREE.Vector2(1e9,1e9)},uR:{value:150}};
-function owTree3dTick(px,pz){if(!OWTOON)return;try{owToonCar();if(!OW3T.ready)owTree3dInit();if(!OW3T.ready)return;OW3T.uCam.value.set(px,pz);
+if(/[?&#]owdbg\b/.test(location.search))window.__OW3T=OW3T;
+function owTree3dScan(){const now=performance.now();if(OW3T.scanT&&now-OW3T.scanT<2500)return false;OW3T.scanT=now;let add=0;
+  scene.traverse(o=>{if(!o.isMesh||o.__ow3||!o.geometry||!o.geometry.attributes.corner)return;const L=o.userData&&o.userData.L;if(L&&L!=='plants')return;o.__ow3=1;
+    const g=o.geometry,p=g.attributes.position,c=g.attributes.corner,n=Math.min(p.count,(g.drawRange&&isFinite(g.drawRange.count)?g.drawRange.count/6*4:p.count));o.updateMatrixWorld(true);const v=new THREE.Vector3();
+    for(let k=0;k+3<n;k+=4){const h=Math.max(c.getY(k+2),c.getY(k+3)),w=Math.abs(c.getX(k+1)-c.getX(k));if(h<1.4)continue;v.set(p.getX(k),p.getY(k),p.getZ(k)).applyMatrix4(o.matrixWorld);const x=v.x,z=v.z;
+      const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);const t=[x,v.y,z,kind===4?Math.min(h,1.4):Math.min(3.3,h*.6),kind,((x*12.9898+z*78.233)%6.283)];
+      const kk=Math.floor(x/16)*100003+Math.floor(z/16);let G=OW3T.grid.get(kk);if(!G)OW3T.grid.set(kk,G=[]);G.push(t);add++;}
+    o.visible=false;});if(add){OW3T.lx=undefined;}return add>0;}
+function owTree3dTick(px,pz){if(!OWTOON)return;try{owToonCar();if(!OW3T.ready)owTree3dInit();if(!OW3T.ready)return;OW3T.uCam.value.set(px,pz);if(OW3T.grid)owTree3dScan();
   if(OW3T.lx!==undefined&&Math.hypot(px-OW3T.lx,pz-OW3T.lz)<6)return;OW3T.lx=px;OW3T.lz=pz;
   const R=OW3T.R2,RN=OW3T.R,C=16,i0=Math.floor((px-R)/C),i1=Math.floor((px+R)/C),j0=Math.floor((pz-R)/C),j1=Math.floor((pz+R)/C),cnt=OW3T.T.map(()=>0),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),P=new THREE.Vector3(),S=new THREE.Vector3();
   for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const L=OW3T.grid.get(i*100003+j);if(!L)continue;for(const t of L){const dd=Math.hypot(t[0]-px,t[2]-pz);if(dd>R)continue;const ti=t[4]+(dd>RN?5:0),T=OW3T.T[ti];const k=cnt[ti];if(k>=T.cap)continue;
@@ -16,7 +24,7 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const g=o.geometry,p=g.attributes.position,c=g.attributes.corner,n=Math.min(p.count,(g.drawRange&&isFinite(g.drawRange.count)?g.drawRange.count/6*4:p.count));
     for(let v=0;v+3<n;v+=4){const h=Math.max(c.getY(v+2),c.getY(v+3)),w=Math.abs(c.getX(v+1)-c.getX(v));if(h<1.4)continue;const x=p.getX(v),z=p.getZ(v);const key=Math.round(x*4)+','+Math.round(z*4);if(seen.has(key))continue;seen.add(key);
       const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);pts.push([x,p.getY(v),z,kind===4?Math.min(h,1.4):Math.min(3.3,h*.6),kind,((x*12.9898+z*78.233)%6.283)]);}
-    o.visible=false;/* Paul Nov 2026: no flat trees at all; 3D trees near the car, nothing beyond 150 */
+    o.visible=false;o.__ow3=1;/* Paul Nov 2026: no flat trees at all; 3D trees near the car, nothing beyond 150 */
     const m=o.material;if(m&&!m.__ow3t){m.__ow3t=1;const ob=m.onBeforeCompile;m.onBeforeCompile=(sh,r)=>{if(ob)ob(sh,r);sh.uniforms.uT3C=OW3T.uCam;sh.uniforms.uT3R=OW3T.uR;
       sh.vertexShader='varying vec2 vT3;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvT3=(modelMatrix*vec4(position,1.)).xz;');
       sh.fragmentShader='uniform vec2 uT3C;uniform float uT3R;varying vec2 vT3;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(distance(vT3,uT3C)<uT3R-1.5)discard;');};m.needsUpdate=true;}});
