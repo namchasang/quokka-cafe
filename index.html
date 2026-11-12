@@ -10625,7 +10625,7 @@ const cellOf=(i,j)=>({i,j,x0:GX0+i*CX,z0:GZ0+j*CZ});
 const CELLS=new Map(),cid=(i,j)=>i*1000+j;
 for(let i=I0;i<I1;i++)for(let j=J0;j<J1;j++){const c=cellOf(i,j);let n=0,t=0;for(let a=4;a<CX-3;a+=4)for(let b=4;b<CZ-3;b+=4){t++;const x=c.x0+a,z=c.z0+b;if(subA(x,z)&&free(x,z,0))n++;}c.cov=n/t;
   if(c.cov<.25)continue;const cx=c.x0+CX/2,cz=c.z0+CZ/2,dC=Math.hypot(cx-cbd[0],cz-cbd[1]),dF=Math.hypot(cx-freo[0],cz-freo[1]);
-  c.style=(dC<64||dF<36)?'old':'mod';c.north=cz<0;c.h=hs(i*3.3,j*7.1);CELLS.set(cid(i,j),c);}
+  c.style=(OWR2&&dF<70)?'grid':(dC<64||dF<36)?'old':'mod';c.north=cz<0;c.h=hs(i*3.3,j*7.1);CELLS.set(cid(i,j),c);}
 const isCell=(i,j)=>CELLS.has(cid(i,j));
 // arterial edges: sampled every unit; a sample is good on land, clear of other roads/rail/freeway/towns, next to a suburb
 const ART=[],VX=new Map(),vk=(i,j)=>i*1000+j;
@@ -10635,6 +10635,17 @@ for(let i=I0;i<=I1;i++)for(let j=J0;j<=J1;j++){
   // horizontal edge (i,j)->(i+1,j) borders cells (i,j-1) and (i,j); vertical edge (i,j)->(i,j+1) borders (i-1,j) and (i,j)
   if(isCell(i,j-1)||isCell(i,j)){const x0=GX0+i*CX,z=GZ0+j*CZ,pts=[];for(let a=0;a<=CX;a++)pts.push([x0+a,z]);runs(pts).forEach(r=>{ART.push({P:r,h:1,i,j});});}
   if(isCell(i-1,j)||isCell(i,j)){const x=GX0+i*CX,z0=GZ0+j*CZ,pts=[];for(let b=0;b<=CZ;b++)pts.push([x,z0+b]);runs(pts).forEach(r=>{ART.push({P:r,h:0,i,j});});}}
+// owroads2 (Paul, Nov 2026): road = 4-lane arterial linking the areas; it never stops short. Runs on one grid edge with a short
+// gap between them are joined, and an arterial that ends in the open carries on along its grid line to the next road
+const ARTL=()=>ART.reduce((t,a)=>t+a.P.length,0);O.artBefore=ARTL();
+if(OWR2){const artOK2=(x,z)=>landAt(x,z)&&rdD(x,z,0)>3.4&&fwD(x,z)>8.2&&(z<-40||z>WZ||rdD(x,z,1)>2.4)&&!nearTown(x,z,2)&&(z>=0||!N||N.sd(x,z)>4);
+  const byEdge=new Map();ART.forEach(a=>{const k=a.h+'|'+a.i+'|'+a.j;(byEdge.get(k)||byEdge.set(k,[]).get(k)).push(a);});
+  byEdge.forEach(L=>{if(L.length<2)return;L.sort((p,q)=>(p.h?p.P[0][0]-q.P[0][0]:p.P[0][1]-q.P[0][1]));for(let i=L.length-1;i>0;i--){const A=L[i-1],B=L[i],a=A.P[A.P.length-1],b=B.P[0],gap=Math.hypot(b[0]-a[0],b[1]-a[1]);let ok=gap<16;for(let t=0;t<=1&&ok;t+=.1){const x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;if(!landAt(x,z)||fwD(x,z)<8.2)ok=false;}
+    if(ok){const fill=[];for(let t=1;t<gap;t++)fill.push([a[0]+(b[0]-a[0])*t/gap,a[1]+(b[1]-a[1])*t/gap]);A.P=A.P.concat(fill,B.P);ART.splice(ART.indexOf(B),1);L.splice(i,1);}}});
+  const onArt=(x,z,self)=>ART.some(a=>a!==self&&a.P.some(p=>Math.abs(p[0]-x)<1.2&&Math.abs(p[1]-z)<1.2));
+  ART.slice().forEach(a=>{[0,1].forEach(e=>{const P=a.P,p=e?P[P.length-1]:P[0],q=e?P[P.length-2]:P[1];if(onArt(p[0],p[1],a))return;const dx=Math.sign(p[0]-q[0]),dz=Math.sign(p[1]-q[1]);const ext=[];let hit=false;
+    for(let t=1;t<=CX*1.5;t++){const x=p[0]+dx*t,z=p[1]+dz*t;if(rdD(x,z,0)<3.6||onArt(x,z,a)){hit=true;break;}if(!artOK2(x,z))break;ext.push([x,z]);}
+    if(hit&&ext.length)a.P=e?P.concat(ext):ext.reverse().concat(P);});});O.artAfter=ARTL();}
 // which arterial arms reach each grid vertex
 ART.forEach(a=>{const p0=a.P[0],p1=a.P[a.P.length-1];[[p0,0],[p1,1]].forEach(([p,e])=>{const vi=Math.round((p[0]-GX0)/CX),vj=Math.round((p[1]-GZ0)/CZ);if(Math.hypot(p[0]-(GX0+vi*CX),p[1]-(GZ0+vj*CZ))<.6){const k=vk(vi,vj);let v=VX.get(k);if(!v)VX.set(k,v={i:vi,j:vj,x:GX0+vi*CX,z:GZ0+vj*CZ,arms:[]});v.arms.push([a,e]);}});});
 // names: invented from bush and bird words (no real suburb names)
@@ -10675,9 +10686,10 @@ function modCell(c){const mask=(x,z)=>subA(x,z),north=c.north;const A=.6+c.h*.7,
   for(let k=0;k<5;k++){const a=m+MLD+SWD/2+k*(2*MLD+SWD)+.2;if(a>CX-m-MLD-SWD/2+.3)break;
     [-1,1].forEach(sd=>{const myslot=slot++;const b0=bcol(a)+sd*SWD/2,bEnd=sd<0?m+1.5:CZ-m-1.5;
       if(myslot===park){const len=(bEnd-b0)*sd;PARKS.push({kind:'pocket',x:c.x0+a,z:c.z0+(b0+bEnd)/2,th:0,w:2*MLD+SWD-.6,d:len,c});markRect(c.x0+a,c.z0+(b0+bEnd)/2,0,2*MLD+SWD,len,1);return;}
-      const P=[];DBG.st=(DBG.st||0)+1;for(let b=b0;sd<0?b>=bEnd-.01:b<=bEnd+.01;b+=sd){const p=cellP(c,a,b);if(!landAt(p[0],p[1])){DBG.sl=(DBG.sl||0)+1;break;}if(!free(p[0],p[1],-1.2)){DBG.sf=(DBG.sf||0)+1;break;}if(inCen(c,a,b,1.4)){DBG.sc=(DBG.sc||0)+1;break;}P.push(p);}if(P.length>4)DBG.sok=(DBG.sok||0)+1;
-      const len=(P.length-1);if(len<4.5)return;const pe=P[P.length-1];
-      addStreet(P,'local');STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,3.2,3.2,2);
+      const toArt=OWR2&&ART.some(r=>r.h===1&&Math.abs(r.P[0][1]-(sd<0?c.z0:c.z0+CZ))<.6&&r.P.some(p=>Math.abs(p[0]-(c.x0+a))<.6)),bE2=toArt?(sd<0?2.9:CZ-2.9):bEnd;
+      const P=[];DBG.st=(DBG.st||0)+1;for(let b=b0;sd<0?b>=bE2-.01:b<=bE2+.01;b+=sd){const p=cellP(c,a,b);if(!landAt(p[0],p[1])){DBG.sl=(DBG.sl||0)+1;break;}if(!free(p[0],p[1],-1.2)){DBG.sf=(DBG.sf||0)+1;break;}if(inCen(c,a,b,1.4)){DBG.sc=(DBG.sc||0)+1;break;}P.push(p);}if(P.length>4)DBG.sok=(DBG.sok||0)+1;
+      const len=(P.length-1);if(len<4.5)return;const pe=P[P.length-1];const joined=toArt&&Math.abs((pe[1]-c.z0)-bE2)<1.1;
+      addStreet(P,'local');if(!joined){STREETS.push({P:[pe],kind:'bulb'});markRect(pe[0],pe[1],0,3.2,3.2,2);}
       // lots along both sides (front edge on the verge), facing the stub, and one past the turning circle when there is room
       [-1,1].forEach(sx=>{let e=b0;for(let q=0;q<=MLD+.01;q+=.8){const v=bcol(a+sx*(SWD/2+q))+sd*(SWD/2+.15);e=sd>0?Math.max(e,v):Math.min(e,v);}const t0=(e-b0)*sd;for(let t=t0;t+MLF<=len+.3;t+=MLF){const b=b0+sd*(t+MLF/2);const fx=c.x0+a+sx*SWD/2,fz=c.z0+b;if(inCen(c,a+sx*(SWD/2+MLD/2),b,0))continue;addLot(fx,fz,Math.atan2(-sx,0),MLF,MLD,c.style,north,mask);}});
       });
@@ -10700,9 +10712,18 @@ function oldCell(c){const mask=(x,z)=>subA(x,z),north=c.north,bx=CZ/2;
     const la=a+SWD/2+OLD_LD+.45;if(la<CX-m-1){const P=[];for(let b=m;b<=CZ-m;b+=1.5){if(Math.abs(b-bx)<SWD/2+.2)continue;P.push(cellP(c,la,b));}const good=P.filter(p=>landAt(p[0],p[1])&&free(p[0],p[1],-1.6)&&!inCen(c,p[0]-c.x0,p[1]-c.z0,0));
       let s=[];good.forEach((p,i)=>{if(i&&Math.hypot(p[0]-good[i-1][0],p[1]-good[i-1][1])>1.6){if(s.length>2)addStreet(s,'lane');s=[];}s.push(p);});if(s.length>2)addStreet(s,'lane');}}
   if(c.h>.5){const a=m+OLD_LD+SWD+.2,x=c.x0+a+1.4,z=c.z0+bx+SWD/2+1.4;if(subA(x,z)&&free(x,z,0)&&occ(x,z)<2)PARKS.push({kind:'deli',x,z,th:Math.PI,c});}}
+// Fremantle (Paul, Nov 2026): a grid of two-lane streets in blocks, every street runs from road to road
+function gridCell(c){const mask=(x,z)=>subA(x,z),north=c.north,GD=4.4,GF=3.8;const NA2=4,NB2=2;
+  const ok=(p)=>landAt(p[0],p[1])&&free(p[0],p[1],-1.2)&&!inCen(c,p[0]-c.x0,p[1]-c.z0,0);
+  const run=(pts)=>{let cur=[];const out=[];pts.forEach(p=>{if(ok(p))cur.push(p);else{if(cur.length>2)out.push(cur);cur=[];}});if(cur.length>2)out.push(cur);out.forEach(r=>{addStreet(r,'local');ROUTES.push(r);});return out;};
+  const As=[],Bs=[];for(let k=1;k<=NA2;k++)As.push(k*CX/(NA2+1));for(let k=1;k<=NB2;k++)Bs.push(k*CZ/(NB2+1));
+  As.forEach(a=>{const P=[];for(let b=2.9;b<=CZ-2.9+.01;b+=1)P.push(cellP(c,a,b));run(P);});
+  Bs.forEach(b=>{const P=[];for(let a=3.3;a<=CX-3.3+.01;a+=1)P.push(cellP(c,a,b));run(P);});
+  // lots along the long streets, facing them
+  As.forEach(a=>{[-1,1].forEach(sx=>{for(let b=m+.2;b+GF<=CZ-m;b+=GF){if(Bs.some(B=>Math.abs(b+GF/2-B)<GF/2+SWD/2))continue;addLot(c.x0+a+sx*SWD/2,c.z0+b+GF/2,Math.atan2(-sx,0),GF,GD,'old',north,mask);}});});}
 // a park instead of houses in some cells: oval, paths, trees, a playground
 function greenCell(c){const x=c.x0+CX/2+(c.h-.5)*6,z=c.z0+CZ/2;if(!subA(x,z)||!free(x,z,2))return modCell(c);PARKS.push({kind:'big',x,z,th:0,c});markRect(x,z,0,22,16,1);modCell(c);}
-CELLS.forEach(c=>{if(c.style==='mod'&&!c.cen&&c.h>.86)greenCell(c);else if(c.style==='old')oldCell(c);else modCell(c);});
+CELLS.forEach(c=>{if(c.style==='grid')gridCell(c);else if(c.style==='mod'&&!c.cen&&c.h>.86)greenCell(c);else if(c.style==='old')oldCell(c);else modCell(c);});
 
 // ---------- 5. coast towns (north and south): a main street with shops, a loose grid of shacks, cottages and brick houses ----------
 const COAST=[];
