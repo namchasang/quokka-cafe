@@ -23,7 +23,7 @@ function frame(now){if(!OPEN)return;const dt=Math.min(.05,(now-last)/1000);last=
   // place the car and Kip
   let cy=groundAt(ST.carX,ST.carZ);const O=(typeof OWT!=="undefined"&&OWT)||null;if(O&&O.ovD){// on the elevated freeway when driving along it (not when crossing under it)
     const D=O.ovD;let bi=-1,bd=7;for(let i=0;i<D.length;i+=2){const d=Math.hypot(D[i][0]-ST.carX,D[i][1]-ST.carZ);if(d<bd){bd=d;bi=i;}}
-    if(bi>=0){const q=D[Math.min(D.length-1,bi+2)],o=D[Math.max(0,bi-2)],da=Math.atan2(q[0]-o[0],q[1]-o[1]),hd=Math.abs(Math.cos(da-ST.carA));const was=ST.ovOn;ST.ovOn=bd<6.2&&(was?hd>.3:hd>.85);if(ST.ovOn)cy=Math.max(cy,O.ovY[bi]);}else ST.ovOn=false;}car.position.set(ST.carX,cy,ST.carZ);car.rotation.y=ST.carA;
+    if(bi>=0){const q=D[Math.min(D.length-1,bi+2)],o=D[Math.max(0,bi-2)],da=Math.atan2(q[0]-o[0],q[1]-o[1]),hd=Math.abs(Math.cos(da-ST.carA));const was=ST.ovOn;ST.ovOn=bd<6.2&&(was?hd>.3:hd>.85);if(ST.ovOn)cy=Math.max(cy,O.ovY[bi]);}else ST.ovOn=false;}if(O&&O.brg&&O.brLift){const l=O.brLift(ST.carX,ST.carZ);if(l>0){const b=O.brg.find(b=>Math.hypot(b.x-ST.carX,b.z-ST.carZ)<22);if(b&&Math.abs(Math.sin(ST.carA)*b.dx+Math.cos(ST.carA)*b.dz)>.6)cy=Math.max(cy,groundAt(ST.carX,ST.carZ)+l);}}ST.cyS=ST.cyS===undefined||Math.abs(ST.cyS-cy)>3?cy:ST.cyS+(cy-ST.cyS)*Math.min(1,dt*7);cy=ST.cyS;/* a smooth ride (Paul Nov 2026) */car.position.set(ST.carX,cy,ST.carZ);car.rotation.y=ST.carA;
   kip.visible=!ST.inCar;shadow.visible=!ST.inCar;const ky=ST.ride?1.2:groundAt(ST.x,ST.z);kip.position.set(ST.x,ky,ST.z);shadow.position.set(ST.x,ky+.05,ST.z);
   const fr=(ST.step|0)%2;if(kipT.image!==kipFrames[fr]){kipT.image=kipFrames[fr];kipT.needsUpdate=true;}
   // camera: behind and above, like an old overworld

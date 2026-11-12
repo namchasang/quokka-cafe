@@ -9375,11 +9375,11 @@ const ROADS=[
  {n:'Stirling Hwy',p:[G(115.752,-32.047),G(115.758,-32.03),G(115.763,-32.005),G(115.77,-31.985),G(115.79,-31.981),G(115.81,-31.979),G(115.822,-31.972),G(115.835,-31.965),G(115.852,-31.955)]},
  {n:'Canning Hwy',p:[G(115.757,-32.04),G(115.775,-32.035),G(115.8,-32.025),G(115.83,-32.01),G(115.85,-31.99),G(115.865,-31.978),G(115.879,-31.966)]},
  {n:'Kwinana Fwy',p:[G(115.852,-31.955),G(115.85,-31.962),G(115.851,-31.968),G(115.855,-31.985),G(115.857,-32.01),G(115.858,-32.07)]},
- {n:'Riverside Dr',p:OWR2?[G(115.852,-31.955),G(115.852,-31.958),G(115.8552,-31.9576),G(115.8562,-31.9569),G(115.8594,-31.9569),G(115.8606,-31.9577),G(115.865,-31.96),G(115.879,-31.962)]:[G(115.852,-31.958),G(115.865,-31.96),G(115.879,-31.962)]},// owroads2: loops north round Elizabeth Quay like the real one
+ {n:'Riverside Dr',p:OWR2?[G(115.852,-31.955),G(115.852,-31.958),G(115.8552,-31.9576),G(115.8562,-31.9569),G(115.8594,-31.9569),G(115.8606,-31.9577),G(115.865,-31.9592),G(115.875,-31.9592),G(115.887,-31.9584)]/* Paul Nov 2026: straight on to the main road ahead, not into Heirisson Island */:[G(115.852,-31.958),G(115.865,-31.96),G(115.879,-31.962)]},// owroads2: loops north round Elizabeth Quay like the real one
  {n:'Great Eastern Hwy',p:[G(115.879,-31.962),G(115.89,-31.957),G(115.915,-31.95),G(115.94,-31.945),G(115.965,-31.942)]},
  {n:'Albany Hwy',p:[G(115.884,-31.966),G(115.896,-31.978),G(115.91,-31.995),G(115.93,-32.02),G(115.962,-32.052)]},/*runs on out to the edge of the map (it used to stop in the bush)*/
  {n:'Leach Hwy',p:[G(115.775,-32.035),G(115.8,-32.045),G(115.84,-32.05),G(115.857,-32.05)]}];
-if(NORTH)ROADS.push(NORTH.cityRoad);// the coast road's first stretch through the city
+if(OWR2){['Great Eastern Hwy','Leach Hwy'].forEach(n=>{const gi=ROADS.findIndex(r=>r.n===n);if(gi>2)ROADS.splice(gi,1);});}/* Paul Nov 2026: no Great Eastern Hwy in the Look Lab map */if(NORTH)ROADS.push(NORTH.cityRoad);// the coast road's first stretch through the city
 const AIRST=G(115.9555,-31.9378);// owroads2: Airport Central, the rail's end, west of the terminal
 const RAIL=[G(115.747,-32.053),G(115.754,-32.036),G(115.758,-31.995),G(115.785,-31.98),G(115.823,-31.948),G(115.861,-31.951),G(115.9,-31.94),G(115.94,-31.937),OWR2?AIRST:G(115.967,-31.938)];
 const segDist=(px,pz,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz;let t=L?((px-a[0])*dx+(pz-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(a[0]+dx*t),pz-(a[1]+dz*t));};
@@ -9574,7 +9574,7 @@ function frame(now){if(!OPEN)return;const dt=Math.min(.05,(now-last)/1000);last=
   // place the car and Kip
   let cy=groundAt(ST.carX,ST.carZ);const O=(typeof OWT!=="undefined"&&OWT)||null;if(O&&O.ovD){// on the elevated freeway when driving along it (not when crossing under it)
     const D=O.ovD;let bi=-1,bd=7;for(let i=0;i<D.length;i+=2){const d=Math.hypot(D[i][0]-ST.carX,D[i][1]-ST.carZ);if(d<bd){bd=d;bi=i;}}
-    if(bi>=0){const q=D[Math.min(D.length-1,bi+2)],o=D[Math.max(0,bi-2)],da=Math.atan2(q[0]-o[0],q[1]-o[1]),hd=Math.abs(Math.cos(da-ST.carA));const was=ST.ovOn;ST.ovOn=bd<6.2&&(was?hd>.3:hd>.85);if(ST.ovOn)cy=Math.max(cy,O.ovY[bi]);}else ST.ovOn=false;}car.position.set(ST.carX,cy,ST.carZ);car.rotation.y=ST.carA;
+    if(bi>=0){const q=D[Math.min(D.length-1,bi+2)],o=D[Math.max(0,bi-2)],da=Math.atan2(q[0]-o[0],q[1]-o[1]),hd=Math.abs(Math.cos(da-ST.carA));const was=ST.ovOn;ST.ovOn=bd<6.2&&(was?hd>.3:hd>.85);if(ST.ovOn)cy=Math.max(cy,O.ovY[bi]);}else ST.ovOn=false;}if(O&&O.brg&&O.brLift){const l=O.brLift(ST.carX,ST.carZ);if(l>0){const b=O.brg.find(b=>Math.hypot(b.x-ST.carX,b.z-ST.carZ)<22);if(b&&Math.abs(Math.sin(ST.carA)*b.dx+Math.cos(ST.carA)*b.dz)>.6)cy=Math.max(cy,groundAt(ST.carX,ST.carZ)+l);}}ST.cyS=ST.cyS===undefined||Math.abs(ST.cyS-cy)>3?cy:ST.cyS+(cy-ST.cyS)*Math.min(1,dt*7);cy=ST.cyS;/* a smooth ride (Paul Nov 2026) */car.position.set(ST.carX,cy,ST.carZ);car.rotation.y=ST.carA;
   kip.visible=!ST.inCar;shadow.visible=!ST.inCar;const ky=ST.ride?1.2:groundAt(ST.x,ST.z);kip.position.set(ST.x,ky,ST.z);shadow.position.set(ST.x,ky+.05,ST.z);
   const fr=(ST.step|0)%2;if(kipT.image!==kipFrames[fr]){kipT.image=kipFrames[fr];kipT.needsUpdate=true;}
   // camera: behind and above, like an old overworld
@@ -10419,11 +10419,12 @@ ROADS.forEach(r=>addPL(r.p,0));if(N)N.roads.forEach(r=>addPL(r.p,0));if(S){if(S.
 const rdD=(x,z,k)=>{const L=BK.get(bk(Math.floor(x/BSZ),Math.floor(z/BSZ)));let d=99;if(L)for(const s of L){if(s[2]!==k)continue;const e=segDist(x,z,s[0],s[1]);if(e<d)d=e;}return d;};
 const fwD=(x,z)=>(MP&&z<WZ)?mitchD(x,z):1e9;
 const TAV=TOWNS.map(t=>[t.x,t.z,{cbd:26,freo:20,air:30,sp:15,vp:15,hi:10,pin:14}[t.id]||12]);
-const nearTown=(x,z,p)=>TAV.some(t=>Math.hypot(x-t[0],z-t[1])<t[2]+(p||0));
+const FQ=30,FRT=OWR2?TOWNS.find(t=>t.id==='freo'):null;O.FQ=FQ;const inFreo=(x,z,p)=>!!FRT&&Math.abs(x-FRT.x)<FQ+(p||0)&&Math.abs(z-FRT.z)<FQ+(p||0);O.inFreo=inFreo;/* Paul Nov 2026: Fremantle is one street grid, a square the suburbs keep out of */
+const nearTown=(x,z,p)=>inFreo(x,z,(p||0)+1)||TAV.some(t=>Math.hypot(x-t[0],z-t[1])<t[2]+(p||0));
 // the suburb ground in the city map: flat turf away from the shore, the hills, Kings Park, the airport and the towns (the old
 // random holes are dropped: parks, ovals and centres now break up the houses)
 const SUBm=new Uint8Array(WX*WZ),AIRP=G(115.967,-31.941);if(L2&&L2.KK)for(let z=0;z<WZ;z++)for(let x=0;x<WX;x++){const i=z*WX+x;if(!LAND[i]||L2.KK[i]!==5||DL[i]<5||elevAt(x,z)>42)continue;if(Math.hypot(x-KPP[0],z-KPP[1])<20||Math.hypot(x-AIRP[0],z-AIRP[1])<30)continue;if(fbm(x/45+11,z/45-3)<-.4)continue;SUBm[i]=1;}
-const subA=(x,z)=>{if(z>=0){if(z>=WZ||x<0||x>=WX||!SUBm)return false;return SUBm[(z|0)*WX+(x|0)]===1;}if(!N||z<N.ZMIN+4)return false;const k=N.cls(x,z);return(k===8||(k>=4&&k<=6&&z>-225&&N.sd(x,z)>9&&fbm(x/50+4,z/50-2)>-.15))&&N.sd(x,z)>5&&N.land(x,z);};// north: the old suburb band plus new estates cut into the banksia scrub
+const subA=(x,z)=>{if(z>=0){if(z>=WZ||x<0||x>=WX||!SUBm)return false;return SUBm[(z|0)*WX+(x|0)]===1;}if(!N||z<N.ZMIN+4)return false;const k=N.cls(x,z);if(OWR2&&x>190&&x<286&&z>-130&&N.land(x,z)&&N.sd(x,z)>5&&Math.hypot(x-AIRP[0],z-AIRP[1])>26&&fbm(x/45+11,z/45-3)>-.45)return true;/* Paul Nov 2026: the empty bush north of the airport becomes suburbs with roads */return(k===8||(k>=4&&k<=6&&z>-225&&N.sd(x,z)>9&&fbm(x/50+4,z/50-2)>-.15))&&N.sd(x,z)>5&&N.land(x,z);};// north: the old suburb band plus new estates cut into the banksia scrub
 const free=(x,z,p)=>rdD(x,z,0)>2.7+p&&fwD(x,z)>7.2+p&&(z<-40||z>WZ||rdD(x,z,1)>1.9+p)&&!nearTown(x,z,p);
 const OCC=new Map(),ok=(x,z)=>(Math.floor(x)+3000)*6007+(Math.floor(z)+3000);
 const occ=(x,z)=>OCC.get(ok(x,z))||0;
@@ -10591,7 +10592,8 @@ const rkCover=(x,z)=>{let m=deckH(x,z);for(const[a,b]of[[1.3,0],[-1.3,0],[0,1.3]
 function rstrip(P,w,kind,yo,tl,k){drvPaint(P,w/2,1);const D=[P[0]];for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<1e-4)continue;const n=Math.max(1,Math.round(L/tl));for(let j=1;j<=n;j++)D.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n]);}
   if(D.length<2)return;const nc=Math.max(1,Math.ceil(w/1.1)),Y={lane:.05,ramp:.06,street:.07,art:.09}[kind]||yo,rows=[];
   for(let i=0;i<D.length;i++){const p=D[Math.max(0,i-1)],q=D[Math.min(D.length-1,i+1)];let dx=q[0]-p[0],dz=q[1]-p[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const x=D[i][0],z=D[i][1],r=[];
-    for(let j=0;j<=nc;j++){const o=-w/2+w*j/nc,X=x-dz*o,Z=z+dx*o;r.push([X,Math.max(gy(X,Z),.05)+Y,Z]);/* a low causeway where a street crosses a creek */}rows.push(r);}
+    for(let j=0;j<=nc;j++){const o=-w/2+w*j/nc,X=x-dz*o,Z=z+dx*o;r.push([X,Math.max(gy(X,Z),.05)+Y+(kind==='art'&&O.brLift?O.brLift(X,Z):0),Z]);/* a low causeway where a street crosses a creek */}rows.push(r);}
+  if(OWR2&&rows.length>2){/* Paul Nov 2026: level roads: flat across, a smooth rise and fall along, never below the ground */const M=rows.map(r=>Math.max(...r.map(v=>v[1]))),S=M.slice();for(let pass=0;pass<24;pass++)for(let i=1;i<S.length-1;i++)S[i]=Math.max(M[i],(S[i-1]+S[i]*2+S[i+1])/4);rows.forEach((r,i)=>r.forEach(v=>{v[1]=S[i];}));}
   for(let i=1;i<D.length;i++){const g=rgb(kind,D[i][0],D[i][1]),c=(k||1)*bake(D[i][0],D[i][1]);for(let j=0;j<nc;j++){const u0=j/nc,u1=(j+1)/nc;g.poly([rows[i-1][j],rows[i-1][j+1],rows[i][j+1],rows[i][j]],[[u0,0],[u1,0],[u1,1],[u0,1]],c);}
     RKSEG.push([D[i-1],D[i],kind==='art'?(OWR2?0:.19):0,kind==='art'?(OWR2?1.55:2.44):kind==='lane'?.4:kind==='ramp'?.62:w*.275]);}}
 function rdisc(x,z,rad,yo,n,k){drvPaint([[x,z]],rad,1);(O.auDisc||(O.auDisc=[])).push([x,z,rad]);const top=yo>=.08,g=rgb(top?'asph2':'asph',x,z),Y=top?.13:.12,c=(k||1)*bake(x,z),C=[x,gy(x,z)+Y,z];n=Math.max(n,10);
@@ -10655,6 +10657,7 @@ if(OWR2){const artOK2=(x,z)=>landAt(x,z)&&rdD(x,z,0)>3.4&&fwD(x,z)>8.2&&(z<-40||
   ART.slice().forEach(a=>{[0,1].forEach(e=>{const P=a.P,p=e?P[P.length-1]:P[0],q=e?P[P.length-2]:P[1];if(onArt(p[0],p[1],a))return;const dx=Math.sign(p[0]-q[0]),dz=Math.sign(p[1]-q[1]);const ext=[];let hit=false;
     for(let t=1;t<=CX*1.5;t++){const x=p[0]+dx*t,z=p[1]+dz*t;if(rdD(x,z,0)<3.6||onArt(x,z,a)){hit=true;break;}if(!artOK2(x,z))break;ext.push([x,z]);}
     if(hit&&ext.length)a.P=e?P.concat(ext):ext.reverse().concat(P);});});O.artAfter=ARTL();}
+if(OWR2){ART.slice().forEach(a=>{if(!a.P.some(p=>inFreo(p[0],p[1],.5)))return;const R=[];let cur=[];a.P.forEach(p=>{if(inFreo(p[0],p[1],.5)){if(cur.length)R.push(cur);cur=[];}else cur.push(p);});if(cur.length)R.push(cur);ART.splice(ART.indexOf(a),1);R.forEach(P=>{if(P.length>=3)ART.push(Object.assign({},a,{P}));});});}
 /* Paul Nov 2026: 4-lane roads running beside the Kwinana are residential streets (2 lanes), not main roads */
 const KWST=[];if(OWR2&&O.KWP){const KB=new Map(),kb=(x,z)=>Math.floor(x/6)*10007+Math.floor(z/6);for(let i=1;i<O.KWP.length;i++){const a=O.KWP[i-1],b=O.KWP[i],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/2);for(let t=0;t<=n;t++){const x=a[0]+(b[0]-a[0])*t/n,z=a[1]+(b[1]-a[1])*t/n,k=kb(x,z);(KB.get(k)||KB.set(k,[]).get(k)).push([x,z]);}}
   const kwD=(x,z)=>{let m=1e9;for(let dx=-3;dx<=3;dx++)for(let dz=-3;dz<=3;dz++){const L=KB.get((Math.floor(x/6)+dx)*10007+Math.floor(z/6)+dz);if(L)L.forEach(p=>{m=Math.min(m,Math.hypot(p[0]-x,p[1]-z));});}return m;};
@@ -10789,19 +10792,19 @@ KWST.forEach(a=>{addStreet(a.P,'main');ROUTES.push(a.P);});ART.forEach(a=>{const
 VX.forEach(v=>{if(v.arms.length<2)return;const four=v.arms.length>=3;if(v.used&&four){SIGS.push(v);}else if(v.arms.length>=3)STREETS.push({P:[[v.x,v.z]],kind:'rab2',v});else STREETS.push({P:[[v.x,v.z]],kind:'pad',v});markRect(v.x,v.z,0,6.4,6.4,2);});
 
 // ===== Fremantle centre (Look Lab ?ow2, Paul Nov 2026): a grid of small two-lane town streets, limestone shopfronts on every block, and landmarks (market hall, town hall clock tower, café strip, boat shed) =====
-if(OWR2&&T.freo)try{const t=T.freo,g=t.g,[gx,gz]=gpos(t),sc=g.scale.x||1,gy0=g.position.y;
-  const hsh=(a,b)=>{const s=Math.sin(a*127.1+b*311.7)*43758.5453;return s-Math.floor(s);},PIT=6,R=19,keep=(x,z)=>{const a=(x-gx)/sc,b=(z-gz)/sc;return a>-12&&a<11&&b>-11&&b<6;};/* the old harbour piece stays as it is */
+if(OWR2&&T.freo)try{const t=T.freo,g=t.g,[gx,gz]=[t.x,t.z],gox=g.position.x,goz=g.position.z,sc=g.scale.x||1,gy0=g.position.y;
+  const hsh=(a,b)=>{const s=Math.sin(a*127.1+b*311.7)*43758.5453;return s-Math.floor(s);},PIT=6,K=5,R=K*PIT,keep=(x,z)=>{const a=(x-gox)/sc,b=(z-goz)/sc;return a>-12&&a<11&&b>-11&&b<6;};/* the old harbour piece stays as it is */
   const nearRail=(x,z)=>RAIL&&RAIL.some((p,i)=>i&&segDist(x,z,RAIL[i-1],p)<1.8);
-  const okPt=(x,z)=>landAt(x,z)&&!keep(x,z)&&!nearRail(x,z)&&Math.hypot(x-gx,z-gz)<R+2;
+  const okPt=(x,z)=>landAt(x,z)&&[[3.5,0],[-3.5,0],[0,3.5],[0,-3.5],[2.5,2.5],[-2.5,2.5],[2.5,-2.5],[-2.5,-2.5]].every(([a,b])=>landAt(x+a,z+b))/* solid ground only: nothing out on the moles or little islands (Paul Nov 2026) */&&!keep(x,z)&&!nearRail(x,z)&&Math.abs(x-gx)<=R+.01&&Math.abs(z-gz)<=R+.01;
   // streets on the grid lines, in runs over land
-  const lines=[];for(let k=-3;k<=3;k++){const xs=[],zs=[];for(let s=-R;s<=R;s+=1){xs.push([gx+k*PIT,gz+s]);zs.push([gx+s,gz+k*PIT]);}lines.push(xs,zs);}
-  let nS=0;lines.forEach(L=>{let cur=[];const flush=()=>{if(cur.length>4){addStreet(cur,'local');ROUTES.push(cur);nS++;}cur=[];};L.forEach(p=>{if(okPt(p[0],p[1])&&!onRoad(p[0],p[1],2.6))cur.push(p);else flush();});flush();});
+  const lines=[];for(let k=-K;k<=K;k++){const xs=[],zs=[];for(let q=-R;q<=R;q+=1){xs.push([gx+k*PIT,gz+q]);zs.push([gx+q,gz+k*PIT]);}lines.push([xs,0],[zs,k===0?1:0]);}
+  let nS=0;lines.forEach(([L,main])=>{let cur=[];const flush=()=>{if(cur.length>2){addStreet(cur,main?'main':'local');STREETS[STREETS.length-1].freo=1;ROUTES.push(cur);nS++;}cur=[];};L.forEach(p=>{if(okPt(p[0],p[1])||(Math.abs(Math.abs(p[0]-gx)-R)<.01||Math.abs(Math.abs(p[1]-gz)-R)<.01)&&landAt(p[0],p[1])&&!keep(p[0],p[1]))cur.push(p);else flush();});flush();});
   // a building on each side of a block, facing its street
   const COL=['#efe3c4','#e8d0a0','#f2e6c8','#d8c4a0','#e4d4ac','#f4ead2','#e0c89c'],AW=['#c8344a','#2f6a74','#e8b860','#3e7d5c','#1d3a6e','#e86a1a'];
   const put=(x,z,w,d,h,ry,o)=>{const y=groundAt(x,z)-gy0,s=new THREE.Group();s.position.set((x-gx)/sc,y/sc,(z-gz)/sc);g.add(s);blockB(s,0,0,w,d,h,Object.assign({ry},o));for(let a=-w/2;a<=w/2;a+=.5)for(let b=-d/2;b<=d/2;b+=.5)markPt(x+a,z+b,2);return s;};
   const land4=(x,z,r)=>[[r,r],[-r,r],[r,-r],[-r,-r],[0,0]].every(([a,b])=>okPt(x+a,z+b));
   let nB=0,lm=0;const cen=[];
-  for(let i=-3;i<3;i++)for(let j=-3;j<3;j++){const bx=gx+(i+.5)*PIT,bz=gz+(j+.5)*PIT;if(!land4(bx,bz,1.4))continue;cen.push([bx,bz,Math.hypot(bx-gx,bz-gz)]);}
+  for(let i=-K;i<K;i++)for(let j=-K;j<K;j++){const bx=gx+(i+.5)*PIT,bz=gz+(j+.5)*PIT;if(!land4(bx,bz,1.4))continue;cen.push([bx,bz,Math.hypot(bx-gx,bz-gz)]);}
   cen.sort((a,b)=>a[2]-b[2]);
   cen.forEach(([bx,bz],n)=>{const h1=hsh(bx*.7,bz*1.3),h2=hsh(bz*.9,bx*1.1);
     if(n===0){// town hall with a clock tower
@@ -10813,6 +10816,8 @@ if(OWR2&&T.freo)try{const t=T.freo,g=t.g,[gx,gz]=gpos(t),sc=g.scale.x||1,gy0=g.p
       const p=new THREE.Mesh(new THREE.PlaneGeometry(2.6,.5),new THREE.MeshBasicMaterial({map:TX(sg)}));p.position.set(0,2.1,1.62);s.add(p);lm++;return;}
     if(n===2){// boat shed with a sail roof, by the water side of town
       const s=put(bx,bz,3.6,2.4,1.2,0,{base:'#dfe6ea',kind:'plaster',rows:1,win:4,seed:321});[-1,1].forEach(k=>{const r=add(s,new THREE.ConeGeometry(1.4,2.2,3),flat('#f6f6f0'),k*.9,2.3,0);r.scale.set(1,1,.35);});lm++;return;}
+    if(Math.max(Math.abs(bx-gx),Math.abs(bz-gz))>PIT*2.6){// outer blocks: limestone cottages with gardens
+      [-1,1].forEach(side=>{for(let q=0;q<2;q++){const x=bx-1+q*2,z=bz+side*.95;if(!okPt(x,z))continue;put(x,z,1.5,1.4,1.05,side>0?0:Math.PI,{base:COL[(q+n)%COL.length],kind:(q+n)%2?'brick':'plaster',rows:1,win:2,seed:400+n*5+q,gable:.6,roofCol:['#b8562e','#8a8e94','#6a4a3a','#c86a3a'][(n+q)%4],frame:'#f4ecd8'});nB++;}});return;}
     // ordinary blocks: two or three shopfronts facing the street on the north and south sides, verandahs on the café street
     const cafe=Math.abs(bz-gz)<PIT*1.1;const nn=h1<.5?2:3,w=(PIT-2.7)/nn*1.0;
     [-1,1].forEach(side=>{for(let q=0;q<nn;q++){const x=bx-(PIT-2.7)/2+w*(q+.5),z=bz+side*.85,hh=1.9+((Math.floor(h1*7)+q*3+(side>0?1:0))%4)*.4;if(!okPt(x,z))continue;
@@ -10823,10 +10828,21 @@ if(OWR2&&T.freo)try{const t=T.freo,g=t.g,[gx,gz]=gpos(t),sc=g.scale.x||1,gy0=g.p
 if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP,CUT=7.6;
   const KB=new Map(),kb=(x,z)=>Math.floor(x/6)*10007+Math.floor(z/6);for(let i=1;i<KP.length;i++){const a=KP[i-1],b=KP[i],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/1.5);for(let t=0;t<=n;t++){const p=[a[0]+(b[0]-a[0])*t/n,a[1]+(b[1]-a[1])*t/n,i];const k=kb(p[0],p[1]);(KB.get(k)||KB.set(k,[]).get(k)).push(p);}}
   const kwN=(x,z)=>{let m=1e9,best=null;for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++){const L=KB.get((Math.floor(x/6)+dx)*10007+Math.floor(z/6)+dz);if(L)L.forEach(p=>{const d=Math.hypot(p[0]-x,p[1]-z);if(d<m){m=d;best=p;}});}return best?{d:m,p:best}:{d:1e9};};
+  const BRG=[];O.brg=BRG;O.brLift=(x,z)=>{let m=0;for(const b of BRG){const ox=x-b.x,oz=z-b.z,s=ox*b.dx+oz*b.dz,d=Math.abs(-ox*b.dz+oz*b.dx);if(d>3.5||Math.abs(s)>21)continue;const k=Math.max(0,Math.min(1,(21-Math.abs(s))/13));m=Math.max(m,2.7*k*k*(3-2*k));}return m;};
   const RMP=[],cutK=new Set(['local','main','art','lane','street']);let nCut=0;
+  /* main roads that stop either side of the Kwinana are joined across it (then bridged below) */
+  {const A=STREETS.filter(s=>s.kind==='art'&&s.P.length>2),ends=[];A.forEach(s=>[0,1].forEach(e=>{const P=s.P,p=e?P[P.length-1]:P[0],q=e?P[P.length-3]:P[2];const k=kwN(p[0],p[1]);if(k.d<16){let dx=p[0]-q[0],dz=p[1]-q[1];const l=Math.hypot(dx,dz)||1;ends.push({s,e,p,dx:dx/l,dz:dz/l});}}));let nJ=0;
+    ends.forEach(a=>{if(a.used)return;let best=null;ends.forEach(b=>{if(b===a||b.used||b.s===a.s)return;const vx=b.p[0]-a.p[0],vz=b.p[1]-a.p[1],L=Math.hypot(vx,vz);if(L>34||L<4)return;const al=(vx*a.dx+vz*a.dz)/L,bl=-(vx*b.dx+vz*b.dz)/L;if(al<.93||bl<.93)return;let mid=false;for(let t=.2;t<.8;t+=.1)if(kwN(a.p[0]+vx*t,a.p[1]+vz*t).d<4)mid=true;if(!mid)return;if(!best||L<best.L)best={b,L};});
+      if(!best)return;const b=best.b;ends.forEach(x=>{if(x.s===a.s||x.s===b.s)x.used=1;});const PA=a.e?a.s.P:a.s.P.slice().reverse(),PB=b.e?b.s.P.slice().reverse():b.s.P,n=Math.ceil(best.L),fill=[];for(let t=1;t<n;t++)fill.push([a.p[0]+(b.p[0]-a.p[0])*t/n,a.p[1]+(b.p[1]-a.p[1])*t/n]);
+      const ri=ROUTES.indexOf(b.s.P);if(ri>=0)ROUTES.splice(ri,1);const ra=ROUTES.indexOf(a.s.P);a.s.P=PA.concat(fill,PB);if(ra>=0)ROUTES[ra]=a.s.P;STREETS.splice(STREETS.indexOf(b.s),1);nJ++;});/* an end with no partner runs straight on over the freeway to the first road on the far side */
+    const hitAt=(x,z,self)=>{for(const t of STREETS){if(t===self||!t.P||t.P.length<2||t.kind==='ramp'||t.kind==='bulb'||t.kind==='abulb')continue;for(let i=1;i<t.P.length;i++)if(segDist(x,z,t.P[i-1],t.P[i])<1.2)return true;}for(const r of RIBS){if(r.hidden||!r.P2)continue;for(let i=1;i<r.P2.length;i++)if(segDist(x,z,r.P2[i-1],r.P2[i])<r.w/2)return true;}return false;};
+    ends.forEach(a=>{if(a.used)return;let crossed=false,hit=-1;for(let t=1;t<=44;t+=.5){const x=a.p[0]+a.dx*t,z=a.p[1]+a.dz*t;if(!landAt(x,z)&&z<WZ)break;if(kwN(x,z).d<3)crossed=true;else if(crossed&&kwN(x,z).d>7.5&&hitAt(x,z,a.s)){hit=t;break;}}
+      if(hit<0)return;const ext=[];for(let t=1;t<=hit;t+=1)ext.push([a.p[0]+a.dx*t,a.p[1]+a.dz*t]);const ra=ROUTES.indexOf(a.s.P);a.s.P=a.e?a.s.P.concat(ext):ext.reverse().concat(a.s.P);if(ra>=0)ROUTES[ra]=a.s.P;a.used=1;nJ++;});
+    O.kwJoined=nJ;O.kwEnds=ends.map(e=>[+e.p[0].toFixed(1),+e.p[1].toFixed(1),+e.dx.toFixed(2),+e.dz.toFixed(2),+kwN(e.p[0],e.p[1]).d.toFixed(1)]);}
   const out=[];STREETS.forEach(s=>{const P=s.P;if(!P||!P.length)return;
     if(!cutK.has(s.kind)){if(kwN(P[0][0],P[0][1]).d<CUT+4)return;out.push(s);return;}
     if(!P.some(p=>kwN(p[0],p[1]).d<CUT)){out.push(s);return;}
+    if(s.kind==='art'){/* Paul Nov 2026: a main road goes over the Kwinana on a bridge */let bi=0,bd=1e9;P.forEach((p,i)=>{const d=kwN(p[0],p[1]).d;if(d<bd){bd=d;bi=i;}});const a=P[Math.max(0,bi-2)],b=P[Math.min(P.length-1,bi+2)];let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1;BRG.push({x:P[bi][0],z:P[bi][1],dx:dx/l,dz:dz/l});out.push(s);return;}
     nCut++;const ri=ROUTES.indexOf(P);if(ri>=0)ROUTES.splice(ri,1);
     const runs=[];let cur=[],cutBefore=false;P.forEach(p=>{if(kwN(p[0],p[1]).d<CUT){if(cur.length){runs.push({P:cur,a:cutBefore,b:true});cur=[];}cutBefore=true;}else{if(!cur.length)cur.cut=cutBefore;cur.push(p);}});if(cur.length)runs.push({P:cur,a:cutBefore,b:false});
     runs.forEach(r=>{if(r.P.length>=2){const ns={P:r.P,kind:s.kind};out.push(ns);ROUTES.push(r.P);}
@@ -10840,6 +10856,34 @@ if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP,CUT=7.6;
   STREETS.length=0;out.forEach(s=>STREETS.push(s));
   for(let i=SIGS.length-1;i>=0;i--){const v=SIGS[i];if(kwN(v.x,v.z).d<CUT+2)SIGS.splice(i,1);}
   O.kwExits=RMP;O.kwCut=nCut;console.log('OWLOG kwinana exits',nCut,'streets cut',RMP.length,'exits');}catch(e){console.error('kw exits',e);}
+// ===== three-way junctions (Look Lab ?ow2, Paul Nov 2026, from his street photo): the side road flares out at the mouth, a kerbed teardrop splits
+// it, a grass "pork-chop" island sets off the free left-turn slip lane, give-way line and turn arrows on the approach =====
+const TEE3=[];O.tee3L=TEE3;O.tee3=(x,z,tx,tz,nx,nz,hw,sw)=>{if(!OWR2)return;if(TEE3.some(t=>Math.hypot(t[0]-x,t[1]-z)<3))return;TEE3.push([x,z,tx,tz,nx,nz,hw,sw]);};
+O.tee3Build=()=>{if(!TEE3.length)return 0;const P=[],C=[],I=[];const col=h=>{const c=new THREE.Color(h).convertSRGBToLinear();return[c.r,c.g,c.b];};
+  const ASP=col('#5a5c60'),KERB=col('#e8e4da'),GR=col('#6aa040'),WH=col('#f4f2ec');
+  const poly=(pts,y,c)=>{const b=P.length/3;pts.forEach(p=>{P.push(p[0],(p[2]!==undefined?p[2]:gy(p[0],p[1]))+y,p[1]);C.push(...c);});for(let k=1;k<pts.length-1;k++)I.push(b,b+k+1,b+k);};
+  TEE3.forEach(([x,z,tx,tz,nx,nz,hw,sw])=>{const W=(u,v)=>[x+nx*(hw+v)+tx*u,z+nz*(hw+v)+tz*u];const y0=gy(x+nx*hw,z+nz*hw);const Wy=(u,v)=>{const p=W(u,v);p[2]=y0;return p;};
+    // asphalt flare: the mouth widens to the slip lane on +u, with a curved corner on each side
+    const fl=[];for(let k=0;k<=6;k++){const a=k/6*Math.PI/2;fl.push(Wy(-sw-2.2+2.2*(1-Math.cos(a)),-.05+2.2*Math.sin(a)));}
+    const fr=[];for(let k=6;k>=0;k--){const a=k/6*Math.PI/2;fr.push(Wy(sw+3.2-3.2*(1-Math.cos(a)),-.05+3.2*Math.sin(a)));}
+    poly([Wy(0,-.05)].concat(fl,[Wy(-sw,5),Wy(sw,5)],fr),.135,ASP);
+    // pork-chop island between the slip lane and the turning lanes (kerb then grass)
+    const pc=(s)=>[Wy(.35*sw+.1*s,.9-.1*s),Wy(sw+1.25-.25*s,.55+.12*s),Wy(sw-.15-.12*s,2.8-.25*s)];poly(pc(0),.2,KERB);poly(pc(1),.215,GR);
+    // teardrop splitter on the side road
+    const td=s=>[Wy(-.12,1.3+s*.15),Wy(-.42+s*.08,2.4),Wy(-.3+s*.06,4.6-s*.2),Wy(-.05-s*.03,4.6-s*.2),Wy(.12-s*.06,2.4)];poly(td(0),.2,KERB);poly(td(1),.215,col('#d8d2c4'));
+    // give-way line, centre line and arrows on the inbound half (u<0)
+    for(let u=-sw+.1;u<-.15;u+=.32)poly([Wy(u,.75),Wy(u+.18,.75),Wy(u+.18,.62),Wy(u,.62)],.15,WH);
+    poly([Wy(-.04,4.7),Wy(.04,4.7),Wy(.04,6.6),Wy(-.04,6.6)],.15,WH);
+    const arrow=(u0,v0,dir)=>{poly([Wy(u0-.05,v0),Wy(u0+.05,v0),Wy(u0+.05,v0+.9),Wy(u0-.05,v0+.9)],.15,WH);poly([Wy(u0,v0-.05),Wy(u0+dir*.38,v0+.12),Wy(u0+dir*.12,v0+.2),Wy(u0+dir*.12,v0+.04)],.15,WH);};
+    arrow(-sw*.5,1.7,-1);arrow(-sw*.5,1.7,1);});
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setIndex(I);g.computeVertexNormals();
+  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-16}));m.receiveShadow=true;m.userData.L='roads';m.name='rk:tee3';scene.add(m);return TEE3.length;};
+// arterial tees in the suburbs: find the real road directions out of each vertex from the drawn main roads (they may have been joined or extended)
+if(OWR2){VX.forEach(v=>{if(!v.arms||v.arms.length!==3)return;if(O.KWP&&O.KWP.some(p=>Math.hypot(p[0]-v.x,p[1]-v.z)<10))return;const dirs=[];
+    STREETS.forEach(s=>{if(s.kind!=='art')return;const P=s.P;let bi=-1,bd=1.2;for(let i=0;i<P.length;i++){const d=Math.hypot(P[i][0]-v.x,P[i][1]-v.z);if(d<bd){bd=d;bi=i;}}if(bi<0)return;
+      [-1,1].forEach(sg=>{let j=bi,acc=0;while(j+sg>=0&&j+sg<P.length&&acc<3){acc+=Math.hypot(P[j+sg][0]-P[j][0],P[j+sg][1]-P[j][1]);j+=sg;}if(acc<1.5)return;let dx=P[j][0]-v.x,dz=P[j][1]-v.z;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;if(!dirs.some(d=>d[0]*dx+d[1]*dz>.85))dirs.push([dx,dz]);});});
+    if(dirs.length!==3)return;let best=null;for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){const d=dirs[i][0]*dirs[j][0]+dirs[i][1]*dirs[j][1];if(!best||d<best.d)best={d,i,j};}if(best.d>-.8)return;
+    const k=3-best.i-best.j,n=dirs[k],t=[-n[1],n[0]];v.tee=1;O.tee3(v.x,v.z,t[0],t[1],n[0],n[1],1.5,1.5);});}
 // ---- street ends and crossings (Paul, Nov 2026: no notches): a street that meets an arterial gets an asphalt apron across the arterial's verge
 // and footpath; a short gap to the road it faces is closed; a street crossing another gets an apron; a true dead end gets a turning circle ----
 const APR=[];O.subAprons=APR;
@@ -10869,8 +10913,9 @@ const APR=[];O.subAprons=APR;
   for(let a=0;a<SL.length;a++){const s=SL[a];if(s.kind==='art')continue;for(let i=1;i<s.P.length;i++){const p=s.P[i-1],r=[s.P[i][0]-p[0],s.P[i][1]-p[1]];const L=BKS.get(bk2(p[0],p[1]))||[];
     for(const g of L){const t2=g[2];if(t2===s||t2.kind==='art'||SL.indexOf(t2)<a)continue;const q=g[0],u=[g[1][0]-q[0],g[1][1]-q[1]],den=r[0]*u[1]-r[1]*u[0];if(Math.abs(den)<1e-6)continue;
       const tt=((q[0]-p[0])*u[1]-(q[1]-p[1])*u[0])/den,uu=((q[0]-p[0])*r[1]-(q[1]-p[1])*r[0])/den;if(tt<0||tt>1||uu<0||uu>1)continue;const x=p[0]+r[0]*tt,z=p[1]+r[1]*tt;
-      if(STREETS.some(o=>(o.kind==='xpad'||o.kind==='rab'||o.kind==='xst'||o.kind==='mrab')&&Math.hypot(o.P[0][0]-x,o.P[0][1]-z)<1.5))continue;
+      if(STREETS.some(o=>(o.kind==='xpad'||o.kind==='rab'||o.kind==='xst'||o.kind==='mrab'||o.kind==='fx')&&Math.hypot(o.P[0][0]-x,o.P[0][1]-z)<1.5))continue;
       // Paul (Nov 2026, from his photos): lanes meet at a small roundabout; streets cross at a crossroads with zebras and stop lines
+      if(s.freo&&t2.freo&&!(s.kind==='main'||t2.kind==='main')){STREETS.push({P:[[x,z]],kind:'fx',a:Math.atan2(r[0],r[1])});nX++;continue;}/* Fremantle grid: plain crossings, zebras only on the main street */
       if(s.kind==='lane'||t2.kind==='lane')STREETS.push({P:[[x,z]],kind:'mrab',r:Math.max(half(s),half(t2))+.75});
       else STREETS.push({P:[[x,z]],kind:'xst',a1:Math.atan2(r[0],r[1]),a2:Math.atan2(u[0],u[1]),w1:s.kind==='main'?3:2.5,w2:t2.kind==='main'?3:2.5});nX++;}}}
   // streets that cross a highway: a junction box over the crossing
@@ -10885,10 +10930,11 @@ STREETS.forEach(s=>{const P=s.P;
   if(s.kind==='abulb'){rdisc(P[0][0],P[0][1],OWR2?1.45:3.4,.09,20);return;}if(s.kind==='xpad'){rdisc(P[0][0],P[0][1],s.r,.07,12);return;}if(s.kind==='tee'){rbox(P[0][0],P[0][1],6.5,6.5,0,'cross',.12,true);return;}
   if(s.kind==='bulb'){const[x,z]=P[0],g=B(x,z),R0=1.05;disc(g,x,z,R0+.05,.07,UV.asph,24);ring(g,x,z,R0,R0+.1,.16,UV.kerb,24);ring(g,x,z,R0+.1,R0+.45,.11,UV.path,24);RKCIR.push([x,z,R0]);return;}// a cul-de-sac just a little wider than its street (Paul, Nov 2026)// a cul-de-sac: asphalt circle, kerb, footpath
   if(s.kind==='xst'){const[x,z]=P[0];rbox(x,z,s.w2+2,s.w1,s.a1,'xarm',0,false);rbox(x,z,s.w1+2,s.w2,s.a2,'xarm2',0,false);return;}
+  if(s.kind==='fx'){const[x,z]=P[0];rbox(x,z,1.45,1.45,s.a,'asph',.1,true);return;}
   if(s.kind==='tj'){const[x,z]=P[0];rbox(x,z,s.L,s.w,s.ang,'tarm',0,false);return;}
   if(s.kind==='mrab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,s.r,.07,UV.asph,16);const F=FR(x,gy(x,z)+.08,z,0,bake(x,z));cyl(g,F,0,0,0,s.r*.36,.1,12,UV.kerb,UV.island);ring(g,x,z,s.r*.36,s.r*.36+.08,.1,UV.kerb,12);return;}
   if(s.kind==='rab'){const[x,z]=P[0],g=B(x,z);disc(g,x,z,2.1,.075,UV.asph,14);const F=FR(x,gy(x,z)+.07,z,0,bake(x,z));cyl(g,F,0,0,0,.95,.14,12,UV.kerb,UV.island);plant(x,z,3,2.4);return;}
-  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];rbox(x,z,3.0,3.0,0,'cross2',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
+  if(s.kind==='rab2'&&OWR2){const[x,z]=P[0];rbox(x,z,3.0,3.0,0,s.v&&s.v.tee?'asph':'cross2',.12,false);return;}// four-lane crossings are signal-style crossroads, not roundabouts (Paul, Nov 2026)
   if(s.kind==='rab2'){const[x,z]=P[0],g=B(x,z);rbox(x,z,6.6,6.6,0,'asph',.1,false);disc(g,x,z,4,.09,UV.asph,18);const F=FR(x,gy(x,z)+.09,z,0,bake(x,z));cyl(g,F,0,0,0,2,.16,16,UV.kerb,UV.island);plant(x,z,13,4.2);plant(x+.9,z+.6,5,2.8);return;}
   if(s.kind==='pad'){const[x,z]=P[0],v=s.v;if(v&&v.arms.length===2&&v.arms[0][0].h===v.arms[1][0].h)return;rbox(x,z,6.6,6.6,0,'asph',.11,false);return;}
   const w=s.kind==='art'?6.5:s.kind==='ramp'?1.6:s.kind==='lane'?.8:s.kind==='main'?3:2.5,uv=s.kind==='art'?UV.art:s.kind==='lane'?UV.lane:s.kind==='ramp'?UV.ramp:UV.street,yo=s.kind==='art'?.08:s.kind==='lane'?.04:.06;
@@ -10899,7 +10945,7 @@ STREETS.forEach(s=>{const P=s.P;
 
 // signals at the centre crossroads: a zebra slab, four poles with heads (bulbs are one instanced mesh, phases shared with the traffic)
 const BULB=[],SIGO=[];
-SIGS.forEach((v,si)=>{const x=v.x,z=v.z,g=B(x,z),y=gy(x,z)+.1,F=FR(x,y,z,0,bake(x,z));if(OWR2&&!v.rib)rbox(x,z,3.0,3.0,0,'cross2',.12,false);else rbox(x,z,6.5,6.5,0,'cross',.12,!!v.rib);
+SIGS.forEach((v,si)=>{const x=v.x,z=v.z,g=B(x,z),y=gy(x,z)+.1,F=FR(x,y,z,0,bake(x,z));if(OWR2&&!v.rib)rbox(x,z,3.0,3.0,0,v.tee?'asph':'cross2',.12,false);else rbox(x,z,6.5,6.5,0,'cross',.12,!!v.rib);
   const s={x,z,ang:0,ax:[0,1],heads:[],ph:si*3.7+1.3,g:null,sub:1};SIGO.push(s);
   [[1,1],[-1,1],[-1,-1],[1,-1]].forEach(([sx,sz],k)=>{const px=sx*3.6,pz=sz*3.6;box(g,F,px,0,pz,.12,2.3,.12,all(UV.black));const hy=2.05;box(g,F,px,hy-.42,pz,.28,.8,.22,all(UV.black));
     const axis=k%2;const dirs=axis?[[0,0,1],[0,0,-1]]:[[1,0,0],[-1,0,0]];BULB.push({x:x+px,y:y+hy-.42,z:z+pz,s,axis,face:axis?[0,sz]:[sx,0]});});});
@@ -11291,11 +11337,16 @@ if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP;
   /* noise fence both sides, the whole way (Paul Nov 2026): beige panels with posts; gaps at exits, stations, bridges over water and streets passing under */
   {const fc=mkc(32,16),fx=fc.getContext('2d');PP(fx,'#c8b89a',0,0,32,16);for(let X=0;X<32;X+=4)PP(fx,'#b4a284',X,0,1,16);PP(fx,'#a89678',0,0,32,1);PP(fx,'#d8ccb0',0,1,32,1);PP(fx,'#8a7a62',0,15,32,1);PP(fx,'#7a6a56',0,0,2,16);PP(fx,'#7a6a56',30,0,2,16);
     const fm=new THREE.MeshLambertMaterial({map:TX(fc,true),side:THREE.DoubleSide});const ex=O.kwExits||[],st=(O.subStreets||[]).filter(s=>s.kind==='ramp');
-    const gap=(x,z)=>(z<WZ-1&&!landAt(x,z))||ex.some(e=>Math.hypot(e[0]-x,e[1]-z)<4)||st.some(s=>s.P.some(p=>Math.hypot(p[0]-x,p[1]-z)<1.6))||(O.ovD&&O.ovD.some(p=>Math.hypot(p[0]-x,p[1]-z)<7))||owProtected(x,z,1);
+    const gap=(x,z)=>(z<WZ-1&&!landAt(x,z))||(O.brg||[]).some(b=>Math.hypot(b.x-x,b.z-z)<5)||ex.some(e=>Math.hypot(e[0]-x,e[1]-z)<4)||st.some(s=>s.P.some(p=>Math.hypot(p[0]-x,p[1]-z)<1.6))||(O.ovD&&O.ovD.some(p=>Math.hypot(p[0]-x,p[1]-z)<7))||owProtected(x,z,1);
     let nF=0;[-1,1].forEach(sd=>{const v=[],uv=[],idx=[];let prev=null,u=0;D.forEach((p,i)=>{const q=D[Math.min(D.length-1,i+1)],o=D[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const x=p[0]+dz*6.3*sd,z=p[1]-dx*6.3*sd;
       if(gap(x,z)){prev=null;return;}const y=groundAt(x,z)-.05;if(prev){u+=Math.hypot(x-prev[0],z-prev[1]);const b=v.length/3;v.push(prev[0],prev[2],prev[1],prev[0],prev[2]+.95,prev[1],x,y,z,x,y+.95,z);uv.push(prev[3],0,prev[3],1,u/2,0,u/2,1);idx.push(b,b+2,b+1,b+1,b+2,b+3);nF++;}prev=[x,z,y,u/2];});
       if(v.length){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,fm);m.castShadow=true;m.receiveShadow=true;m.userData.L='props';scene.add(m);}});O.kwFence=nF;}
   if(O.signals){for(let i=O.signals.length-1;i>=0;i--){const g2=O.signals[i];if(D.some(p=>Math.hypot(p[0]-g2.x,p[1]-g2.z)<7)){if(g2.g)g2.g.visible=false;O.signals.splice(i,1);}}}/* no traffic lights on the Kwinana: streets meet it by slip roads */
+  if(O.brg&&O.brg.length){const cm=new THREE.MeshLambertMaterial({color:new THREE.Color('#c9c6bd').convertSRGBToLinear()});O.brg.forEach(b=>{const a=Math.atan2(b.dx,b.dz),gy0=groundAt(b.x,b.z);
+    [-6.9,-1.9,1.9,6.9].forEach(s=>{const x=b.x+b.dx*s,z=b.z+b.dz*s,l=O.brLift(x,z),gh=groundAt(x,z);if(l<.5)return;const m=new THREE.Mesh(new THREE.BoxGeometry(6.4,l-.15,.6),cm);m.position.set(x,gh+(l-.15)/2,z);m.rotation.y=a;m.castShadow=true;m.userData.L='build';scene.add(m);});
+    [-3.25,3.25].forEach(o=>{for(let s=-16;s<16;s+=1){const x=b.x+b.dx*(s+.5)-b.dz*o,z=b.z+b.dz*(s+.5)+b.dx*o,l=O.brLift(b.x+b.dx*(s+.5),b.z+b.dz*(s+.5));if(l<.4)continue;const m=new THREE.Mesh(new THREE.BoxGeometry(.18,.45,1.02),cm);m.position.set(x,groundAt(b.x+b.dx*(s+.5),b.z+b.dz*(s+.5))+l+.3,z);m.rotation.y=a;m.userData.L='build';scene.add(m);}});
+    for(let s=-21;s<21;s+=1){const c=s+.5;if(Math.abs(c)<7.6)continue;const x=b.x+b.dx*c,z=b.z+b.dz*c,l=O.brLift(x,z)-.1;if(l<.15)continue;const gh=groundAt(x,z),m=new THREE.Mesh(new THREE.BoxGeometry(6.4,l,1.04),cm);m.position.set(x,gh+l/2,z);m.rotation.y=a;m.userData.L='build';scene.add(m);}/* earth ramps */
+    const dk=new THREE.Mesh(new THREE.BoxGeometry(6.6,.5,15),cm);dk.position.set(b.x,gy0+O.brLift(b.x,b.z)-.5,b.z);dk.rotation.y=a;dk.castShadow=true;dk.userData.L='build';scene.add(dk);});}
   O.kwRoad=D;drvPaint(D,5.4,2);{const KB=new Map(),kb=(x,z)=>Math.floor(x/8)*100003+Math.floor(z/8);D.forEach((p,i)=>{if(i)for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++){const k=(Math.floor(p[0]/8)+dx)*100003+Math.floor(p[1]/8)+dz;(KB.get(k)||KB.set(k,[]).get(k)).push(i);}});DRV_FAR=(x,z)=>{const L=KB.get(kb(x,z));if(L)for(const i of L)if(segDist(x,z,D[i-1],D[i])<5.6)return 2;return 0;};}console.log('OWLOG kwinana corridor '+Math.round(acc)+' u, rail '+Math.round(L0));}catch(e){console.error('kwinana',e);}
 
 // ===== owroads2 (Paul, Nov 2026, asked by name for the CBD): the Kwinana Fwy through the city is an elevated freeway joining the Mitchell,
@@ -11364,7 +11415,9 @@ try{const t0=performance.now(),RS={};O.ribs=RIBS;
   RV.forEach(r=>{if(r.w>3.5)return;[r.pts[0],r.pts[r.pts.length-1]].forEach(e=>{if(O.signals&&O.signals.some(s=>Math.hypot(s.x-e[0],s.z-e[1])<7))return;let best=null;
     RV.forEach(q=>{if(q===r||q.w<r.w)return;const P=q.P2;for(let i=1;i<P.length;i++){const d=segDist(e[0],e[1],P[i-1],P[i]);if(d<q.w/2&&(!best||d<best.d)){const dx=P[i][0]-P[i-1][0],dz=P[i][1]-P[i-1][1],l=Math.hypot(dx,dz)||1;best={d,q,t:[dx/l,dz/l],a:P[i-1]};}}});
     if(!best)return;const t=best.t,n0=[t[1],-t[0]],q=r.pts[r.pts[0]===e?Math.min(3,r.pts.length-1):Math.max(0,r.pts.length-4)],sd=Math.sign((q[0]-e[0])*n0[0]+(q[1]-e[1])*n0[1])||1,n=[n0[0]*sd,n0[1]*sd];
-    const along=(e[0]-best.a[0])*t[0]+(e[1]-best.a[1])*t[1],fx=best.a[0]+t[0]*along,fz=best.a[1]+t[1]*along,c=best.q.w/4;boxMesh(fx+n[0]*c,fz+n[1]*c,best.q.w/2+.1,r.w+1.2,Math.atan2(n[0],n[1]),asM,0,true);nb++;});});RS.boxes=nb;
+    const along=(e[0]-best.a[0])*t[0]+(e[1]-best.a[1])*t[1],fx=best.a[0]+t[0]*along,fz=best.a[1]+t[1]*along,c=best.q.w/4;boxMesh(fx+n[0]*c,fz+n[1]*c,best.q.w/2+.1,r.w+1.2,Math.atan2(n[0],n[1]),asM,0,true);nb++;if(O.tee3)O.tee3(fx,fz,t[0],t[1],n[0],n[1],best.q.w/2,r.w/2);});});RS.boxes=nb;if(O.tee3Build)O.tee3n=O.tee3Build();if(OWR2&&O.inFreo){/* Fremantle (Paul Nov 2026): highways end at the edge of the town grid */let fc=0;RIBS.forEach(r=>{if(r.hidden||!r.m||!r.m.geometry||!r.m.geometry.index)return;if(r.m.material&&r.m.material.map&&typeof railT!=='undefined'&&r.m.material.map===railT)return;if(!r.P2.some(p=>O.inFreo(p[0],p[1],0)))return;
+  const g=r.m.geometry,pa=g.attributes.position,ix=g.index.array,nx=[],v=new THREE.Vector3();for(let t=0;t<ix.length;t+=3){let x=0,z=0;for(let j=0;j<3;j++){v.fromBufferAttribute(pa,ix[t+j]);x+=v.x;z+=v.z;}if(O.inFreo(x/3,z/3,-1.2)){fc++;continue;}nx.push(ix[t],ix[t+1],ix[t+2]);}g.setIndex(nx);});
+  (O.signals||[]).slice().forEach(sg=>{if(O.inFreo(sg.x,sg.z,-1)){if(sg.g)sg.g.visible=false;O.signals.splice(O.signals.indexOf(sg),1);}});O.freoCut=fc;}
   // 5. signals: only where three or more roads meet; along every corridor the lights turn green one after another (a green wave at 12 u/s)
   {const SG=O.signals||[],LN=[];RV.forEach(r=>LN.push(r.pts));
     const art=O.subArt||[];const gl={};art.forEach(a=>{const k=(a.h?'h':'v')+(a.h?Math.round(a.P[0][1]*2):Math.round(a.P[0][0]*2));(gl[k]||(gl[k]=[])).push(...a.P);});

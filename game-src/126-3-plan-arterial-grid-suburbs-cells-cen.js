@@ -28,6 +28,7 @@ if(OWR2){const artOK2=(x,z)=>landAt(x,z)&&rdD(x,z,0)>3.4&&fwD(x,z)>8.2&&(z<-40||
   ART.slice().forEach(a=>{[0,1].forEach(e=>{const P=a.P,p=e?P[P.length-1]:P[0],q=e?P[P.length-2]:P[1];if(onArt(p[0],p[1],a))return;const dx=Math.sign(p[0]-q[0]),dz=Math.sign(p[1]-q[1]);const ext=[];let hit=false;
     for(let t=1;t<=CX*1.5;t++){const x=p[0]+dx*t,z=p[1]+dz*t;if(rdD(x,z,0)<3.6||onArt(x,z,a)){hit=true;break;}if(!artOK2(x,z))break;ext.push([x,z]);}
     if(hit&&ext.length)a.P=e?P.concat(ext):ext.reverse().concat(P);});});O.artAfter=ARTL();}
+if(OWR2){ART.slice().forEach(a=>{if(!a.P.some(p=>inFreo(p[0],p[1],.5)))return;const R=[];let cur=[];a.P.forEach(p=>{if(inFreo(p[0],p[1],.5)){if(cur.length)R.push(cur);cur=[];}else cur.push(p);});if(cur.length)R.push(cur);ART.splice(ART.indexOf(a),1);R.forEach(P=>{if(P.length>=3)ART.push(Object.assign({},a,{P}));});});}
 /* Paul Nov 2026: 4-lane roads running beside the Kwinana are residential streets (2 lanes), not main roads */
 const KWST=[];if(OWR2&&O.KWP){const KB=new Map(),kb=(x,z)=>Math.floor(x/6)*10007+Math.floor(z/6);for(let i=1;i<O.KWP.length;i++){const a=O.KWP[i-1],b=O.KWP[i],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/2);for(let t=0;t<=n;t++){const x=a[0]+(b[0]-a[0])*t/n,z=a[1]+(b[1]-a[1])*t/n,k=kb(x,z);(KB.get(k)||KB.set(k,[]).get(k)).push([x,z]);}}
   const kwD=(x,z)=>{let m=1e9;for(let dx=-3;dx<=3;dx++)for(let dz=-3;dz<=3;dz++){const L=KB.get((Math.floor(x/6)+dx)*10007+Math.floor(z/6)+dz);if(L)L.forEach(p=>{m=Math.min(m,Math.hypot(p[0]-x,p[1]-z));});}return m;};

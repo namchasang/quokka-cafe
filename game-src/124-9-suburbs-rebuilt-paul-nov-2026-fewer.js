@@ -20,11 +20,12 @@ ROADS.forEach(r=>addPL(r.p,0));if(N)N.roads.forEach(r=>addPL(r.p,0));if(S){if(S.
 const rdD=(x,z,k)=>{const L=BK.get(bk(Math.floor(x/BSZ),Math.floor(z/BSZ)));let d=99;if(L)for(const s of L){if(s[2]!==k)continue;const e=segDist(x,z,s[0],s[1]);if(e<d)d=e;}return d;};
 const fwD=(x,z)=>(MP&&z<WZ)?mitchD(x,z):1e9;
 const TAV=TOWNS.map(t=>[t.x,t.z,{cbd:26,freo:20,air:30,sp:15,vp:15,hi:10,pin:14}[t.id]||12]);
-const nearTown=(x,z,p)=>TAV.some(t=>Math.hypot(x-t[0],z-t[1])<t[2]+(p||0));
+const FQ=30,FRT=OWR2?TOWNS.find(t=>t.id==='freo'):null;O.FQ=FQ;const inFreo=(x,z,p)=>!!FRT&&Math.abs(x-FRT.x)<FQ+(p||0)&&Math.abs(z-FRT.z)<FQ+(p||0);O.inFreo=inFreo;/* Paul Nov 2026: Fremantle is one street grid, a square the suburbs keep out of */
+const nearTown=(x,z,p)=>inFreo(x,z,(p||0)+1)||TAV.some(t=>Math.hypot(x-t[0],z-t[1])<t[2]+(p||0));
 // the suburb ground in the city map: flat turf away from the shore, the hills, Kings Park, the airport and the towns (the old
 // random holes are dropped: parks, ovals and centres now break up the houses)
 const SUBm=new Uint8Array(WX*WZ),AIRP=G(115.967,-31.941);if(L2&&L2.KK)for(let z=0;z<WZ;z++)for(let x=0;x<WX;x++){const i=z*WX+x;if(!LAND[i]||L2.KK[i]!==5||DL[i]<5||elevAt(x,z)>42)continue;if(Math.hypot(x-KPP[0],z-KPP[1])<20||Math.hypot(x-AIRP[0],z-AIRP[1])<30)continue;if(fbm(x/45+11,z/45-3)<-.4)continue;SUBm[i]=1;}
-const subA=(x,z)=>{if(z>=0){if(z>=WZ||x<0||x>=WX||!SUBm)return false;return SUBm[(z|0)*WX+(x|0)]===1;}if(!N||z<N.ZMIN+4)return false;const k=N.cls(x,z);return(k===8||(k>=4&&k<=6&&z>-225&&N.sd(x,z)>9&&fbm(x/50+4,z/50-2)>-.15))&&N.sd(x,z)>5&&N.land(x,z);};// north: the old suburb band plus new estates cut into the banksia scrub
+const subA=(x,z)=>{if(z>=0){if(z>=WZ||x<0||x>=WX||!SUBm)return false;return SUBm[(z|0)*WX+(x|0)]===1;}if(!N||z<N.ZMIN+4)return false;const k=N.cls(x,z);if(OWR2&&x>190&&x<286&&z>-130&&N.land(x,z)&&N.sd(x,z)>5&&Math.hypot(x-AIRP[0],z-AIRP[1])>26&&fbm(x/45+11,z/45-3)>-.45)return true;/* Paul Nov 2026: the empty bush north of the airport becomes suburbs with roads */return(k===8||(k>=4&&k<=6&&z>-225&&N.sd(x,z)>9&&fbm(x/50+4,z/50-2)>-.15))&&N.sd(x,z)>5&&N.land(x,z);};// north: the old suburb band plus new estates cut into the banksia scrub
 const free=(x,z,p)=>rdD(x,z,0)>2.7+p&&fwD(x,z)>7.2+p&&(z<-40||z>WZ||rdD(x,z,1)>1.9+p)&&!nearTown(x,z,p);
 const OCC=new Map(),ok=(x,z)=>(Math.floor(x)+3000)*6007+(Math.floor(z)+3000);
 const occ=(x,z)=>OCC.get(ok(x,z))||0;
