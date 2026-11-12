@@ -111,7 +111,7 @@ if(O.subLate)try{O.subLate();}catch(e){console.error('owsub late',e);}
 // ===== owroads2 (Paul, Nov 2026): Kwinana Fwy -> Forrest Hwy -> Busselton, four lanes with the railway in the median like the Mitchell =====
 if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP;
   // the old single ribbons go; the part inside the protected boxes is drawn again exactly as before
-  const kw=ROADS.find(r=>r.n==='Kwinana Fwy');RIBS.forEach(r=>{if((kw&&r.pts===kw.p)||(SOUTH&&r.pts===SOUTH.road)){r.m.visible=false;r.hidden=1;}});if(O.KWprot&&O.KWprot.length>1)ribbon(O.KWprot,4,roadM,.18,true);
+  const kw=ROADS.find(r=>r.n==='Kwinana Fwy');RIBS.forEach(r=>{if((kw&&r.pts===kw.p)||(SOUTH&&r.pts===SOUTH.road)){r.m.visible=false;r.hidden=1;}});
   const D=[];let acc=0;for(let i=1;i<KP.length;i++){const a=KP[i-1],b=KP[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/2));for(let k=(i>1?1:0);k<=n;k++)D.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n,acc+L*k/n]);acc+=L;}
   // a little smoothing so the curves are even
   for(let pass=0;pass<3;pass++)for(let i=1;i<D.length-1;i++){D[i][0]=(D[i-1][0]+D[i][0]*2+D[i+1][0])/4;D[i][1]=(D[i-1][1]+D[i][1]*2+D[i+1][1])/4;}
@@ -132,3 +132,26 @@ if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP;
   if(O.train&&O.train.cars.length){const tg=new THREE.Group();tg.userData.L='veh';scene.add(tg);const cars=O.train.cars.map(c=>{const k=c.clone();tg.add(k);return k;});
     O.trainK={s:L0*.2,dir:1,wait:0,cars,at,L:L0,stops:[.12,.3,.5,.7,.88].map(f=>f*L0)};}
   O.kwRoad=D;console.log('OWLOG kwinana corridor '+Math.round(acc)+' u, rail '+Math.round(L0));}catch(e){console.error('kwinana',e);}
+
+// ===== owroads2 (Paul, Nov 2026, asked by name for the CBD): the Kwinana Fwy through the city is an elevated freeway joining the Mitchell,
+// four lanes on a deck on piers with the railway in its median, over Stirling Hwy / Riverside Dr (no crossroads with them any more) and on
+// across the Narrows to South Perth, where the four-lane Kwinana carries on =====
+if(OWR2&&O.KWprot&&O.KWP&&MP)try{const P0=[MP[0]].concat(O.KWprot.slice(0,-1),[O.KWP[0]]);
+  const D=[];let acc=0;for(let i=1;i<P0.length;i++){const a=P0[i-1],b=P0[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/1.5));for(let k=(i>1?1:0);k<=n;k++)D.push([a[0]+(b[0]-a[0])*k/n,a[1]+(b[1]-a[1])*k/n]);}
+  for(let pass=0;pass<6;pass++)for(let i=1;i<D.length-1;i++){D[i][0]=(D[i-1][0]+D[i][0]*2+D[i+1][0])/4;D[i][1]=(D[i-1][1]+D[i][1]*2+D[i+1][1])/4;}
+  const S=[0];for(let i=1;i<D.length;i++)S.push(S[i-1]+Math.hypot(D[i][0]-D[i-1][0],D[i][1]-D[i-1][1]));const TOT=S[S.length-1],RAMP=Math.min(22,TOT*.3),LIFT=2.3;
+  const yAt=i=>{const x=D[i][0],z=D[i][1],s=S[i],base=Math.max(deckH(x,z),H(x,z))+.2,k=Math.min(1,s/RAMP,(TOT-s)/RAMP);return base+LIFT*(k*k*(3-2*k));};
+  const Y=D.map((_,i)=>yAt(i));for(let pass=0;pass<4;pass++)for(let i=1;i<Y.length-1;i++)Y[i]=Math.max(Y[i],(Y[i-1]+Y[i+1])/2);
+  const strip=(off,w,mat,yo,us,side)=>{const v=[],uv=[],idx=[];D.forEach((p,i)=>{const q=D[Math.min(D.length-1,i+1)],o=D[Math.max(0,i-1)];let dx=q[0]-o[0],dz=q[1]-o[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const cx=p[0]+dz*off,cz=p[1]-dx*off,y=Y[i]+yo;
+      if(side){v.push(cx,y,cz,cx,y-side,cz);uv.push(S[i]/2,1,S[i]/2,0);}else[-1,1].forEach(s2=>{v.push(cx-dz*w/2*s2,y,cz+dx*w/2*s2);uv.push(s2<0?0:1,S[i]/(us||4));});if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2);}});
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.castShadow=!!side;m.userData.L='roads';scene.add(m);return m;};
+  const laneM=new THREE.MeshLambertMaterial({map:RK.tex(RK.fwy(-1)),side:THREE.DoubleSide}),conc=new THREE.MeshLambertMaterial({color:new THREE.Color('#c9c6bd').convertSRGBToLinear(),side:THREE.DoubleSide});
+  [1,-1].forEach(sd=>strip(sd*3.6,4,laneM,0));strip(0,3.2,conc,-.01);
+  [-5.7,-1.55,1.55,5.7].forEach(o=>strip(o,0,conc,.45,0,1.05));// concrete barriers on both edges and either side of the rail median (like Paul's photo), deck fascia below
+  ribbon(D,1.6,new THREE.MeshLambertMaterial({map:railT}),0,true).length;{const r=RIBS[RIBS.length-1];const pa=r.m.geometry.attributes.position;for(let k=0;k<pa.count;k++){let bi=0,bd=1e9;const x=pa.getX(k),z=pa.getZ(k);for(let i=0;i<D.length;i+=2){const d=(D[i][0]-x)**2+(D[i][1]-z)**2;if(d<bd){bd=d;bi=i;}}pa.setY(k,Y[bi]+.02);}pa.needsUpdate=true;r.m.geometry.computeVertexNormals();}
+  // piers every 6 units where the deck is up
+  {const pg=new THREE.BoxGeometry(10.5,1,.9),pts=[];for(let i=0;i<D.length;i+=4){const lift=Y[i]-Math.max(H(D[i][0],D[i][1]),-.3);if(lift>.8)pts.push(i);}const im=new THREE.InstancedMesh(pg,conc,pts.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),v=new THREE.Vector3(),sc=new THREE.Vector3();
+    pts.forEach((i,k)=>{const q2=D[Math.min(D.length-1,i+1)],o=D[Math.max(0,i-1)],a=Math.atan2(q2[0]-o[0],q2[1]-o[1]),gy=Math.max(H(D[i][0],D[i][1]),-.3),h=Y[i]-gy-.05;e.set(0,a,0);q.setFromEuler(e);m4.compose(v.set(D[i][0],gy+h/2,D[i][1]),q,sc.set(1,h,1));im.setMatrixAt(k,m4);});im.castShadow=true;im.frustumCulled=false;im.userData.L='build';scene.add(im);}
+  // no traffic lights on the freeway: the junctions it now passes over go back to plain road joins
+  if(O.signals){for(let i=O.signals.length-1;i>=0;i--){const g=O.signals[i];let near=false;for(let k=0;k<D.length;k+=2)if(S[k]>10&&S[k]<TOT-10&&Math.hypot(D[k][0]-g.x,D[k][1]-g.z)<5){near=true;break;}if(near){if(g.g)g.g.visible=false;O.signals.splice(i,1);}}}
+  O.ovD=D;O.ovY=Y;O.ovS=S;console.log('OWLOG overpass '+Math.round(TOT)+' u');}catch(e){console.error('overpass',e);}

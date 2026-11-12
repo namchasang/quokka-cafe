@@ -21,7 +21,9 @@ function frame(now){if(!OPEN)return;const dt=Math.min(.05,(now-last)/1000);last=
   else{const l=Math.hypot(ix,iz);if(l>.1){const s=Math.min(1,l)*8*dt,c=Math.cos(ST.yaw),sn=Math.sin(ST.yaw);const dx=(ix*c+iz*sn)/l*s,dz=(-ix*sn+iz*c)/l*s;const nx=ST.x+dx,nz=ST.z+dz;
       if(canGo(nx,nz)){ST.x=nx;ST.z=nz;}else if(canGo(nx,ST.z))ST.x=nx;else if(canGo(ST.x,nz))ST.z=nz;ST.step+=dt*6;}}
   // place the car and Kip
-  const cy=groundAt(ST.carX,ST.carZ);car.position.set(ST.carX,cy,ST.carZ);car.rotation.y=ST.carA;
+  let cy=groundAt(ST.carX,ST.carZ);const O=(typeof OWT!=="undefined"&&OWT)||null;if(O&&O.ovD){// on the elevated freeway when driving along it (not when crossing under it)
+    const D=O.ovD;let bi=-1,bd=7;for(let i=0;i<D.length;i+=2){const d=Math.hypot(D[i][0]-ST.carX,D[i][1]-ST.carZ);if(d<bd){bd=d;bi=i;}}
+    if(bi>=0){const q=D[Math.min(D.length-1,bi+2)],o=D[Math.max(0,bi-2)],da=Math.atan2(q[0]-o[0],q[1]-o[1]),hd=Math.abs(Math.cos(da-ST.carA));const was=ST.ovOn;ST.ovOn=bd<6.2&&(was?hd>.3:hd>.85);if(ST.ovOn)cy=Math.max(cy,O.ovY[bi]);}else ST.ovOn=false;}car.position.set(ST.carX,cy,ST.carZ);car.rotation.y=ST.carA;
   kip.visible=!ST.inCar;shadow.visible=!ST.inCar;const ky=ST.ride?1.2:groundAt(ST.x,ST.z);kip.position.set(ST.x,ky,ST.z);shadow.position.set(ST.x,ky+.05,ST.z);
   const fr=(ST.step|0)%2;if(kipT.image!==kipFrames[fr]){kipT.image=kipFrames[fr];kipT.needsUpdate=true;}
   // camera: behind and above, like an old overworld
