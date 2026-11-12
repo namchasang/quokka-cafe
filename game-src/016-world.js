@@ -113,7 +113,7 @@ function segD(px,pz,ax,az,bx,bz){const vx=bx-ax,vz=bz-az,wx=px-ax,wz=pz-az;const
 function pathD(x,z){let d=1e9;for(const p of PATHS)for(let i=0;i<p.length-1;i++)d=Math.min(d,segD(x,z,p[i][0],p[i][1],p[i+1][0],p[i+1][1]));return d;}
 // hand-painted ground: grass patches, dry grass, beaches, wet sand, limestone trails, pink salt lake
 let TPX=4;const terrC=mk(2,2);terrC.getContext('2d');
-const TERR_G=[[92,140,66],[116,160,82],[140,181,98],[160,176,92],[183,186,110]];
+const TERR_G=TOON_SAND?[[68,114,58],[85,136,65],[95,145,70],[106,155,75],[132,170,90]]:[[92,140,66],[116,160,82],[140,181,98],[160,176,92],[183,186,110]];// ?toon: the Tree Lab lawn greens
 // paint ground pixels for rows j0..j1 of an image whose top-left is world (x0,z0), PX pixels per unit
 function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.x1)*PX),gz0=Math.round((z0-TB.z1)*PX);
   for(let j=j0;j<j1;j++){const z=z0+(j+.5)/PX,gj=gz0+j;for(let i=0;i<W;i++){const wx=x0+(i+.5)/PX;const d=landD(wx,z);if(d<=0)continue;const gi=gx0+i;

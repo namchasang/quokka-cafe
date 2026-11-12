@@ -27,6 +27,7 @@ const PAINT={on:PAINT_LIVE||/[?&#]toon\b/.test(location.search+location.hash),gr
       float gr=smoothstep(.0,.06,c.g-max(c.r,c.b)*.95);
       float st=gvn(vec2(wq.x*7.,wq.y*2.2))*.55+gvn(vec2(wq.x*2.4,wq.y*8.))*.25+gvn(wq*21.)*.2;
       c*=mix(1.,.8+.4*st,gr);
+      {float L=dot(c,vec3(.3,.59,.11));vec3 lab=mix(vec3(.10,.22,.06),vec3(.22,.40,.12),smoothstep(.12,.45,L));c=mix(c,lab*(.85+.3*st),gr*.62);}// Tree Lab lawn greens: less lime, deeper (Paul, Nov 2026)
       float sd=(1.-gr)*smoothstep(.35,.6,c.r);c*=mix(1.,.9+.2*gvn(wq*29.),sd);
       c*=.93+.14*gvn(wq*.3);
       diffuseColor*=vec4(c,texelColor.a);
