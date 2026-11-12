@@ -122,10 +122,10 @@ if(T.cbd){const t=T.cbd,g0=t.g;hideOld(t);const[gx,gz]=gpos(t);
   const dt=TX(deck,true);dt.repeat.set(4,2);const dk=KS<1?add(g,new THREE.BoxGeometry(2.2,.5,7.5),new THREE.MeshLambertMaterial({map:dt}),...(([a,b])=>[a,.05,b])(GU(EQB.x-EQB.rx-.45,EQB.z))):add(g,new THREE.BoxGeometry(9,.5,4),new THREE.MeshLambertMaterial({map:dt}),qx,.05,qz-1.6);
   const bx=qx,bz=qz;const glc=mkc(16,64),gx2=glc.getContext('2d');for(let y=0;y<64;y++)for(let X=0;X<16;X++)PP(gx2,['#a8d8e4','#7ab8cc','#5a9ab4'][(X+((y/4)|0))%3],X,y);for(let y=0;y<64;y+=6)PP(gx2,'#e8f4f8',0,y,16,1);
   const gm=new THREE.MeshLambertMaterial({map:TX(glc,true),emissive:new THREE.Color(.25,.32,.36)});
-  add(g,new THREE.CylinderGeometry(.35,1.1,8.5,6),gm,bx,4.25,bz);add(g,new THREE.ConeGeometry(.35,2.4,6),gm,bx,9.7,bz);
+if(!OWR2){  add(g,new THREE.CylinderGeometry(.35,1.1,8.5,6),gm,bx,4.25,bz);add(g,new THREE.ConeGeometry(.35,2.4,6),gm,bx,9.7,bz);
   [-1,1].forEach(s=>{const w=add(g,new THREE.BoxGeometry(.18,6.2,1.1),flat('#b87848'),bx+s*.75,3.4,bz-.2);w.rotation.z=s*.1;});
   add(g,new THREE.CylinderGeometry(1.6,1.8,.4,10),flat('#d8d0bc'),bx,.2,bz);
-  const bl=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshBasicMaterial({color:0xfff2c0}));bl.position.set(bx,7.8,bz);g.add(bl);O.bell=bl;
+  const bl=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),new THREE.MeshBasicMaterial({color:0xfff2c0}));bl.position.set(bx,7.8,bz);g.add(bl);O.bell=bl;}else{O.bell=new THREE.Object3D();}/* Paul Nov 2026: no bell tower in the Look Lab map */
   const arch=KS<1?add(g,new THREE.TorusGeometry(2.4,.16,6,20,Math.PI),flat('#f4f2ec'),...(([a,b])=>[a,.2,b])(GU(EQB.x,EQB.z+EQB.rz+.9))):add(g,new THREE.TorusGeometry(2.4,.12,6,20,Math.PI),flat('#f4f2ec'),qx-4.5,.2,qz-.4);if(KS===1)arch.rotation.y=Math.PI/2;// owroads2: the footbridge spans the inlet mouth
   // street lamps and street trees along the terrace
   for(let k=0;k<9;k++){const a=-12+k*3,b=-1.2;if(!free(a,b,.3))continue;add(g,new THREE.CylinderGeometry(.06,.08,2.4,5),flat('#4a4e54'),a,1.2,b);const l=new THREE.Mesh(new THREE.BoxGeometry(.3,.2,.3),new THREE.MeshBasicMaterial({color:0x3a3a30}));l.position.set(a,2.45,b);g.add(l);(O.lamps||(O.lamps=[])).push(l);

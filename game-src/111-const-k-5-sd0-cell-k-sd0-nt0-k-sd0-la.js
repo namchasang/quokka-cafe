@@ -42,7 +42,7 @@ const ROADS=[
  {n:'Great Eastern Hwy',p:[G(115.879,-31.962),G(115.89,-31.957),G(115.915,-31.95),G(115.94,-31.945),G(115.965,-31.942)]},
  {n:'Albany Hwy',p:[G(115.884,-31.966),G(115.896,-31.978),G(115.91,-31.995),G(115.93,-32.02),G(115.962,-32.052)]},/*runs on out to the edge of the map (it used to stop in the bush)*/
  {n:'Leach Hwy',p:[G(115.775,-32.035),G(115.8,-32.045),G(115.84,-32.05),G(115.857,-32.05)]}];
-if(OWR2){['Great Eastern Hwy','Leach Hwy'].forEach(n=>{const gi=ROADS.findIndex(r=>r.n===n);if(gi>2)ROADS.splice(gi,1);});}/* Paul Nov 2026: no Great Eastern Hwy in the Look Lab map */if(NORTH)ROADS.push(NORTH.cityRoad);// the coast road's first stretch through the city
+if(OWR2)ROADS.push({n:'Airport Dr',p:[[240,40],[250,37.5],[260,33],[270,27],[278,22],[282,19.4]]});/* the airport's own road from the main-road grid, now Great Eastern Hwy is gone */if(OWR2){['Great Eastern Hwy','Leach Hwy'].forEach(n=>{const gi=ROADS.findIndex(r=>r.n===n);if(gi>2)ROADS.splice(gi,1);});}/* Paul Nov 2026: no Great Eastern Hwy in the Look Lab map */if(NORTH)ROADS.push(NORTH.cityRoad);// the coast road's first stretch through the city
 const AIRST=G(115.9555,-31.9378);// owroads2: Airport Central, the rail's end, west of the terminal
 const RAIL=[G(115.747,-32.053),G(115.754,-32.036),G(115.758,-31.995),G(115.785,-31.98),G(115.823,-31.948),G(115.861,-31.951),G(115.9,-31.94),G(115.94,-31.937),OWR2?AIRST:G(115.967,-31.938)];
 const segDist=(px,pz,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz;let t=L?((px-a[0])*dx+(pz-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(a[0]+dx*t),pz-(a[1]+dz*t));};
