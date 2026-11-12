@@ -121,7 +121,9 @@ if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP;
   const laneM=new THREE.MeshLambertMaterial({map:RK.tex(RK.fwy(-1)),side:THREE.DoubleSide});
   const gc=mkc(16,16),gx=gc.getContext('2d');for(let k=0;k<256;k++)PP(gx,['#8a7a68','#9a8a74','#7a6a5a','#a89880'][(HSH(k,3)*4)|0],k%16,k>>4);PP(gx,'#c8c4b8',0,0,1,16);PP(gx,'#c8c4b8',15,0,1,16);const gravel=new THREE.MeshLambertMaterial({map:TX(gc,true)});
   [1,-1].forEach(sd=>vr(sd*3.6,4,laneM,.2));vr(0,3.2,gravel,.205,8);
-  const RPK=ribbon(D.map(p=>[p[0],p[1]]),1.6,new THREE.MeshLambertMaterial({map:railT}),.22,true);
+  /* Paul Nov 2026: the line runs as far as Bunbury, no rails beyond */
+  let DR=D;if(SOUTH&&SOUTH.SD0&&SOUTH.world){const bw=SOUTH.SD0.towns.find(w=>w[0]==='Bunbury');if(bw){const B=SOUTH.world(bw[1],0);let bi=-1,bd=1e9;D.forEach((p,i)=>{const d=Math.hypot(p[0]-B[0],p[1]-B[1]);if(d<bd){bd=d;bi=i;}});if(bi>0&&bd<40)DR=D.slice(0,Math.min(D.length,bi+3));O.railEnd=DR[DR.length-1];}}
+  const RPK=ribbon(DR.map(p=>[p[0],p[1]]),1.6,new THREE.MeshLambertMaterial({map:railT}),.22,true);
   // overhead wire poles
   const PO=[];let a2=0;for(let i=1;i<RPK.length;i++){a2+=Math.hypot(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1]);if(a2>=9){a2=0;PO.push([RPK[i][0],RPK[i][1],Math.atan2(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1])]);}}
   {const pg=new THREE.BoxGeometry(.1,2.4,.1);pg.translate(0,1.2,0);const im=new THREE.InstancedMesh(pg,flat('#8a9098'),PO.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),v=new THREE.Vector3(),one=new THREE.Vector3(1,1,1);

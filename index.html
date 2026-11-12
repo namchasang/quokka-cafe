@@ -11324,7 +11324,9 @@ if(OWR2&&O.KWP&&O.KWP.length>3)try{const KP=O.KWP;
   const laneM=new THREE.MeshLambertMaterial({map:RK.tex(RK.fwy(-1)),side:THREE.DoubleSide});
   const gc=mkc(16,16),gx=gc.getContext('2d');for(let k=0;k<256;k++)PP(gx,['#8a7a68','#9a8a74','#7a6a5a','#a89880'][(HSH(k,3)*4)|0],k%16,k>>4);PP(gx,'#c8c4b8',0,0,1,16);PP(gx,'#c8c4b8',15,0,1,16);const gravel=new THREE.MeshLambertMaterial({map:TX(gc,true)});
   [1,-1].forEach(sd=>vr(sd*3.6,4,laneM,.2));vr(0,3.2,gravel,.205,8);
-  const RPK=ribbon(D.map(p=>[p[0],p[1]]),1.6,new THREE.MeshLambertMaterial({map:railT}),.22,true);
+  /* Paul Nov 2026: the line runs as far as Bunbury, no rails beyond */
+  let DR=D;if(SOUTH&&SOUTH.SD0&&SOUTH.world){const bw=SOUTH.SD0.towns.find(w=>w[0]==='Bunbury');if(bw){const B=SOUTH.world(bw[1],0);let bi=-1,bd=1e9;D.forEach((p,i)=>{const d=Math.hypot(p[0]-B[0],p[1]-B[1]);if(d<bd){bd=d;bi=i;}});if(bi>0&&bd<40)DR=D.slice(0,Math.min(D.length,bi+3));O.railEnd=DR[DR.length-1];}}
+  const RPK=ribbon(DR.map(p=>[p[0],p[1]]),1.6,new THREE.MeshLambertMaterial({map:railT}),.22,true);
   // overhead wire poles
   const PO=[];let a2=0;for(let i=1;i<RPK.length;i++){a2+=Math.hypot(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1]);if(a2>=9){a2=0;PO.push([RPK[i][0],RPK[i][1],Math.atan2(RPK[i][0]-RPK[i-1][0],RPK[i][1]-RPK[i-1][1])]);}}
   {const pg=new THREE.BoxGeometry(.1,2.4,.1);pg.translate(0,1.2,0);const im=new THREE.InstancedMesh(pg,flat('#8a9098'),PO.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),v=new THREE.Vector3(),one=new THREE.Vector3(1,1,1);
@@ -11537,6 +11539,7 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const g=o.geometry,p=g.attributes.position,c=g.attributes.corner,n=Math.min(p.count,(g.drawRange&&isFinite(g.drawRange.count)?g.drawRange.count/6*4:p.count));
     for(let v=0;v+3<n;v+=4){const h=Math.max(c.getY(v+2),c.getY(v+3)),w=Math.abs(c.getX(v+1)-c.getX(v));if(h<1.4)continue;const x=p.getX(v),z=p.getZ(v);const key=Math.round(x*4)+','+Math.round(z*4);if(seen.has(key))continue;seen.add(key);
       const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);pts.push([x,p.getY(v),z,kind===4?Math.min(h,1.4):Math.min(3.3,h*.6),kind,((x*12.9898+z*78.233)%6.283)]);}
+    o.visible=false;/* Paul Nov 2026: no flat trees at all; 3D trees near the car, nothing beyond 150 */
     const m=o.material;if(m&&!m.__ow3t){m.__ow3t=1;const ob=m.onBeforeCompile;m.onBeforeCompile=(sh,r)=>{if(ob)ob(sh,r);sh.uniforms.uT3C=OW3T.uCam;sh.uniforms.uT3R=OW3T.uR;
       sh.vertexShader='varying vec2 vT3;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvT3=(modelMatrix*vec4(position,1.)).xz;');
       sh.fragmentShader='uniform vec2 uT3C;uniform float uT3R;varying vec2 vT3;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(distance(vT3,uT3C)<uT3R-1.5)discard;');};m.needsUpdate=true;}});

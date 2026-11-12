@@ -16,6 +16,7 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const g=o.geometry,p=g.attributes.position,c=g.attributes.corner,n=Math.min(p.count,(g.drawRange&&isFinite(g.drawRange.count)?g.drawRange.count/6*4:p.count));
     for(let v=0;v+3<n;v+=4){const h=Math.max(c.getY(v+2),c.getY(v+3)),w=Math.abs(c.getX(v+1)-c.getX(v));if(h<1.4)continue;const x=p.getX(v),z=p.getZ(v);const key=Math.round(x*4)+','+Math.round(z*4);if(seen.has(key))continue;seen.add(key);
       const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);pts.push([x,p.getY(v),z,kind===4?Math.min(h,1.4):Math.min(3.3,h*.6),kind,((x*12.9898+z*78.233)%6.283)]);}
+    o.visible=false;/* Paul Nov 2026: no flat trees at all; 3D trees near the car, nothing beyond 150 */
     const m=o.material;if(m&&!m.__ow3t){m.__ow3t=1;const ob=m.onBeforeCompile;m.onBeforeCompile=(sh,r)=>{if(ob)ob(sh,r);sh.uniforms.uT3C=OW3T.uCam;sh.uniforms.uT3R=OW3T.uR;
       sh.vertexShader='varying vec2 vT3;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvT3=(modelMatrix*vec4(position,1.)).xz;');
       sh.fragmentShader='uniform vec2 uT3C;uniform float uT3R;varying vec2 vT3;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(distance(vT3,uT3C)<uT3R-1.5)discard;');};m.needsUpdate=true;}});
