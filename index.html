@@ -1691,8 +1691,8 @@ function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.
     const beachW=1.05+.7*vnoise(wx*.3+11,z*.3)+(r-.5)*.35;const zone=d<2.4+n2*1.6&&ox<49&&((oz>9.3+n1*1.2)||(ox>32.3+n1&&oz>3.6+n2));
     const le=Math.min(((ox-42.2)/3.5)**2+((oz+7.5)/1.6)**2,((ox-66.2)/2.6)**2+((oz-2.7)/1.1)**2);const pd=islPD(wx,z);
     const SG=ISL_GROUND.length?islGround(wx,z):null,SL=SG&&SG.g.t==='lake';
-    if(le<1||(SL&&SG.e<1))c=r>.93?[250,204,216]:(n2>.6?[244,176,194]:[236,156,178]);
-    else if(le<1.38+(r-.5)*.12||(SL&&SG.e<1.38+(r-.5)*.12))c=r<.5?[242,236,224]:[226,214,196];
+    if(!TOON_SAND&&(le<1||(SL&&SG.e<1)))c=r>.93?[250,204,216]:(n2>.6?[244,176,194]:[236,156,178]);
+    else if(!TOON_SAND&&(le<1.38+(r-.5)*.12||(SL&&SG.e<1.38+(r-.5)*.12)))c=r<.5?[242,236,224]:[226,214,196];
     else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
     else if(SG&&!SL&&SG.g.t!=='sand'&&!(SG.g.t!=='tarmac'&&d<beachW)){const t=SG.g.t;if(t==='fairway')c=((Math.floor((SG.u*SG.g.rx+40)/1.6))&1)?[132,196,96]:[146,208,108];else if(t==='green')c=r<.5?[118,198,98]:[126,206,104];else if(t==='bunker')c=r<.5?[240,226,188]:[232,216,176];else c=Math.abs(SG.v)<.08&&((Math.floor((SG.u*SG.g.rx+40)/1.4))&1)?[240,240,232]:(r<.5?[108,112,120]:[118,122,128]);}
     else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(TOON_SAND){// ?toon: the Tree Lab beach, a smooth warm gradient from wet sand at the water to pale dry sand, then golden at the back
@@ -17910,12 +17910,15 @@ const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||/[?&#]toon\b/.test(location.search+l
     const segD=(x,z,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz||1;let t=((x-a[0])*dx+(z-a[1])*dz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t);};
     const pathD=(x,z)=>{let d=1e9;for(const P of PATHS){if(!P.length||P[0][0]>=99.5)continue;for(let k=1;k<P.length;k++)d=Math.min(d,segD(x,z,P[k-1],P[k]));}return d;};
     const hw=FW+1.4,hd=FD+1.6;
+    // the island roads and cycle lanes too (Paul: the beds sat on the road)
+    const LN=(typeof BLANES!=='undefined'&&Array.isArray(BLANES)?BLANES.filter(p=>Array.isArray(p)&&Array.isArray(p[0])&&Array.isArray(p[1])).map(p=>[p[0],p[1]]):[]).concat(typeof BIKE_LANE!=='undefined'?[BIKE_LANE.map(([a,b])=>{const q=IW(a,b);return[q.x,q.z];})]:[]);
+    const roadD=(x,z)=>{let d=1e9;for(const P of LN)for(let k=1;k<P.length;k++)d=Math.min(d,segD(x,z,P[k-1],P[k]));return d;};
     // what may be cleared for the garden: plant sprites (they are swapped for 3D trees later) and their small colliders
     const plantSet=new Set(BB.filter(o=>o.isMesh&&!(o.userData&&o.userData.frames&&o.userData.frames.length>1)&&o.parent===scene&&!(typeof SIGN_TEX!=='undefined'&&o.material&&SIGN_TEX.has(o.material.map))));
     const obst=[];scene.children.forEach(o=>{if(plantSet.has(o)||o===player.mesh||o.isLight)return;if(inR(o.position.x,o.position.z))return;if(Math.abs(o.position.x-aim.x)>60||Math.abs(o.position.z-aim.z)>60)return;
       const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())return;const sx=b.max.x-b.min.x,sz=b.max.z-b.min.z;if(sx>14||sz>14||b.max.y-b.min.y<.3)return;obst.push(b);});
     const clear=(x,z)=>{for(const c of colliders){if(c.x1>1e7)continue;if(c.x2-c.x1<1.5&&c.z2-c.z1<1.5)continue;if(inR((c.x1+c.x2)/2,(c.z1+c.z2)/2))continue;if(c.x2>x-hw&&c.x1<x+hw&&c.z2>z-hd&&c.z1<z+hd)return false;}
-      for(let i=-1;i<=1;i+=.5)for(let j=-1;j<=1;j+=.5){const X=x+i*hw,Z=z+j*hd;if(typeof landD==='function'&&landD(X,Z)<2.5)return false;if(pathD(x+i*(hw-.8),z+j*(hd-.8))<.9)return false;}
+      for(let i=-1;i<=1;i+=.5)for(let j=-1;j<=1;j+=.5){const X=x+i*hw,Z=z+j*hd;if(typeof landD==='function'&&landD(X,Z)<2.5)return false;if(pathD(x+i*(hw-.8),z+j*(hd-.8))<.9)return false;if(roadD(x+i*hw,z+j*hd)<1.8)return false;}
       for(const b of obst)if(b.max.x>x-hw&&b.min.x<x+hw&&b.max.z>z-hd&&b.min.z<z+hd)return false;
       return true;};
     let best=null,bd=1e9;for(let rr=0;rr<=30;rr+=.75)for(let a=0;a<32;a++){const x=aim.x+Math.cos(a/32*6.2832)*rr,z=aim.z+Math.sin(a/32*6.2832)*rr;if(clear(x,z)){const d=Math.hypot(x-aim.x,z-aim.z);if(d<bd){bd=d;best=[x,z];}}}
@@ -17950,7 +17953,7 @@ const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||/[?&#]toon\b/.test(location.search+l
       box(1,.26,1.1,bedMat,x,.13,z);const s=new THREE.Mesh(new THREE.PlaneGeometry(.88,.98),soilDry);s.rotation.x=-Math.PI/2;s.position.set(x,.265,z);s.receiveShadow=true;scene.add(s);p.soil=s;
       p.spark=spriteMesh([iconCanvas('spark')],.4,.4,{basic:true,shadow:false});p.spark.visible=false;scene.add(p.spark);col(x-.5,z-.55,x+.5,z+.55);}
     if(S&&Array.isArray(S.plots))while(S.plots.length<PLOTS.length)S.plots.push(null);
-    const x1=tx-FW,x2=tx+FW,z1=tz-FD,z2=tz+FD;fenceRun(x1,z1,x2,z1);fenceRun(x1,z1,x1,z2);fenceRun(x2,z1,x2,z2);fenceRun(x1,z2,tx-.7,z2);fenceRun(tx+.7,z2,x2,z2);
+    const x1=tx-FW,x2=tx+FW,z1=tz-FD,z2=tz+FD;// no fence (Paul, Nov 2026)
     flat(1.4,1.2,lmat(pathC,[.7,.6]),tx,.02,z2+.5);
     GARDEN.x1=x1;GARDEN.x2=x2;GARDEN.z1=z1;GARDEN.z2=z2;
     try{refreshPlots();}catch(e){console.warn('garden refresh',e);}
@@ -18258,7 +18261,7 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
     const tD=new THREE.DataTexture(data,W,Hh,THREE.RGBAFormat);tD.magFilter=THREE.LinearFilter;tD.minFilter=THREE.LinearFilter;tD.wrapS=tD.wrapT=THREE.ClampToEdgeWrapping;tD.needsUpdate=true;
     const U={tD:{value:tD},uB:{value:new THREE.Vector4(TB.x1,TB.z1,(GW-1)/GR,(GH-1)/GR)},uT:{value:0},uMir:{value:1}};// uMir: the island scene may be drawn mirrored (scene.scale.x = -1)
     const pre=`uniform sampler2D tD;uniform vec4 uB;uniform float uT;uniform float uMir;uniform float uBand;varying vec3 vWp3;\n${NOISE}
-      float s3d(vec2 p){vec2 uv=(p-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)return 10.;return texture2D(tD,uv).r*12.-2.;}`;
+      float s3d(vec2 p){vec2 uv=(p-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>.985||uv.y>1.)return 10.;return texture2D(tD,uv).r*12.-2.;}`;
     const vtx=sh=>{sh.vertexShader='varying vec3 vWp3;\n'+sh.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvWp3=(modelMatrix*vec4(transformed,1.)).xyz;');};
     // --- the sea ---
     const mkSea=band=>{const m=new THREE.MeshLambertMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2});
@@ -18286,7 +18289,7 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
         float f3=exp(-pow((d-.55)/.05,2.))*.35*lace*smoothstep(.4,.7,s3n(wp*.8+uT*.05));
         c=mix(c,${SR('#fbfaf4')},clamp(f1+f2+f3,0.,1.)*.9);
         diffuseColor.rgb=c;`);};m.customProgramCacheKey=()=>'sea3'+band;return m;};const seaM=mkSea(0);
-    const ext=60,x1=TB.x1-ext,x2=Math.min(99.5,TB.x2+ext),z1=TB.z1-ext,z2=TB.z2+ext;
+    const ext=60,x1=TB.x1-ext,x2=TB.x2+ext+80,z1=TB.z1-ext,z2=TB.z2+ext;
     // it lies under every ground mesh (the settlement lawns are separate meshes over the grid's water) and over the old pixel water layers
     const sea=flat(x2-x1,z2-z1,seaM,(x1+x2)/2,-.09,(z1+z2)/2);sea.receiveShadow=true;sea.renderOrder=-1;sea.name='sea3';
     // wet sand is painted into the ground itself (part 016, beach rule, ?toon): an overlay would also darken the settlement lawns
@@ -18496,9 +18499,14 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
       const isl=s.visible&&zoneOf(s.position.x)==='island';if(!isl){M.visible=false;show(s);continue;}hide(s);M.visible=true;
       const x=s.position.x,z=s.position.z;if(e.lx!==null){const dx=x-e.lx,dz=z-e.lz;if(dx*dx+dz*dz>1e-6){const h=Math.atan2(dx,dz);let d=h-e.head;d=Math.atan2(Math.sin(d),Math.cos(d));e.head+=d*.2;}}e.lx=x;e.lz=z;
       M.position.set(x,s.position.y,z);M.rotation.y=e.head;
+      if(e.kind==='b'&&typeof TREE3D!=='undefined'&&TREE3D.pos.length){// Paul: butterflies live round the trees, they don't follow Kip
+        if(!e.anc||Math.hypot(e.anc[0]-camTarget.x,e.anc[1]-camTarget.z)>34){const P=TREE3D.pos.filter(q=>Math.hypot(q[0]-camTarget.x,q[1]-camTarget.z)<26);e.anc=P.length?P[(Math.random()*P.length)|0]:null;}
+        if(e.anc){const a=t*.35+e.i*1.7,R=1.2+e.anc[2]*.4;s.position.x=e.anc[0]+Math.sin(a)*R+Math.sin(a*2.3)*.4;s.position.z=e.anc[1]+Math.cos(a*.8)*R;M.position.set(s.position.x,s.position.y,s.position.z);}}
       if(e.kind==='b'){const f=Math.sin(t*22+e.i)*1.1;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.position.y=s.position.y-.05;}
       else if(e.kind==='g'){const f=Math.sin(t*3+e.i)*.25;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.rotation.z=Math.sin(t*.7+e.i)*.15;}
       else{M.position.y=0;e.wa=(e.wa||0)+.25;M.userData.wheels.forEach(w=>w.rotation.x=e.wa);M.userData.legs.forEach((l,j)=>l.rotation.x=Math.sin(e.wa+j*Math.PI)*.6);if(M.userData.u)M.userData.u.uSw.value=Math.sin(e.wa*.6)*.7;}}}
+  setTimeout(()=>{try{let good=null;scene.traverse(o=>{if(!good&&o.isMesh&&o.geometry&&o.geometry.type==='PlaneGeometry'&&o.geometry.parameters.width===.75&&o.material&&o.material.map&&o.material.map.image&&o.material.map.image.width===96)good=o.material;});
+    if(good)scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='PlaneGeometry'&&o.geometry.parameters.width===.7&&o.material&&!o.material.map&&o.material.isMeshBasicMaterial&&zoneOf(o.position.x)==='island')o.material=good;});}catch(e){}},20000);// Paul: white boxes in the planters
   (function loop(){try{tick();}catch(err){if(!CRIT3.err){CRIT3.err=1;console.warn('crit3',err);}}requestAnimationFrame(loop);})();
 })();
 // ---------- The Basin lookout (Look Lab: ?toon until BASIN_LIVE is true) ----------
@@ -18548,6 +18556,17 @@ const RAILCLR={on:/[?&#]toon\b/.test(location.search+location.hash),n:0};
       const cx=(B.min.x+B.max.x)/2,cz=(B.min.z+B.max.z)/2;const sx=B.max.x-B.min.x,sz=B.max.z-B.min.z,thin=sx<.25&&sz<.25,wide=Math.max(sx,sz)>1;if(hits.some(H=>{const m=((B.min.y>.8&&wide)||(thin&&B.max.y<=H.max.y+.05))?1.6:.3;return cx>H.min.x-m&&cx<H.max.x+m&&cz>H.min.z-m&&cz<H.max.z+m&&B.min.y>-.05&&B.max.y<H.max.y+2.5;})){o.visible=false;RAILCLR.n++;}/* its verandah and posts go too */});
     colliders.forEach(c=>{if(hits.some(H=>c.x1>H.min.x-.5&&c.x2<H.max.x+.5&&c.z1>H.min.z-.5&&c.z2<H.max.z+.5)){c.x1=c.x2=c.z1=c.z2=-9999;}});}
   [6000,16000].forEach(t=>setTimeout(()=>{try{run();}catch(e){console.warn('railclr',e);}},t));
+})();
+// ---------- On Rottnest only Rottnest shows (Look Lab: ?toon) ----------
+// Paul (Nov 2026): from the island's west end the South Perth map showed across the water. The other maps are laid out east of
+// x = 99.5 in the same scene; while the camera is on the island, everything that lies wholly there is hidden, and the sea fills the view.
+(function(){if(!/[?&#]toon\b/.test(location.search+location.hash))return;let L=null,state=null;
+  function list(){L=[];const B=new THREE.Box3();scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();
+    const take=(o,deep)=>{if(o.isLight||o.isCamera||o.name==='sea3'||o.name==='sea3band')return;try{B.setFromObject(o);B.applyMatrix4(inv);}catch(e){return;}if(B.isEmpty())return;/* scene space: the island is drawn mirrored */
+      if(B.min.x>=97.5){L.push(o);return;}if(B.max.x>99&&deep<2&&o.children.length)o.children.forEach(c=>take(c,deep+1));};
+    scene.children.forEach(o=>take(o,0));}
+  (function loop(){try{if(typeof ISL!=='undefined'&&ISL.done&&typeof camTarget!=='undefined'){if(!L)list();const on=zoneOf(camTarget.x)==='island';if(on!==state){state=on;if(typeof SEA3!=='undefined'&&SEA3.sea)SEA3.sea.visible=on;L.forEach(o=>{if(on){o.__io=o.visible;o.visible=false;}else if(o.__io!==undefined)o.visible=o.__io;});}}}catch(e){}requestAnimationFrame(loop);})();
+  setTimeout(()=>{L=null;state=null;},25000);// list again once late objects are built
 })();
 // ---- auth ----
 function authLoad(){try{AUTH.s=JSON.parse(localStorage.getItem('qc-auth')||'null');}catch(e){AUTH.s=null;}}

@@ -15,12 +15,15 @@ const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||/[?&#]toon\b/.test(location.search+l
     const segD=(x,z,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz||1;let t=((x-a[0])*dx+(z-a[1])*dz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t);};
     const pathD=(x,z)=>{let d=1e9;for(const P of PATHS){if(!P.length||P[0][0]>=99.5)continue;for(let k=1;k<P.length;k++)d=Math.min(d,segD(x,z,P[k-1],P[k]));}return d;};
     const hw=FW+1.4,hd=FD+1.6;
+    // the island roads and cycle lanes too (Paul: the beds sat on the road)
+    const LN=(typeof BLANES!=='undefined'&&Array.isArray(BLANES)?BLANES.filter(p=>Array.isArray(p)&&Array.isArray(p[0])&&Array.isArray(p[1])).map(p=>[p[0],p[1]]):[]).concat(typeof BIKE_LANE!=='undefined'?[BIKE_LANE.map(([a,b])=>{const q=IW(a,b);return[q.x,q.z];})]:[]);
+    const roadD=(x,z)=>{let d=1e9;for(const P of LN)for(let k=1;k<P.length;k++)d=Math.min(d,segD(x,z,P[k-1],P[k]));return d;};
     // what may be cleared for the garden: plant sprites (they are swapped for 3D trees later) and their small colliders
     const plantSet=new Set(BB.filter(o=>o.isMesh&&!(o.userData&&o.userData.frames&&o.userData.frames.length>1)&&o.parent===scene&&!(typeof SIGN_TEX!=='undefined'&&o.material&&SIGN_TEX.has(o.material.map))));
     const obst=[];scene.children.forEach(o=>{if(plantSet.has(o)||o===player.mesh||o.isLight)return;if(inR(o.position.x,o.position.z))return;if(Math.abs(o.position.x-aim.x)>60||Math.abs(o.position.z-aim.z)>60)return;
       const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())return;const sx=b.max.x-b.min.x,sz=b.max.z-b.min.z;if(sx>14||sz>14||b.max.y-b.min.y<.3)return;obst.push(b);});
     const clear=(x,z)=>{for(const c of colliders){if(c.x1>1e7)continue;if(c.x2-c.x1<1.5&&c.z2-c.z1<1.5)continue;if(inR((c.x1+c.x2)/2,(c.z1+c.z2)/2))continue;if(c.x2>x-hw&&c.x1<x+hw&&c.z2>z-hd&&c.z1<z+hd)return false;}
-      for(let i=-1;i<=1;i+=.5)for(let j=-1;j<=1;j+=.5){const X=x+i*hw,Z=z+j*hd;if(typeof landD==='function'&&landD(X,Z)<2.5)return false;if(pathD(x+i*(hw-.8),z+j*(hd-.8))<.9)return false;}
+      for(let i=-1;i<=1;i+=.5)for(let j=-1;j<=1;j+=.5){const X=x+i*hw,Z=z+j*hd;if(typeof landD==='function'&&landD(X,Z)<2.5)return false;if(pathD(x+i*(hw-.8),z+j*(hd-.8))<.9)return false;if(roadD(x+i*hw,z+j*hd)<1.8)return false;}
       for(const b of obst)if(b.max.x>x-hw&&b.min.x<x+hw&&b.max.z>z-hd&&b.min.z<z+hd)return false;
       return true;};
     let best=null,bd=1e9;for(let rr=0;rr<=30;rr+=.75)for(let a=0;a<32;a++){const x=aim.x+Math.cos(a/32*6.2832)*rr,z=aim.z+Math.sin(a/32*6.2832)*rr;if(clear(x,z)){const d=Math.hypot(x-aim.x,z-aim.z);if(d<bd){bd=d;best=[x,z];}}}
@@ -55,7 +58,7 @@ const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||/[?&#]toon\b/.test(location.search+l
       box(1,.26,1.1,bedMat,x,.13,z);const s=new THREE.Mesh(new THREE.PlaneGeometry(.88,.98),soilDry);s.rotation.x=-Math.PI/2;s.position.set(x,.265,z);s.receiveShadow=true;scene.add(s);p.soil=s;
       p.spark=spriteMesh([iconCanvas('spark')],.4,.4,{basic:true,shadow:false});p.spark.visible=false;scene.add(p.spark);col(x-.5,z-.55,x+.5,z+.55);}
     if(S&&Array.isArray(S.plots))while(S.plots.length<PLOTS.length)S.plots.push(null);
-    const x1=tx-FW,x2=tx+FW,z1=tz-FD,z2=tz+FD;fenceRun(x1,z1,x2,z1);fenceRun(x1,z1,x1,z2);fenceRun(x2,z1,x2,z2);fenceRun(x1,z2,tx-.7,z2);fenceRun(tx+.7,z2,x2,z2);
+    const x1=tx-FW,x2=tx+FW,z1=tz-FD,z2=tz+FD;// no fence (Paul, Nov 2026)
     flat(1.4,1.2,lmat(pathC,[.7,.6]),tx,.02,z2+.5);
     GARDEN.x1=x1;GARDEN.x2=x2;GARDEN.z1=z1;GARDEN.z2=z2;
     try{refreshPlots();}catch(e){console.warn('garden refresh',e);}

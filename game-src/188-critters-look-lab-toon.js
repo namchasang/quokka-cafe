@@ -54,8 +54,13 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
       const isl=s.visible&&zoneOf(s.position.x)==='island';if(!isl){M.visible=false;show(s);continue;}hide(s);M.visible=true;
       const x=s.position.x,z=s.position.z;if(e.lx!==null){const dx=x-e.lx,dz=z-e.lz;if(dx*dx+dz*dz>1e-6){const h=Math.atan2(dx,dz);let d=h-e.head;d=Math.atan2(Math.sin(d),Math.cos(d));e.head+=d*.2;}}e.lx=x;e.lz=z;
       M.position.set(x,s.position.y,z);M.rotation.y=e.head;
+      if(e.kind==='b'&&typeof TREE3D!=='undefined'&&TREE3D.pos.length){// Paul: butterflies live round the trees, they don't follow Kip
+        if(!e.anc||Math.hypot(e.anc[0]-camTarget.x,e.anc[1]-camTarget.z)>34){const P=TREE3D.pos.filter(q=>Math.hypot(q[0]-camTarget.x,q[1]-camTarget.z)<26);e.anc=P.length?P[(Math.random()*P.length)|0]:null;}
+        if(e.anc){const a=t*.35+e.i*1.7,R=1.2+e.anc[2]*.4;s.position.x=e.anc[0]+Math.sin(a)*R+Math.sin(a*2.3)*.4;s.position.z=e.anc[1]+Math.cos(a*.8)*R;M.position.set(s.position.x,s.position.y,s.position.z);}}
       if(e.kind==='b'){const f=Math.sin(t*22+e.i)*1.1;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.position.y=s.position.y-.05;}
       else if(e.kind==='g'){const f=Math.sin(t*3+e.i)*.25;M.userData.L.rotation.z=f;M.userData.R.rotation.z=-f;M.rotation.z=Math.sin(t*.7+e.i)*.15;}
       else{M.position.y=0;e.wa=(e.wa||0)+.25;M.userData.wheels.forEach(w=>w.rotation.x=e.wa);M.userData.legs.forEach((l,j)=>l.rotation.x=Math.sin(e.wa+j*Math.PI)*.6);if(M.userData.u)M.userData.u.uSw.value=Math.sin(e.wa*.6)*.7;}}}
+  setTimeout(()=>{try{let good=null;scene.traverse(o=>{if(!good&&o.isMesh&&o.geometry&&o.geometry.type==='PlaneGeometry'&&o.geometry.parameters.width===.75&&o.material&&o.material.map&&o.material.map.image&&o.material.map.image.width===96)good=o.material;});
+    if(good)scene.traverse(o=>{if(o.isMesh&&o.geometry&&o.geometry.type==='PlaneGeometry'&&o.geometry.parameters.width===.7&&o.material&&!o.material.map&&o.material.isMeshBasicMaterial&&zoneOf(o.position.x)==='island')o.material=good;});}catch(e){}},20000);// Paul: white boxes in the planters
   (function loop(){try{tick();}catch(err){if(!CRIT3.err){CRIT3.err=1;console.warn('crit3',err);}}requestAnimationFrame(loop);})();
 })();

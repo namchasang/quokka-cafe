@@ -194,16 +194,17 @@ Find code: `grep -n 'name' game-src/*`.
 | 185-home3-look-lab-home2-paul-nov-2026-hom.js | 17731-17796 | 6 | H3, h3Away, h3Init, h3Trip, h3LanPaint, h3BoatIn, h3BoatPos, h3BoatTick, h3BoatOut, h3StnIn |
 | 186-home4-paul-nov-2026-home-screen-shows.js | 17797-17855 | 8 | H4, h4Busy, H4_BUILD, h4Step, h4Pass, h4Mark, t2Targets, pxbCatchUp, pxbTick, tex3Scene |
 | 187-hd-pixel-set-on-rottnest-only-look-lab.js | 17856-17895 | 5 | HDR_LIVE, hdRottBuild, ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
-| 188-garden-meadow-look-lab-toon.js | 17896-17962 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
-| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17963-18107 | 19 | TREE3D_LIVE, TREE3D |
-| 188-toon-characters-look-lab-toon.js | 18108-18186 | 9 | TOON_LIVE, TOON |
-| 188-paint-look-look-lab-toon.js | 18187-18242 | 5 | PAINT_LIVE, PAINT |
-| 188-sea-beach-look-lab-toon.js | 18243-18300 | 6 | SEA3_LIVE, SEA3 |
-| 188-build-smooth-look-lab-toon.js | 18301-18360 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 18361-18409 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 18410-18442 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 18443-18503 | 7 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 18504-18534 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 18535-18551 | 2 | RAILCLR |
-| 188-auth.js | 18552-18630 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18631-18652 | 3 | SHOT |
+| 188-garden-meadow-look-lab-toon.js | 17896-17965 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
+| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 17966-18110 | 19 | TREE3D_LIVE, TREE3D |
+| 188-toon-characters-look-lab-toon.js | 18111-18189 | 9 | TOON_LIVE, TOON |
+| 188-paint-look-look-lab-toon.js | 18190-18245 | 5 | PAINT_LIVE, PAINT |
+| 188-sea-beach-look-lab-toon.js | 18246-18303 | 6 | SEA3_LIVE, SEA3 |
+| 188-build-smooth-look-lab-toon.js | 18304-18363 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 18364-18412 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 18413-18445 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 18446-18511 | 8 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 18512-18542 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 18543-18559 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 18560-18570 | 1 |  |
+| 188-auth.js | 18571-18649 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 18650-18671 | 3 | SHOT |

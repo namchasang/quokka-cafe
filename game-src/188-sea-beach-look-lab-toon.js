@@ -16,7 +16,7 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
     const tD=new THREE.DataTexture(data,W,Hh,THREE.RGBAFormat);tD.magFilter=THREE.LinearFilter;tD.minFilter=THREE.LinearFilter;tD.wrapS=tD.wrapT=THREE.ClampToEdgeWrapping;tD.needsUpdate=true;
     const U={tD:{value:tD},uB:{value:new THREE.Vector4(TB.x1,TB.z1,(GW-1)/GR,(GH-1)/GR)},uT:{value:0},uMir:{value:1}};// uMir: the island scene may be drawn mirrored (scene.scale.x = -1)
     const pre=`uniform sampler2D tD;uniform vec4 uB;uniform float uT;uniform float uMir;uniform float uBand;varying vec3 vWp3;\n${NOISE}
-      float s3d(vec2 p){vec2 uv=(p-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)return 10.;return texture2D(tD,uv).r*12.-2.;}`;
+      float s3d(vec2 p){vec2 uv=(p-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>.985||uv.y>1.)return 10.;return texture2D(tD,uv).r*12.-2.;}`;
     const vtx=sh=>{sh.vertexShader='varying vec3 vWp3;\n'+sh.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvWp3=(modelMatrix*vec4(transformed,1.)).xyz;');};
     // --- the sea ---
     const mkSea=band=>{const m=new THREE.MeshLambertMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2});
@@ -44,7 +44,7 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
         float f3=exp(-pow((d-.55)/.05,2.))*.35*lace*smoothstep(.4,.7,s3n(wp*.8+uT*.05));
         c=mix(c,${SR('#fbfaf4')},clamp(f1+f2+f3,0.,1.)*.9);
         diffuseColor.rgb=c;`);};m.customProgramCacheKey=()=>'sea3'+band;return m;};const seaM=mkSea(0);
-    const ext=60,x1=TB.x1-ext,x2=Math.min(99.5,TB.x2+ext),z1=TB.z1-ext,z2=TB.z2+ext;
+    const ext=60,x1=TB.x1-ext,x2=TB.x2+ext+80,z1=TB.z1-ext,z2=TB.z2+ext;
     // it lies under every ground mesh (the settlement lawns are separate meshes over the grid's water) and over the old pixel water layers
     const sea=flat(x2-x1,z2-z1,seaM,(x1+x2)/2,-.09,(z1+z2)/2);sea.receiveShadow=true;sea.renderOrder=-1;sea.name='sea3';
     // wet sand is painted into the ground itself (part 016, beach rule, ?toon): an overlay would also darken the settlement lawns

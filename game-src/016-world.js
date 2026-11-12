@@ -121,8 +121,8 @@ function paintTerrRect(D,W,x0,z0,PX,j0,j1){const G=TERR_G,gx0=Math.round((x0-TB.
     const beachW=1.05+.7*vnoise(wx*.3+11,z*.3)+(r-.5)*.35;const zone=d<2.4+n2*1.6&&ox<49&&((oz>9.3+n1*1.2)||(ox>32.3+n1&&oz>3.6+n2));
     const le=Math.min(((ox-42.2)/3.5)**2+((oz+7.5)/1.6)**2,((ox-66.2)/2.6)**2+((oz-2.7)/1.1)**2);const pd=islPD(wx,z);
     const SG=ISL_GROUND.length?islGround(wx,z):null,SL=SG&&SG.g.t==='lake';
-    if(le<1||(SL&&SG.e<1))c=r>.93?[250,204,216]:(n2>.6?[244,176,194]:[236,156,178]);
-    else if(le<1.38+(r-.5)*.12||(SL&&SG.e<1.38+(r-.5)*.12))c=r<.5?[242,236,224]:[226,214,196];
+    if(!TOON_SAND&&(le<1||(SL&&SG.e<1)))c=r>.93?[250,204,216]:(n2>.6?[244,176,194]:[236,156,178]);
+    else if(!TOON_SAND&&(le<1.38+(r-.5)*.12||(SL&&SG.e<1.38+(r-.5)*.12)))c=r<.5?[242,236,224]:[226,214,196];
     else if(pd<.82+(r-.5)*.14)c=pd>.62?[196,186,160]:(r<.04?[182,170,143]:(n2>.55?[228,220,200]:[216,206,184]));
     else if(SG&&!SL&&SG.g.t!=='sand'&&!(SG.g.t!=='tarmac'&&d<beachW)){const t=SG.g.t;if(t==='fairway')c=((Math.floor((SG.u*SG.g.rx+40)/1.6))&1)?[132,196,96]:[146,208,108];else if(t==='green')c=r<.5?[118,198,98]:[126,206,104];else if(t==='bunker')c=r<.5?[240,226,188]:[232,216,176];else c=Math.abs(SG.v)<.08&&((Math.floor((SG.u*SG.g.rx+40)/1.4))&1)?[240,240,232]:(r<.5?[108,112,120]:[118,122,128]);}
     else if(d<beachW||zone||(SG&&SG.g.t==='sand')){if(TOON_SAND){// ?toon: the Tree Lab beach, a smooth warm gradient from wet sand at the water to pale dry sand, then golden at the back
