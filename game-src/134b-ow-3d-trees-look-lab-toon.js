@@ -19,6 +19,9 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const m=o.material;if(m&&!m.__ow3t){m.__ow3t=1;const ob=m.onBeforeCompile;m.onBeforeCompile=(sh,r)=>{if(ob)ob(sh,r);sh.uniforms.uT3C=OW3T.uCam;sh.uniforms.uT3R=OW3T.uR;
       sh.vertexShader='varying vec2 vT3;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvT3=(modelMatrix*vec4(position,1.)).xz;');
       sh.fragmentShader='uniform vec2 uT3C;uniform float uT3R;varying vec2 vT3;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(distance(vT3,uT3C)<uT3R-1.5)discard;');};m.needsUpdate=true;}});
+  // no trees on the freeway decks and corridors
+  {const L=[];if(typeof OWT!=='undefined'&&OWT){if(OWT.ovD)L.push(OWT.ovD);if(OWT.kwRoad)L.push(OWT.kwRoad);}if(L.length){const B=new Map(),bk=(x,z)=>Math.floor(x/8)*100003+Math.floor(z/8);L.forEach(D=>D.forEach(p=>{const k=bk(p[0],p[1]);(B.get(k)||B.set(k,[]).get(k)).push(p);}));
+    for(let i=pts.length-1;i>=0;i--){const t=pts[i];let hit=false;for(let a=-1;a<=1&&!hit;a++)for(let b=-1;b<=1&&!hit;b++){const Q=B.get((Math.floor(t[0]/8)+a)*100003+Math.floor(t[2]/8)+b);if(Q)for(const p of Q)if(Math.hypot(p[0]-t[0],p[1]-t[2])<7.5){hit=true;break;}}if(hit)pts.splice(i,1);}}}
   const grid=new Map();pts.forEach(t=>{const k=Math.floor(t[0]/16)*100003+Math.floor(t[2]/16);let L=grid.get(k);if(!L)grid.set(k,L=[]);L.push(t);});OW3T.pts=pts;OW3T.grid=grid;
   // 2. five kinds of 3D tree, built once at height 1 (scaled to each picture's height)
   const V=(x,y,z)=>new THREE.Vector3(x,y,z),UP=V(0,1,0);let sd=7;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
