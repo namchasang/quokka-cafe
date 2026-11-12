@@ -45,6 +45,7 @@ const RK=(()=>{const hs=(a,b)=>L2hash(a*1.37+.11,b*.91+.7);const A=['#56585d','#
       for(let u=road[0];u+.3<=road[1]+.01;u+=.6)P(x,W,u*k,zeb0*k,.3*k,(zeb1-zeb0)*k);P(x,W,road[0]*k,stop0*k,(w/2-road[0]-.15)*k,.25*k);
       if(arrows){const ax=(road[0]+w/2)/2*k,ay=(stop0+.6)*k;P(x,W,ax-.06*k,ay,.12*k,.7*k);P(x,W,ax-.22*k,ay+.62*k,.44*k,.12*k);P(x,W,ax-.12*k,ay+.74*k,.24*k,.1*k);}x.restore();}return c;};
   R.city=()=>box(256,11,[1.5,9.5],.25,1.15,1.45,true);
+  R.cityW=w=>box(256,w,[.12,w-.12],.08,.5,.62,true);// a crossroads exactly as wide as its roads (Paul, Nov 2026)
   R.cross=()=>box(256,6.5,[.85,5.65],.12,.7,.95,false);
   // street crossroads (Paul, Nov 2026, from his photos): one arm 2.5 across x 4.5 along; the middle 2.5 is the whole crossing (both carriageways,
   // footpath corners) so the two crossed arms match there; the arm ends carry the zebra crossing and a stop line on the inbound half

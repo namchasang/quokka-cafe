@@ -3,8 +3,8 @@
 // 3D leaf-card tree (trunk and limbs, painted leaf-clump cards that shade like one soft ball, dappled shadow); further out the
 // pictures stay. Tree spots are read from every billboard mesh (the ones with a 'corner' attribute); the kind is guessed from the
 // picture's height and width: tall and narrow = pine, low = bush, else gum, peppermint or a round street tree. Instanced per kind.
-const OW3T={R:46,n:0,ready:false,pts:null,grid:null,uCam:{value:new THREE.Vector2(1e9,1e9)},uR:{value:46}};
-function owTree3dTick(px,pz){if(!OWTOON)return;try{if(!OW3T.ready)owTree3dInit();if(!OW3T.ready)return;OW3T.uCam.value.set(px,pz);
+const OW3T={R:46,/* trees about as tall as the houses (Paul, Nov 2026) */n:0,ready:false,pts:null,grid:null,uCam:{value:new THREE.Vector2(1e9,1e9)},uR:{value:46}};
+function owTree3dTick(px,pz){if(!OWTOON)return;try{owToonCar();if(!OW3T.ready)owTree3dInit();if(!OW3T.ready)return;OW3T.uCam.value.set(px,pz);
   if(OW3T.lx!==undefined&&Math.hypot(px-OW3T.lx,pz-OW3T.lz)<4)return;OW3T.lx=px;OW3T.lz=pz;
   const R=OW3T.R,C=16,i0=Math.floor((px-R)/C),i1=Math.floor((px+R)/C),j0=Math.floor((pz-R)/C),j1=Math.floor((pz+R)/C),cnt=OW3T.T.map(()=>0),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),P=new THREE.Vector3(),S=new THREE.Vector3();
   for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const L=OW3T.grid.get(i*100003+j);if(!L)continue;for(const t of L){if(Math.hypot(t[0]-px,t[2]-pz)>R)continue;const T=OW3T.T[t[4]];const k=cnt[t[4]];if(k>=T.cap)continue;
@@ -15,7 +15,7 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
   const pts=[],seen=new Set();scene.traverse(o=>{if(!o.isMesh||!o.geometry||!o.geometry.attributes.corner)return;const L=o.userData&&o.userData.L;if(L&&L!=='plants')return;
     const g=o.geometry,p=g.attributes.position,c=g.attributes.corner,n=Math.min(p.count,(g.drawRange&&isFinite(g.drawRange.count)?g.drawRange.count/6*4:p.count));
     for(let v=0;v+3<n;v+=4){const h=Math.max(c.getY(v+2),c.getY(v+3)),w=Math.abs(c.getX(v+1)-c.getX(v));if(h<1.4)continue;const x=p.getX(v),z=p.getZ(v);const key=Math.round(x*4)+','+Math.round(z*4);if(seen.has(key))continue;seen.add(key);
-      const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);pts.push([x,p.getY(v),z,h,kind,((x*12.9898+z*78.233)%6.283)]);}
+      const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);pts.push([x,p.getY(v),z,kind===4?Math.min(h,1.4):Math.min(3.3,h*.6),kind,((x*12.9898+z*78.233)%6.283)]);}
     const m=o.material;if(m&&!m.__ow3t){m.__ow3t=1;const ob=m.onBeforeCompile;m.onBeforeCompile=(sh,r)=>{if(ob)ob(sh,r);sh.uniforms.uT3C=OW3T.uCam;sh.uniforms.uT3R=OW3T.uR;
       sh.vertexShader='varying vec2 vT3;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvT3=(modelMatrix*vec4(position,1.)).xz;');
       sh.fragmentShader='uniform vec2 uT3C;uniform float uT3R;varying vec2 vT3;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(distance(vT3,uT3C)<uT3R-1.5)discard;');};m.needsUpdate=true;}});
@@ -54,3 +54,17 @@ function owTree3dInit(){if(OW3T.tried)return;OW3T.tried=true;
     const cap=k==='bush'?500:420,meshes=[new THREE.InstancedMesh(L.geo(),lm,cap),new THREE.InstancedMesh(K.geo(),bm,cap)];meshes[0].customDepthMaterial=dm;
     meshes.forEach(m=>{m.count=0;m.castShadow=true;m.receiveShadow=true;m.frustumCulled=false;m.userData.L='plants';m.userData.ow3t=1;scene.add(m);});return{k,cap,meshes};});
   OW3T.ready=true;console.log('OW3T trees '+pts.length);}
+
+// Kip drives a toon car (Paul, Nov 2026): the car's boxes get banded toon shading and a dark ink outline, and Kip sits at the wheel
+// as the same 3D toon quokka as on Rottnest (he is always in the car out here)
+function owToonCar(){if(owToonCar.done)return;owToonCar.done=1;try{
+  const gd=(()=>{const d=new Uint8Array([110,110,120,255,190,190,196,255,255,255,255,255]);const t=new THREE.DataTexture(d,3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;})();
+  const ink=new THREE.MeshBasicMaterial({color:'#1d1712',side:THREE.BackSide});const add=[];
+  car.traverse(o=>{if(!o.isMesh||!o.material||o.material.isMeshBasicMaterial)return;const c=o.material.color?o.material.color.clone():new THREE.Color(1,1,1);o.material=new THREE.MeshToonMaterial({color:c,gradientMap:gd});
+    const k=new THREE.Mesh(o.geometry,ink);k.scale.setScalar(1.025);add.push([o,k]);});add.forEach(([o,k])=>o.add(k));
+  if(typeof TOON!=='undefined'&&TOON.quokka){const q=TOON.quokka('#3e7d5c',1.25);q.g.position.set(0,.98,0);q.g.rotation.y=0;q.g.traverse(o=>{if(o.isMesh)o.castShadow=true;});
+    const seat=new THREE.Group();seat.add(q.g);car.children[0].parent===car&&car.add(seat);seat.position.set(0,0,-.32);OW3T.kip=q;}
+  // an open-top car so Kip shows from the game camera: the cabin box and the roof go, a small windscreen stays
+  car.traverse(o=>{if(!o.isMesh||!o.geometry||o.geometry.type!=='BoxGeometry')return;const y=o.position.y;if(y>.55){o.visible=false;}});
+  {const ws=new THREE.Mesh(new THREE.BoxGeometry(.04,.2,.56),new THREE.MeshToonMaterial({color:'#bfe0ec',gradientMap:gd,transparent:true,opacity:.55}));ws.position.set(.2,.56,0);const g0=car.children[0];g0.add(ws);}
+}catch(e){console.warn('owToonCar',e);}}

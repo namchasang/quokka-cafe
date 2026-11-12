@@ -22,7 +22,7 @@ try{const t0=performance.now(),RS={};O.ribs=RIBS;
     for(let i=0;i<p.count;i++){const X=x+p.getX(i),Z=z+p.getZ(i);p.setXYZ(i,X,coverY(X,Z)+(yo||0),Z);if(world)uv.setXY(i,X/2,Z/2);}g.computeVertexNormals();g.computeBoundingSphere();
     const m=new THREE.Mesh(g,mat);m.receiveShadow=true;m.userData.L='roads';m.name='rk:box';scene.add(m);return m;};
   const cityM=RK.mat('city',RK.city,{polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}),asM=RK.mat('asph',RK.asph,{polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8});let nb=0;
-  (O.signals||[]).forEach(s=>{if(!s.g||s.sub)return;s.g.children.forEach(c=>{if(c.isMesh&&c.geometry&&c.geometry.type==='PlaneGeometry')c.visible=false;});boxMesh(s.x,s.z,11,11,s.ang,cityM,.004);s.g.position.y=coverY(s.x,s.z)+.004;nb++;});
+  (O.signals||[]).forEach(s=>{if(!s.g||s.sub)return;s.g.children.forEach(c=>{if(c.isMesh&&c.geometry&&c.geometry.type==='PlaneGeometry')c.visible=false;});if(OWR2){let w=0;RIBS.forEach(r=>{if(!r.m.visible||r.hidden)return;const P=r.P2;for(let i=1;i<P.length;i++)if(segDist(s.x,s.z,P[i-1],P[i])<1.5){w=Math.max(w,r.w);break;}});w=Math.max(4,w);const W=Math.round(w*4)/4;boxMesh(s.x,s.z,W,W,s.ang,RK.mat('cityW'+W,()=>RK.cityW(W),{polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}),.004);}else boxMesh(s.x,s.z,11,11,s.ang,cityM,.004);s.g.position.y=coverY(s.x,s.z)+.004;nb++;});
   // T junctions of the country roads (a spur into the highway): a box over the near half of the highway at the mouth
   const RV=RIBS.filter(r=>r.m.visible&&!r.hidden);
   RV.forEach(r=>{if(r.w>3.5)return;[r.pts[0],r.pts[r.pts.length-1]].forEach(e=>{if(O.signals&&O.signals.some(s=>Math.hypot(s.x-e[0],s.z-e[1])<7))return;let best=null;
