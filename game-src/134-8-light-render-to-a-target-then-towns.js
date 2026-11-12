@@ -15,7 +15,7 @@ void main(){vec2 uv=vUv;float z=lz(uv);
 const pScene=new THREE.Scene(),pCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);pScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2),post));
 const vs=new THREE.Vector2();
 O.render=function(dt){dt=Math.max(0,Math.min(.05,dt||0));O.t+=dt;const t=O.t;PU.uT.value=t;O.WU.uT.value=t;post.uniforms.uT.value=t;
-  const px=ST.inCar?ST.carX:ST.x,pz=ST.inCar?ST.carZ:ST.z;GU.uCam.value.set(px,0,pz);O.obMats.forEach(m=>m.userData.U.uCam.value.set(px,0,pz));
+  const px=ST.inCar?ST.carX:ST.x,pz=ST.inCar?ST.carZ:ST.z;GU.uCam.value.set(px,0,pz);if(OWTOON)owTree3dTick(px,pz);O.obMats.forEach(m=>m.userData.U.uCam.value.set(px,0,pz));
   // dusk: windows, lamps, the bell tower and the lighthouse light up; the plants get a golden rim
   const n=ST.night?1:0;O.glowK+=(n-O.glowK)*Math.min(1,dt*2);const gk=O.glowK;O.glow.forEach(m=>m.emissiveIntensity=gk*1.1);
   plantMat.emissive.setRGB(.10+.22*gk,.07+.12*gk,.02);(O.lamps||[]).forEach(l=>l.material.color.set(gk>.5?0xffe2a0:0x3a3a30));

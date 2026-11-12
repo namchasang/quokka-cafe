@@ -36,15 +36,15 @@ float wn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(wh(i)
 float sdep(vec2 w){if(uSG2.y<1.)return 40.;float LA=uSG2.x,R=uSG2.y,PX=uSG2.z,PZ=uSG2.w,CX=PX+R,CZ=PZ+LA;vec2 st;
  if(w.y<CZ)st=vec2(w.y-PZ,w.x-PX);else if(w.x<CX){vec2 v=w-vec2(CX,CZ);float th=clamp(atan(v.y,-v.x),0.,1.5708);st=vec2(LA+R*th,R-length(v));}else st=vec2(LA+R*1.5708+(w.x-CX),(CZ+R)-w.y);
  float T1=uSG.x+uSG.y*(uSG.z-1.);if(st.x<0.||st.y<uSG.x||st.y>T1)return 40.;vec2 u=vec2((st.y-uSG.x)/uSG.y+.5,st.x/uSG.y+.5)/uSG.zw;return texture2D(uSo,u).r*31.875;}
-float wdep(vec2 w){if(w.y>=${WZ}.&&uSG2.y>0.)return sdep(w);if(w.y>=0.&&w.x>=0.&&w.x<${WX}.&&w.y<${WZ}.)return texture2D(uS,w/vec2(${WX}.,${WZ}.)).r*31.875;
+float wdep(vec2 w){if(w.y>=${WZ}.&&uSG2.y>0.)return sdep(w);if(uToon>.5&&w.x<0.&&w.y>=0.&&w.y<${WZ}.)return texture2D(uS,vec2(.5/${WX}.,w.y/${WZ}.)).r*31.875-w.x*.6;/* past the west edge: keep deepening smoothly */if(w.y>=0.&&w.x>=0.&&w.x<${WX}.&&w.y<${WZ}.)return texture2D(uS,w/vec2(${WX}.,${WZ}.)).r*31.875;
  if(w.y<0.&&w.x>uNG.x&&w.x<uNG.x+uNG.y*(uNG.z-1.)){vec2 u=vec2((w.x-uNG.x)/uNG.y+.5,(-w.y)/uNG.y+.5)/uNG.zw;return texture2D(uN,u).r*31.875;}return 40.;}
 `+sh.fragmentShader.replace('#include <map_fragment>',`if(uToon>.5){vec2 wp=vWW;float d=wdep(wp)+(wn(wp*.35+uT*.05)-.5)*.5;bool sea=wp.x<37.5||wp.y<0.||wp.y>=float(${WZ});float dd=max(d,0.);
  float n1=wn(wp*.35),n2=wn(wp*1.3+7.);vec3 bed=mix(vec3(.88,.86,.78),vec3(.78,.86,.80),smoothstep(.5,6.,dd));float gr=smoothstep(.6,.66,n1*.7+n2*.3)*smoothstep(4.,7.,dd);bed=mix(bed,vec3(.012,.05,.13),gr*.85);
  float ca=abs(sin((wp.x+wn(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+wn(wp*1.9-uT*.2)*2.)*2.7));bed+=vec3(.12)*pow(1.-ca,7.)*(1.-smoothstep(2.,9.,dd))*(1.-gr);
- float wd=clamp(.22+dd*.07,0.,.92);vec3 c=mix(bed,vec3(.03,.52,.56)*mix(1.,.6,gr),wd*(1.-gr*.5));c=mix(c,vec3(.02,.38,.59),smoothstep(7.,13.,dd));c=mix(c,vec3(.01,.09,.30),smoothstep(12.,30.,min(dd,30.)));
+ float wd=clamp(.34+dd*.08,0.,.94);vec3 c=mix(bed*.92,vec3(.03,.52,.56)*mix(1.,.6,gr),wd*(1.-gr*.5));c=mix(c,vec3(.02,.38,.59),smoothstep(7.,13.,dd));c=mix(c,vec3(.01,.09,.30),smoothstep(12.,30.,min(dd,30.)));
  if(!sea)c=mix(vec3(.02,.10,.11),vec3(.006,.04,.08),smoothstep(.3,4.,dd))*(1.+(wn(wp*.7+uT*.2)-.5)*.08);// the river: a calm dark blue-green, no sandy shallows
  float lace=smoothstep(.35,.65,wn(wp*5.+vec2(uT*.3,0.)))*.6+.4,ph=fract(uT*.08+wn(wp*.12)*.5);float f=exp(-pow((d-.12)/.07,2.))*lace+exp(-pow((d-(.3+ph*.9))/.06,2.))*(1.-ph)*.8*lace;if(!sea)f*=.25;
- c=mix(c,vec3(.97),clamp(f,0.,1.)*.9);diffuseColor=vec4(c,d<.05?0.:.97);}else{vec2 pi=floor(vWW*3.),pp=(pi+.5)/3.;float d=wdep(pp)+(wn(pp*.35+uT*.05)-.5)*.6;bool sea=pp.x<37.5||pp.y<0.||pp.y>=float(${WZ});
+ c=mix(c,vec3(.97),clamp(f,0.,1.)*.9);diffuseColor=vec4(c,d<.05?0.:d<2.?.97:1.);}else{vec2 pi=floor(vWW*3.),pp=(pi+.5)/3.;float d=wdep(pp)+(wn(pp*.35+uT*.05)-.5)*.6;bool sea=pp.x<37.5||pp.y<0.||pp.y>=float(${WZ});
  float bb=(mod(pi.x*2.+pi.y*3.,4.)-1.5)*.18;float k=d<.9?0.:d<2.2?1.:d<4.?2.:d<7.?3.:d<11.?4.:d<17.?5.:6.;if(!sea)k=d<.7?0.:d<1.6?1.:d<3.?2.:d<5.?3.:d<8.?4.:5.;
  k=clamp(floor(k+bb),0.,6.);vec3 S0=vec3(.56,.88,.82),S1=vec3(.36,.8,.78),S2=vec3(.23,.69,.75),S3=vec3(.16,.56,.69),S4=vec3(.13,.43,.63),S5=vec3(.09,.33,.54),S6=vec3(.07,.24,.44);
  vec3 c=k<.5?S0:k<1.5?S1:k<2.5?S2:k<3.5?S3:k<4.5?S4:k<5.5?S5:S6;if(!sea)c=mix(c,vec3(.25,.48,.5),.35);
