@@ -18,14 +18,14 @@ const MEADOW={on:MEADOW_LIVE||TOON_ON,chunks:new Map(),n:0};
   let MAT=null,GEO=null,TD=null;
   // the island ground picture (green where grass grows), read once
   function ground(){if(TD)return TD;const W=terrC.width,H=terrC.height;if(W<8)return null;TD={W,H,d:terrC.getContext('2d').getImageData(0,0,W,H).data};return TD;}
-  const green=(x,z)=>{const T=ground();if(!T)return false;const px=Math.floor((x-TB.x1)*TPX),py=Math.floor((z-TB.z1)*TPX);if(px<0||py<0||px>=T.W||py>=T.H)return false;const k=(py*T.W+px)*4;const R=T.d[k],G=T.d[k+1],B=T.d[k+2];return T.d[k+3]>200&&G>R*1.18&&G>B*1.25&&G>70;};
-  const inBuilding=(x,z)=>colliders.some(c=>x>c.x1-.25&&x<c.x2+.25&&z>c.z1-.25&&z<c.z2+.25)||covered(x,z);
+  const green=(x,z)=>{/* the 3D ground (Paul, 13 Nov): grass everywhere inland except the salt lakes, paths are gone */if(typeof GROUND3D!=='undefined'&&GROUND3D.on){const t=landD(x,z);if(t<2.4||t===-9)return false;try{if(typeof islOldLake==='function'&&islOldLake(x,z))return false;if(typeof islGroundBlock==='function'&&islGroundBlock(x,z))return false;}catch(e){}return true;}const T=ground();if(!T)return false;const px=Math.floor((x-TB.x1)*TPX),py=Math.floor((z-TB.z1)*TPX);if(px<0||py<0||px>=T.W||py>=T.H)return false;const k=(py*T.W+px)*4;const R=T.d[k],G=T.d[k+1],B=T.d[k+2];return T.d[k+3]>200&&G>R*1.18&&G>B*1.25&&G>70;};
+  const inBuilding=(x,z)=>colliders.some(c=>c.x1>-9000&&x>c.x1-.25&&x<c.x2+.25&&z>c.z1-.25&&z<c.z2+.25)||covered(x,z);
   // Paul (Nov 2026): no grass on the café deck, floors, paving or the airstrip. Anything flat that stands on the ground (decks, floors,
   // tables, paving, runway paint) is listed once by its footprint; a tuft never grows inside one.
   let COV=null;const CG=4;
   function covered(x,z){if(!COV){COV=new Map();const B=new THREE.Box3(),add=(b)=>{for(let i=Math.floor(b[0]/CG);i<=Math.floor(b[2]/CG);i++)for(let j=Math.floor(b[1]/CG);j<=Math.floor(b[3]/CG);j++){const k=i+','+j;let L=COV.get(k);if(!L)COV.set(k,L=[]);L.push(b);}};
       scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();
-      scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.visible||!o.geometry||o.name==='sea3')return;if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();B.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld).applyMatrix4(inv);
+      scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.visible||!o.geometry||o.name==='sea3'||!o.layers.test(camera.layers))return;let off=false;for(let q=o.parent;q;q=q.parent)if(!q.visible||!q.layers.test(camera.layers))off=true;if(off)return;if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();B.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld).applyMatrix4(inv);
         const sx=B.max.x-B.min.x,sz=B.max.z-B.min.z;if(!isFinite(sx)||sx>25||sz>25||B.max.y<.045||B.min.y>1.2||sx*sz<.3)return;if(zoneOf((B.min.x+B.max.x)/2)!=='island')return;add([B.min.x-.15,B.min.z-.15,B.max.x+.15,B.max.z+.15]);});
       if(typeof WA!=='undefined'&&WA.rw)add([WA.rw.x1-1,WA.rw.z1-1.5,WA.rw.x2+1,WA.rw.z2+1.5]);}
     const L=COV.get(Math.floor(x/CG)+','+Math.floor(z/CG));if(L)for(const b of L)if(x>b[0]&&x<b[2]&&z>b[1]&&z<b[3])return true;return false;}
@@ -34,7 +34,7 @@ const MEADOW={on:MEADOW_LIVE||TOON_ON,chunks:new Map(),n:0};
   function chunk(ci,cj){if(!MAT){MAT=[tuftTex(false),tuftTex(true)].map(t=>new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color('#0d1a08')}));GEO=tuftGeo();}
     const r=mulberry32((ci*73856093)^(cj*19349663)),pts=[[],[]],n=Math.round(CS*CS*DENS);
     for(let k=0;k<n*2&&pts[0].length+pts[1].length<n;k++){const x=(ci+r())*CS,z=(cj+r())*CS;if(zoneOf(x)!=='island')continue;if(!green(x,z)||inBuilding(x,z))continue;
-      if(typeof pathD==='function'&&pathD(x,z)<1.0)continue;if(onLane(x,z))continue;pts[r()<.2?1:0].push([x,z,.55+r()*.6,r()*3.14]);}
+      if(!(typeof GROUND3D!=='undefined'&&GROUND3D.on)){if(typeof pathD==='function'&&pathD(x,z)<1.0)continue;if(onLane(x,z))continue;}pts[r()<.2?1:0].push([x,z,.55+r()*.6,r()*3.14]);}
     const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),meshes=[];
     pts.forEach((L,f)=>{if(!L.length)return;const im=new THREE.InstancedMesh(GEO,MAT[f],L.length);L.forEach(([x,z,s,a],i)=>{q.setFromAxisAngle(Y,a);m4.compose(new THREE.Vector3(x,0,z),q,new THREE.Vector3(s,s*(.8+((i*7)%5)*.1),s));im.setMatrixAt(i,m4);});
       im.receiveShadow=true;im.__pxSkip=1;im.__pt=1;scene.add(im);meshes.push(im);MEADOW.n+=L.length;});
@@ -45,5 +45,6 @@ const MEADOW={on:MEADOW_LIVE||TOON_ON,chunks:new Map(),n:0};
       for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=i+','+j;if(MEADOW.chunks.has(k))continue;if(made>=6)continue;MEADOW.chunks.set(k,chunk(i,j));made++;}
       if(made>=6)lx=1e9;// more to build next frame
       MEADOW.chunks.forEach((ms,k)=>{const[i,j]=k.split(',').map(Number),cx=(i+.5)*CS,cz=(j+.5)*CS;if(Math.hypot(cx-x,cz-z)>RAD+CS*2){ms.forEach(m=>{scene.remove(m);m.dispose&&m.dispose();});MEADOW.chunks.delete(k);}});}catch(e){console.warn('meadow',e);MEADOW.on=false;}}
+  /* after the island is tidied (houses stored, ground rebuilt) everything is planted again */MEADOW.reset=()=>{COV=null;MEADOW.chunks.forEach(ms=>ms.forEach(m=>{scene.remove(m);m.dispose&&m.dispose();}));MEADOW.chunks.clear();lx=1e9;};
   (function loop(){if(!MEADOW.on)return;tick();requestAnimationFrame(loop);})();
 })();
