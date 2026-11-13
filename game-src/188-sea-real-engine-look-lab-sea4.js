@@ -21,7 +21,7 @@ function create(o){const R=o.renderer,scene=o.scene,cam=o.camera,S=o.size||140,H
   const P=Object.assign({shallow:'#5fe3d2',mid:'#20c3c8',deep:'#1593c4',sand:'#f2eedf',foam:'#fbfaf4'},o.palette||{});
   /* the seabed area: o.bounds {x0,z0,w,h} in world units (default: a square of side size round 0,0); outside it the sea is deep */
   const B=o.bounds||{x0:-S/2,z0:-S/2,w:S,h:S},HW=o.heightRes?(o.heightRes.length?o.heightRes[0]:o.heightRes):256,HH=o.heightRes&&o.heightRes.length?o.heightRes[1]:HW,hd=new Uint16Array(HW*HH*4),hf=THREE.DataUtils.toHalfFloat;
-  for(let j=0;j<HH;j++)for(let i=0;i<HW;i++){const x=B.x0+(i+.5)/HW*B.w,z=B.z0+(j+.5)/HH*B.h;const k=(j*HW+i)*4;hd[k]=hf(Math.max(-10,Math.min(4,H(x,z))));hd[k+3]=hf(1);}
+  for(let j=0;j<HH;j++)for(let i=0;i<HW;i++){const x=B.x0+(i+.5)/HW*B.w,z=B.z0+(j+.5)/HH*B.h;const k=(j*HW+i)*4;hd[k]=hf(Math.max(-10,Math.min(4,H(x,z))));hd[k+1]=hf(o.maskAt?o.maskAt(x,z):0);/* green: optional mask for the game (e.g. where its own ground opens) */hd[k+3]=hf(1);}
   /* seabed height as a half-float texture: smooth when filtered (two 8-bit bytes give stair steps between texels) */
   const hmT=new THREE.DataTexture(hd,HW,HH,THREE.RGBAFormat,THREE.HalfFloatType);hmT.magFilter=hmT.minFilter=THREE.LinearFilter;hmT.needsUpdate=true;
   const U={uLevel:{value:o.level||0},uT:{value:0},uOn:{value:1},tHM:{value:hmT},uS:{value:S},uHB:{value:new THREE.Vector4(B.x0,B.z0,B.w,B.h)},uRun:{value:o.run==null?1:o.run},uWS:{value:o.wetScale==null?1:o.wetScale}};
@@ -97,12 +97,17 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
 (function(){if(!SEA4.on)return;
   const L=SEA4.L;
   const beachW=(x,z)=>Math.max(.8,1.05+.7*vnoise(x*.3+11,z*.3));
-  const sandAt=(x,z)=>{try{if(islPD(x,z)<1.1)return false;if(ISL_GROUND.length){const g=islGround(x,z);if(g&&g.g.t!=='sand')return false;}}catch(e){}return true;};
+  const sandAt=(x,z)=>{try{if(islPD(x,z)<.45)return false;if(ISL_GROUND.length){const g=islGround(x,z);if(g&&g.g.t!=='sand')return false;}}catch(e){}return true;};
   // seabed and beach height in the island's own (unmirrored) coordinates; 0 = the island ground
   // Paul (13 Nov): every shore is a smooth sloping beach like the engine lab (the old coast was pixel steps), shallow enough for
   // boats, clear enough to see their shadows on the sand. Beaches keep their width; other coast gets a narrow sandy edge.
-  function bedL(x,z){const t=landD(x,z);if(t===-9&&!WD)return -6;/* past the island grid it is open water: keep the same gentle slope (no drop-off at the grid edge) */
-    if(t>=0&&t!==-9){if(t>2.6)return 0;const sand=sandAt(x,z),bw=sand?beachW(x,z):.9;if(t>=bw)return 0;if(!sand&&islPD(x,z)<1.1)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
+  // Paul (13 Nov): the coast came out in pixel steps (the island's shore grid is coarse). A finer land field, blurred, gives a smooth
+  // shoreline; the beach is drawn by the seabed mesh (the flat island ground opens over it, mask in the heightmap's green channel).
+  let LS=null;
+  function tS(x,z){if(!LS)return landD(x,z);const u=(x-WX0)/WR,v=(z-WZ0)/WR;if(u<0||v<0||u>=WW-1||v>=WH-1)return landD(x,z);const i=u|0,j=v|0,a=u-i,b=v-j,k=j*WW+i;return(LS[k]*(1-a)+LS[k+1]*a)*(1-b)+(LS[k+WW]*(1-a)+LS[k+WW+1]*a)*b;}
+  function beachMask(x,z){const t=tS(x,z);if(t<-.3||t>3.2)return 0;if(islPD(x,z)<.45)return 0;return t<beachW(x,z)+.25?1:0;}
+  function bedL(x,z){const t=tS(x,z);if(t===-9&&!WD)return -6;/* past the island grid it is open water: keep the same gentle slope (no drop-off at the grid edge) */
+    if(t>=0&&t!==-9){if(t>2.6)return 0;const bw=beachW(x,z);/* one smooth beach width everywhere: a width that jumped between sand and lawn left a sawtooth shoreline */if(t>=bw)return 0;if(islPD(x,z)<.45)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
     const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);h=Math.max(h,L-2.4);/* Paul (13 Nov): the open sea is 2.4 deep at most */
     /* ...and deepens to 4 towards each edge of the map (only well away from land) */{const SB=seaBounds(),db=Math.min(x-SB.x1,SB.x2-x,z-SB.z1,SB.z2-z),e=(1-Math.min(1,Math.max(0,(db-4)/36)))*Math.min(1,Math.max(0,(w-12)/14));if(e>0){const k=e*e*(3-2*e);h=Math.min(h,L-2.4-1.6*k);}}
     return h;}
@@ -111,7 +116,12 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   let WD=null,WX0=0,WZ0=0,WR=.35,WW=0,WH=0;
   function wdist(x,z){const u=(x-WX0)/WR,v=(z-WZ0)/WR;if(u<0||v<0||u>=WW-1||v>=WH-1)return 40;const i=u|0,j=v|0,a=u-i,b=v-j,k=j*WW+i;return(WD[k]*(1-a)+WD[k+1]*a)*(1-b)+(WD[k+WW]*(1-a)+WD[k+WW+1]*a)*b;}
   function distField(X1,X2,Z1,Z2){WX0=X1;WZ0=Z1;WW=Math.ceil((X2-X1)/WR)+1;WH=Math.ceil((Z2-Z1)/WR)+1;const D=new Float32Array(WW*WH),BIG=1e6;
-    for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){const t=landD(X1+i*WR,Z1+j*WR);D[j*WW+i]=(t>0&&t!==-9)?0:BIG;}
+    /* the blurred land field: shore grid clamped to +-4, two box blurs of about one unit each way */
+    {const A=new Float32Array(WW*WH),T=new Float32Array(WW*WH);for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){let t=landD(X1+i*WR,Z1+j*WR);if(t===-9)t=-4;A[j*WW+i]=Math.max(-4,Math.min(4,t));}
+      const R=3;for(let pass=0;pass<2;pass++){for(let j=0;j<WH;j++){let acc=0,n=0;for(let i=-R;i<=R;i++)if(i>=0&&i<WW){acc+=A[j*WW+i];n++;}for(let i=0;i<WW;i++){T[j*WW+i]=acc/n;const o=i-R,ad=i+R+1;if(o>=0){acc-=A[j*WW+o];n--;}if(ad<WW){acc+=A[j*WW+ad];n++;}}}
+        for(let i=0;i<WW;i++){let acc=0,n=0;for(let j=-R;j<=R;j++)if(j>=0&&j<WH){acc+=T[j*WW+i];n++;}for(let j=0;j<WH;j++){A[j*WW+i]=acc/n;const o=j-R,ad=j+R+1;if(o>=0){acc-=T[o*WW+i];n--;}if(ad<WH){acc+=T[ad*WW+i];n++;}}}}
+      LS=A;}
+    for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){D[j*WW+i]=LS[j*WW+i]>0?0:BIG;}
     const S2=1.4142;for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){const k=j*WW+i;let d=D[k];if(!d)continue;if(i>0)d=Math.min(d,D[k-1]+1);if(j>0){d=Math.min(d,D[k-WW]+1);if(i>0)d=Math.min(d,D[k-WW-1]+S2);if(i<WW-1)d=Math.min(d,D[k-WW+1]+S2);}D[k]=d;}
     for(let j=WH-1;j>=0;j--)for(let i=WW-1;i>=0;i--){const k=j*WW+i;let d=D[k];if(!d)continue;if(i<WW-1)d=Math.min(d,D[k+1]+1);if(j<WH-1){d=Math.min(d,D[k+WW]+1);if(i<WW-1)d=Math.min(d,D[k+WW+1]+S2);if(i>0)d=Math.min(d,D[k+WW-1]+S2);}D[k]=d;}
     for(let k=0;k<D.length;k++)D[k]=Math.min(60,D[k]*WR);WD=D;}
@@ -125,26 +135,37 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
     const C=h=>new THREE.Color(h).convertSRGBToLinear(),cS=C('#f2eedf'),cW=C('#e2ecdf'),c=new THREE.Color();
     const mkBed=(x1,x2,z1,z2,SP,drop)=>{const NX=Math.round((x2-x1)/SP),NZ=Math.round((z2-z1)/SP),g=new THREE.PlaneGeometry(x2-x1,z2-z1,NX,NZ);g.rotateX(-Math.PI/2);g.translate((x1+x2)/2,0,(z1+z2)/2);
       const P=g.attributes.position,col=new Float32Array(P.count*3);
-      for(let i=0;i<P.count;i++){const x=P.getX(i),z=P.getZ(i),h=bedL(x,z);P.setY(i,(h>-.02?-.06:h)-drop);c.copy(cS).lerp(cW,Math.max(0,Math.min(1,(L-h+.2)/4)));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
+      for(let i=0;i<P.count;i++){const x=P.getX(i),z=P.getZ(i),h=bedL(x,z),bm1=drop?0:beachMask(x,z);P.setY(i,(h>-.02?-.02:h)-drop);/* one flat level under all land: a step at the beach mask edge showed as a sawtooth wall */c.copy(cS).lerp(cW,Math.max(0,Math.min(1,(L-h+.2)/4)));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
       g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();return g;};
     const gIn=mkBed(IX1,IX2,IZ1,IZ2,.7,0),gOut=mkBed(X1,X2,Z1,Z2,2.4,.05),P={count:gIn.attributes.position.count+gOut.attributes.position.count};
     const bm=new THREE.MeshLambertMaterial({vertexColors:true});const bed=new THREE.Mesh(gIn,bm);bed.receiveShadow=true;bed.name='sea4bed';scene.add(bed);const bed2=new THREE.Mesh(gOut,bm);bed2.receiveShadow=true;bed2.name='sea4bed2';bed.add(bed2);bed2.position.set(0,0,0);
     // the engine: heightmap over the island in world space, water mesh big enough to reach the horizon
     const B={x0:M<0?-X2:X1,z0:Z1,w:X2-X1,h:Z2-Z1};
-    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),bounds:B,heightRes:[1280,Math.round(1280*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:360,center:[0,0]});
+    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),maskAt:(xw,z)=>beachMask(M<0?-xw:xw,z),bounds:B,heightRes:[1280,Math.round(1280*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:360,center:[0,0]});
     sea.mesh.name='sea4water';sea.mesh.__islKeep=1;bed.__islKeep=1;
     // the flat island ground opens over the lowered beach so the sloping sand shows through
-    {const tm=terrain.material,prev=tm.onBeforeCompile,pk=tm.customProgramCacheKey;
+    const PATCHED=[];const patchGround=tm=>{if(!tm||(tm.__s4&&tm.onBeforeCompile===tm.__s4f))return;if(!tm.__s4)PATCHED.push(tm);tm.__s4=1;const prev=tm.onBeforeCompile,pk=tm.customProgramCacheKey;
       tm.onBeforeCompile=(sh,r)=>{if(prev)prev(sh,r);sh.uniforms.tHM4=sea.uniforms.tHM;sh.uniforms.uHB4=sea.uniforms.uHB;
-        sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec2 vS4;').replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvS4=(modelMatrix*vec4(transformed,1.)).xz;');
-        sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec2 vS4;uniform sampler2D tHM4;uniform vec4 uHB4;').replace('void main() {','void main() {\n{vec2 uv=(vS4-uHB4.xy)/uHB4.zw;if(uv.x>0.&&uv.y>0.&&uv.x<1.&&uv.y<1.){if(texture2D(tHM4,uv).r<-.02)discard;}}');};
-      tm.customProgramCacheKey=()=>'sea4t'+(pk?pk.call(tm):'');tm.needsUpdate=true;}
-    SEA4.sea=sea;SEA4.bed=bed;SEA4.bedL=bedL;SEA4.ms=Math.round(performance.now()-t0);
-    const OLD=()=>[typeof water!=='undefined'?water:null,typeof sparkWater!=='undefined'?sparkWater:null,typeof shore!=='undefined'?shore:null,typeof foam!=='undefined'?foam:null,typeof waves!=='undefined'?waves:null,SEA3.sea,scene.getObjectByName('sea3band')].filter(Boolean);
+        /* written to survive other layers that rewrite the ground's shader text: declarations go first, the hooks go into main() by pattern */
+        const MAIN=/void\s+main\s*\(\s*(void)?\s*\)\s*\{/;
+        sh.vertexShader='varying vec2 vS4;\n'+sh.vertexShader.replace(MAIN,m=>m+'\nvS4=(modelMatrix*vec4(position,1.)).xz;');
+        sh.fragmentShader='varying vec2 vS4;uniform sampler2D tHM4;uniform vec4 uHB4;\n'+sh.fragmentShader.replace(MAIN,m=>m+'\n{vec2 uv=(vS4-uHB4.xy)/uHB4.zw;if(uv.x>0.&&uv.y>0.&&uv.x<1.&&uv.y<1.){vec4 hm=texture2D(tHM4,uv);if(hm.r<-.02||hm.g>.5)discard;}}');};
+      tm.customProgramCacheKey=()=>'sea4t'+(pk&&pk!==tm.customProgramCacheKey?pk.call(tm):'');tm.__s4f=tm.onBeforeCompile;tm.needsUpdate=true;};const PMESH=[terrain];SEA4.repatch=()=>{PMESH.forEach(m=>patchGround(m.material));};/* other look layers swap the ground's material later: put the beach opening back on whatever it wears now */setInterval(()=>{try{SEA4.repatch();}catch(e){}},1000);patchGround(terrain.material);
+    // the island also has ground patches of its own (bays, lawns) drawn as flat textured planes over the ground, and old water
+    // patches under them: the ground patches open over the beach the same way, the old water patches hide on Rottnest
+    const extraOld=[];const scanGround=()=>{const Bx=new THREE.Box3(),inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();scene.updateMatrixWorld(true);
+      scene.traverse(o=>{if(!o.isMesh||o.__s4seen||o===terrain||!o.geometry||o.geometry.type!=='PlaneGeometry'||!o.material||Array.isArray(o.material)||o.name.startsWith('sea'))return;
+        Bx.setFromObject(o).applyMatrix4(inv);const w=Bx.max.x-Bx.min.x,d=Bx.max.z-Bx.min.z;if(w<6||d<6||Bx.max.y-Bx.min.y>.02||Bx.min.x>TB.x2||Bx.max.x<TB.x1)return;
+        o.__s4seen=1;if(Bx.max.y<-.02&&o.material.map){extraOld.push(o);o.visible=false;return;}if(Bx.min.y>-.01&&Bx.max.y<.06&&o.material.map&&(o.material.isMeshLambertMaterial||o.material.isMeshStandardMaterial)){patchGround(o.material);PMESH.push(o);}});};scanGround();
+    /* bays and lawns are built later than the sea: look for new ground pieces for the first two minutes */{let n=0;const iv=setInterval(()=>{try{scanGround();}catch(e){}if(++n>40)clearInterval(iv);},3000);}
+    SEA4.extraOld=extraOld;
+    SEA4.sea=sea;SEA4.bed=bed;SEA4.tS=tS;SEA4.beachMask=beachMask;SEA4.bed2=bed2;try{if(typeof PAINT!=='undefined'&&PAINT.refresh)PAINT.refresh();}catch(e){}SEA4.bedL=bedL;SEA4.ms=Math.round(performance.now()-t0);
+    const OLD=()=>[typeof water!=='undefined'?water:null,typeof sparkWater!=='undefined'?sparkWater:null,typeof shore!=='undefined'?shore:null,typeof foam!=='undefined'?foam:null,typeof waves!=='undefined'?waves:null,SEA3.sea,scene.getObjectByName('sea3band')].concat(SEA4.extraOld||[]).filter(Boolean);
     let st=null;const sd=new THREE.Vector3(),sc=new THREE.Color(),sk=new THREE.Color();
     SEA4.pre=()=>{const on=scene.scale.x<0&&zoneOf(camTarget.x)==='island';
       if(on!==st){st=on;OLD().forEach(o=>{if(on){o.__s4=o.visible;o.visible=false;}else if(o.__s4!==undefined)o.visible=o.__s4;});sea.mesh.visible=bed.visible=on;}
       if(!on)return;OLD().forEach(o=>{o.visible=false;});
+      
       sd.copy(sun.position).sub(sun.target.position);sd.x*=scene.scale.x;sc.copy(sun.color).multiplyScalar(sun.intensity);sk.copy(hemi.color).multiplyScalar(hemi.intensity);sea.setSun(sd,sc,sk);sea.setQuality(SEA4.q);
       /* camTarget is in scene (local) space, like the mesh */
       /* the dense water mesh follows the camera in steps of one cell, so the waves stay fine everywhere without swimming */const stp=260/360;sea.mesh.position.set(Math.round(camTarget.x/stp)*stp,0,Math.round(camTarget.z/stp)*stp);
