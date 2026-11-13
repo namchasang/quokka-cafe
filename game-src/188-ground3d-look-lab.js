@@ -4,12 +4,12 @@
 // sea's seabed: grass inland, a smooth white beach sloping into the water, the seabed below. The look of the old sheets (paths,
 // bike lanes, lawns, lakes) is photographed once from above into one texture and laid on the new surface inland, so nothing moves.
 // The beach and everything near the water use the smooth shoreline, so the coast has no steps. Other maps are untouched.
-const GROUND3D_LIVE=false;
+const GROUND3D_LIVE=true;/* Paul approved, 13 Nov 2026 ('เสร็จแล้วขึ้นเกมส์ได้') */
 const GROUND3D={on:(GROUND3D_LIVE||/[?&#]ground3d\b/.test(location.search+location.hash))&&TOON_ON,done:false,hidden:[]};
 (function(){if(!GROUND3D.on)return;
   function sheets(){/* the flat painted ground pieces of the island: the big ground and the small bay/lawn sheets */
     const out=[],B=new THREE.Box3(),inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();scene.updateMatrixWorld(true);
-    scene.traverse(o=>{if(!o.isMesh||!o.visible||!o.geometry||!o.material||Array.isArray(o.material)||!o.material.map||(o.name||'').startsWith('sea'))return;
+    scene.traverse(o=>{if(!o.isMesh||o.__g3||!o.geometry||!o.material||Array.isArray(o.material)||!o.material.map||(o.name||'').startsWith('sea'))return;
       if(!(o.material.isMeshLambertMaterial||o.material.isMeshStandardMaterial||o.material.isMeshPhongMaterial))return;
       B.setFromObject(o).applyMatrix4(inv);const w=B.max.x-B.min.x,d=B.max.z-B.min.z;if(w<4||d<4||B.max.y-B.min.y>.03||B.min.y<-.02||B.max.y>.07)return;
       if(B.max.x<TB.x1||B.min.x>TB.x2||B.max.z<TB.z1||B.min.z>TB.z2)return;out.push(o);});return out;}
@@ -19,9 +19,10 @@ const GROUND3D={on:(GROUND3D_LIVE||/[?&#]ground3d\b/.test(location.search+locati
     const sx=scene.scale.x,xa=sx<0?-W1:W0,xb=sx<0?-W0:W1;/* world x of the island's two ends (the island is drawn mirrored) */
     const cam=new THREE.OrthographicCamera(xa,xb,-Z0,-Z1,.1,200);cam.up.set(0,0,-1);cam.position.set(0,100,0);cam.lookAt(0,0,0);cam.layers.set(7);cam.updateProjectionMatrix();
     const lights=[];scene.traverse(o=>{if(o.isLight&&o.visible){lights.push(o);o.visible=false;}});const amb=new THREE.AmbientLight(0xffffff,1);scene.add(amb);
+    const vis=list.map(o=>o.visible);list.forEach(o=>{o.visible=true;});/* far ground chunks are switched off by the streaming cull: switch them on for the photo */
     const fog=scene.fog;scene.fog=null;list.forEach(o=>o.layers.enable(7));/* unlit copies of each sheet's own picture (the island's toon light setup would bake dark) */const sw=list.map(o=>{const m=o.material,b=new THREE.MeshBasicMaterial({map:m.map,color:m.color,transparent:m.transparent,opacity:m.opacity,alphaTest:m.alphaTest||0,side:m.side,depthWrite:m.depthWrite,polygonOffset:m.polygonOffset,polygonOffsetFactor:m.polygonOffsetFactor,polygonOffsetUnits:m.polygonOffsetUnits});o.material=b;return[o,m,b];});const was=renderer.getRenderTarget(),cc=renderer.getClearColor(new THREE.Color()),ca=renderer.getClearAlpha();
     renderer.setRenderTarget(rt);renderer.setClearColor(0x000000,0);renderer.clear();renderer.render(scene,cam);renderer.setRenderTarget(was);renderer.setClearColor(cc,ca);
-    sw.forEach(([o,m,b])=>{o.material=m;b.dispose();});list.forEach(o=>o.layers.disable(7));scene.remove(amb);lights.forEach(o=>{o.visible=true;});scene.fog=fog;
+    sw.forEach(([o,m,b])=>{o.material=m;b.dispose();});list.forEach((o,i)=>{o.visible=vis[i];});list.forEach(o=>o.layers.disable(7));scene.remove(amb);lights.forEach(o=>{o.visible=true;});scene.fog=fog;
     /* a quick check that the photo came out (a few sample pixels are not all black) */let lit=0;try{const px=new Uint8Array(4);for(let k=1;k<10;k++){renderer.readRenderTargetPixels(rt,Math.round(TW*k/10),Math.round(TH*.5),1,1,px);if(px[3]>128&&px[0]+px[1]+px[2]>30)lit++;}}catch(e){lit=9;}
     if(!lit){rt.dispose();return null;}
     return{tex:rt.texture,box:new THREE.Vector4(xa,Z1,xb-xa,Z1-Z0)};/* uv: u=(x-xa)/w, v=(Z1-z)/(Z1-Z0) */}
@@ -36,15 +37,21 @@ const GROUND3D={on:(GROUND3D_LIVE||/[?&#]ground3d\b/.test(location.search+locati
     const m=S4.bed.material,prev=m.onBeforeCompile,pk=m.customProgramCacheKey;const U={tG3:{value:B.tex},uG3:{value:B.box}};
     m.onBeforeCompile=(s,r)=>{if(prev)prev(s,r);Object.assign(s.uniforms,U);
       s.vertexShader='attribute float landW;varying float vLW;varying vec2 vG3;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvLW=landW;vG3=(modelMatrix*vec4(transformed,1.)).xz;');
-      s.fragmentShader='uniform sampler2D tG3;uniform vec4 uG3;varying float vLW;varying vec2 vG3;\n'+s.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\nif(vLW>.001){vec2 uv=vec2((vG3.x-uG3.x)/uG3.z,(uG3.y-vG3.y)/uG3.w);vec4 g3=texture2D(tG3,uv);float k=vLW*step(.5,g3.a)*(1.-step(max(g3.r,g3.g)+.05,g3.b));/* old water pixels in the sheets stay smooth sand */diffuseColor.rgb=mix(diffuseColor.rgb,g3.rgb,k);}');};
+      s.fragmentShader='uniform sampler2D tG3;uniform vec4 uG3;varying float vLW;varying vec2 vG3;\n'+s.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+if(vLW>.001){vec2 uv=vec2((vG3.x-uG3.x)/uG3.z,(uG3.y-vG3.y)/uG3.w);vec4 g3=texture2D(tG3,uv);float k=vLW*(1.-step(.5,g3.a)*step(max(g3.r,g3.g)+.05,g3.b));/* old water pixels in the sheets stay smooth sand */
+  /* Paul (13 Nov): the painted paths and bike lanes go (3D ones come later): anything that is not grass or a salt lake becomes grass */
+  vec3 c3=g3.rgb;float grassy=step(c3.r+.02,c3.g)*step(c3.b+.02,c3.g);float lake=step(c3.g+.06,c3.r)*step(c3.g,c3.b+.04);
+  if(g3.a<.5||lake<.5){/* one even lawn everywhere inland; only the salt lakes keep their picture */float n=.5+.25*(sin(vG3.x*1.7+sin(vG3.y*1.3))+sin(vG3.y*2.1+sin(vG3.x*.9)));float n2=.5+.25*(sin(vG3.x*.31+vG3.y*.17)+sin(vG3.y*.43-vG3.x*.21));
+    c3=mix(vec3(.15,.32,.08),vec3(.19,.38,.10),n*.35+n2*.65);}
+  diffuseColor.rgb=mix(diffuseColor.rgb,c3,k);}`);};
     m.customProgramCacheKey=()=>'g3d'+(pk?pk.call(m):'');m.needsUpdate=true;
     // the old sheets go away on Rottnest only
-    GROUND3D.hidden=list;list.forEach(o=>{o.__g3=1;o.visible=false;});
+    GROUND3D.hidden=list;list.forEach(o=>{o.__g3=1;o.layers.set(31);});
     GROUND3D.ms=Math.round(performance.now()-t0);console.log('GROUND3D sheets '+list.length+' bake '+B.tex.image.width+'x'+B.tex.image.height+' '+GROUND3D.ms+' ms');return true;}
   // bake once the painted look has finished its passes (about 20 s after load) and the sea is up
   (function wait(){if(typeof SEA4!=='undefined'&&SEA4.bed&&SEA4.tS&&performance.now()>22000&&scene.scale.x<0){let ok=false;try{ok=apply();}catch(e){console.error('ground3d',e);return;}if(ok||(GROUND3D.tries||0)>8)return;}setTimeout(wait,1500);})();
   // show the old sheets again away from Rottnest, hide them back on the island
-  (function loop(){try{if(GROUND3D.done){const on=scene.scale.x<0&&zoneOf(camTarget.x)==='island';GROUND3D.hidden.forEach(o=>{o.visible=!on;});}}catch(e){}setTimeout(loop,500);})();
+  (function loop(){try{if(GROUND3D.done){if((GROUND3D.sc=(GROUND3D.sc||0)+1)%4===0){/* ground pieces the streaming system builds later */sheets().forEach(o=>{if(!o.__g3){o.__g3=1;GROUND3D.hidden.push(o);}});}const on=scene.scale.x<0&&zoneOf(camTarget.x)==='island';GROUND3D.hidden.forEach(o=>{o.layers.set(on?31:0);});/* layer 31: the main camera never draws it, whatever other systems do with .visible */}}catch(e){}setTimeout(loop,300);})();
 })();
 // ---------- clear the beach: buildings, signs, lamps and props within 2 units of the water step inland (Paul, 13 Nov 2026) ----------
 // Jetties and anything that reaches well out over the water stay. Pieces close together move together; their colliders and the

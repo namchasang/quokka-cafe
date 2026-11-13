@@ -199,6 +199,7 @@
 188-sea-real-engine-look-lab-sea4.js
 188-ground3d-look-lab.js
 188-more3d-look-lab.js
+188-island-tidy-and-gfx.js
 188-open-sea-ships-and-captain-ned.js
 188-boat-shop-and-wandering-boats.js
 188-bay-boats-look-lab-toon.js
