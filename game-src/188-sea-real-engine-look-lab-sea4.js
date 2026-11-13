@@ -103,10 +103,20 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   // boats, clear enough to see their shadows on the sand. Beaches keep their width; other coast gets a narrow sandy edge.
   function bedL(x,z){const t=landD(x,z);if(t===-9)return -6;
     if(t>=0){if(t>2.6)return 0;const sand=sandAt(x,z),bw=sand?beachW(x,z):.9;if(t>=bw)return 0;if(!sand&&islPD(x,z)<1.1)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
-    const w=-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);return Math.max(h,-6);}
+    const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);return Math.max(h,-6);}
+  // the island grid's water values are not true distances everywhere (inside the Settlement's bays they read hundreds of units),
+  // so the seabed uses its own distance-to-shore field: a chamfer distance transform over a fine grid of land/water
+  let WD=null,WX0=0,WZ0=0,WR=.35,WW=0,WH=0;
+  function wdist(x,z){const u=(x-WX0)/WR,v=(z-WZ0)/WR;if(u<0||v<0||u>=WW-1||v>=WH-1)return 40;const i=u|0,j=v|0,a=u-i,b=v-j,k=j*WW+i;return(WD[k]*(1-a)+WD[k+1]*a)*(1-b)+(WD[k+WW]*(1-a)+WD[k+WW+1]*a)*b;}
+  function distField(X1,X2,Z1,Z2){WX0=X1;WZ0=Z1;WW=Math.ceil((X2-X1)/WR)+1;WH=Math.ceil((Z2-Z1)/WR)+1;const D=new Float32Array(WW*WH),BIG=1e6;
+    for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){const t=landD(X1+i*WR,Z1+j*WR);D[j*WW+i]=(t>0&&t!==-9)?0:BIG;}
+    const S2=1.4142;for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){const k=j*WW+i;let d=D[k];if(!d)continue;if(i>0)d=Math.min(d,D[k-1]+1);if(j>0){d=Math.min(d,D[k-WW]+1);if(i>0)d=Math.min(d,D[k-WW-1]+S2);if(i<WW-1)d=Math.min(d,D[k-WW+1]+S2);}D[k]=d;}
+    for(let j=WH-1;j>=0;j--)for(let i=WW-1;i>=0;i--){const k=j*WW+i;let d=D[k];if(!d)continue;if(i<WW-1)d=Math.min(d,D[k+1]+1);if(j<WH-1){d=Math.min(d,D[k+WW]+1);if(i<WW-1)d=Math.min(d,D[k+WW+1]+S2);if(i>0)d=Math.min(d,D[k+WW-1]+S2);}D[k]=d;}
+    for(let k=0;k<D.length;k++)D[k]=Math.min(60,D[k]*WR);WD=D;}
   function build(){SEA4.built=true;const t0=performance.now();
     const M=-1;/* the island is drawn mirrored (scene.scale.x = -1): the engine works in world space */
     const X1=TB.x1-30,X2=TB.x2+30,Z1=TB.z1-30,Z2=TB.z2+30;
+    distField(X1,X2,Z1,Z2);
     // the seabed mesh (scene space), lab colours: white sand at the beach, pale green-grey sand deeper down
     const SP=.7,NX=Math.round((X2-X1)/SP),NZ=Math.round((Z2-Z1)/SP),g=new THREE.PlaneGeometry(X2-X1,Z2-Z1,NX,NZ);g.rotateX(-Math.PI/2);g.translate((X1+X2)/2,0,(Z1+Z2)/2);
     const P=g.attributes.position,col=new Float32Array(P.count*3),C=h=>new THREE.Color(h).convertSRGBToLinear(),cS=C('#f2eedf'),cW=C('#e2ecdf'),c=new THREE.Color();
@@ -123,14 +133,15 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
         sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec2 vS4;').replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvS4=(modelMatrix*vec4(transformed,1.)).xz;');
         sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec2 vS4;uniform sampler2D tHM4;uniform vec4 uHB4;').replace('void main() {','void main() {\n{vec2 uv=(vS4-uHB4.xy)/uHB4.zw;if(uv.x>0.&&uv.y>0.&&uv.x<1.&&uv.y<1.){if(texture2D(tHM4,uv).r<-.02)discard;}}');};
       tm.customProgramCacheKey=()=>'sea4t'+(pk?pk.call(tm):'');tm.needsUpdate=true;}
-    SEA4.sea=sea;SEA4.bed=bed;SEA4.ms=Math.round(performance.now()-t0);
+    SEA4.sea=sea;SEA4.bed=bed;SEA4.bedL=bedL;SEA4.ms=Math.round(performance.now()-t0);
     const OLD=()=>[typeof water!=='undefined'?water:null,typeof sparkWater!=='undefined'?sparkWater:null,typeof shore!=='undefined'?shore:null,typeof foam!=='undefined'?foam:null,typeof waves!=='undefined'?waves:null,SEA3.sea,scene.getObjectByName('sea3band')].filter(Boolean);
     let st=null;const sd=new THREE.Vector3(),sc=new THREE.Color(),sk=new THREE.Color();
     SEA4.pre=()=>{const on=scene.scale.x<0&&zoneOf(camTarget.x)==='island';
       if(on!==st){st=on;OLD().forEach(o=>{if(on){o.__s4=o.visible;o.visible=false;}else if(o.__s4!==undefined)o.visible=o.__s4;});sea.mesh.visible=bed.visible=on;}
       if(!on)return;OLD().forEach(o=>{o.visible=false;});
       sd.copy(sun.position).sub(sun.target.position);sd.x*=scene.scale.x;sc.copy(sun.color).multiplyScalar(sun.intensity);sk.copy(hemi.color).multiplyScalar(hemi.intensity);sea.setSun(sd,sc,sk);sea.setQuality(SEA4.q);
-      /* the dense water mesh follows the camera in steps of one cell, so the waves stay fine everywhere without swimming */const stp=260/360;sea.mesh.position.set(Math.round(camTarget.x*scene.scale.x/stp)*stp,0,Math.round(camTarget.z/stp)*stp);
+      /* camTarget is in scene (local) space, like the mesh */
+      /* the dense water mesh follows the camera in steps of one cell, so the waves stay fine everywhere without swimming */const stp=260/360;sea.mesh.position.set(Math.round(camTarget.x/stp)*stp,0,Math.round(camTarget.z/stp)*stp);
       sea.pre(performance.now()/1000);};
     console.log('SEA4 built '+SEA4.ms+' ms, bed verts '+P.count);}
   const wait=()=>{if(typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'&&typeof terrain!=='undefined'&&typeof SEA3!=='undefined'&&(SEA3.built||!SEA3.on)){try{build();}catch(e){console.error('sea4',e);SEA4.pre=null;}return;}setTimeout(wait,400);};wait();

@@ -203,15 +203,15 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-toon-characters-look-lab-toon.js | 18584-18662 | 9 | TOON_LIVE, TOON |
 | 188-paint-look-look-lab-toon.js | 18663-18718 | 5 | PAINT_LIVE, PAINT |
 | 188-sea-beach-look-lab-toon.js | 18719-18791 | 8 | SEA3_LIVE, SEA3 |
-| 188-sea-real-engine-look-lab-sea4.js | 18792-18928 | 17 | SEA4_LIVE, SEA4, C, SR, create |
-| 188-bay-boats-look-lab-toon.js | 18929-18950 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 18951-19010 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 19011-19059 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 19060-19092 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 19093-19159 | 9 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 19160-19190 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19191-19207 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19208-19218 | 1 |  |
-| 188-auth.js | 19219-19297 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19298-19341 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19342-19363 | 3 | SHOT |
+| 188-sea-real-engine-look-lab-sea4.js | 18792-18939 | 18 | SEA4_LIVE, SEA4, C, SR, create |
+| 188-bay-boats-look-lab-toon.js | 18940-18961 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 18962-19021 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 19022-19070 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 19071-19103 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 19104-19170 | 9 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 19171-19201 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 19202-19218 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 19219-19229 | 1 |  |
+| 188-auth.js | 19230-19308 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 19309-19352 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19353-19374 | 3 | SHOT |
