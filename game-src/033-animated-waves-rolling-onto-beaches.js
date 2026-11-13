@@ -63,7 +63,7 @@ const gulls=[0,1,2].map(i=>{const m=spriteMesh(CHAR2_ON?[gull32(0),gull32(1)]:[p
 const WEATHERS=[
  {label:'Sunny',icon:'☀',temp:[24,28],cloud:0,rain:0,wind:.25,sun:1},
  {label:'Partly cloudy',icon:'☁',temp:[22,25],cloud:.3,rain:0,wind:.35,sun:.82},
- {label:'Fremantle Doctor',icon:'≋',temp:[21,24],cloud:.12,rain:0,wind:1,sun:.95},
+ {label:'Fremantle Doctor',icon:'≋',temp:[21,24],cloud:0,rain:0,wind:1,sun:.95},
  {label:'Showers',icon:'☂',temp:[17,20],cloud:.42,rain:1,wind:.6,sun:.55}];
 const wxC={cloud:0,rain:0,wind:.25,sun:1};
 const FOG_RAIN=new THREE.Color('#8e9ea6');
@@ -73,7 +73,7 @@ const clouds=flat(90,48,new THREE.MeshBasicMaterial({map:cloudTex,transparent:tr
 const RAIN=320,rainPos=new Float32Array(RAIN*6),rainSeed=[];for(let i=0;i<RAIN;i++)rainSeed.push([R()*30-15,R()*9,R()*24-12,.8+R()*.5]);
 const rainGeo=new THREE.BufferGeometry();rainGeo.setAttribute('position',new THREE.BufferAttribute(rainPos,3));
 const rain=new THREE.LineSegments(rainGeo,new THREE.LineBasicMaterial({color:0xd6ecf5,transparent:true,opacity:0,depthWrite:false}));rain.frustumCulled=false;rain.visible=false;scene.add(rain);
-function rollWeather(){const r=Math.random(),se=S.day?seasonOf(S.day):0;const W4=[[.55,.78,.93],[.42,.68,.86],[.3,.55,.7],[.45,.72,.88]][se];S.wx=r<W4[0]?0:r<W4[1]?1:r<W4[2]?2:3;const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}
+function rollWeather(){const r=Math.random(),se=S.day?seasonOf(S.day):0;const W4=[[.55,.78,.93],[.42,.68,.86],[.3,.55,.7],[.45,.72,.88]][se];S.wx=r<.72?0:2;/* Paul (13 Nov 2026): no showers or cloudy days, the island stays bright */const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}
 function weatherTick(dt,t){const W=WEATHERS[(typeof S!=='undefined'&&S.wx)||0];const k=Math.min(1,dt*.8);['cloud','rain','wind','sun'].forEach(p=>{wxC[p]+=(W[p]-wxC[p])*k;});
   clouds.material.opacity=wxC.cloud;cloudTex.offset.set((t*.006*(1+wxC.wind))%1,(t*.002)%1);
   sparkWater.material.opacity=.55*wxC.sun*(1-wxC.cloud);sparkWater.material.map.offset.set((-t*.02*(1+wxC.wind))%1,(t*.008)%1);

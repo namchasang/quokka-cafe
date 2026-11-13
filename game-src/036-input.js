@@ -6,7 +6,7 @@ function studioClock(){const h=Math.floor(S.time/60)%24,m=Math.floor(S.time%60);
 addEventListener('keydown',e=>{if(e.target&&/input|textarea/i.test(e.target.tagName))return;const k=e.key.toLowerCase();
   if(k==='k'&&!e.ctrlKey&&!e.metaKey){STUDIO=!STUDIO;document.body.classList.toggle('studio',STUDIO);studioTip(STUDIO?'Studio mode · 1–4 weather · [ ] time ±30 min · L playlist · K to exit':'Studio mode off');e.stopImmediatePropagation();return;}
   if(!STUDIO)return;
-  if(['1','2','3','4'].includes(k)){S.wx=+k-1;studioTip('Weather: '+WEATHERS[S.wx].label);e.stopImmediatePropagation();return;}
+  if(['1','2','3','4'].includes(k)){S.wx=(+k-1)%2?2:0;studioTip('Weather: '+WEATHERS[S.wx].label);e.stopImmediatePropagation();return;}
   if(k==='l'&&!e.ctrlKey&&!e.metaKey){studioPlaylist();e.stopImmediatePropagation();return;}
   if(k==='['||k===']'){S.time=Math.min(1435,Math.max(300,S.time+(k===']'?30:-30)));studioTip('Time '+studioClock());e.stopImmediatePropagation();return;}
 },true);
@@ -33,7 +33,7 @@ function rotateCam(d){yawT+=(MIR?-d:d)*Math.PI/4;}
 function zoomBy(f){zm=clamp(zm*f,.55,2.8);/* Paul (13 Nov): zoom out further for wide sea views */}
 stage.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(e.deltaY*.0012));},{passive:false});
 ['zoomOut','zoomIn'].forEach((id,i)=>{const b=$('#'+id);const f=i?.85:1.18;b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();zoomBy(f);});b.addEventListener('click',e=>{if(e.detail===0)zoomBy(f);});});
-$('#wxBtn').addEventListener('click',()=>{S.wx=((S.wx||0)+1)%WEATHERS.length;const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));toast('Weather: '+w.label);});
+$('#wxBtn').addEventListener('click',()=>{S.wx=S.wx===0?2:0;const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));toast('Weather: '+w.label);});
 ['rotL','rotR'].forEach((id,i)=>{const b=$('#'+id);b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();rotateCam(i?1:-1);});b.addEventListener('click',e=>{if(e.detail===0)rotateCam(i?1:-1);});});
 ui.act.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();doAction();});
 ui.act.addEventListener('click',e=>{if(e.detail===0)doAction();});

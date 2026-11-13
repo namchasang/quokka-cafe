@@ -21,6 +21,7 @@ const ISLAND_STORE=[];
       B.setFromObject(o).applyMatrix4(inv);if(B.max.y-B.min.y<.15)return;if(zoneOf((B.min.x+B.max.x)/2)!=='island')return;o.__tidy=1;o.layers.set(31);n++;});return n;}
   (function wait(){if(typeof ISL!=='undefined'&&ISL.done&&performance.now()>9000){try{store();}catch(e){console.error('tidy store',e);}
       let k=0;const iv=setInterval(()=>{try{store();}catch(e){}if(k===8&&typeof MEADOW!=='undefined'&&MEADOW.reset)MEADOW.reset();/* replant grass and flowers where the houses and paths were */try{const n=pictures();if(n)console.log('TIDY pictures '+n);}catch(e){}if(++k>20)clearInterval(iv);},3000);return;}setTimeout(wait,800);})();
+  /* old saves may still hold a cloudy or rainy day: make it sunny */setInterval(()=>{try{if(typeof S!=='undefined'&&(S.wx===1||S.wx===3)){S.wx=0;}}catch(e){}},1000);
   // ---- graphics quality ----
   const touch=matchMedia&&matchMedia('(pointer:coarse)').matches;let L='high';try{L=localStorage.getItem('qc-gfx')||(touch?'medium':'high');}catch(e){}
   const GFX=window.GFX={level:L,set(l){this.level=l;try{localStorage.setItem('qc-gfx',l);}catch(e){}apply();label();}};

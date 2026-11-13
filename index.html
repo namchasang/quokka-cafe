@@ -2795,7 +2795,7 @@ const gulls=[0,1,2].map(i=>{const m=spriteMesh(CHAR2_ON?[gull32(0),gull32(1)]:[p
 const WEATHERS=[
  {label:'Sunny',icon:'☀',temp:[24,28],cloud:0,rain:0,wind:.25,sun:1},
  {label:'Partly cloudy',icon:'☁',temp:[22,25],cloud:.3,rain:0,wind:.35,sun:.82},
- {label:'Fremantle Doctor',icon:'≋',temp:[21,24],cloud:.12,rain:0,wind:1,sun:.95},
+ {label:'Fremantle Doctor',icon:'≋',temp:[21,24],cloud:0,rain:0,wind:1,sun:.95},
  {label:'Showers',icon:'☂',temp:[17,20],cloud:.42,rain:1,wind:.6,sun:.55}];
 const wxC={cloud:0,rain:0,wind:.25,sun:1};
 const FOG_RAIN=new THREE.Color('#8e9ea6');
@@ -2805,7 +2805,7 @@ const clouds=flat(90,48,new THREE.MeshBasicMaterial({map:cloudTex,transparent:tr
 const RAIN=320,rainPos=new Float32Array(RAIN*6),rainSeed=[];for(let i=0;i<RAIN;i++)rainSeed.push([R()*30-15,R()*9,R()*24-12,.8+R()*.5]);
 const rainGeo=new THREE.BufferGeometry();rainGeo.setAttribute('position',new THREE.BufferAttribute(rainPos,3));
 const rain=new THREE.LineSegments(rainGeo,new THREE.LineBasicMaterial({color:0xd6ecf5,transparent:true,opacity:0,depthWrite:false}));rain.frustumCulled=false;rain.visible=false;scene.add(rain);
-function rollWeather(){const r=Math.random(),se=S.day?seasonOf(S.day):0;const W4=[[.55,.78,.93],[.42,.68,.86],[.3,.55,.7],[.45,.72,.88]][se];S.wx=r<W4[0]?0:r<W4[1]?1:r<W4[2]?2:3;const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}
+function rollWeather(){const r=Math.random(),se=S.day?seasonOf(S.day):0;const W4=[[.55,.78,.93],[.42,.68,.86],[.3,.55,.7],[.45,.72,.88]][se];S.wx=r<.72?0:2;/* Paul (13 Nov 2026): no showers or cloudy days, the island stays bright */const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}
 function weatherTick(dt,t){const W=WEATHERS[(typeof S!=='undefined'&&S.wx)||0];const k=Math.min(1,dt*.8);['cloud','rain','wind','sun'].forEach(p=>{wxC[p]+=(W[p]-wxC[p])*k;});
   clouds.material.opacity=wxC.cloud;cloudTex.offset.set((t*.006*(1+wxC.wind))%1,(t*.002)%1);
   sparkWater.material.opacity=.55*wxC.sun*(1-wxC.cloud);sparkWater.material.map.offset.set((-t*.02*(1+wxC.wind))%1,(t*.008)%1);
@@ -2951,7 +2951,7 @@ function studioClock(){const h=Math.floor(S.time/60)%24,m=Math.floor(S.time%60);
 addEventListener('keydown',e=>{if(e.target&&/input|textarea/i.test(e.target.tagName))return;const k=e.key.toLowerCase();
   if(k==='k'&&!e.ctrlKey&&!e.metaKey){STUDIO=!STUDIO;document.body.classList.toggle('studio',STUDIO);studioTip(STUDIO?'Studio mode · 1–4 weather · [ ] time ±30 min · L playlist · K to exit':'Studio mode off');e.stopImmediatePropagation();return;}
   if(!STUDIO)return;
-  if(['1','2','3','4'].includes(k)){S.wx=+k-1;studioTip('Weather: '+WEATHERS[S.wx].label);e.stopImmediatePropagation();return;}
+  if(['1','2','3','4'].includes(k)){S.wx=(+k-1)%2?2:0;studioTip('Weather: '+WEATHERS[S.wx].label);e.stopImmediatePropagation();return;}
   if(k==='l'&&!e.ctrlKey&&!e.metaKey){studioPlaylist();e.stopImmediatePropagation();return;}
   if(k==='['||k===']'){S.time=Math.min(1435,Math.max(300,S.time+(k===']'?30:-30)));studioTip('Time '+studioClock());e.stopImmediatePropagation();return;}
 },true);
@@ -2978,7 +2978,7 @@ function rotateCam(d){yawT+=(MIR?-d:d)*Math.PI/4;}
 function zoomBy(f){zm=clamp(zm*f,.55,2.8);/* Paul (13 Nov): zoom out further for wide sea views */}
 stage.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(e.deltaY*.0012));},{passive:false});
 ['zoomOut','zoomIn'].forEach((id,i)=>{const b=$('#'+id);const f=i?.85:1.18;b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();zoomBy(f);});b.addEventListener('click',e=>{if(e.detail===0)zoomBy(f);});});
-$('#wxBtn').addEventListener('click',()=>{S.wx=((S.wx||0)+1)%WEATHERS.length;const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));toast('Weather: '+w.label);});
+$('#wxBtn').addEventListener('click',()=>{S.wx=S.wx===0?2:0;const w=WEATHERS[S.wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));toast('Weather: '+w.label);});
 ['rotL','rotR'].forEach((id,i)=>{const b=$('#'+id);b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();rotateCam(i?1:-1);});b.addEventListener('click',e=>{if(e.detail===0)rotateCam(i?1:-1);});});
 ui.act.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();doAction();});
 ui.act.addEventListener('click',e=>{if(e.detail===0)doAction();});
@@ -8309,7 +8309,7 @@ const LIVEM=(()=>{if(!LIVE)return null;
     const t=curTrack();$('#lvSt').textContent=(RSTATIONS[RADIO.st]?RSTATIONS[RADIO.st].name:'')+' · '+(FREQ[RADIO.st]||'')+' FM';$('#lvTr').textContent=t?t.t:'Tuning in…';
     $('#lvWx').textContent=(S.wx===3?'Soft rain':NIGHT>.6?'Starry night':h<11?'Sunny morning':h<17?'Sunny afternoon':'Golden hour')+' · Rottnest Island, Perth time';
     // weather follows the music: rain tracks bring showers, the rest are clear or a few clouds
-    const key=t?RADIO.st+':'+RADIO.trk:null;if(key!==lastTrk){lastTrk=key;const wx=isRain(t)?3:(Math.random()<.7?0:1);if(S.wx!==wx){S.wx=wx;const w=WEATHERS[wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}}}
+    const key=t?RADIO.st+':'+RADIO.trk:null;if(key!==lastTrk){lastTrk=key;const wx=Math.random()<.7?0:2;if(S.wx!==wx){S.wx=wx;const w=WEATHERS[wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}}}
   // ---- Kip works the counter ----
   const HOME={x:0,z:-1.35};let job=null,moving=false,spawnT=4;
   function stationX(k){const s=STATIONS.find(q=>q.key===k);return s?s.x:0;}
@@ -19010,20 +19010,31 @@ const GROUND3D={on:(GROUND3D_LIVE||/[?&#]ground3d\b/.test(location.search+locati
   function apply(){const S4=SEA4;if(!S4||!S4.bed||!S4.tS||GROUND3D.done)return false;GROUND3D.done=true;const t0=performance.now();
     const list=sheets();const B=bake(list);if(!B){GROUND3D.done=false;GROUND3D.tries=(GROUND3D.tries||0)+1;console.warn('ground3d: bake came out dark, trying again');return false;}
     // which parts of the seabed mesh are inland ground (old look) and which are beach or sea (smooth new look)
-    const mark=(mesh,on)=>{const g=mesh.geometry,P=g.attributes.position,a=new Float32Array(P.count);mesh.updateMatrixWorld(true);const v=new THREE.Vector3(),inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();
-      if(on)for(let i=0;i<P.count;i++){v.fromBufferAttribute(P,i).applyMatrix4(mesh.matrixWorld).applyMatrix4(inv);const t=S4.tS(v.x,v.z),bw=Math.max(.8,1.05+.7*vnoise(v.x*.3+11,v.z*.3));a[i]=S4.beachMask(v.x,v.z)?0:Math.max(0,Math.min(1,(t-bw-.25)/1.4));/* fades from the smooth beach into the old look over about a unit and a half */
+    const mark=(mesh,on)=>{const g=mesh.geometry,P=g.attributes.position,a=new Float32Array(P.count),sd=new Float32Array(P.count);mesh.updateMatrixWorld(true);const v=new THREE.Vector3(),inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();
+      if(on)for(let i=0;i<P.count;i++){v.fromBufferAttribute(P,i).applyMatrix4(mesh.matrixWorld).applyMatrix4(inv);const t=S4.tS(v.x,v.z),bw=Math.max(.8,1.05+.7*vnoise(v.x*.3+11,v.z*.3));sd[i]=t<-.6?-1:Math.max(0,Math.min(1,t/(bw+.25)));/* 0 at the water, 1 at the back of the beach */a[i]=S4.beachMask(v.x,v.z)?0:Math.max(0,Math.min(1,(t-bw-.25)/1.4));/* fades from the smooth beach into the old look over about a unit and a half */
         if(t>0&&!S4.beachMask(v.x,v.z)&&P.getY(i)<0)P.setY(i,-.005);}/* inland ground sits right under where the old sheets were */
-      g.setAttribute('landW',new THREE.BufferAttribute(a,1));P.needsUpdate=true;};
+      g.setAttribute('landW',new THREE.BufferAttribute(a,1));g.setAttribute('sandT',new THREE.BufferAttribute(sd,1));P.needsUpdate=true;};
     mark(S4.bed,true);if(S4.bed2)mark(S4.bed2,false);
-    const m=S4.bed.material,prev=m.onBeforeCompile,pk=m.customProgramCacheKey;const U={tG3:{value:B.tex},uG3:{value:B.box}};
+    const m=S4.bed.material,prev=m.onBeforeCompile,pk=m.customProgramCacheKey;const U={tG3:{value:B.tex},uG3:{value:B.box},uL2:{value:/[?&#]lawn2\b/.test(location.search+location.hash)?1:0}};
     m.onBeforeCompile=(s,r)=>{if(prev)prev(s,r);Object.assign(s.uniforms,U);
-      s.vertexShader='attribute float landW;varying float vLW;varying vec2 vG3;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvLW=landW;vG3=(modelMatrix*vec4(transformed,1.)).xz;');
-      s.fragmentShader='uniform sampler2D tG3;uniform vec4 uG3;varying float vLW;varying vec2 vG3;\n'+s.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+      s.vertexShader='attribute float landW;attribute float sandT;varying float vLW;varying float vST;varying vec2 vG3;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvLW=landW;vST=sandT;vG3=(modelMatrix*vec4(transformed,1.)).xz;');
+      s.fragmentShader='uniform sampler2D tG3;uniform vec4 uG3;uniform float uL2;varying float vLW;varying float vST;varying vec2 vG3;\nfloat gh3(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}float gvn3(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(gh3(i),gh3(i+vec2(1.,0.)),f.x),mix(gh3(i+vec2(0.,1.)),gh3(i+1.),f.x),f.y);}\n'+s.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+if(uL2>.5&&vST>-.5&&vLW<.999){/* Look Lab ?lawn2: the old beach recipe: damp sand at the water, pale dry sand, golden at the back, speckles, ripples */
+  float u=clamp(vST,0.,1.);vec3 s0=vec3(0.6800,0.6661,0.5860),s1=vec3(0.8122,0.7969,0.7227),s2=vec3(0.9240,0.9075,0.8434),s3=vec3(0.9075,0.8832,0.7969),s4=vec3(0.8122,0.7818,0.6661);
+  vec3 sc=u<.14?mix(s0,s1,u/.14):u<.3?mix(s1,s2,(u-.14)/.16):u<.85?mix(s2,s3,(u-.3)/.55):mix(s3,s4,(u-.85)/.15);
+  float sp=gvn3(vG3*9.);sc*=(.97+.06*sp)*vec3(.93,.89,.80);if(gh3(floor(vG3*24.))>.985)sc*=1.06;else if(gh3(floor(vG3*24.)+3.)<.012)sc*=.86;
+  if(u<.5)sc*=1.-.035*max(0.,sin(u*30.+gvn3(vG3*.8)*3.));diffuseColor.rgb=mix(sc,diffuseColor.rgb,smoothstep(.9,1.,vLW));}
 if(vLW>.001){vec2 uv=vec2((vG3.x-uG3.x)/uG3.z,(uG3.y-vG3.y)/uG3.w);vec4 g3=texture2D(tG3,uv);float k=vLW*(1.-step(.5,g3.a)*step(max(g3.r,g3.g)+.05,g3.b));/* old water pixels in the sheets stay smooth sand */
   /* Paul (13 Nov): the painted paths and bike lanes go (3D ones come later): anything that is not grass or a salt lake becomes grass */
   vec3 c3=g3.rgb;float grassy=step(c3.r+.02,c3.g)*step(c3.b+.02,c3.g);float lake=step(c3.g+.06,c3.r)*step(c3.g,c3.b+.04);
   if(g3.a<.5||lake<.5){/* one even lawn everywhere inland; only the salt lakes keep their picture */float n=.5+.25*(sin(vG3.x*1.7+sin(vG3.y*1.3))+sin(vG3.y*2.1+sin(vG3.x*.9)));float n2=.5+.25*(sin(vG3.x*.31+vG3.y*.17)+sin(vG3.y*.43-vG3.x*.21));
-    c3=mix(vec3(.15,.32,.08),vec3(.19,.38,.10),n*.35+n2*.65);}
+    if(uL2>.5){/* Look Lab ?lawn2 (Paul, 13 Nov: the pixel lawn looked more real): the old ground's own recipe in world space: five lawn greens
+       picked by two layers of soft noise, a little speckle, then short grass strokes and light patches like the painted look */
+      vec2 q=vG3;float a1=gvn3(q*.17),a2=gvn3(q*.65+vec2(7.,3.)),sp=gvn3(q*6.)-.5;float t=a1*.62+a2*.38+sp*.2;
+      vec3 G0=vec3(0.0546,0.1701,0.0385),G1=vec3(0.0892,0.2508,0.0494),G2=vec3(0.1139,0.2888,0.0582),G3=vec3(0.1450,0.3345,0.0677),G4=vec3(0.2349,0.4098,0.1011);
+      vec3 g=t<.32?G0:t<.46?mix(G0,G1,smoothstep(.30,.34,t)):t<.6?mix(G1,G2,smoothstep(.44,.48,t)):t<.72?mix(G2,G3,smoothstep(.58,.62,t)):mix(G3,G4,smoothstep(.70,.74,t));
+      float st=gvn3(vec2(q.x*7.,q.y*2.2))*.55+gvn3(vec2(q.x*2.4,q.y*8.))*.25+gvn3(q*21.)*.2;g*=.8+.4*st;g*=.93+.14*gvn3(q*.3);c3=g;}
+    else c3=mix(vec3(.15,.32,.08),vec3(.19,.38,.10),n*.35+n2*.65);}
   diffuseColor.rgb=mix(diffuseColor.rgb,c3,k);}`);};
     m.customProgramCacheKey=()=>'g3d'+(pk?pk.call(m):'');m.needsUpdate=true;
     // the old sheets go away on Rottnest only
@@ -19130,6 +19141,7 @@ const ISLAND_STORE=[];
       B.setFromObject(o).applyMatrix4(inv);if(B.max.y-B.min.y<.15)return;if(zoneOf((B.min.x+B.max.x)/2)!=='island')return;o.__tidy=1;o.layers.set(31);n++;});return n;}
   (function wait(){if(typeof ISL!=='undefined'&&ISL.done&&performance.now()>9000){try{store();}catch(e){console.error('tidy store',e);}
       let k=0;const iv=setInterval(()=>{try{store();}catch(e){}if(k===8&&typeof MEADOW!=='undefined'&&MEADOW.reset)MEADOW.reset();/* replant grass and flowers where the houses and paths were */try{const n=pictures();if(n)console.log('TIDY pictures '+n);}catch(e){}if(++k>20)clearInterval(iv);},3000);return;}setTimeout(wait,800);})();
+  /* old saves may still hold a cloudy or rainy day: make it sunny */setInterval(()=>{try{if(typeof S!=='undefined'&&(S.wx===1||S.wx===3)){S.wx=0;}}catch(e){}},1000);
   // ---- graphics quality ----
   const touch=matchMedia&&matchMedia('(pointer:coarse)').matches;let L='high';try{L=localStorage.getItem('qc-gfx')||(touch?'medium':'high');}catch(e){}
   const GFX=window.GFX={level:L,set(l){this.level=l;try{localStorage.setItem('qc-gfx',l);}catch(e){}apply();label();}};

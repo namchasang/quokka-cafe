@@ -37,7 +37,7 @@ const LIVEM=(()=>{if(!LIVE)return null;
     const t=curTrack();$('#lvSt').textContent=(RSTATIONS[RADIO.st]?RSTATIONS[RADIO.st].name:'')+' · '+(FREQ[RADIO.st]||'')+' FM';$('#lvTr').textContent=t?t.t:'Tuning in…';
     $('#lvWx').textContent=(S.wx===3?'Soft rain':NIGHT>.6?'Starry night':h<11?'Sunny morning':h<17?'Sunny afternoon':'Golden hour')+' · Rottnest Island, Perth time';
     // weather follows the music: rain tracks bring showers, the rest are clear or a few clouds
-    const key=t?RADIO.st+':'+RADIO.trk:null;if(key!==lastTrk){lastTrk=key;const wx=isRain(t)?3:(Math.random()<.7?0:1);if(S.wx!==wx){S.wx=wx;const w=WEATHERS[wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}}}
+    const key=t?RADIO.st+':'+RADIO.trk:null;if(key!==lastTrk){lastTrk=key;const wx=Math.random()<.7?0:2;if(S.wx!==wx){S.wx=wx;const w=WEATHERS[wx];S.temp=w.temp[0]+Math.floor(Math.random()*(w.temp[1]-w.temp[0]+1));}}}
   // ---- Kip works the counter ----
   const HOME={x:0,z:-1.35};let job=null,moving=false,spawnT=4;
   function stationX(k){const s=STATIONS.find(q=>q.key===k);return s?s.x:0;}
