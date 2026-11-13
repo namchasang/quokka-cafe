@@ -1030,10 +1030,12 @@ function doorPane(col,w=20,h=38){const[c,x]=cv(w+6,h+4);P(x,'#e8dcc0',0,0,w+6,h+
 return{PPM,wall,roof,pane,doorPane,glass,glowDiff,blocks,plaster,bricks,weatherboard,win,door,cornice,plinth,quoins,moss,ivy,mix,sh,lum,seed,rnd,cv,P};
 })();
 
+/* Rottnest 3D toon look is live (Paul, 13 Nov 2026); ?notoon shows the old look for comparison */
+var TOON_ON=!/[?&#]notoon\b/.test(location.search+location.hash);
 // ---------- renderer + pixel-art post-processing ----------
 const stage=$('#stage');
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
-const TOONR=/[?&#]toon\b/.test(location.search+location.hash);// ?toon: render like the Tree Lab (Paul, Nov 2026): sharper screen, no pixel post grade
+const TOONR=TOON_ON;// ?toon: render like the Tree Lab (Paul, Nov 2026): sharper screen, no pixel post grade
 const DPR=Math.min(window.devicePixelRatio||1,/[?&#]px4\b/.test(location.search+location.hash)||TOONR?2:1.5);// Look Lab ?px4: sharper screen
 renderer.setPixelRatio(DPR);
 // ?toon (Paul, Nov 2026: 'take the filter off, I want the Tree Lab colours'): straight to the screen like the lab, sRGB output with ACES tone mapping, no post pass (?toon&post keeps the old filter to compare)
@@ -1048,7 +1050,7 @@ const CAM_DIR=new THREE.Vector3(0,.6,.8).normalize();
 let camDist=14,yaw=0,yawT=0,zm=1;
 const camOff=new THREE.Vector3();
 const rt=new THREE.WebGLRenderTarget(2,2,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat});
-var CINE_LIVE=false;const CINE_ON=CINE_LIVE||/[?&#](lab|cine|r3)\b/.test(location.search+location.hash);// Look Lab: Cinematic camera, Rottnest first
+const CINE_ON=false;// Look Lab: Cinematic camera, Rottnest first
 var CW_LIVE=true;var WEL4_LIVE=true;const WEL4_ON=WEL4_LIVE||/[?&#]wel4\b/.test(location.search+location.hash);// Look Lab: Wellington St in front of Perth Station, four lanes and a median (Paul, Nov 2026)
 const CW_ON=WEL4_ON&&CW_LIVE,CW_RD=CW_ON?-1.4:0,CW_DN=CW_ON?-3.6:0;// CBD footpaths: the road moves 1.4 m north, the north side 3.6 m more
 var PXB_LIVE=true;const PXB_ON=PXB_LIVE||/[?&#]pxb\b/.test(location.search+location.hash);// Look Lab: pixel buildings (3d shapes, pixel skins), Rottnest first
@@ -1206,10 +1208,6 @@ function setFrame(m,i){m.userData.step=i;showFrame(m);}
 // jacaranda, boab), seasonal leaves and blossom, and leaves or petals blowing in the wind.
 // People: every character frame at twice the pixels with smoothed diagonals, a thin outline, soft volume and eye shine.
 const LOOK2_LIVE=true;
-var PX4_LIVE=false;const PX4_ON=PX4_LIVE||/[?&#]px4\b/.test(location.search+location.hash);// Look Lab: plants and people at four times the pixels
-var LEAF3_LIVE=false;var PLANT3X_LIVE=false;const PLANT3X_ON=PLANT3X_LIVE||/[?&#](lab|r3|fine)\b/.test(location.search+location.hash);// Look Lab: plants at three times the pixels
-var ROTT3_LIVE=false;const ROTT3_ON=ROTT3_LIVE||/[?&#](lab|r3)\b/.test(location.search+location.hash);// Look Lab: Rottnest's own plants, hand-painted paths, buildings and vehicles
-const LEAF3_ON=LEAF3_LIVE||/[?&#](lab|leaf3|r3)\b/.test(location.search+location.hash);// Look Lab: plants painted leaf by leaf
 const LOOK2={on:LOOK2_LIVE||/[?&#](lab|hd2)\b/.test(location.search+location.hash),plants:true,people:true,tex:[],mats:[],frames:[],season:-1,shadows:null,leaves:null,petals:[]};
 function l2hash(a,b,s){let h=(a*374761393+b*668265263+(s|0)*2246822519)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;}
 function l2noise(x,y,s,seed){const gx=Math.floor(x/s),gy=Math.floor(y/s),fx=x/s-gx,fy=y/s-gy,a=l2hash(gx,gy,seed),b=l2hash(gx+1,gy,seed),c=l2hash(gx,gy+1,seed),d=l2hash(gx+1,gy+1,seed),u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
@@ -1243,7 +1241,7 @@ function plantParse(src){const W=src.width,H=src.height,sx=src.getContext('2d').
 function l2ramp(dk,lt){const mix=(a,b,t)=>a.map((v,k)=>v+(b[k]-v)*t);const R=[];for(let k=0;k<7;k++){const t=k/6;let c=mix(dk.map(v=>v*.74),lt.map(v=>Math.min(255,v*1.1)),t);c=[c[0]+(t-.5)*16,c[1]+(t-.5)*6,c[2]-(t-.5)*18].map(v=>Math.max(0,Math.min(255,Math.round(v))));R.push(c);}return R;}
 const L2_AUTUMNS=[l2ramp([92,40,22],[244,196,92]),l2ramp([104,36,18],[250,150,64]),l2ramp([86,22,22],[232,96,62])],L2_AUTUMN=L2_AUTUMNS[0],L2_GREEN=l2ramp([45,90,44],[160,200,100]),L2_WINTER=l2ramp([40,64,48],[132,160,110]);
 // paint one plant (season 0 summer, 1 autumn, 2 winter, 3 spring); returns the picture and a rim-light mask
-function plantPaint(P,season,seed){const{W,H,sx,T}=P,SC=PX4_ON?4:PLANT3X_ON?3:2,W2=W*SC,H2=H*SC,kind=P.kind;const LS=SC/2;const rnd=mulberry32(seed|0);const R=()=>rnd();
+function plantPaint(P,season,seed){const{W,H,sx,T}=P,SC=2,W2=W*SC,H2=H*SC,kind=P.kind;const LS=SC/2;const rnd=mulberry32(seed|0);const R=()=>rnd();
   let RAMP=l2ramp(P.dk,P.lt);const blend=(A,B,t)=>A.map((c,i)=>c.map((v,k)=>Math.round(v+(B[i][k]-v)*t)));
   const sp=P.sp||null;if(sp&&ROTT_RAMP[sp])RAMP=ROTT_RAMP[sp];
   const deciduous=!sp&&(kind==='broad'||kind==='bush');
@@ -1284,45 +1282,7 @@ function plantPaint(P,season,seed){const{W,H,sx,T}=P,SC=PX4_ON?4:PLANT3X_ON?3:2,
   // LEAF3 (Look Lab ?leaf3): the crown is painted leaf by leaf instead of in round clumps. Every leaf has its own shape
   // (oval with a midrib, long drooping gum leaf, needle spray, palm leaflet, grass blade), its own tone from the light,
   // a lit edge on the side facing the sun and a darker midrib; leaves are laid back to front so the crown has depth.
-  if(LEAF3_ON&&(sp||(kind!=='palm'&&kind!=='pine'))){
-    const SP=(sp&&ROTT_SP[sp])||{broad:{n:1.7,L:[5.5,8.5],Wd:[2.3,3.2],droop:.35,round:.9,rib:1},gum:{n:1.15,L:[6,9],Wd:[1.2,1.7],droop:.95,round:.55,rib:0},
-      jac:{n:2,L:[3,4.5],Wd:[1.1,1.5],droop:.25,round:.8,rib:0},pine:{n:1.5,L:[3.5,5.5],Wd:[.7,.95],droop:.15,round:.3,rib:0},
-      bush:{n:1.8,L:[3.2,4.8],Wd:[1.6,2.2],droop:.2,round:1,rib:0},grass:{n:1.4,L:[6,10],Wd:[.7,1],droop:-1,round:.3,rib:0},boab:{n:1.5,L:[4,6],Wd:[1.8,2.4],droop:.3,round:.9,rib:1}}[kind]||{n:1,L:[4.5,7],Wd:[1.9,2.7],droop:.35,round:.9,rib:1};
-    if(kind==='bush'||sp==='saltbush'||sp==='wattle'){const hw=W2*.5,hh=Math.max(1,maxY-minY)*1.08;for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x;if(!M[i])continue;const dx=(x+.5-W2/2)/(hw*.94),dy=(y-maxY)/hh;if(dx*dx+dy*dy>1+(l2hash(x,y,seed+5)-.5)*.25)M[i]=0;}}
-    const area=cn,count=Math.round(area/(SP.L[0]*SP.Wd[0]*LS*LS*1.15)*SP.n*(season===2&&deciduous?.7:1));const LV=[];
-    const cells=[];for(let i=0;i<W2*H2;i++)if(M[i])cells.push(i);
-    for(let k=0;k<count;k++){const i=cells[(R()*cells.length)|0],x=i%W2,y=(i/W2)|0;
-      const ox=x-cx0,oy=y-cy0,out=Math.atan2(oy,ox);let a;
-      if(kind==='grass'){a=-Math.PI/2+(ox/(W2*.5))*.9+(R()-.5)*.5;}
-      else if(sp==='callitris'){a=-Math.PI/2+(ox/(W2*.5))*.7+(R()-.5)*1.5;}
-      else if(kind==='pine'){a=(ox<0?Math.PI:0)+(R()-.5)*.6+SP.droop*(ox<0?-1:1)*.3;}
-      else{a=out+(R()-.5)*1.1;const dn=Math.PI/2;let d=dn-a;d=Math.atan2(Math.sin(d),Math.cos(d));a+=d*SP.droop*.5;}
-      const L=(SP.L[0]+R()*(SP.L[1]-SP.L[0]))*LS,Wd=(SP.Wd[0]+R()*(SP.Wd[1]-SP.Wd[0]))*LS;
-      const dc=Math.hypot(ox/(W2*.5),oy/(H2*.5));LV.push({x,y,a,L,Wd,d:R()*.5+(1-Math.min(1,dc))*.3+(oy>0?.1:0),purple:kind==='jac'?(R()>=jacMix):false});}
-    LV.sort((p,q)=>p.d-q.d);
-    for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){const i=y*W2+x;if(!M[i])continue;const e=(y>0&&!M[i-W2])||(x>0&&!M[i-1])||(x<W2-1&&!M[i+1])||(y<H2-1&&!M[i+W2]);if(e&&kind!=='gum')continue;if(kind==='gum'&&l2hash(x>>1,y>>1,seed+3)<.35)continue;const gl=(1-x/W2)*.3+(1-(y-minY)/Math.max(1,maxY-minY))*.46;const s=Math.max(0,Math.min(2,Math.floor(gl*2.6+(L2_BAYER[(y&3)*4+(x&3)]/16-.5)*.6)));put(x,y,(kind==='jac'?L2_GREEN:RAMP)[s],2);IDX[i]=s;}
-    const LX=-.62,LY=-.78;// light from the top left
-    for(const f of LV){const ca=Math.cos(f.a),sa=Math.sin(f.a),ramp=kind==='jac'&&!f.purple?L2_GREEN:RAMP;
-      // the leaf starts at its stalk (f.x,f.y) and runs along angle a
-      const x0=Math.floor(Math.min(f.x,f.x+ca*f.L)-f.Wd-1),x1=Math.ceil(Math.max(f.x,f.x+ca*f.L)+f.Wd+1),y0=Math.floor(Math.min(f.y,f.y+sa*f.L)-f.Wd-1),y1=Math.ceil(Math.max(f.y,f.y+sa*f.L)+f.Wd+1);
-      const side=-(LX*-sa+LY*ca);// which half of the leaf faces the light
-      const gl=(1-f.x/W2)*.3+(1-(f.y-minY)/Math.max(1,maxY-minY))*.46;
-      for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(x<0||y<0||x>=W2||y>=H2)continue;
-        const rx=x+.5-f.x,ry=y+.5-f.y,u=(rx*ca+ry*sa)/f.L,v=(-rx*sa+ry*ca);if(u<0||u>1)continue;
-        const prof=Math.pow(Math.sin(Math.PI*Math.min(1,u*(1+SP.round*.25))),SP.round)*(1-u*.15);const half=f.Wd*prof;if(Math.abs(v)>half||half<.35)continue;
-        // stay within a pixel or two of the crown outline (tips may poke out)
-        if(!M[y*W2+x]){let near=false;for(const[a2,b2]of[[1,0],[-1,0],[0,1],[0,-1],[0,-2],[2,0],[-2,0]]){const X=x+a2,Y=y+b2;if(X>=0&&Y>=0&&X<W2&&Y<H2&&M[Y*W2+X]){near=true;break;}}if(!near)continue;}
-        const vn=v/Math.max(.5,half);
-        let val=.17+gl*.55+f.d*.3+(vn*side>0?.15:-.09)+(u>.7?.07:0)+(l2noise(x+seed%7,y,sp?4.5:6,seed)-.5)*(sp?.5:.3)+(l2hash(x,y,seed+7)-.5)*.08;
-        if(SP.rib&&Math.abs(v)<.5&&u>.12&&u<.85)val-=.16;// midrib
-        if(Math.abs(vn)>.78)val-=.07;// leaf edge
-        val=Math.max(0,Math.min(.999,val));let s=Math.floor(val*7+(L2_BAYER[(y&3)*4+(x&3)]/16-.5)*.55);s=Math.max(0,Math.min(6,s));
-        put(x,y,ramp[s],2);IDX[y*W2+x]=s;}}
-    if(sp==='wattle'){const dens=season===3?.09:season===2?.06:.018;for(let y=1;y<H2-1;y++)for(let x=1;x<W2-1;x++){const i=y*W2+x;if(KIND[i]!==2)continue;if(l2hash(x,y,seed+51)<dens){const c=l2hash(x,y,seed)>.5?[246,204,58]:[255,232,110];put(x,y,c,4);put(x+1,y,[226,176,40],4);if(KIND[i-W2]===2)put(x,y-1,[255,244,170],4);}}}
-    if(sp==='saltbush'){for(let y=1;y<H2-1;y++)for(let x=1;x<W2-1;x++){const i=y*W2+x;if(KIND[i]===2&&IDX[i]>=4&&l2hash(x,y,seed+61)<.08)put(x,y,[214,222,206],2);}}
-    // a few darker gaps between the leaf layers, so the crown reads as many leaves, not one shape
-    for(let y=1;y<H2-1;y++)for(let x=1;x<W2-1;x++){const i=y*W2+x;if(KIND[i]!==2||!M[i])continue;if(IDX[i]>=4&&IDX[i+W2]>=0&&IDX[i+W2]<=1&&l2hash(x,y,seed+41)<.5){const s=Math.max(0,IDX[i+W2]-1);put(x,y+1,RAMP[s],2);IDX[i+W2]=s;}}
-  }else{
+  {
   // leaf clumps
   const base=Math.max(1.4,W2/22)*(kind==='grass'?.7:kind==='palm'?.55:1);const cl=[];
   const step=base*(kind==='gum'?1.25:1.05);
@@ -1403,7 +1363,7 @@ function epx2(src){const W=src.width,H=src.height,s=src.getContext('2d').getImag
 const CHAR2_ON=true||/[?&#](char2|lab)\b/.test(location.search+location.hash);// Look Lab: people, cyclists, birds and animals at Kip's pixel density
 const CHAR_PPM=CHAR2_ON?48:0;
 if(LOOK2.on){const _mk=mkFrame;mkFrame=function(f){const had=!!f.m;const r=_mk(f);const wm=f.o&&f.o.__wm;
-  if(!had&&f.t&&f.c&&f.c.width<=128&&f.c.width>=4&&((f.c.width>=16&&f.c.height>=20)||(CHAR2_ON&&wm))){f.lo=f.c;let hi=f.c.__hd||(PX4_ON?epx2(charHD(f.c)):charHD(f.c));if(wm)while(hi.width/wm<CHAR_PPM&&hi.width<512)hi=charHD(hi);f.hi=hi;f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};
+  if(!had&&f.t&&f.c&&f.c.width<=128&&f.c.width>=4&&((f.c.width>=16&&f.c.height>=20)||(CHAR2_ON&&wm))){f.lo=f.c;let hi=f.c.__hd||charHD(f.c);if(wm)while(hi.width/wm<CHAR_PPM&&hi.width<512)hi=charHD(hi);f.hi=hi;f.t.image=LOOK2.people?f.hi:f.lo;f.t.needsUpdate=true;LOOK2.frames.push(f);}return r;};
   const _sm=spriteMesh;spriteMesh=function(cv,w,h,o){return _sm(cv,w,h,Object.assign({},o||{},{__wm:w}));};}
 // ---- apply to every plant: replaces the v1 HD pass when the layer is on ----
 function plant2Apply(){if(!LOOK2.on)return;const tset=new Set(trees.map(t=>t.m.material&&t.m.material.map));const seen=new Map();const season=typeof S!=='undefined'&&S.day?seasonOf(S.day):0;
@@ -1411,8 +1371,7 @@ function plant2Apply(){if(!LOOK2.on)return;const tset=new Set(trees.map(t=>t.m.m
     if(!t.__l2){const src=t.__src||t.image;if(!src.getContext||src.width>96||src.width*src.height<100)return;const P=plantParse(src);if(!P){t.__l2={none:true};return;}
       t.__l2={P,seed:(src.width*131+src.height*17+LOOK2.tex.length*7)|0,cache:{},v1:t.image};LOOK2.tex.push(t);}
     if(t.__l2.none)return;let key=t;
-    if(ROTT3_ON){let isl=false;try{isl=zoneOf(o.position.x)==='island';}catch(e){isl=false;}const spc=isl&&rottSpecies(t.__l2.P,(t.__l2.seed>>2)&1);
-      if(spc){if(!rottRamps.done){rottRamps();rottRamps.done=1;}if(!t.__twin){const tI=t.clone();tI.image=t.image;tI.needsUpdate=true;const L0=t.__l2;tI.__l2={P:Object.assign({},L0.P,{sp:spc}),seed:L0.seed+999,cache:{},v1:L0.v1};LOOK2.tex.push(tI);t.__twin=tI;}key=t.__twin;}}
+    
     if(!seen.has(key))seen.set(key,[]);seen.get(key).push(o);});
   // per texture: two seeds (A/B) x two shades, shared by the trees that use them
   for(const [t,meshes] of seen){const L=t.__l2;const base=meshes[0].material;const variants=[];
@@ -1579,7 +1538,7 @@ function col(x1,z1,x2,z2){colliders.push({x1,z1,x2,z2});}
 // Places in a plateau keep their exact layout (the Settlement and café); everything else moves to where it sits
 // on the 2.5x island. Small groups of objects (a sign and its post, a kiosk and its stools) move together.
 // Old coordinates written in code go through IW() to find their new spot.
-const TOON_SAND=/[?&#]toon\b/.test(location.search+location.hash);// ?toon: a damp darker band of wet sand at the waterline (Paul, Nov 2026)
+const TOON_SAND=TOON_ON;// ?toon: a damp darker band of wet sand at the waterline (Paul, Nov 2026)
 const ISL={KX:3,KZ:2,PX:97,PZ:1.7,done:false,cl:[],late:[],plat:[
   {n:'settlement',x:-10,z:1,R:26,T:7}]};
 function isS1(x,z){return[ISL.PX+(x-ISL.PX)*ISL.KX,ISL.PZ+(z-ISL.PZ)*ISL.KZ];}
@@ -1960,10 +1919,8 @@ const treeVariants=[0,1,2].map(v=>{const r=mulberry32(100+v);const blobs=[];for(
 treeVariants.forEach(v=>{v.w=3.2;v.h=4.4;});treeVariants.push(pineVariant());
 const bushVariants=[0,1].map(v=>{const r=mulberry32(200+v);const blobs=[];for(let i=0;i<4;i++)blobs.push([8+(r()-.5)*8,6+(r()-.5)*2,3.5+r()*2]);const c=canopy(16,10,blobs,TREE_COLS[v+1],r,null);const t=ctex(c);
   return{m:new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color(.12,.12,.1),emissiveMap:t}),d:new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.5})};});
-// ---------- HD trees and bushes (Look Lab layer: ?lab or ?trees until TREES_HD_LIVE is true) ----------
+// ---------- trees and bushes: the HD canopy painter (used by every plant) and where the island trees stand ----------
 // Twice the pixels, seven shades per tree with ordered dithering, leaf clumps, sky gaps, a sunlit rim, bark with branches, and a gentle sway in the wind.
-const TREES_HD_LIVE=false;
-const TREES_HD={on:false,live:false,t:{value:0},sets:[]};
 function canopyHD(W,H,blobs,pal,r,trunk){const c=mk(W,H),x=c.getContext('2d');const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   const hash=(a,b)=>{let h=(a*374761393+b*668265263+77)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
   const vnoise=(px,py,s)=>{const gx=Math.floor(px/s),gy=Math.floor(py/s),fx=px/s-gx,fy=py/s-gy;const a=hash(gx,gy),b=hash(gx+1,gy),c2=hash(gx,gy+1),d=hash(gx+1,gy+1);const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c2-a)*v+(a-b-c2+d)*u*v;};
@@ -1992,15 +1949,6 @@ function canopyHD(W,H,blobs,pal,r,trunk){const c=mk(W,H),x=c.getContext('2d');co
   // a few blossoms or berries for some trees
   return c;}
 const TREE_PAL=[['#16301f','#1f4129','#2a5634','#3a6e40','#4f8a4b','#6fa65a','#a3cc78'],['#1d301a','#2a4722','#3b602c','#507b36','#6a9741','#8db455','#c1d985'],['#16302c','#203f36','#2c5541','#3e6d4b','#578a57','#7aa66a','#a9c98e']];
-(function(){if(!TREES_HD.on)return;
-  treeVariants.slice(0,3).forEach((v,vi)=>{const r=mulberry32(900+vi);const blobs=[];for(let i=0;i<11;i++)blobs.push([32+(r()-.5)*30,25+(r()-.5)*20,10+r()*9]);blobs.push([32,14,11]);
-    const c=canopyHD(64,88,blobs,TREE_PAL[vi],r,[28,46,8]);TREES_HD.sets.push({v,old:v.t,hd:ctex(c)});});
-  bushVariants.forEach((v,vi)=>{const r=mulberry32(950+vi);const blobs=[];for(let i=0;i<6;i++)blobs.push([16+(r()-.5)*16,12+(r()-.5)*4,6+r()*4]);const c=canopyHD(32,20,blobs,TREE_PAL[vi+1],r,null);TREES_HD.sets.push({v,old:v.m.map,hd:ctex(c)});});
-  // sway: the top of each tree moves a little, phase by position, shadows follow
-  const sway=m=>{m.onBeforeCompile=sh=>{sh.uniforms.uSway=TREES_HD.t;sh.vertexShader='uniform float uSway;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_MAP\n{float sw=max(0.,uv.y-.35);sw*=sw;vec4 wp=modelMatrix*vec4(0.,0.,0.,1.);transformed.x+=sin(uSway*1.4+wp.x*.7+wp.z*.43)*.16*sw;}\n#endif');};m.customProgramCacheKey=()=>'sway';m.needsUpdate=true;};
-  TREES_HD.sets.forEach(s=>{[s.v.m,s.v.f,s.v.d].forEach(m=>m&&sway(m));});
-  TREES_HD.set=function(on){this.live=on;this.sets.forEach(s=>{const t=on?s.hd:s.old;[s.v.m,s.v.f,s.v.d].forEach(m=>{if(!m)return;m.map=t;if(m.emissiveMap)m.emissiveMap=t;m.needsUpdate=true;});});};
-  TREES_HD.set(true);(function L(){TREES_HD.t.value=performance.now()/1000;requestAnimationFrame(L);})();})();
 const trees=[];const COACH_KEEP=[[71.6,-3.4],[70,-3.4],[73.2,-3.4],[71.6,-1.4],[10.4,-1.8],[22,-6.6],[32.2,-4.6],[59.4,-2.6],[71.2,.8],[89.6,-.6],[14.2,-4.6],[54.6,1.2],[61.4,-2.9]];
 const KEEP=[[-11.5,3.6,2],[24,5,5.4],[6.6,3.4,1.2],[4.6,-8.4,2.8],[-9.3,-.3,4.6],[-13,-.6,1.5],[-4.4,-8.3,2.8],[-.4,-8.5,2.8],[46.5,-4.5,1.8],[19.5,-8.4,1.8],[17.2,-8.6,1.9],[14.5,1.3,1.3],[7.4,2.9,2.2],[6,-1.5,1.4],[17,-6.6,2],[26,-6.2,2],[40.5,1.2,2],[30.8,-2.6,2.2],[HAMMOCK.x,HAMMOCK.z,2.6],[HUT.x,HUT.z,2.8]].concat(LORE.map(L=>[L.x,L.z,2.2]));
 function treeOK(x,z){if(landD(x,z)<1.6||pathD(x,z)<1.5)return false;if(x>-10.5&&x<10.5&&z>-6.2)return false;if(x<49){if(x>3&&x<37&&Math.abs(z)<1.9)return false;
@@ -5625,7 +5573,7 @@ function loop(now){requestAnimationFrame(loop);if(overlay==='wm'){last=now;retur
   safeRun('world',()=>{applyTime();updateWilds(dt,t);if(!overlay||overlay==='title')updateWalkers(dt);});
   if(!running||overlay){player.mesh.position.set(player.x,groundY(player.x,player.z),player.z);player.blob.position.set(player.x,.03+groundY(player.x,player.z),player.z);}
   safeRun('ambient',()=>ambient(dt,t));safeRun('camera',()=>updateCamera(dt));safeRun('hud',()=>{updateHud();updateQuestUI(dt,t);updateTrackBar(dt);updateActButton();});
-  safeRun('engine',()=>engTick(dt));safeRun('ground',gtTick);try{if(TEX3_ON&&!tex3Scene.done&&running)safeRun('tex3',tex3Scene);if(PXB_ON&&running){if(!pxbScene.done)safeRun('pxb',pxbScene);else if(typeof H4!=='undefined'&&H4&&H4.need)safeRun('pxb2',pxbCatchUp);pxbTick();}else if(PXB_ON&&(overlay==='title'||overlay==='slots')&&typeof H4!=='undefined'&&H4){if(!pxbScene.done&&H4.ready)h4Pass();if(pxbScene.done)safeRun('pxbT',pxbTick);}if(CINE_ON)safeRun('cine',cineTick);if(TOONR&&!TOONR_POST){renderer.setRenderTarget(null);renderer.render(scene,camera);}else{renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);}captureThumb();}catch(e){reportErr('render',e);}}
+  safeRun('engine',()=>engTick(dt));safeRun('ground',gtTick);try{if(TEX3_ON&&!tex3Scene.done&&running)safeRun('tex3',tex3Scene);if(PXB_ON&&running){if(!pxbScene.done)safeRun('pxb',pxbScene);else if(typeof H4!=='undefined'&&H4&&H4.need)safeRun('pxb2',pxbCatchUp);pxbTick();}else if(PXB_ON&&(overlay==='title'||overlay==='slots')&&typeof H4!=='undefined'&&H4){if(!pxbScene.done&&H4.ready)h4Pass();if(pxbScene.done)safeRun('pxbT',pxbTick);}if(TOONR&&!TOONR_POST){renderer.setRenderTarget(null);renderer.render(scene,camera);}else{renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);}captureThumb();}catch(e){reportErr('render',e);}}
 // ---------- Island Scale Wave A: Settlement heritage, Kingstown and Army Jetty, four more salt lakes, golf course and airstrip ----------
 // Built straight onto the bigger island. Spots were planned on the first bigger island (v1) and WAV1() moves them onto the real-shaped one;
 // the salt lakes sit where the real lakes are. Each place looks for a clear patch near its planned spot.
@@ -8611,47 +8559,6 @@ function plantHDApply(){const tset=new Set(trees.map(t=>t.m.material&&t.m.materi
 (function L(){PLANT_HD.t.value=performance.now()/1000;requestAnimationFrame(L);})();
 plantHDApply();
 if(LOOK2.on){plant2Apply();let _l2t=performance.now();(function L2(){const n=performance.now();plant2Tick((n-_l2t)/1000);_l2t=n;requestAnimationFrame(L2);})();}
-// ---------- Layered pixel trees (2.5D) · Look Lab layer: ?lab or ?layers until TREE_LAYERS_LIVE is true ----------
-// Each tree gets a dark back crown behind it and a cluster of near leaves in front of it, as extra pixel sheets.
-// When the camera turns or Kip walks by, the sheets slide past each other a little, so the tree has depth but stays pixel art.
-const TREE_LAYERS_LIVE=false;
-const TLAY={on:TREE_LAYERS_LIVE||/[?&#](lab|layers)\b/.test(location.search+location.hash),show:true,kids:[],cache:new Map(),mats:[]};
-function treeLayerPaint(img,seed){const W=img.width,H=img.height,src=img.getContext('2d').getImageData(0,0,W,H).data;
-  // crown = leafy pixels (green-ish or purple), not bark
-  const crown=new Uint8Array(W*H);let minY=H,maxY=0,cx=0,n=0;
-  for(let i=0;i<W*H;i++){const o=i*4;if(src[o+3]<128)continue;const r=src[o],g=src[o+1],b=src[o+2];const leafy=(g>r*1.02&&g>b)||(b>g&&r>g)||(r>140&&g>100&&b<90);if(!leafy)continue;crown[i]=1;const y=(i/W)|0;minY=Math.min(minY,y);maxY=Math.max(maxY,y);cx+=i%W;n++;}
-  if(n<40)return null;cx/=n;const ch=maxY-minY+1;
-  const mkc=()=>{const c=mk(W,H);return[c,c.getContext('2d').createImageData(W,H)];};
-  // back sheet: the crown grown by 2px, in the darkest leaf tones, peeking out around the edges
-  const [bc,bd]=mkc();let dark=[0,0,0],dn=0;for(let i=0;i<W*H;i++)if(crown[i]){const o=i*4,l=src[o]+src[o+1]+src[o+2];if(l<240){dark[0]+=src[o];dark[1]+=src[o+1];dark[2]+=src[o+2];dn++;}}
-  dark=dn?dark.map(v=>v/dn):[40,70,40];
-  // back sheet: the same crown, darker and cooler, so it shows as shadowed leaves deeper in the tree
-  for(let i=0;i<W*H;i++){if(!crown[i])continue;const o=i*4;const k=.58+l2hash(i%W>>1,(i/W|0)>>1,seed)*.12;bd.data[o]=src[o]*k*.92;bd.data[o+1]=src[o+1]*k;bd.data[o+2]=Math.min(255,src[o+2]*k*1.12);bd.data[o+3]=255;}
-  bc.getContext('2d').putImageData(bd,0,0);
-  // front sheet: a few leaf clumps from the lower front of the crown, lit, with their own outline
-  const [fc,fd]=mkc();const pick=new Uint8Array(W*H);
-  const clumps=[];const rnd=mulberry32(seed+5);for(let k=0;k<6;k++)clumps.push([cx+(rnd()-.5)*W*.55,minY+ch*(.45+rnd()*.42),W*(.07+rnd()*.06)]);
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(!crown[i])continue;for(const[a,b,r]of clumps){const dx=x-a,dy=(y-b)*1.15;if(dx*dx+dy*dy<r*r){pick[i]=1;break;}}}
-  for(let i=0;i<W*H;i++){if(!pick[i])continue;const o=i*4,x=i%W,y=(i/W)|0;const up=y>0&&pick[i-W],lf=x>0&&pick[i-1];const lit=(!up||!lf)?1.18:1.05;
-    fd.data[o]=Math.min(255,src[o]*lit);fd.data[o+1]=Math.min(255,src[o+1]*lit);fd.data[o+2]=Math.min(255,src[o+2]*lit*.96);fd.data[o+3]=255;}
-  const OUT=dark.map(v=>v*.45);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(pick[i])continue;const o=i*4;const n2=(x>0&&pick[i-1])||(x<W-1&&pick[i+1])||(y>0&&pick[i-W])||(y<H-1&&pick[i+W]);if(n2){fd.data[o]=OUT[0];fd.data[o+1]=OUT[1];fd.data[o+2]=OUT[2];fd.data[o+3]=255;}}
-  fc.getContext('2d').putImageData(fd,0,0);
-  const tx=c=>{const t=ctex(c);return t;};return{back:tx(bc),front:tx(fc)};}
-function treeLayersApply(){if(!TLAY.on||typeof LOOK2==='undefined'||!LOOK2.on)return;
-  for(const tr of trees){const o=tr.m;if(!o||!o.__l2||o.__tl)continue;const v=o.__l2.v;const t=v.tex;if(!t||!t.image||t.image.height<64)continue;
-    const L=t.__l2||(LOOK2.tex.find(q=>q.__l2&&q.__l2.tB===t)||{}).__l2;if(L&&L.P&&(L.P.kind==='palm'))continue;
-    let set=TLAY.cache.get(v);if(!set){const p=treeLayerPaint(t.image,(t.image.width*7+t.image.height)|0);if(!p){TLAY.cache.set(v,null);continue;}
-      const mk2=(map,dz,sc,col)=>{const m=v.m.clone();m.map=map;m.emissiveMap=null;m.emissive=new THREE.Color(0);if(col)m.color=new THREE.Color(col);plantSway(m);TLAY.mats.push(m);return{m,dz,sc};};
-      set=[mk2(p.back,-.45,1.02,null),mk2(p.front,.4,.985,null)];set.src=t.image;TLAY.cache.set(v,set);}
-    if(!set)continue;o.__tl=[];for(const s of set){const c=new THREE.Mesh(o.geometry,s.m);c.position.z=s.dz;c.scale.setScalar(s.sc);c.position.y=(1-s.sc)*0;c.castShadow=false;c.receiveShadow=true;o.add(c);o.__tl.push(c);TLAY.kids.push(c);}}}
-function treeLayersTick(){if(!TLAY.on)return;
-  // repaint when the season repaints the tree, hide the extra sheets when the tree turns see-through in front of Kip
-  for(const [v,set] of TLAY.cache){if(!set)continue;const t=v.tex;if(t&&t.image!==set.src){set.src=t.image;const p=treeLayerPaint(t.image,(t.image.width*7+t.image.height)|0);if(p){set[0].m.map=p.back;set[1].m.map=p.front;set[0].m.needsUpdate=set[1].m.needsUpdate=true;}}}
-  const cx=camera.position.x*(scene.scale.x<0?-1:1),cz=camera.position.z;for(const tr of trees){const o=tr.m;if(!o||!o.__tl)continue;const vis=TLAY.show&&!tr.fade&&o.material===o.__l2.v.m&&Math.hypot(tr.x-cx,tr.z-cz)>6;for(const c of o.__tl)c.visible=vis;}}
-TLAY.set=function(on){this.show=on;treeLayersTick();};
-if(TLAY.on){treeLayersApply();(function TL(){treeLayersTick();requestAnimationFrame(TL);})();}
-if(LAB.start)setTimeout(()=>LAB.toggle(true),600);
-
 // ---------- Roo Road Rescue cars (3d), shared with Quokka Cafe's car dealership ----------
 // The six cars from Roo Road Rescue's garage, copied as they are (fictional names, no real models or logos).
 const RRR=(()=>{
@@ -9988,7 +9895,7 @@ SRC[16]=tuft(['#3c5e2c','#5a863a','#86ae52'],16);SRC[17]=tuft(['#76703c','#a29a5
 {const r=mulberry32(919);SRC[19]=canopy(16,9,blobs(r,4,8,5,8,2,3,2),['#6a6a5a','#8a8a72','#a8a88c','#c4c2a8'],r,null);}
 {const r=mulberry32(920);SRC[20]=dots(canopy(16,10,blobs(r,4,8,6,8,2,3.5,2),['#3a5236','#56704a','#76905e','#9ab07a'],r,null),['#c83a3a'],8,1,1,14,7,1,20);}
 SRC[21]=tuft(['#8a6a3a','#b08a4a','#d0b070'],21);
-const NK=SRC.length,SCp=(typeof PLANT3X_ON!=='undefined'&&PLANT3X_ON)?3:2;
+const NK=SRC.length,SCp=2;
 const PAINT=SRC.map((s,i)=>{let img=null,rim=null;try{const P2=plantParse(s);if(P2){const r=plantPaint(P2,0,1000+i*37);img=r.img;rim=r.rim;}}catch(e){img=null;}
   if(!img){img=mkc(s.width*SCp,s.height*SCp);const x=img.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(s,0,0,img.width,img.height);}return{img,rim};});
 const CW=Math.max(...PAINT.map(p=>p.img.width)),CHh=Math.max(...PAINT.map(p=>p.img.height)),ACOL=8,AROW=Math.ceil(NK/ACOL);
@@ -12113,89 +12020,6 @@ return{open(from){const t=TOWNS.find(t=>t.id===from);let x,z;if(from==='island'|
   close(){OPEN=false;for(const k in keys)keys[k]=0;}};
 
 }
-// ---------- Cinematic (Look Lab ?lab or ?cine until CINE_LIVE) ----------
-// A miniature-diorama camera: depth of field from the real depth (leaves near the lens melt into soft green,
-// the far streets go soft, Kip stays sharp), sun shafts, dappled light under the trees, warm haze in the distance,
-// split-tone grade, and pixel branches that frame the shot when Kip walks among trees.
-var CINEMA={on:CINE_ON,ready:false,k:0};
-function cineInit(){CINEMA.ready=true;
-  const mat=new THREE.ShaderMaterial({uniforms:Object.assign({},post.uniforms,{tDepth:{value:rt.depthTexture},near:{value:camera.near},far:{value:camera.far},focusD:{value:14},
-      invProj:{value:new THREE.Matrix4()},camW:{value:new THREE.Matrix4()},time:{value:0},sunUv:{value:new THREE.Vector2(-.2,1.3)},tTree:{value:null},tb:{value:new THREE.Vector4(0,0,1,1)},mir:{value:1},cineK:{value:1},night:{value:0}}),
-    vertexShader:post.vertexShader,
-    fragmentShader:[
-    'uniform sampler2D tDiffuse;uniform sampler2D tDepth;uniform sampler2D tTree;uniform vec2 res;uniform vec3 tint;uniform float focus;uniform float px;uniform float fade;uniform float bloomK;uniform float blurK;',
-    'uniform float near;uniform float far;uniform float focusD;uniform mat4 invProj;uniform mat4 camW;uniform float time;uniform vec2 sunUv;uniform vec4 tb;uniform float mir;uniform float cineK;uniform float night;varying vec2 vUv;',
-    'float vz(vec2 uv){float d=texture2D(tDepth,uv).x;float z=d*2.-1.;return 2.*near*far/(far+near-z*(far-near));}',
-    'float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}',
-    'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}',
-    'vec3 disc(vec2 uv,float r){vec3 a=vec3(0.);for(int i=0;i<16;i++){float fi=float(i);float ang=fi*2.39996;float rr=sqrt((fi+.5)/16.)*r;a+=texture2D(tDiffuse,uv+vec2(cos(ang),sin(ang))*rr/res).rgb;}return a/16.;}',
-    'void main(){vec3 base=texture2D(tDiffuse,vUv).rgb;vec2 tq=1.5/res;vec3 bl0=(texture2D(tDiffuse,vUv+tq).rgb+texture2D(tDiffuse,vUv-tq).rgb+texture2D(tDiffuse,vUv+vec2(tq.x,-tq.y)).rgb+texture2D(tDiffuse,vUv+vec2(-tq.x,tq.y)).rgb)*.25;base+=(base-bl0)*.3;float d=texture2D(tDepth,vUv).x;float z=vz(vUv);',
-    // depth of field: strong in front of the focus (leaves by the lens), gentle behind it, plus a little of the old tilt-shift
-    ' float fg=smoothstep(focusD*.12,focusD*.62,focusD-z);float bg=smoothstep(focusD*.22,focusD*1.4,z-focusD);if(d>.99999)bg=1.;',
-    ' float tilt=smoothstep(.25,.7,abs(vUv.y-focus))*.35;float b=clamp(max(fg*1.15,max(bg*.8,tilt))*blurK,0.,1.2);',
-    ' vec3 col=base;if(b>.02)col=mix(base,disc(vUv,(fg>bg?13.:7.)*b*px),min(1.,b*1.15));',
-    // world position from depth: dappled light under the canopy, warm haze far away
-    ' vec4 vp=invProj*vec4(vUv*2.-1.,d*2.-1.,1.);vp/=vp.w;vec4 wp=camW*vp;vec2 xz=vec2(wp.x*mir,wp.z);',
-    ' if(d<.99999&&wp.y<.45){float tm=texture2D(tTree,(xz-tb.xy)/tb.zw).r;float n=vn(xz*1.15+vec2(time*.18,time*.07))*.65+vn(xz*2.7-vec2(time*.11,0.))*.35;',
-    '   float spot=smoothstep(.56,.7,n);float shade=mix(.58,1.18,spot);col*=mix(1.,shade,min(1.,tm*1.3)*cineK*(1.-night));col+=vec3(.14,.1,.02)*spot*min(1.,tm*1.3)*cineK*(1.-night)*.5;}',
-    ' float haze=smoothstep(focusD*1.3,focusD*3.2,z)*(d>.99999?.0:1.);col=mix(col,mix(vec3(.96,.84,.66),vec3(.32,.3,.5),night),haze*.14*cineK);',
-    // bloom
-    ' vec3 wide=disc(vUv,15.*px);col+=max(wide-vec3(.6),0.)*1.15*bloomK;',
-    // sun shafts: bright pixels smeared toward the sun
-    ' vec2 dl=(sunUv-vUv)/22.;vec2 uv2=vUv;float il=1.,acc=0.;for(int i=0;i<22;i++){uv2+=dl;vec3 s=texture2D(tDiffuse,clamp(uv2,0.,1.)).rgb;float l2=max(dot(s,vec3(.3,.59,.11))-.86,0.);acc+=l2*il;il*=.92;}',
-    ' col+=vec3(1.,.8,.48)*acc*.22*cineK*(1.-night);',
-    // grade: warm highlights, teal-green shadows, soft contrast, vignette
-    ' col*=tint*.97;float l=dot(col,vec3(.299,.587,.114));col=mix(vec3(l),col,1.1);col=(col-.5)*1.12+.5;',
-    ' col=mix(col*vec3(.86,.98,1.04),col*vec3(1.07,1.,.88),smoothstep(.12,.75,l));',
-    ' vec2 q=vUv-.5;col*=1.-dot(q,q)*1.15;col=mix(col,vec3(.05,.06,.12),fade);gl_FragColor=vec4(col,1.);}'].join('\n'),depthTest:false,depthWrite:false});
-  CINEMA.mat=mat;CINEMA.old=postScene.children[0].material;
-  // where the trees are: a soft canopy map in world units
-  const T=BB.filter(m=>m.geometry&&m.geometry.parameters&&m.geometry.parameters.height>2.2);let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;
-  T.forEach(m=>{x0=Math.min(x0,m.position.x);x1=Math.max(x1,m.position.x);z0=Math.min(z0,m.position.z);z1=Math.max(z1,m.position.z);});
-  if(!T.length){x0=-10;x1=10;z0=-10;z1=10;}x0-=8;x1+=8;z0-=8;z1+=8;const W=Math.min(2048,Math.ceil(x1-x0)),H=Math.min(512,Math.ceil(z1-z0)),sx=W/(x1-x0),sz=H/(z1-z0);
-  const A=new Float32Array(W*H);T.forEach(m=>{const r=Math.max(1.6,m.geometry.parameters.width*.55*Math.abs(m.scale.x||1)),cx=(m.position.x-x0)*sx,cz=(m.position.z-z0)*sz;
-    for(let j=Math.floor(cz-r*sz);j<=cz+r*sz;j++)for(let i=Math.floor(cx-r*sx);i<=cx+r*sx;i++){if(i<0||j<0||i>=W||j>=H)continue;const dd=Math.hypot((i-cx)/sx,(j-cz)/sz)/r;if(dd<1)A[j*W+i]+=(1-dd*dd)*.9;}});
-  const D=new Uint8Array(W*H);for(let i=0;i<W*H;i++)D[i]=Math.min(255,A[i]*255);
-  const tt=new THREE.DataTexture(D,W,H,THREE.LuminanceFormat,THREE.UnsignedByteType);tt.magFilter=tt.minFilter=THREE.LinearFilter;tt.needsUpdate=true;
-  mat.uniforms.tTree.value=tt;mat.uniforms.tb.value.set(x0,z0,x1-x0,z1-z0);CINEMA.treeAt=(x,z)=>{const i=Math.floor((x-x0)*sx),j=Math.floor((z-z0)*sz);return i<0||j<0||i>=W||j>=H?0:Math.min(1,A[j*W+i]);};
-  // pixel branches that hang into the corners of the frame
-  const leafCv=(kind)=>{const c=mk(96,64),x=c.getContext('2d');const P=kind?['#24461e','#2e5826','#3a6a2e','#487e36','#5a9240','#6ea64c']:['#2c4a26','#3e5a2a','#4e6e34','#5e823e','#729648','#86aa56'];
-    x.strokeStyle='#4a3424';x.lineWidth=3;x.beginPath();x.moveTo(96,6);x.quadraticCurveTo(52,10,6,46);x.stroke();x.lineWidth=2;x.beginPath();x.moveTo(60,12);x.quadraticCurveTo(44,30,40,58);x.stroke();
-    let s=kind?77:31;const rnd=()=>(s=(s*16807)%2147483647)/2147483647;
-    for(let k=0;k<240;k++){const t=rnd();const bx=96-t*90,by=6+t*t*40+(rnd()-.5)*10;const sh=Math.floor(rnd()*P.length);x.fillStyle=P[sh];
-      if(kind){x.fillRect(bx|0,by|0,2+(rnd()*3|0),2);}else{x.save();x.translate(bx,by);x.rotate(.6+rnd()*.8);x.fillRect(0,0,7,2);x.restore();}}
-    for(let k=0;k<90;k++){const t=rnd();x.fillStyle=P[2+(k%3)];x.fillRect(40+(rnd()-.5)*16|0,14+t*42|0,3,2);}return c;};
-  CINEMA.leaves=[0,1,0].map((k,i)=>{const t=new THREE.CanvasTexture(leafCv(k));t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;
-    const m=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:t,color:new THREE.Color(.78,.86,.7),alphaTest:.5,side:THREE.DoubleSide,fog:false}));m.renderOrder=5;m.frustumCulled=false;scene.add(m);m.userData.slot=i;return m;});
-  // a button to compare
-  const b=document.createElement('button');b.type='button';b.id='cineBtn';b.textContent='Cinematic: on';b.style.cssText='position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:60;font:700 13px "Pixelify Sans",monospace;background:rgba(20,26,46,.82);color:#ffd34d;border:2px solid #3a4670;border-radius:8px;padding:7px 10px';
-  b.onclick=()=>{CINEMA.on=!CINEMA.on;b.textContent='Cinematic: '+(CINEMA.on?'on':'off');if(!CINEMA.on){postScene.children[0].material=CINEMA.old;CINEMA.leaves.forEach(l=>l.visible=false);}};document.body.appendChild(b);
-}
-const _cv=new THREE.Vector3(),_cr=new THREE.Vector3(),_cu=new THREE.Vector3(),_cf=new THREE.Vector3();
-function cineTick(){if(!rt.depthTexture)return;if(!CINEMA.ready)cineInit();const u=CINEMA.mat.uniforms,p=post.uniforms;
-  // Rottnest first: other towns keep the current camera for now
-  if(!CINEMA.on||zoneOf(player.x)!=='island'){postScene.children[0].material=CINEMA.old;CINEMA.leaves.forEach(l=>l.visible=false);return;}
-  postScene.children[0].material=CINEMA.mat;
-  ['tint','focus','px','fade','bloomK','blurK','res'].forEach(k=>{u[k].value=p[k].value;});
-  camera.updateMatrixWorld();u.invProj.value.copy(camera.projectionMatrixInverse);u.camW.value.copy(camera.matrixWorld);u.near.value=camera.near;u.far.value=camera.far;u.mir.value=MIR?-1:1;
-  u.time.value=performance.now()/1000;
-  const tx=MIR?-camTarget.x:camTarget.x;_cv.set(tx,.8,camTarget.z);u.focusD.value=camera.position.distanceTo(_cv);
-  // the sun's place on screen (or just off it), for the shafts
-  _cv.copy(sun.position).sub(sun.target.position).normalize().multiplyScalar(60).add(camera.position);_cv.project(camera);
-  u.sunUv.value.set(Math.max(-.6,Math.min(1.6,(_cv.x+1)/2)),Math.max(-.2,Math.min(1.8,(_cv.y+1)/2)));if(_cv.z>1)u.sunUv.value.set(.1,1.5);
-  const tm=typeof S!=='undefined'&&S.time!=null?((S.time%1440)+1440)%1440:720,nt=tm<370||tm>1150?1:0;u.night.value+=(nt-u.night.value)*.05;
-  // frame the shot with branches when Kip is under the trees
-  const want=Math.min(1,(CINEMA.treeAt(camTarget.x,camTarget.z)+CINEMA.treeAt(camTarget.x+3,camTarget.z+3)+CINEMA.treeAt(camTarget.x-3,camTarget.z+2))*.9);CINEMA.k+=(want-CINEMA.k)*.03;
-  _cf.set(0,0,-1).applyQuaternion(camera.quaternion);_cr.set(1,0,0).applyQuaternion(camera.quaternion);_cu.set(0,1,0).applyQuaternion(camera.quaternion);
-  const hh=Math.tan(camera.fov*Math.PI/360),ww=hh*camera.aspect,t=u.time.value,D0=3.2;
-  const SL=[[-1,1,1.0,.0],[1,1,.9,1.1],[1,-.62,.75,2.3]];
-  CINEMA.leaves.forEach((m,i)=>{const [sx,sy,sc,ph]=SL[i];const vis=CINEMA.k>.25;m.visible=vis;if(!vis)return;const out=(1-CINEMA.k)*.6;
-    const ex=sx*(ww*D0)*(.62+out)+Math.sin(t*.7+ph)*.05,ey=sy*(hh*D0)*(.66+out)+Math.sin(t*.9+ph)*.04;
-    _cv.copy(camera.position).addScaledVector(_cf,D0).addScaledVector(_cr,ex).addScaledVector(_cu,ey);if(MIR)_cv.x=-_cv.x;
-    m.position.copy(_cv);m.quaternion.copy(camera.quaternion);if(MIR){m.quaternion.y=-m.quaternion.y;m.quaternion.z=-m.quaternion.z;}
-    const s2=hh*D0*sc*1.25;m.scale.set((sx<0?-1:1)*s2*1.5*(MIR?-1:1),s2,1);m.rotation.z+=Math.sin(t*.8+ph)*.02;});
-}
-
 // ---------- REF (Look Lab ?lab or ?ref, Paul's photos, Oct 2026): Perth Station's heritage front, Victoria Park's shop strip,
 // a Thai garden restaurant in an old cottage, a grand old hotel, brick townhouses with balconies, red bike lanes and
 // weeping peppermints in the suburbs, and more detail on Fremantle's prison and station. Names are fictional.
@@ -18235,7 +18059,7 @@ function pxbSig(m){if(Array.isArray(m))return m.map(pxbSig).join(',');if(!m)retu
 // only (a Set of meshes): the same pass for just those meshes, after a save changed them (pxbCatchUp, HOME4); the builders do not run again
 function pxbScene(only){pxbScene.done=true;const T0=performance.now();const SUB=!!only,TR=SUB?f=>only.forEach(f):f=>scene.traverse(f);
   if(!SUB){if(SP2_ON)try{spBuild_sky();}catch(e){console.error(e);}try{pxDeclutter();}catch(e){console.error(e);}if(SEA2_ON)try{sea2Build();}catch(e){console.error(e);}try{pxFixDiamonds();}catch(e){console.error(e);}try{pxbLaneClear();}catch(e){console.error(e);}if(TOWN2_ON)try{town2Thin();}catch(e){console.error(e);}if(TOWN2_ON)try{// the old terrace rows' gable ends were left standing as white triangles where town2 rebuilt the cottages
-  scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isMesh&&o.parent&&o.parent.name==='freoDetail'&&o.geometry&&o.geometry.type==='PlaneGeometry'){const B=new THREE.Box3().setFromObject(o),c=scene.worldToLocal(B.getCenter(new THREE.Vector3())),sz=B.getSize(new THREE.Vector3());if(sz.y>2.5&&Math.max(sz.x,sz.z)<3&&Math.min(sz.x,sz.z)<.05&&c.x>270&&c.x<358&&(Math.abs(c.z-27.2)<.6||Math.abs(c.z-39.6)<.6))o.visible=false;}});}catch(e){}if(HDR_ON)try{hdRottBuild();}catch(e){console.error(e);}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}}
+  scene.updateMatrixWorld(true);scene.traverse(o=>{if(o.isMesh&&o.parent&&o.parent.name==='freoDetail'&&o.geometry&&o.geometry.type==='PlaneGeometry'){const B=new THREE.Box3().setFromObject(o),c=scene.worldToLocal(B.getCenter(new THREE.Vector3())),sz=B.getSize(new THREE.Vector3());if(sz.y>2.5&&Math.max(sz.x,sz.z)<3&&Math.min(sz.x,sz.z)<.05&&c.x>270&&c.x<358&&(Math.abs(c.z-27.2)<.6||Math.abs(c.z-39.6)<.6))o.visible=false;}});}catch(e){}if(BLD3_ON){try{pxbBuild_kingstown();}catch(e){console.error(e);}try{pxbBuild_perthstn();}catch(e){console.error(e);}try{pxbBuild_freohotel();}catch(e){console.error(e);}}if(WEL4_ON)try{wel4Build();}catch(e){console.error(e);}if(VP2_ON)try{vp2Build();}catch(e){console.error(e);}}
   else{const gs=k=>scene.children.filter(g=>g.isGroup&&g.visible&&!(k.seen&&k.seen.has(g)));try{pxDeclutter(gs(pxDeclutter));}catch(e){console.error(e);}try{pxFixDiamonds(only);}catch(e){console.error(e);}try{pxbLaneClear(gs(pxbLaneClear));}catch(e){console.error(e);}}
   const V=new THREE.Vector3(),Q=new THREE.Quaternion(),SC=new THREE.Vector3(),B=new THREE.Box3();scene.updateMatrixWorld(true);
   if(!SUB){const R=pxbScene.orig=new Map();scene.traverse(o=>{if(o.isMesh)R.set(o,{m:o.material,v:o.visible});});}
@@ -18496,29 +18320,6 @@ function tex3Scene(){tex3Scene.done=true;const V3=new THREE.Vector3(),cache=new 
     g.setAttribute('color',new THREE.BufferAttribute(col,3));o.geometry=g;o.material=mc;walls++;});
   tex3Scene.stats={walls,cars};}
 
-// ---------- HD pixel set on Rottnest only (Look Lab ?hd or ?lab, Paul Nov 2026; HDR_LIVE turns it on for everyone) ----------
-// From the shared library (part 111b, PPL.hd): Settlement cottages become HD limestone cottages (same size, colours and spot),
-// limestone outcrops get a mossy pixel-limestone skin. ?hdtrees also swaps island trees and bushes for the HD 3D trees, only to
-// compare: the standing art rule keeps plants as sprites until Paul decides.
-const HDR_LIVE=false;const HDR_ON=HDR_LIVE||/[?&#](hd|lab)\b/.test(location.search+location.hash);const HDT_ON=/[?&#]hdtrees\b/.test(location.search+location.hash);
-function hdRottBuild(){if(hdRottBuild.done||!window.PPL||!PPL.hd)return;hdRottBuild.done=true;const T0=performance.now();PPL.hdMode({srgb:false,lambert:true});
-  const st={cottages:0,rocks:0,trees:0,bushes:0};const skip=o=>o.traverse(x=>{x.__pxSkip=1;});
-  const glow=g=>g.traverse(o=>{if(o.isMesh)[].concat(o.material).forEach(m=>{if(m.emissiveMap&&!m.__hdg){m.__hdg=1;m.__dim=.9;PXB_GLOW.push(m);}});});
-  const isl=o=>o.position.x<=100;// zoneOf(): x <= 100 is Rottnest
-  // 1. cottages: a group with the 3 x 1.9 x 2.4 wall box and the three-sided roof prism
-  const cots=[];scene.children.forEach(g=>{if(!g.isGroup||!g.visible||!isl(g))return;let w=null,r=null;g.children.forEach(c=>{const p=c.geometry&&c.geometry.parameters;if(!p)return;
-    if(c.geometry.type==='BoxGeometry'&&p.width===3&&p.height===1.9&&p.depth===2.4)w=c;if(c.geometry.type==='CylinderGeometry'&&p.radialSegments===3&&p.radiusTop===1.75)r=c;});if(w&&r)cots.push({g,w,r});});
-  cots.forEach(({g,w,r},i)=>{const hx=m=>'#'+m.material.color.getHexString();const h=PPL.hd('hd-cottage',{w:3,d:2.4,h:1.9,c:hx(w),roof:hx(r),seed:13+i,doorAt:.64,lamp:false});
-    h.position.copy(g.position);h.rotation.y=g.rotation.y;h.name='hdCottage';scene.add(h);skip(h);glow(h);skip(g);g.visible=false;st.cottages++;});
-  // 2. limestone outcrops keep their shapes, get a mossy pixel limestone skin
-  if(typeof limeMat!=='undefined'){const RM=new Map([[limeMat,PPL.hdRockMat(12,'#e6dbc2')],[limeDark,PPL.hdRockMat(21,'#c8b898')]]);
-    scene.traverse(o=>{if(o.isMesh&&RM.has(o.material)&&isl(o)){o.material=RM.get(o.material);o.__pxSkip=1;st.rocks++;}});}
-  // 3. ?hdtrees: HD gum trees and flowering bushes in place of the island's leafy tree and bush sprites (pines stay)
-  if(HDT_ON){const tpl=[1,2,3,4].map(s=>{const g=PPL.hd('hd-gum',{seed:s});skip(g);return g;}),btpl=[1,2].map(s=>{const g=PPL.hd('hd-bush',{seed:s+7});skip(g);return g;});
-    const put=(src,from,H0)=>{const p=from.geometry.parameters,H=p.height||1;const c=src.clone();c.scale.setScalar(H/H0);c.position.set(from.position.x,0,from.position.z);c.rotation.y=(from.position.x*7.3+from.position.z*3.1)%6.283;scene.add(c);from.visible=false;from.__hdHide=1;return c;};
-    trees.forEach((t,i)=>{if(!t.m||!t.m.visible||!isl(t.m)||t.v===treeVariants[3])return;put(tpl[i%4],t.m,8.6);st.trees++;});
-    const bm=new Set(bushVariants.map(v=>v.m));scene.children.forEach((o,i)=>{if(o.isMesh&&bm.has(o.material)&&o.visible&&isl(o)){put(btpl[i%2],o,1.25);st.bushes++;}});}
-  st.ms=Math.round(performance.now()-T0);hdRottBuild.stats=st;}
 // ---------- Account, cloud save, world ranking and the Quokka Shop (moved over from Magpie Madness, Paul Nov 2026) ----------
 // Look Lab ?acct or ?lab until ACCT_LIVE is true. Needs supabase/qc_accounts_rank_shop.sql run once and Google sign-in turned on in Supabase.
 // Sign-in uses Supabase Auth over plain fetch (no library): Google -> back to the game with tokens in the address hash.
@@ -18542,7 +18343,7 @@ function premGrant(k){const p=premList();p[k]=true;try{localStorage.setItem('qc-
 // 5 x 4 grid with a gate; the tank, sign and the café plans board stand just outside the new fence. Saves keep working:
 // plots are by index, the first 6 keep their crops, beds 7-20 start empty.
 const GARDEN_MEADOW_LIVE=false;
-const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||/[?&#]toon\b/.test(location.search+location.hash),to:null,beds:20};
+const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||TOON_ON,to:null,beds:20};
 (function(){if(!GARDEN_MEADOW.on)return;
   const COLS=5,ROWS=4,SX=2.1,SZ=2.5,FW=COLS*SX/2+.7,FD=ROWS*SZ/2+.9;
   const run=()=>{
@@ -18613,7 +18414,7 @@ const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||/[?&#]toon\b/.test(location.search+l
 // Light: deeper blue shade under trees and buildings. People and animals take the shade when they walk under a tree.
 // Rottnest only for now (Paul approves before other maps). Not swapped yet: palms, grass tufts, plants built later on demand (trip maps, outer world).
 const TREE3D_LIVE=false;
-const TREE3D={pos:[],on:TREE3D_LIVE||/[?&#](tree3d|toon)\b/.test(location.search+location.hash),t:{value:0},n:0,cards:0,meshes:[],skipped:{}};
+const TREE3D={pos:[],on:TREE3D_LIVE||(TOON_ON||/[?&#]tree3d\b/.test(location.search+location.hash)),t:{value:0},n:0,cards:0,meshes:[],skipped:{}};
 (function(){if(!TREE3D.on)return;
   const V=(x,y,z)=>new THREE.Vector3(x,y,z),UP=V(0,1,0);
   // shared wind; leaf cards keep the light of their side of the crown on both faces
@@ -18758,7 +18559,7 @@ const TREE3D={pos:[],on:TREE3D_LIVE||/[?&#](tree3d|toon)\b/.test(location.search
 // where it walks and swings arms and legs (quokkas hop). The pixel sprite stays in the scene, unseen, so clicks and story code
 // keep working; off Rottnest the sprite shows again. One mesh + one outline per character (limbs bend in the vertex shader).
 const TOON_LIVE=false;
-const TOON={on:TOON_LIVE||/[?&#]toon\b/.test(location.search+location.hash),list:[]};
+const TOON={on:TOON_LIVE||TOON_ON,list:[]};
 (function(){if(!TOON.on)return;
   const V=(x,y,z)=>new THREE.Vector3(x,y,z),ZV=V(0,0,0);
   const grad=(()=>{const d=new Uint8Array([88,88,96,255,168,168,172,255,255,255,255,255]);const t=new THREE.DataTexture(d,3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;})();
@@ -18837,7 +18638,7 @@ const TOON={on:TOON_LIVE||/[?&#]toon\b/.test(location.search+location.hash),list
 // 2. Every pixel skin on Rottnest (buildings, props, roads, signs, the café) is drawn smooth instead of in hard pixels.
 // Other maps are untouched (materials are copied for the island, never changed in place).
 const PAINT_LIVE=false;
-const PAINT={on:PAINT_LIVE||/[?&#]toon\b/.test(location.search+location.hash),ground:0,mats:0};
+const PAINT={on:PAINT_LIVE||TOON_ON,ground:0,mats:0};
 (function(){if(!PAINT.on)return;
   const isl=o=>{try{const v=new THREE.Vector3();o.getWorldPosition(v);scene.worldToLocal(v);if(o.isInstancedMesh&&o.count){const e=o.instanceMatrix.array;v.x=e[12];}return zoneOf(v.x)==='island';}catch(e){return false;}};
   // ---- 1. painted ground ----
@@ -18892,7 +18693,7 @@ const PAINT={on:PAINT_LIVE||/[?&#]toon\b/.test(location.search+location.hash),gr
 // sand and fade. On the land side a damp darker band of wet sand follows the waterline. It reads the island's own distance-to-shore
 // grid (Dg), so every bay, reef edge and jetty keeps its shape. Other maps keep their water.
 const SEA3_LIVE=false;
-const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),built:false};
+const SEA3={on:SEA3_LIVE||TOON_ON,built:false};
 (function(){if(!SEA3.on)return;
   const SR=c=>{const k=new THREE.Color(c);k.convertSRGBToLinear();return `vec3(${k.r.toFixed(4)},${k.g.toFixed(4)},${k.b.toFixed(4)})`;};
   const NOISE=`float s3h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -18950,7 +18751,7 @@ const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),buil
 // blue glass and a flower box on the ground floor, a timber door on one long face, a pale cornice; roofs get rows of tiles
 // (terracotta orange for red and brown roofs). Same shapes, same places. Other maps keep the pixel kit.
 const BSMOOTH_LIVE=false;
-const BSMOOTH={on:BSMOOTH_LIVE||/[?&#]toon\b/.test(location.search+location.hash),walls:0,roofs:0};
+const BSMOOTH={on:BSMOOTH_LIVE||TOON_ON,walls:0,roofs:0};
 (function(){if(!BSMOOTH.on)return;
   const PU=56;// canvas pixels per unit
   const C=h=>new THREE.Color(h),hx=c=>'#'+c.getHexString();
@@ -19010,7 +18811,7 @@ const BSMOOTH={on:BSMOOTH_LIVE||/[?&#]toon\b/.test(location.search+location.hash
 // camera fills with them, in 8-unit chunks that are built as the camera moves and dropped when it is far (one instanced mesh per
 // chunk). Never on paths, roads, sand, the bike lane or inside a building's footprint. Other maps are untouched.
 const MEADOW_LIVE=false;
-const MEADOW={on:MEADOW_LIVE||/[?&#]toon\b/.test(location.search+location.hash),chunks:new Map(),n:0};
+const MEADOW={on:MEADOW_LIVE||TOON_ON,chunks:new Map(),n:0};
 (function(){if(!MEADOW.on)return;
   const CS=8,RAD=30,DENS=2.2;
   function tuftTex(flowers){const c=mk(64,64),g=c.getContext('2d'),r=mulberry32(flowers?7:3);
@@ -19058,7 +18859,7 @@ const MEADOW={on:MEADOW_LIVE||/[?&#]toon\b/.test(location.search+location.hash),
 // ledge, warm bands low down, a pale top, moss on the up-facing parts and a pitted surface, sunk a little into the ground with a
 // darker damp ring. Same spot, size and turn as each old rock. Other maps keep theirs.
 const ROCK3_LIVE=false;
-const ROCK3={on:ROCK3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),n:0};
+const ROCK3={on:ROCK3_LIVE||TOON_ON,n:0};
 (function(){if(!ROCK3.on)return;
   const rn=(x,y,z,k)=>Math.sin(x*1.7+k)*Math.sin(y*2.3+k*.7)*Math.sin(z*1.9+k*1.3)+.5*Math.sin(x*4.1+z*3.3+k)*Math.sin(y*3.7+k*2.1);
   const C={top:new THREE.Color('#e2d3b0'),mid:new THREE.Color('#c9b088'),band:new THREE.Color('#b5824f'),low:new THREE.Color('#7a6448'),moss:new THREE.Color('#5f7a34')};
@@ -19091,7 +18892,7 @@ if(/[?&#]fps\b/.test(location.search+location.hash)){const d=document.createElem
 // follows it: butterflies flap painted wings in their own colours, gulls glide with grey wings and black tips, cyclists ride a
 // real bike with turning wheels and pedalling legs. Heading comes from how each one moves. Off Rottnest the sprites show again.
 const CRIT3_LIVE=false;
-const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),list:[]};
+const CRIT3={on:CRIT3_LIVE||TOON_ON,list:[]};
 (function(){if(!CRIT3.on)return;
   const grad=(()=>{const d=new Uint8Array([110,110,120,255,190,190,196,255,255,255,255,255]);const t=new THREE.DataTexture(d,3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;})();
   const TM=(c,o)=>new THREE.MeshToonMaterial(Object.assign({color:c,gradientMap:grad},o||{}));
@@ -19156,7 +18957,7 @@ const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),li
 // Paul (Nov 2026, from his photo): a grey timber boardwalk with post-and-rail sides runs from the path by THE BASIN sign
 // to a lookout platform at the top of the dune, then steps down onto the sand of the bay.
 const BASIN_LIVE=false;
-const BASIN={on:BASIN_LIVE||/[?&#]toon\b/.test(location.search+location.hash)};
+const BASIN={on:BASIN_LIVE||TOON_ON};
 (function(){if(!BASIN.on)return;
   function build(){const S0=IW(19.5,-8.4),B=IW(20,-12.8);let sx=S0.x,sz=S0.z;
     // walk from the sign towards the bay until the sand (landD ~ .5)
@@ -19186,7 +18987,7 @@ const BASIN={on:BASIN_LIVE||/[?&#]toon\b/.test(location.search+location.hash)};
 // ---------- Nothing built on the island railway (Look Lab: ?toon) ----------
 // Paul (Nov 2026): a green-roofed building stood on the rails by the station. Any building wall that the track runs through, and
 // the roof above it, is taken away (Rottnest only; the train, platforms and rails themselves stay).
-const RAILCLR={on:/[?&#]toon\b/.test(location.search+location.hash),n:0};
+const RAILCLR={on:TOON_ON,n:0};
 (function(){if(!RAILCLR.on)return;
   function run(){if(typeof WEST==='undefined'||!WEST.rail||WEST.rail.length<2)return;const R=WEST.rail,pts=[];for(let k=1;k<R.length;k++){const a=R[k-1],b=R[k],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/.3));for(let i=0;i<=n;i++)pts.push([a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n]);}
     scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert(),B=new THREE.Box3(),hits=[];
@@ -19203,7 +19004,7 @@ const RAILCLR={on:/[?&#]toon\b/.test(location.search+location.hash),n:0};
 // ---------- On Rottnest only Rottnest shows (Look Lab: ?toon) ----------
 // Paul (Nov 2026): from the island's west end the South Perth map showed across the water. The other maps are laid out east of
 // x = 99.5 in the same scene; while the camera is on the island, everything that lies wholly there is hidden, and the sea fills the view.
-(function(){if(!/[?&#]toon\b/.test(location.search+location.hash))return;let L=null,state=null;
+(function(){if(!TOON_ON)return;let L=null,state=null;
   function list(){L=[];const B=new THREE.Box3();scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();
     const take=(o,deep)=>{if(o.isLight||o.isCamera||o.name==='sea3'||o.name==='sea3band')return;try{B.setFromObject(o);B.applyMatrix4(inv);}catch(e){return;}if(B.isEmpty())return;/* scene space: the island is drawn mirrored */
       if(B.min.x>=97.5){L.push(o);return;}if(B.max.x>99&&deep<2&&o.children.length)o.children.forEach(c=>take(c,deep+1));};

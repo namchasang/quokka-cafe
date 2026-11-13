@@ -76,7 +76,7 @@ SRC[16]=tuft(['#3c5e2c','#5a863a','#86ae52'],16);SRC[17]=tuft(['#76703c','#a29a5
 {const r=mulberry32(919);SRC[19]=canopy(16,9,blobs(r,4,8,5,8,2,3,2),['#6a6a5a','#8a8a72','#a8a88c','#c4c2a8'],r,null);}
 {const r=mulberry32(920);SRC[20]=dots(canopy(16,10,blobs(r,4,8,6,8,2,3.5,2),['#3a5236','#56704a','#76905e','#9ab07a'],r,null),['#c83a3a'],8,1,1,14,7,1,20);}
 SRC[21]=tuft(['#8a6a3a','#b08a4a','#d0b070'],21);
-const NK=SRC.length,SCp=(typeof PLANT3X_ON!=='undefined'&&PLANT3X_ON)?3:2;
+const NK=SRC.length,SCp=2;
 const PAINT=SRC.map((s,i)=>{let img=null,rim=null;try{const P2=plantParse(s);if(P2){const r=plantPaint(P2,0,1000+i*37);img=r.img;rim=r.rim;}}catch(e){img=null;}
   if(!img){img=mkc(s.width*SCp,s.height*SCp);const x=img.getContext('2d');x.imageSmoothingEnabled=false;x.drawImage(s,0,0,img.width,img.height);}return{img,rim};});
 const CW=Math.max(...PAINT.map(p=>p.img.width)),CHh=Math.max(...PAINT.map(p=>p.img.height)),ACOL=8,AROW=Math.ceil(NK/ACOL);

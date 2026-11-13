@@ -1,7 +1,5 @@
-// ---------- HD trees and bushes (Look Lab layer: ?lab or ?trees until TREES_HD_LIVE is true) ----------
+// ---------- trees and bushes: the HD canopy painter (used by every plant) and where the island trees stand ----------
 // Twice the pixels, seven shades per tree with ordered dithering, leaf clumps, sky gaps, a sunlit rim, bark with branches, and a gentle sway in the wind.
-const TREES_HD_LIVE=false;
-const TREES_HD={on:false,live:false,t:{value:0},sets:[]};
 function canopyHD(W,H,blobs,pal,r,trunk){const c=mk(W,H),x=c.getContext('2d');const B=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
   const hash=(a,b)=>{let h=(a*374761393+b*668265263+77)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967295;};
   const vnoise=(px,py,s)=>{const gx=Math.floor(px/s),gy=Math.floor(py/s),fx=px/s-gx,fy=py/s-gy;const a=hash(gx,gy),b=hash(gx+1,gy),c2=hash(gx,gy+1),d=hash(gx+1,gy+1);const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return a+(b-a)*u+(c2-a)*v+(a-b-c2+d)*u*v;};
@@ -30,15 +28,6 @@ function canopyHD(W,H,blobs,pal,r,trunk){const c=mk(W,H),x=c.getContext('2d');co
   // a few blossoms or berries for some trees
   return c;}
 const TREE_PAL=[['#16301f','#1f4129','#2a5634','#3a6e40','#4f8a4b','#6fa65a','#a3cc78'],['#1d301a','#2a4722','#3b602c','#507b36','#6a9741','#8db455','#c1d985'],['#16302c','#203f36','#2c5541','#3e6d4b','#578a57','#7aa66a','#a9c98e']];
-(function(){if(!TREES_HD.on)return;
-  treeVariants.slice(0,3).forEach((v,vi)=>{const r=mulberry32(900+vi);const blobs=[];for(let i=0;i<11;i++)blobs.push([32+(r()-.5)*30,25+(r()-.5)*20,10+r()*9]);blobs.push([32,14,11]);
-    const c=canopyHD(64,88,blobs,TREE_PAL[vi],r,[28,46,8]);TREES_HD.sets.push({v,old:v.t,hd:ctex(c)});});
-  bushVariants.forEach((v,vi)=>{const r=mulberry32(950+vi);const blobs=[];for(let i=0;i<6;i++)blobs.push([16+(r()-.5)*16,12+(r()-.5)*4,6+r()*4]);const c=canopyHD(32,20,blobs,TREE_PAL[vi+1],r,null);TREES_HD.sets.push({v,old:v.m.map,hd:ctex(c)});});
-  // sway: the top of each tree moves a little, phase by position, shadows follow
-  const sway=m=>{m.onBeforeCompile=sh=>{sh.uniforms.uSway=TREES_HD.t;sh.vertexShader='uniform float uSway;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_MAP\n{float sw=max(0.,uv.y-.35);sw*=sw;vec4 wp=modelMatrix*vec4(0.,0.,0.,1.);transformed.x+=sin(uSway*1.4+wp.x*.7+wp.z*.43)*.16*sw;}\n#endif');};m.customProgramCacheKey=()=>'sway';m.needsUpdate=true;};
-  TREES_HD.sets.forEach(s=>{[s.v.m,s.v.f,s.v.d].forEach(m=>m&&sway(m));});
-  TREES_HD.set=function(on){this.live=on;this.sets.forEach(s=>{const t=on?s.hd:s.old;[s.v.m,s.v.f,s.v.d].forEach(m=>{if(!m)return;m.map=t;if(m.emissiveMap)m.emissiveMap=t;m.needsUpdate=true;});});};
-  TREES_HD.set(true);(function L(){TREES_HD.t.value=performance.now()/1000;requestAnimationFrame(L);})();})();
 const trees=[];const COACH_KEEP=[[71.6,-3.4],[70,-3.4],[73.2,-3.4],[71.6,-1.4],[10.4,-1.8],[22,-6.6],[32.2,-4.6],[59.4,-2.6],[71.2,.8],[89.6,-.6],[14.2,-4.6],[54.6,1.2],[61.4,-2.9]];
 const KEEP=[[-11.5,3.6,2],[24,5,5.4],[6.6,3.4,1.2],[4.6,-8.4,2.8],[-9.3,-.3,4.6],[-13,-.6,1.5],[-4.4,-8.3,2.8],[-.4,-8.5,2.8],[46.5,-4.5,1.8],[19.5,-8.4,1.8],[17.2,-8.6,1.9],[14.5,1.3,1.3],[7.4,2.9,2.2],[6,-1.5,1.4],[17,-6.6,2],[26,-6.2,2],[40.5,1.2,2],[30.8,-2.6,2.2],[HAMMOCK.x,HAMMOCK.z,2.6],[HUT.x,HUT.z,2.8]].concat(LORE.map(L=>[L.x,L.z,2.2]));
 function treeOK(x,z){if(landD(x,z)<1.6||pathD(x,z)<1.5)return false;if(x>-10.5&&x<10.5&&z>-6.2)return false;if(x<49){if(x>3&&x<37&&Math.abs(z)<1.9)return false;

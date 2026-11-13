@@ -1,7 +1,7 @@
 // ---------- Nothing built on the island railway (Look Lab: ?toon) ----------
 // Paul (Nov 2026): a green-roofed building stood on the rails by the station. Any building wall that the track runs through, and
 // the roof above it, is taken away (Rottnest only; the train, platforms and rails themselves stay).
-const RAILCLR={on:/[?&#]toon\b/.test(location.search+location.hash),n:0};
+const RAILCLR={on:TOON_ON,n:0};
 (function(){if(!RAILCLR.on)return;
   function run(){if(typeof WEST==='undefined'||!WEST.rail||WEST.rail.length<2)return;const R=WEST.rail,pts=[];for(let k=1;k<R.length;k++){const a=R[k-1],b=R[k],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/.3));for(let i=0;i<=n;i++)pts.push([a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n]);}
     scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert(),B=new THREE.Box3(),hits=[];

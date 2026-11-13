@@ -3,7 +3,7 @@
 // follows it: butterflies flap painted wings in their own colours, gulls glide with grey wings and black tips, cyclists ride a
 // real bike with turning wheels and pedalling legs. Heading comes from how each one moves. Off Rottnest the sprites show again.
 const CRIT3_LIVE=false;
-const CRIT3={on:CRIT3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),list:[]};
+const CRIT3={on:CRIT3_LIVE||TOON_ON,list:[]};
 (function(){if(!CRIT3.on)return;
   const grad=(()=>{const d=new Uint8Array([110,110,120,255,190,190,196,255,255,255,255,255]);const t=new THREE.DataTexture(d,3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;})();
   const TM=(c,o)=>new THREE.MeshToonMaterial(Object.assign({color:c,gradientMap:grad},o||{}));

@@ -4,7 +4,7 @@
 // camera fills with them, in 8-unit chunks that are built as the camera moves and dropped when it is far (one instanced mesh per
 // chunk). Never on paths, roads, sand, the bike lane or inside a building's footprint. Other maps are untouched.
 const MEADOW_LIVE=false;
-const MEADOW={on:MEADOW_LIVE||/[?&#]toon\b/.test(location.search+location.hash),chunks:new Map(),n:0};
+const MEADOW={on:MEADOW_LIVE||TOON_ON,chunks:new Map(),n:0};
 (function(){if(!MEADOW.on)return;
   const CS=8,RAD=30,DENS=2.2;
   function tuftTex(flowers){const c=mk(64,64),g=c.getContext('2d'),r=mulberry32(flowers?7:3);

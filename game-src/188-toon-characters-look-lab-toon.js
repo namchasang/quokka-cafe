@@ -5,7 +5,7 @@
 // where it walks and swings arms and legs (quokkas hop). The pixel sprite stays in the scene, unseen, so clicks and story code
 // keep working; off Rottnest the sprite shows again. One mesh + one outline per character (limbs bend in the vertex shader).
 const TOON_LIVE=false;
-const TOON={on:TOON_LIVE||/[?&#]toon\b/.test(location.search+location.hash),list:[]};
+const TOON={on:TOON_LIVE||TOON_ON,list:[]};
 (function(){if(!TOON.on)return;
   const V=(x,y,z)=>new THREE.Vector3(x,y,z),ZV=V(0,0,0);
   const grad=(()=>{const d=new Uint8Array([88,88,96,255,168,168,172,255,255,255,255,255]);const t=new THREE.DataTexture(d,3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;})();

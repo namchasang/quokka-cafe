@@ -9,7 +9,7 @@ function col(x1,z1,x2,z2){colliders.push({x1,z1,x2,z2});}
 // Places in a plateau keep their exact layout (the Settlement and café); everything else moves to where it sits
 // on the 2.5x island. Small groups of objects (a sign and its post, a kiosk and its stools) move together.
 // Old coordinates written in code go through IW() to find their new spot.
-const TOON_SAND=/[?&#]toon\b/.test(location.search+location.hash);// ?toon: a damp darker band of wet sand at the waterline (Paul, Nov 2026)
+const TOON_SAND=TOON_ON;// ?toon: a damp darker band of wet sand at the waterline (Paul, Nov 2026)
 const ISL={KX:3,KZ:2,PX:97,PZ:1.7,done:false,cl:[],late:[],plat:[
   {n:'settlement',x:-10,z:1,R:26,T:7}]};
 function isS1(x,z){return[ISL.PX+(x-ISL.PX)*ISL.KX,ISL.PZ+(z-ISL.PZ)*ISL.KZ];}

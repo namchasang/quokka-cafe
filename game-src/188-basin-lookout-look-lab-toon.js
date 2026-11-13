@@ -2,7 +2,7 @@
 // Paul (Nov 2026, from his photo): a grey timber boardwalk with post-and-rail sides runs from the path by THE BASIN sign
 // to a lookout platform at the top of the dune, then steps down onto the sand of the bay.
 const BASIN_LIVE=false;
-const BASIN={on:BASIN_LIVE||/[?&#]toon\b/.test(location.search+location.hash)};
+const BASIN={on:BASIN_LIVE||TOON_ON};
 (function(){if(!BASIN.on)return;
   function build(){const S0=IW(19.5,-8.4),B=IW(20,-12.8);let sx=S0.x,sz=S0.z;
     // walk from the sign towards the bay until the sand (landD ~ .5)

@@ -4,7 +4,7 @@
 // blue glass and a flower box on the ground floor, a timber door on one long face, a pale cornice; roofs get rows of tiles
 // (terracotta orange for red and brown roofs). Same shapes, same places. Other maps keep the pixel kit.
 const BSMOOTH_LIVE=false;
-const BSMOOTH={on:BSMOOTH_LIVE||/[?&#]toon\b/.test(location.search+location.hash),walls:0,roofs:0};
+const BSMOOTH={on:BSMOOTH_LIVE||TOON_ON,walls:0,roofs:0};
 (function(){if(!BSMOOTH.on)return;
   const PU=56;// canvas pixels per unit
   const C=h=>new THREE.Color(h),hx=c=>'#'+c.getHexString();

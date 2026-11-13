@@ -5,7 +5,7 @@
 // Light: deeper blue shade under trees and buildings. People and animals take the shade when they walk under a tree.
 // Rottnest only for now (Paul approves before other maps). Not swapped yet: palms, grass tufts, plants built later on demand (trip maps, outer world).
 const TREE3D_LIVE=false;
-const TREE3D={pos:[],on:TREE3D_LIVE||/[?&#](tree3d|toon)\b/.test(location.search+location.hash),t:{value:0},n:0,cards:0,meshes:[],skipped:{}};
+const TREE3D={pos:[],on:TREE3D_LIVE||(TOON_ON||/[?&#]tree3d\b/.test(location.search+location.hash)),t:{value:0},n:0,cards:0,meshes:[],skipped:{}};
 (function(){if(!TREE3D.on)return;
   const V=(x,y,z)=>new THREE.Vector3(x,y,z),UP=V(0,1,0);
   // shared wind; leaf cards keep the light of their side of the crown on both faces

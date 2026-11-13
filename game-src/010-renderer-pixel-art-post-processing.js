@@ -1,7 +1,9 @@
+/* Rottnest 3D toon look is live (Paul, 13 Nov 2026); ?notoon shows the old look for comparison */
+var TOON_ON=!/[?&#]notoon\b/.test(location.search+location.hash);
 // ---------- renderer + pixel-art post-processing ----------
 const stage=$('#stage');
 const renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});
-const TOONR=/[?&#]toon\b/.test(location.search+location.hash);// ?toon: render like the Tree Lab (Paul, Nov 2026): sharper screen, no pixel post grade
+const TOONR=TOON_ON;// ?toon: render like the Tree Lab (Paul, Nov 2026): sharper screen, no pixel post grade
 const DPR=Math.min(window.devicePixelRatio||1,/[?&#]px4\b/.test(location.search+location.hash)||TOONR?2:1.5);// Look Lab ?px4: sharper screen
 renderer.setPixelRatio(DPR);
 // ?toon (Paul, Nov 2026: 'take the filter off, I want the Tree Lab colours'): straight to the screen like the lab, sRGB output with ACES tone mapping, no post pass (?toon&post keeps the old filter to compare)
@@ -16,7 +18,7 @@ const CAM_DIR=new THREE.Vector3(0,.6,.8).normalize();
 let camDist=14,yaw=0,yawT=0,zm=1;
 const camOff=new THREE.Vector3();
 const rt=new THREE.WebGLRenderTarget(2,2,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat});
-var CINE_LIVE=false;const CINE_ON=CINE_LIVE||/[?&#](lab|cine|r3)\b/.test(location.search+location.hash);// Look Lab: Cinematic camera, Rottnest first
+const CINE_ON=false;// Look Lab: Cinematic camera, Rottnest first
 var CW_LIVE=true;var WEL4_LIVE=true;const WEL4_ON=WEL4_LIVE||/[?&#]wel4\b/.test(location.search+location.hash);// Look Lab: Wellington St in front of Perth Station, four lanes and a median (Paul, Nov 2026)
 const CW_ON=WEL4_ON&&CW_LIVE,CW_RD=CW_ON?-1.4:0,CW_DN=CW_ON?-3.6:0;// CBD footpaths: the road moves 1.4 m north, the north side 3.6 m more
 var PXB_LIVE=true;const PXB_ON=PXB_LIVE||/[?&#]pxb\b/.test(location.search+location.hash);// Look Lab: pixel buildings (3d shapes, pixel skins), Rottnest first

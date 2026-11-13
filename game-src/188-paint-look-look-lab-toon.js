@@ -5,7 +5,7 @@
 // 2. Every pixel skin on Rottnest (buildings, props, roads, signs, the café) is drawn smooth instead of in hard pixels.
 // Other maps are untouched (materials are copied for the island, never changed in place).
 const PAINT_LIVE=false;
-const PAINT={on:PAINT_LIVE||/[?&#]toon\b/.test(location.search+location.hash),ground:0,mats:0};
+const PAINT={on:PAINT_LIVE||TOON_ON,ground:0,mats:0};
 (function(){if(!PAINT.on)return;
   const isl=o=>{try{const v=new THREE.Vector3();o.getWorldPosition(v);scene.worldToLocal(v);if(o.isInstancedMesh&&o.count){const e=o.instanceMatrix.array;v.x=e[12];}return zoneOf(v.x)==='island';}catch(e){return false;}};
   // ---- 1. painted ground ----

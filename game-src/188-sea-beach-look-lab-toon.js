@@ -4,7 +4,7 @@
 // sand and fade. On the land side a damp darker band of wet sand follows the waterline. It reads the island's own distance-to-shore
 // grid (Dg), so every bay, reef edge and jetty keeps its shape. Other maps keep their water.
 const SEA3_LIVE=false;
-const SEA3={on:SEA3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),built:false};
+const SEA3={on:SEA3_LIVE||TOON_ON,built:false};
 (function(){if(!SEA3.on)return;
   const SR=c=>{const k=new THREE.Color(c);k.convertSRGBToLinear();return `vec3(${k.r.toFixed(4)},${k.g.toFixed(4)},${k.b.toFixed(4)})`;};
   const NOISE=`float s3h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}

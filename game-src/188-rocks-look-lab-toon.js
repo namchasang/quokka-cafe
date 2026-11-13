@@ -3,7 +3,7 @@
 // ledge, warm bands low down, a pale top, moss on the up-facing parts and a pitted surface, sunk a little into the ground with a
 // darker damp ring. Same spot, size and turn as each old rock. Other maps keep theirs.
 const ROCK3_LIVE=false;
-const ROCK3={on:ROCK3_LIVE||/[?&#]toon\b/.test(location.search+location.hash),n:0};
+const ROCK3={on:ROCK3_LIVE||TOON_ON,n:0};
 (function(){if(!ROCK3.on)return;
   const rn=(x,y,z,k)=>Math.sin(x*1.7+k)*Math.sin(y*2.3+k*.7)*Math.sin(z*1.9+k*1.3)+.5*Math.sin(x*4.1+z*3.3+k)*Math.sin(y*3.7+k*2.1);
   const C={top:new THREE.Color('#e2d3b0'),mid:new THREE.Color('#c9b088'),band:new THREE.Color('#b5824f'),low:new THREE.Color('#7a6448'),moss:new THREE.Color('#5f7a34')};

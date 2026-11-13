@@ -4,7 +4,7 @@
 // 5 x 4 grid with a gate; the tank, sign and the café plans board stand just outside the new fence. Saves keep working:
 // plots are by index, the first 6 keep their crops, beds 7-20 start empty.
 const GARDEN_MEADOW_LIVE=false;
-const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||/[?&#]toon\b/.test(location.search+location.hash),to:null,beds:20};
+const GARDEN_MEADOW={on:GARDEN_MEADOW_LIVE||TOON_ON,to:null,beds:20};
 (function(){if(!GARDEN_MEADOW.on)return;
   const COLS=5,ROWS=4,SX=2.1,SZ=2.5,FW=COLS*SX/2+.7,FD=ROWS*SZ/2+.9;
   const run=()=>{
