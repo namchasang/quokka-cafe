@@ -53,6 +53,7 @@ float cz(vec2 p){vec2 i=floor(p),f=fract(p);float m=8.;for(int y=-1;y<=1;y++)for
  fragmentShader:`precision highp float;varying vec3 vW;varying float vRun;${WAVE}uniform sampler2D tCol,tDep;uniform vec2 uRes;uniform mat4 uPI,uCW;uniform vec3 uSun,uCam;uniform vec3 uSunC,uSky;uniform float uT,uLevel,uNear,uFar,uNew,uQ;
 /* hash without sin: stays smooth far from 0,0 (big game maps) */float hh(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float n2(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),u.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),u.x),u.y);}
+/* two turned octaves: foam lace without the square grid of plain value noise */float n2r(vec2 p){return n2(mat2(.8,-.6,.6,.8)*p)*.6+n2(mat2(.36,-.93,.93,.36)*p*1.7+3.1)*.4;}
 /* each octave turned a different way so no square grid shows when the camera is close */float waves(vec2 p){vec2 q=mat2(.8,-.6,.6,.8)*p,r=mat2(.36,-.93,.93,.36)*p;return n2(p*.35+vec2(uT*.12,uT*.05))*.5+n2(q*.8-vec2(uT*.2,-uT*.11))*.3+n2(r*2.1+vec2(uT*.35,uT*.27))*.2;}
 vec3 wpos(vec2 uv){float d=texture2D(tDep,uv).x;vec4 c=vec4(uv*2.-1.,d*2.-1.,1.);vec4 v=uPI*c;v/=v.w;return(uCW*v).xyz;}
 vec3 sRGB(vec3 c){return pow(c,vec3(1./2.2));}
@@ -70,7 +71,7 @@ void main(){vec2 uv=gl_FragCoord.xy/uRes;
   vec3 V=normalize(uCam-vW);float fr=pow(1.-max(dot(V,nrm),0.),4.)*.6;c=mix(c,uSky*.85,fr*smoothstep(0.,1.,depth));
   vec3 Hh=normalize(V+uSun);float sp=pow(max(dot(nrm,Hh),0.),220.)*2.2;c+=uSunC*sp*smoothstep(.0,.6,depth);
   /* foam: lace at the waterline that runs up and back, and rings round rocks, posts and the boat */
-  float lace=smoothstep(.32,.72,n2(vW.xz*1.8+vec2(uT*.25,uT*.1)));float lace2=smoothstep(.45,.8,n2(vW.xz*4.+vec2(-uT*.4,0.)));
+  float lace=smoothstep(.3,.66,n2r(vW.xz*1.8+vec2(uT*.25,uT*.1)));float lace2=smoothstep(.42,.74,n2r(vW.xz*4.+vec2(-uT*.4,0.)));
   float edgeD=lvl-bedH;/* the leading edge of each wash, white and frothy */float f1=smoothstep(.2,.0,edgeD)*(.55+.45*lace)+exp(-pow((edgeD-.28)/.06,2.))*lace2*.4;
   /* the thin sheet of a wash is milky with foam lace */float f2=(1.-smoothstep(.0,.25,edgeD))*vRun*2.2*(.35+.65*lace2);
   /* breaking crests: white lines that roll in from the sand bar and fade as they spread */float cr=fract(d0*.55+uT*.16+n2(vec2(vW.z*.05,1.))*.4);
@@ -98,9 +99,11 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   const beachW=(x,z)=>Math.max(.8,1.05+.7*vnoise(x*.3+11,z*.3));
   const sandAt=(x,z)=>{try{if(islPD(x,z)<1.1)return false;if(ISL_GROUND.length){const g=islGround(x,z);if(g&&g.g.t!=='sand')return false;}}catch(e){}return true;};
   // seabed and beach height in the island's own (unmirrored) coordinates; 0 = the island ground
+  // Paul (13 Nov): every shore is a smooth sloping beach like the engine lab (the old coast was pixel steps), shallow enough for
+  // boats, clear enough to see their shadows on the sand. Beaches keep their width; other coast gets a narrow sandy edge.
   function bedL(x,z){const t=landD(x,z);if(t===-9)return -6;
-    if(t>=0){if(t>2.6||!sandAt(x,z))return 0;const bw=beachW(x,z);if(t>=bw)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
-    const w=-t;let h=L-Math.min(w,8)*.2-Math.max(0,w-8)*.03+Math.exp(-Math.pow((w-10)/4,2))*.3*vnoise(z*.04+9,x*.04)+(vnoise(x*.12,z*.12)-.5)*.25*Math.min(1,w/6);return Math.max(h,-6);}
+    if(t>=0){if(t>2.6)return 0;const sand=sandAt(x,z),bw=sand?beachW(x,z):.9;if(t>=bw)return 0;if(!sand&&islPD(x,z)<1.1)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
+    const w=-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);return Math.max(h,-6);}
   function build(){SEA4.built=true;const t0=performance.now();
     const M=-1;/* the island is drawn mirrored (scene.scale.x = -1): the engine works in world space */
     const X1=TB.x1-30,X2=TB.x2+30,Z1=TB.z1-30,Z2=TB.z2+30;
@@ -112,7 +115,7 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
     const bm=new THREE.MeshLambertMaterial({vertexColors:true});const bed=new THREE.Mesh(g,bm);bed.receiveShadow=true;bed.name='sea4bed';scene.add(bed);
     // the engine: heightmap over the island in world space, water mesh big enough to reach the horizon
     const B={x0:M<0?-X2:X1,z0:Z1,w:X2-X1,h:Z2-Z1};
-    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),bounds:B,heightRes:[1024,Math.round(1024*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:700,meshSeg:300,center:[(X1+X2)/2,(Z1+Z2)/2]});
+    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),bounds:B,heightRes:[1024,Math.round(1024*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:360,center:[0,0]});
     sea.mesh.name='sea4water';
     // the flat island ground opens over the lowered beach so the sloping sand shows through
     {const tm=terrain.material,prev=tm.onBeforeCompile,pk=tm.customProgramCacheKey;
@@ -127,6 +130,7 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
       if(on!==st){st=on;OLD().forEach(o=>{if(on){o.__s4=o.visible;o.visible=false;}else if(o.__s4!==undefined)o.visible=o.__s4;});sea.mesh.visible=bed.visible=on;}
       if(!on)return;OLD().forEach(o=>{o.visible=false;});
       sd.copy(sun.position).sub(sun.target.position);sd.x*=scene.scale.x;sc.copy(sun.color).multiplyScalar(sun.intensity);sk.copy(hemi.color).multiplyScalar(hemi.intensity);sea.setSun(sd,sc,sk);sea.setQuality(SEA4.q);
+      /* the dense water mesh follows the camera in steps of one cell, so the waves stay fine everywhere without swimming */const stp=260/360;sea.mesh.position.set(Math.round(camTarget.x*scene.scale.x/stp)*stp,0,Math.round(camTarget.z/stp)*stp);
       sea.pre(performance.now()/1000);};
     console.log('SEA4 built '+SEA4.ms+' ms, bed verts '+P.count);}
   const wait=()=>{if(typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'&&typeof terrain!=='undefined'&&typeof SEA3!=='undefined'&&(SEA3.built||!SEA3.on)){try{build();}catch(e){console.error('sea4',e);SEA4.pre=null;}return;}setTimeout(wait,400);};wait();

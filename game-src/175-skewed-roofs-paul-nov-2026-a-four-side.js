@@ -67,7 +67,7 @@ function sea2Build(){if(sea2Build.done)return;sea2Build.done=true;
   coast.splice(0,coast.length,...coast.filter(q=>BOAT.seals.every(o=>Math.hypot(o.x-q[0],o.z-q[1])>45)));const podSpots=pickFar(2,(a,b)=>(b[0]-b[1])-(a[0]-a[1]));podSpots.forEach(([x,z])=>{const ms=[];for(let k=0;k<4;k++){const m=spriteMesh([dolphin32()],1.1,.5,{shadow:false});scene.add(m);ms.push(m);}BOAT.pods.push({x,z,ms});});
   sea2Place();}
 function sea2Place(){const g=BOAT.g;if(!g)return;g.position.set(BOAT.x,Math.sin(performance.now()/700)*.04,BOAT.z);g.rotation.y=-BOAT.h;g.rotation.z=Math.sin(performance.now()/900)*.03;}
-function sea2Water(x,z,h){if(x>96||x<-245||z<-315||z>318)return false;if(landD(x,z)>=-.9)return false;if(h==null)return true;const c=Math.cos(h),sn=Math.sin(h);for(const[a,b]of[[2,0],[-1.7,0],[0,.8],[0,-.8],[1,.6],[1,-.6]])if(landD(x+c*a-sn*b,z+sn*a+c*b)>=-.5)return false;return true;}
+function sea2Water(x,z,h){if(x>96||x<-245||z<-315||z>318)return false;if(landD(x,z)>=-.7)return false;if(h==null)return true;const c=Math.cos(h),sn=Math.sin(h);for(const[a,b]of[[2,0],[-1.7,0],[0,.8],[0,-.8],[1,.6],[1,-.6]])if(landD(x+c*a-sn*b,z+sn*a+c*b)>=-.3)return false;return true;}
 function sea2Tick(dt){if(!BOAT.g)return;const t=performance.now()/1000;BOAT.mat.uniforms.uT.value=t;BOAT.mat.uniforms.uN.value=(typeof NIGHT==='number'?NIGHT:0)*.75;
   if(BOAT.on){player.x=BOAT.x;player.z=BOAT.z;}sea2Place();
   BOAT.wake.material.opacity=Math.min(.5,Math.abs(BOAT.v)/10);
@@ -85,7 +85,7 @@ function sea2Drive(dt){let mx=0,mz=0;if(keys.has('a')||keys.has('arrowleft'))mx-
   if(joyId!==null){mx+=joyV.x;mz+=joyV.y;}if(MIR)mx=-mx;let m=Math.hypot(mx,mz);if(m>1){mx/=m;mz/=m;m=1;}
   const cy=Math.cos(yaw),sy=Math.sin(yaw),wx=mx*cy+mz*sy,wz=-mx*sy+mz*cy;
   if(m>.1){const th=Math.atan2(wz,wx);let dh=th-BOAT.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));BOAT.h+=Math.sign(dh)*Math.min(Math.abs(dh),2.4*dt);BOAT.v+=(7*m*Math.max(.2,Math.cos(dh))-BOAT.v)*Math.min(1,dt*1.2);}else BOAT.v*=Math.max(0,1-dt*.9);
-  const nx=BOAT.x+Math.cos(BOAT.h)*BOAT.v*dt,nz=BOAT.z+Math.sin(BOAT.h)*BOAT.v*dt;if(sea2Water(nx,nz,BOAT.h)){BOAT.x=nx;BOAT.z=nz;}else BOAT.v*=-.25;
+  const nx=BOAT.x+Math.cos(BOAT.h)*BOAT.v*dt,nz=BOAT.z+Math.sin(BOAT.h)*BOAT.v*dt;if(sea2Water(nx,nz,BOAT.h)){BOAT.x=nx;BOAT.z=nz;}else{/* Paul (13 Nov): the boat got stuck along the coast; slide along the shore instead of bouncing when a nearby heading is clear */let ok=false;for(const da of[.35,-.35,.7,-.7,1.1,-1.1]){const a2=BOAT.h+da,sx=BOAT.x+Math.cos(a2)*BOAT.v*dt*.7,sz=BOAT.z+Math.sin(a2)*BOAT.v*dt*.7;if(sea2Water(sx,sz,a2)){BOAT.x=sx;BOAT.z=sz;BOAT.v*=.97;BOAT.h+=da*.04;ok=true;break;}}if(!ok)BOAT.v*=-.25;}
   player.x=BOAT.x;player.z=BOAT.z;player.moving=false;player.face=Math.cos(BOAT.h)>=0?1:-1;
   player.mesh.visible=true;player.bikeMesh.visible=false;setFrame(player.mesh,0);
   player.mesh.position.set(BOAT.x-Math.cos(BOAT.h)*.15,.34+Math.sin(performance.now()/700)*.04,BOAT.z-Math.sin(BOAT.h)*.15);player.mesh.scale.x=player.face;player.blob.position.set(0,-50,0);}
