@@ -1,10 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Terrain Engine Lab</title>
-<style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.82);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:280px}
-#ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600}#fps{opacity:.75;margin-top:6px}</style></head><body>
-<div id="ui"><b>Terrain Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">Grass, sand, dirt, rock, paths, lanes, gravel and a salt lake on one 3D ground, with the real Water Sea Engine.</div>
-<label><input type="checkbox" id="cDet" checked> Detail (blades, speckles)</label><label><input type="checkbox" id="cSea" checked> Sea</label>
-<div>Time of day: <input type="range" id="tod" min="6" max="19" step=".1" value="10.5" style="width:120px"></div>
-<button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
+<style>body{margin:0;overflow:hidden;background:#9fd3ea;font-family:system-ui,sans-serif}#ui{position:fixed;left:10px;top:10px;background:rgba(20,28,40,.84);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;max-width:300px;max-height:90vh;overflow:auto}
+#ui b{font-size:14px}#ui label{display:block;margin:4px 0;cursor:pointer}#ui button{margin:6px 6px 0 0;padding:6px 10px;border:0;border-radius:8px;background:#3e7d5c;color:#fff;font-weight:600;cursor:pointer}#ui input[type=range]{width:130px;vertical-align:middle}#fps{opacity:.75;margin-top:6px}</style></head><body>
+<div id="ui"><b>Terrain Engine Lab</b><div style="opacity:.8;margin:4px 0 6px">One 3D ground: grass, sand, dirt, rock, paths, lanes, gravel bed, salt lake, plus 12 detail layers you can switch on and off.</div><div id="ctl"></div><button id="bTop">Top view</button><button id="bLow">Low view</button><div id="fps"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>/* Terrain Engine (Paul Perth Library, Nov 2026) — natural ground for three.js r128.
@@ -44,11 +41,14 @@ function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.s
   const geo=new THREE.PlaneGeometry(W,D,NX,NZ);geo.rotateX(-Math.PI/2);geo.translate(cx,0,cz);const pos=geo.attributes.position;
   for(let i=0;i<pos.count;i++){const x=pos.getX(i),z=pos.getZ(i);let h=H(x,z);const u=Math.floor((x-x0)/W*FW),v=Math.floor((z-z0)/D*FD);{const mu=Math.floor((x-x0)/W*MW),mv=Math.floor((z-z0)/D*MD);if(mu>=0&&mv>=0&&mu<MW&&mv<MD){const k=(mv*MW+mu)*4;const pw=Math.max(mk[k],mk[k+1],mk[k+2]);h-=.03*pw;const lw=mk[k+3];h-=.12*lw;}}pos.setY(i,h);}
   geo.computeVertexNormals();
-  const U={tM:{value:MT},tF:{value:FT},uB:{value:new THREE.Vector4(x0,z0,W,D)},uT:{value:0},uQ:{value:2},uSea:{value:SEA}};
+  /* shade map: T.setShade([[x,z,r],...]) marks tree crowns; used by the leaf litter and shade-grass layers */
+  const SW=256,SD=Math.max(16,Math.round(256*D/W)),sdat=new Uint8Array(SW*SD*4);const ST=new THREE.DataTexture(sdat,SW,SD,THREE.RGBAFormat);ST.magFilter=ST.minFilter=THREE.LinearFilter;ST.needsUpdate=true;
+  const LAYERS=['pebbles','shells','footprints','pathwear','wetgrass','laneworn','drygrass','litter','shadegrass','clover','sandripples','tideline'];
+  const U={tS:{value:ST},uLA:{value:new THREE.Vector4(1,1,1,1)},uLB:{value:new THREE.Vector4(1,1,1,1)},uLC:{value:new THREE.Vector4(1,1,1,1)},tM:{value:MT},tF:{value:FT},uB:{value:new THREE.Vector4(x0,z0,W,D)},uT:{value:0},uQ:{value:2},uSea:{value:SEA}};
   const m=new THREE.MeshLambertMaterial({color:0xffffff});
   m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);
     s.vertexShader='varying vec3 vTW;varying vec3 vTN;\n'+s.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvTW=(modelMatrix*vec4(transformed,1.)).xyz;vTN=normalize(mat3(modelMatrix)*objectNormal);');
-    s.fragmentShader=`varying vec3 vTW;varying vec3 vTN;uniform sampler2D tF,tM;uniform vec4 uB;uniform float uT,uQ,uSea;
+    s.fragmentShader=`varying vec3 vTW;varying vec3 vTN;uniform sampler2D tF,tM,tS;uniform vec4 uB,uLA,uLB,uLC;uniform float uT,uQ,uSea;
 float th(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float tn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(th(i),th(i+vec2(1,0)),f.x),mix(th(i+vec2(0,1)),th(i+1.),f.x),f.y);}
 float tf(vec2 p){return tn(p)*.5+tn(p*2.03+7.)*.3+tn(p*4.1+3.)*.2;}
@@ -72,12 +72,35 @@ vec3 sand(vec2 q,float u){vec3 c=u<.12?mix(${lin(P.sandW)},${lin(P.sand)},u/.12)
  {float gw=Mk.b;if(gw>.002){vec3 gc=${lin(P.gravel)}*(.78+.44*th(floor(q*14.)));c=mix(c,gc,smoothstep(.15,.6,gw));}}
  {float lw=Mk.g;if(lw>.002){vec3 lc=${lin(P.lane)}*(.92+.12*tn(q*12.));float line=smoothstep(.45,.55,lw)*(1.-smoothstep(.62,.74,lw));lc=mix(lc,${lin(P.laneL)},line*.9);c=mix(c,lc,smoothstep(.2,.5,lw));}}
  {float pw=Mk.r;if(pw>.002){vec3 pc=${lin(P.path)}*(.9+.15*tn(q*5.)+.08*(th(floor(q*20.))-.5));pc=mix(${lin(P.pathE)},pc,smoothstep(.35,.75,pw));c=mix(c,pc,smoothstep(.15,.5,pw)*(1.-Mk.g*.0));}}
+ /* ---- detail layers ---- */
+ float shade=texture2D(tS,(q-uB.xy)/uB.zw).r;float isG=(1.-sa)*(1.-smoothstep(.05,.3,max(max(Mk.r,Mk.g),max(Mk.b,Mk.a))));float isS=sa*step(uSea,h);
+ if(uLB.x>.5)c=mix(c,c*vec3(.86,.9,.8),isG*smoothstep(.55,.85,tf(q*.11+21.))*.6);                       /* drygrass: sun-bleached patches */
+ if(uLC.x>.5)c=mix(c,c*vec3(.82,1.02,.78),isG*smoothstep(.62,.7,tn(q*1.6+5.))*.5);                     /* clover: deep green leafy patches */
+ if(uLB.z>.5&&shade>.02)c=mix(c,c*vec3(.72,.78,.86),isG*shade*.6);                                         /* shadegrass: cooler darker grass under crowns */
+ if(uLB.w>.5&&shade>.02){float lf=step(.8,th(floor(q*9.)))*shade;vec3 lc=mix(vec3(.55,.36,.18),vec3(.7,.55,.25),th(floor(q*9.)+2.));c=mix(c,lc,lf*.85*isG);} /* litter: fallen leaves */
+ if(uLA.w>.5)c=mix(c,c*vec3(.8,.92,.85),isG*(1.-smoothstep(.0,.08,dw))*.0+isG*(1.-smoothstep(.12,.3,dw))*.45); /* wetgrass: damp darker grass near the shore */
+ if(uLA.x>.5){float pb=step(.975,th(floor(q*6.)));vec2 fq=fract(q*6.)-.5+.15*(vec2(th(floor(q*6.)+3.),th(floor(q*6.)+5.))-.5);float pr=smoothstep(.22,.12,length(fq*vec2(1.,1.4)));c=mix(c,vec3(.42,.4,.36)*(.8+.4*th(floor(q*6.)+9.)),pb*pr*(isG*.35+isS*.5+smoothstep(.25,.4,slope)));} /* pebbles */
+ if(uLA.y>.5&&isS>.5){float sh=step(.965,th(floor(q*5.)+3.));vec2 fq=fract(q*5.)-.5;float sr=smoothstep(.22,.12,length(fq*vec2(1.,1.5)));c=mix(c,vec3(.97,.9,.86),sh*sr*smoothstep(.15,.5,u));} /* shells */
+ if(uLC.w>.5&&isS>.5){float tl=exp(-pow((u-.22-.04*tn(q*.4))/.03,2.));float kelp=smoothstep(.45,.7,tn(q*2.3));c=mix(c,mix(vec3(.82,.76,.62),vec3(.25,.22,.12),kelp),tl*(.5+.4*kelp));} /* tideline: a band of shells and dried seaweed */
+ if(uLC.z>.5&&isS>.5&&u>.15){float rp=sin(q.x*4.+sin(q.y*.9)*2.+tn(q*.5)*3.)*.5+.5;c*=1.-pow(rp,4.)*.08*smoothstep(.15,.5,u);}  /* sandripples: wind ripples on dry sand */
+ if(uLA.z>.5&&isS>.5&&u>.25){vec2 tq=q*vec2(1.,1.)+vec2(0.,0.);float lane=floor(tq.x/3.);float yy=tq.y+th(vec2(lane,1.))*20.;float along=fract(yy/.7);float side=mod(floor(yy/.7),2.);
+   vec2 fp=vec2(fract(tq.x/3.)*3.-1.5-(side-.5)*.35-sin(yy*.3+lane)*.4,(along-.5)*.7);float fpm=smoothstep(.13,.08,length(fp*vec2(1.,.55)))*step(.55,th(vec2(lane,7.)));c*=1.-fpm*.18;} /* footprints */
+ if(uLB.y>.5){float pw=max(Mk.r,Mk.g);float halo=smoothstep(.0,.12,pw)*(1.-smoothstep(.12,.3,pw));c=mix(c,vec3(.52,.44,.32)*(.9+.2*tn(q*7.)),halo*.55*(1.-sa));}     /* pathwear: worn earth at path edges */
+ if(uLB.y>.5&&Mk.g>.5){float ck=smoothstep(.97,.99,abs(sin(q.x*1.3+tn(q*2.)*6.))*abs(sin(q.y*1.1+tn(q*1.7)*5.)));float pt=smoothstep(.6,.65,tf(q*.25+40.));c=mix(c,c*.82,ck*.6+pt*.25);} /* laneworn: cracks and patches */
  diffuseColor.rgb=c;}`);};
   m.customProgramCacheKey=()=>'terrainE';
   const mesh=new THREE.Mesh(geo,m);mesh.receiveShadow=true;mesh.name='terrainEngine';
-  return{mesh,material:m,uniforms:U,fields:FT,heightAt:H,update:t=>{U.uT.value=t;},setQuality:q=>{U.uQ.value=q;},dispose:()=>{geo.dispose();m.dispose();FT.dispose();MT.dispose();}};}
+  /* 3D pebbles and rocks sitting on the ground (instanced), part of the pebbles layer */
+  const peb=(()=>{const r=(s=>()=>{s=(s*16807)%2147483647;return s/2147483647;})(97),list=[];for(let i=0;i<W*D*.06;i++){const x=x0+r()*W,z=z0+r()*D,h=H(x,z);if(h<SEA-.3)continue;list.push([x,h,z,.06+r()*.14,r()*6]);}
+    const geo=new THREE.IcosahedronGeometry(1,0),mm=new THREE.MeshLambertMaterial({color:new THREE.Color('#a8a296').convertSRGBToLinear()}),im=new THREE.InstancedMesh(geo,mm,list.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion();
+    list.forEach((e,i)=>{q.setFromEuler(new THREE.Euler(e[4],e[4]*2,0));m4.compose(new THREE.Vector3(e[0],e[1]+e[3]*.2,e[2]),q,new THREE.Vector3(e[3],e[3]*.6,e[3]));im.setMatrixAt(i,m4);});im.castShadow=true;im.receiveShadow=true;return im;})();
+  mesh.add(peb);
+  const api={mesh,material:m,uniforms:U,pebbles:peb,layers:LAYERS,
+    setLayer(n,on){const i=LAYERS.indexOf(n);if(i<0)return;const v=[U.uLA,U.uLB,U.uLC][i>>2].value;v.setComponent(i%4,on?1:0);if(n==='pebbles')peb.visible=on;},
+    setShade(list){sdat.fill(0);list.forEach(([x,z,r])=>{const cx=(x-x0)/W*SW,cz=(z-z0)/D*SD,rx=r/W*SW,rz=r/D*SD;for(let j=Math.max(0,Math.floor(cz-rz));j<=Math.min(SD-1,Math.ceil(cz+rz));j++)for(let i=Math.max(0,Math.floor(cx-rx));i<=Math.min(SW-1,Math.ceil(cx+rx));i++){const d=Math.hypot((i-cx)/rx,(j-cz)/rz);if(d<1){const k=(j*SW+i)*4;sdat[k]=Math.max(sdat[k],Math.round(255*Math.min(1,(1-d)*1.6)));}}});ST.needsUpdate=true;},fields:FT,heightAt:H,update:t=>{U.uT.value=t;},setQuality:q=>{U.uQ.value=q;},dispose:()=>{geo.dispose();m.dispose();FT.dispose();MT.dispose();}};return api;}
 g.TerrainEngine={create};})(typeof window!=='undefined'?window:this);
-</script><script>/* Water Sea Engine (Paul Perth Library, Nov 2026) — clear shallow sea for three.js r128.
+</script>
+<script>/* Water Sea Engine (Paul Perth Library, Nov 2026) — clear shallow sea for three.js r128.
    Made for Quokka Cafe (Rottnest), reusable in any game. One call:
      const sea=WaterSea.create({renderer,scene,camera,size:140,heightAt:(x,z)=>groundHeight,ground:groundMaterial,palette});
      each frame: sea.render(time)   // renders the scene twice: once without water (colour+depth), then with it
@@ -165,29 +188,33 @@ void main(){vec2 uv=gl_FragCoord.xy/uRes;
       wm.uniforms.uPI.value.copy(cam.projectionMatrixInverse);wm.uniforms.uCW.value.copy(cam.matrixWorld);wm.uniforms.uCam.value.setFromMatrixPosition(cam.matrixWorld);wm.uniforms.uNear.value=cam.near;wm.uniforms.uFar.value=cam.far;},
     render(t){this.pre(t);R.render(scene,cam);},bedAt:(x,z)=>H(x,z),dispose:()=>{rt.dispose();hmT.dispose();wm.dispose();mesh.geometry.dispose();}};}
 g.WaterSea={create};})(typeof window!=='undefined'?window:this);
-</script><script>
+</script>
+<script>
 (()=>{const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(innerWidth,innerHeight);R.outputEncoding=THREE.sRGBEncoding;R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;document.body.appendChild(R.domElement);
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x9fd3ea);const cam=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,.5,600);cam.position.set(-6,30,46);
-const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.target.set(4,0,4);ctl.maxPolarAngle=1.45;ctl.enableDamping=true;
-const hemi=new THREE.HemisphereLight(0xbfe4ff,0x8a7a58,.5),sun=new THREE.DirectionalLight(0xfff2dc,1.05);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-60;sc.right=sc.top=60;sc.far=200;scene.add(hemi,sun,sun.target);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x9fd3ea);const cam=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,.3,800);cam.position.set(-4,24,36);
+const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.target.set(4,0,4);ctl.maxPolarAngle=1.48;ctl.enableDamping=true;
+const hemi=new THREE.HemisphereLight(0xbfe4ff,0x8a7a58,.5),sun=new THREE.DirectionalLight(0xfff2dc,1.05);sun.position.set(-30,45,25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-50;sc.right=sc.top=50;sc.far=200;scene.add(hemi,sun,sun.target);
 const hash=(x,y)=>{const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s);};const vn=(x,y)=>{const i=Math.floor(x),j=Math.floor(y),f=x-i,g=y-j,u=f*f*(3-2*f),v=g*g*(3-2*g);return(hash(i,j)*(1-u)+hash(i+1,j)*u)*(1-v)+(hash(i,j+1)*(1-u)+hash(i+1,j+1)*u)*v;};
 const fbm=(x,y)=>{let s=0,a=.5;for(let o=0;o<4;o++){s+=vn(x,y)*a;x*=2.03;y*=2.03;a*=.5;}return s;};
-/* an island bay: sea to the west, a sloping beach, rolling grass, a limestone ridge to the east */
-const H=(x,z)=>{const coast=-14+Math.sin(z*.07)*5+fbm(z*.05,3)*6,d=x-coast;let h;if(d<0)h=-Math.min(-d,8)*.18-Math.max(0,-d-8)*.05;else h=Math.min(d,5)*.22+(fbm(x*.06,z*.06)-.4)*1.4*Math.min(1,d/8);
-  h+=Math.max(0,x-22)*.5*fbm(z*.08,9);return h;};
+const H=(x,z)=>{const coast=-14+Math.sin(z*.07)*5+fbm(z*.05,3)*6,d=x-coast;let h;if(d<0)h=-Math.min(-d,8)*.18-Math.max(0,-d-8)*.05;else h=Math.min(d,5)*.22+(fbm(x*.06,z*.06)-.4)*1.4*Math.min(1,d/8);h+=Math.max(0,x-22)*.5*fbm(z*.08,9);return h;};
+const PATHS=[{pts:[[-10,-30],[-6,-14],[-4,0],[2,10],[6,30]],w:1.1,kind:'path'},{pts:[[-4,0],[8,2],[20,-2],[30,0]],w:.9,kind:'path'},{pts:[[-2,-30],[2,-16],[6,-6],[10,4],[14,16],[16,30]],w:1.3,kind:'lane'}];
+const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
+const nearPath=(x,z,m)=>PATHS.some(p=>{for(let i=1;i<p.pts.length;i++)if(segD(x,z,p.pts[i-1],p.pts[i])<p.w/2+(m||0))return true;return false;});
+const kind=(x,z)=>{const h=H(x,z);if(h<0)return'water';if(nearPath(x,z,.3))return'path';if(h<.9)return'sand';return'grass';};
+const ctlBox=document.getElementById('ctl');const ui=h=>{const d=document.createElement('div');d.innerHTML=h;ctlBox.appendChild(d);return d;};const frames=[];const onFrame=f=>frames.push(f);
+document.getElementById('bTop').onclick=()=>{cam.position.set(4,60,8);ctl.target.set(4,0,4);};document.getElementById('bLow').onclick=()=>{cam.position.set(-6,3,14);ctl.target.set(2,1,0);};
+let renderFn=null;const setRender=f=>{renderFn=f;};
+addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
 const lake=(x,z)=>{const d=Math.hypot((x-14)/7,(z+12)/4.5)+(fbm(x*.2,z*.2)-.5)*.3;return Math.max(0,Math.min(1,(1-d)*1.5));};
-const paths=[{pts:[[-10,-30],[-6,-14],[-4,0],[2,10],[6,30]],w:1.1,kind:'path'},{pts:[[-4,0],[8,2],[20,-2],[30,0]],w:.9,kind:'path'},{pts:[[2,10],[12,14],[24,22]],w:.8,kind:'path'},
-  {pts:[[-2,-30],[2,-16],[6,-6],[10,4],[14,16],[16,30]],w:1.3,kind:'lane'},{pts:[[24,-30],[20,-10],[26,6],[22,30]],w:1.8,kind:'gravel'}];
+const paths=PATHS.concat([{pts:[[24,-30],[20,-10],[26,6],[22,30]],w:1.8,kind:'gravel'}]);
 const T=TerrainEngine.create({size:[90,70],center:[4,0],res:.4,heightAt:H,seaLevel:0,paths,lakes:lake});scene.add(T.mesh);
-/* rails on the gravel bed */{const rm=new THREE.MeshLambertMaterial({color:0x9ab0b8}),sm=new THREE.MeshLambertMaterial({color:0x6a4a30});const P=paths[4].pts,cv=new THREE.CatmullRomCurve3(P.map(p=>new THREE.Vector3(p[0],0,p[1])));const N=110;
-  for(let i=0;i<=N;i++){const p=cv.getPointAt(i/N),t=cv.getTangentAt(i/N),a=Math.atan2(t.x,t.z);const s=new THREE.Mesh(new THREE.BoxGeometry(1.3,.08,.22),sm);s.position.set(p.x,H(p.x,p.z)+.04,p.z);s.rotation.y=a;s.castShadow=true;scene.add(s);
-    if(i<N){const q=cv.getPointAt((i+1)/N);[-.42,.42].forEach(o=>{const nx=Math.cos(a)*o,nz=-Math.sin(a)*o;const L=p.distanceTo(q);const r=new THREE.Mesh(new THREE.BoxGeometry(.07,.08,L),rm);r.position.set((p.x+q.x)/2+nx,H(p.x,p.z)+.12,(p.z+q.z)/2+nz);r.rotation.y=a;scene.add(r);});}}}
-const sea=WaterSea.create({renderer:R,scene,camera:cam,heightAt:H,size:200,ground:null,level:0});
-const tod=document.getElementById('tod');function light(){const h=+tod.value,t=(h-6)/13,a=t*Math.PI;sun.position.set(Math.cos(a)*-60,Math.sin(a)*60+8,30);sun.target.position.set(0,0,0);const warm=1-Math.sin(a);sun.color.setRGB(1,.95-warm*.25,.86-warm*.45);sun.intensity=.5+Math.sin(a)*.65;
-  sea.setSun(sun.position.clone(),sun.color.clone().multiplyScalar(sun.intensity),new THREE.Color(0x9fd3ea));}tod.oninput=light;light();
-document.getElementById('cDet').onchange=e=>T.setQuality(e.target.checked?2:0);const cSea=document.getElementById('cSea');
-document.getElementById('bTop').onclick=()=>{cam.position.set(4,70,6);ctl.target.set(4,0,4);};document.getElementById('bLow').onclick=()=>{cam.position.set(-16,4,12);ctl.target.set(0,0,0);};
-addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();sea.resize();});
-let fr=0,ft=performance.now();const fe=document.getElementById('fps');(function loop(){requestAnimationFrame(loop);ctl.update();const t=performance.now()/1000;T.update(t);sea.mesh.visible=cSea.checked;if(cSea.checked)sea.render(t);else R.render(scene,cam);
-  fr++;if(performance.now()-ft>1000){fe.textContent=fr+' fps';fr=0;ft=performance.now();}})();})();
+const sea=WaterSea.create({renderer:R,scene,camera:cam,heightAt:H,size:200,ground:null,level:0});sea.setSun(sun.position.clone(),sun.color.clone(),new THREE.Color(0x9fd3ea));
+/* a few trees so the shade and leaf-litter layers have somewhere to show */const trees=[[8,8,2.6],[12,10,2.2],[0,16,2.8],[16,-2,2.4],[-2,-10,2.5],[30,10,2.6]];T.setShade(trees);
+{const tm=new THREE.MeshLambertMaterial({color:0x6a4a32}),cm=new THREE.MeshLambertMaterial({color:new THREE.Color('#4f8240').convertSRGBToLinear()});trees.forEach(([x,z,r])=>{const y=H(x,z);const t=new THREE.Mesh(new THREE.CylinderGeometry(.15,.22,3,7),tm);t.position.set(x,y+1.5,z);t.castShadow=true;scene.add(t);const c=new THREE.Mesh(new THREE.SphereGeometry(r*.8,14,10),cm);c.position.set(x,y+3.6,z);c.castShadow=true;scene.add(c);});}
+ui('<div style="margin-top:4px"><b style="font-size:12px">Layers</b></div>'+T.layers.map(n=>'<label><input type="checkbox" checked data-l="'+n+'"> '+n+'</label>').join('')+'<label><input type="checkbox" id="cDet" checked> blade strokes and speckles</label>');
+document.querySelectorAll('[data-l]').forEach(c=>c.onchange=()=>T.setLayer(c.dataset.l,c.checked));document.getElementById('cDet').onchange=e=>T.setQuality(e.target.checked?2:0);
+onFrame(t=>T.update(t));setRender(t=>sea.render(t));
+
+let fr=0,ft=performance.now(),last=performance.now();const fe=document.getElementById('fps');(function loop(){requestAnimationFrame(loop);ctl.update();const now=performance.now(),t=now/1000,dt=Math.min(.1,(now-last)/1000);last=now;frames.forEach(f=>f(t,dt));
+  if(renderFn)renderFn(t);else R.render(scene,cam);fr++;if(now-ft>1000){fe.textContent=fr+' fps';fr=0;ft=now;}})();})();
 </script></body></html>
