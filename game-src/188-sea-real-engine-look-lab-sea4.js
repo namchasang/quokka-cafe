@@ -101,8 +101,8 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   // seabed and beach height in the island's own (unmirrored) coordinates; 0 = the island ground
   // Paul (13 Nov): every shore is a smooth sloping beach like the engine lab (the old coast was pixel steps), shallow enough for
   // boats, clear enough to see their shadows on the sand. Beaches keep their width; other coast gets a narrow sandy edge.
-  function bedL(x,z){const t=landD(x,z);if(t===-9)return -6;
-    if(t>=0){if(t>2.6)return 0;const sand=sandAt(x,z),bw=sand?beachW(x,z):.9;if(t>=bw)return 0;if(!sand&&islPD(x,z)<1.1)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
+  function bedL(x,z){const t=landD(x,z);if(t===-9&&!WD)return -6;/* past the island grid it is open water: keep the same gentle slope (no drop-off at the grid edge) */
+    if(t>=0&&t!==-9){if(t>2.6)return 0;const sand=sandAt(x,z),bw=sand?beachW(x,z):.9;if(t>=bw)return 0;if(!sand&&islPD(x,z)<1.1)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
     const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);return Math.max(h,-6);}
   // the island grid's water values are not true distances everywhere (inside the Settlement's bays they read hundreds of units),
   // so the seabed uses its own distance-to-shore field: a chamfer distance transform over a fine grid of land/water
