@@ -39,3 +39,5 @@ function roo32(hop,joey){const P=painter(32,32);const g=[[70,62,58],[105,94,86],
   if(joey){P.ell(18.6,21.6+lift,2.2,2,g);P.set(19,21+lift,[20,16,16]);}
   P.ell(22.6,9+lift,4,3.4,g);P.ell(26,10+lift,2.4,1.8,bl);P.ell(20.8,3.8+lift,1.2,2.8,g);P.ell(23.6,3.6+lift,1.2,2.8,g);P.set(23,8+lift,[20,16,16]);P.set(23,7+lift,[255,255,255]);P.set(27,9+lift,[30,22,20]);
   return P.done();}
+// tag each creature picture with its kind, so 3D layers can find the sprites made from it (188-more3d)
+{const W=(f,k)=>function(){const c=f.apply(this,arguments);try{c.__k3=k;}catch(e){}return c;};seal32=W(seal32,'seal');swan32=W(swan32,'swan');snork32=W(snork32,'snork');dolphin32=W(dolphin32,'dolphin');pelican32=W(pelican32,'pelican');dog32=W(dog32,'dog');surfer32=W(surfer32,'surfer');}
