@@ -47,6 +47,7 @@
 046-island-lo-fi-30-original-lo-fi-tracks.js
 047-lo-fi-beats-30-original-lo-fi-hip-hop.js
 048-city-pop-30-original-city-pop-tracks-b.js
+048b-lo-fi-rnb-30-original-slow-jam-tracks.js
 049-sleep-lo-fi-30-original-slow-tracks-fo.js
 050-studio-playlists-fixed-track-order-wit.js
 051-dream-code-visit-a-friend-s-island-no.js
