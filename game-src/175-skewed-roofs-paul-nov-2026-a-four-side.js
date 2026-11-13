@@ -88,11 +88,11 @@ function sea2Tick(dt){if(!BOAT.g)return;const t=performance.now()/1000;BOAT.mat.
 function sea2Drive(dt){let mx=0,mz=0;if(keys.has('a')||keys.has('arrowleft'))mx-=1;if(keys.has('d')||keys.has('arrowright'))mx+=1;if(keys.has('w')||keys.has('arrowup'))mz-=1;if(keys.has('s')||keys.has('arrowdown'))mz+=1;
   if(joyId!==null){mx+=joyV.x;mz+=joyV.y;}if(MIR)mx=-mx;let m=Math.hypot(mx,mz);if(m>1){mx/=m;mz/=m;m=1;}
   const cy=Math.cos(yaw),sy=Math.sin(yaw),wx=mx*cy+mz*sy,wz=-mx*sy+mz*cy;
-  if(m>.1){const th=Math.atan2(wz,wx);let dh=th-BOAT.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));BOAT.h+=Math.sign(dh)*Math.min(Math.abs(dh),2.4*dt);BOAT.v+=(7*m*Math.max(.2,Math.cos(dh))-BOAT.v)*Math.min(1,dt*1.2);}else BOAT.v*=Math.max(0,1-dt*.9);
+  if(m>.1){const th=Math.atan2(wz,wx);let dh=th-BOAT.h;dh=Math.atan2(Math.sin(dh),Math.cos(dh));BOAT.h+=Math.sign(dh)*Math.min(Math.abs(dh),(BOAT.turn||2.4)*dt);BOAT.v+=((BOAT.vmax||7)*m*Math.max(.2,Math.cos(dh))-BOAT.v)*Math.min(1,dt*1.2);}else BOAT.v*=Math.max(0,1-dt*.9);
   const nx=BOAT.x+Math.cos(BOAT.h)*BOAT.v*dt,nz=BOAT.z+Math.sin(BOAT.h)*BOAT.v*dt;if(sea2Water(nx,nz,BOAT.h)){BOAT.x=nx;BOAT.z=nz;}else{/* Paul (13 Nov): the boat got stuck along the coast; slide along the shore instead of bouncing when a nearby heading is clear */let ok=false;for(const da of[.35,-.35,.7,-.7,1.1,-1.1]){const a2=BOAT.h+da,sx=BOAT.x+Math.cos(a2)*BOAT.v*dt*.7,sz=BOAT.z+Math.sin(a2)*BOAT.v*dt*.7;if(sea2Water(sx,sz,a2)){BOAT.x=sx;BOAT.z=sz;BOAT.v*=.97;BOAT.h+=da*.04;ok=true;break;}}if(!ok)BOAT.v*=-.25;}
   player.x=BOAT.x;player.z=BOAT.z;player.moving=false;player.face=Math.cos(BOAT.h)>=0?1:-1;
   player.mesh.visible=true;player.bikeMesh.visible=false;setFrame(player.mesh,0);
-  player.mesh.position.set(BOAT.x-Math.cos(BOAT.h)*.15,.34+Math.sin(performance.now()/700)*.04,BOAT.z-Math.sin(BOAT.h)*.15);player.mesh.scale.x=player.face;player.blob.position.set(0,-50,0);}
+  player.mesh.position.set(BOAT.x-Math.cos(BOAT.h)*.15,(BOAT.deckY||.34)+Math.sin(performance.now()/700)*.04,BOAT.z-Math.sin(BOAT.h)*.15);player.mesh.scale.x=player.face;player.blob.position.set(0,-50,0);}
 // leaving by fast travel or bus while out on the boat: the boat goes back to the jetty by itself and Kip travels on
 function boatPark(){if(typeof BOAT==='undefined'||!BOAT.on)return;BOAT.on=false;BOAT.v=0;if(BOAT.home){BOAT.x=BOAT.home.x;BOAT.z=BOAT.home.z;BOAT.h=Math.PI;}if(BOAT.g){BOAT.g.position.x=BOAT.x;BOAT.g.position.z=BOAT.z;BOAT.g.rotation.y=-BOAT.h;}player.x=BOAT.dock.x;player.z=BOAT.dock.z;}
 if(SEA2_ON){const _up=updatePlayer;updatePlayer=function(dt){if(BOAT.on){sea2Drive(dt);return;}_up(dt);};
