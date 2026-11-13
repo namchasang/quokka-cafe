@@ -103,7 +103,7 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   // boats, clear enough to see their shadows on the sand. Beaches keep their width; other coast gets a narrow sandy edge.
   function bedL(x,z){const t=landD(x,z);if(t===-9&&!WD)return -6;/* past the island grid it is open water: keep the same gentle slope (no drop-off at the grid edge) */
     if(t>=0&&t!==-9){if(t>2.6)return 0;const sand=sandAt(x,z),bw=sand?beachW(x,z):.9;if(t>=bw)return 0;if(!sand&&islPD(x,z)<1.1)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
-    const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);return Math.max(h,-6);}
+    const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);return Math.max(h,L-2.4);/* Paul (13 Nov): the open sea is 2.4 deep at most */}
   // the island grid's water values are not true distances everywhere (inside the Settlement's bays they read hundreds of units),
   // so the seabed uses its own distance-to-shore field: a chamfer distance transform over a fine grid of land/water
   let WD=null,WX0=0,WZ0=0,WR=.35,WW=0,WH=0;
@@ -115,17 +115,21 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
     for(let k=0;k<D.length;k++)D[k]=Math.min(60,D[k]*WR);WD=D;}
   function build(){SEA4.built=true;const t0=performance.now();
     const M=-1;/* the island is drawn mirrored (scene.scale.x = -1): the engine works in world space */
-    const X1=TB.x1-30,X2=TB.x2+30,Z1=TB.z1-30,Z2=TB.z2+30;
+    const SB=seaBounds(),X1=SB.x1-12,X2=SB.x2+12,Z1=SB.z1-12,Z2=SB.z2+12,IX1=TB.x1-30,IX2=Math.min(TB.x2+30,X2),IZ1=TB.z1-30,IZ2=TB.z2+30;
     distField(X1,X2,Z1,Z2);
     // the seabed mesh (scene space), lab colours: white sand at the beach, pale green-grey sand deeper down
-    const SP=.7,NX=Math.round((X2-X1)/SP),NZ=Math.round((Z2-Z1)/SP),g=new THREE.PlaneGeometry(X2-X1,Z2-Z1,NX,NZ);g.rotateX(-Math.PI/2);g.translate((X1+X2)/2,0,(Z1+Z2)/2);
-    const P=g.attributes.position,col=new Float32Array(P.count*3),C=h=>new THREE.Color(h).convertSRGBToLinear(),cS=C('#f2eedf'),cW=C('#e2ecdf'),c=new THREE.Color();
-    for(let i=0;i<P.count;i++){const x=P.getX(i),z=P.getZ(i),h=bedL(x,z);P.setY(i,h>-.02?-.06:h);c.copy(cS).lerp(cW,Math.max(0,Math.min(1,(L-h+.2)/4)));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
-    g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();
-    const bm=new THREE.MeshLambertMaterial({vertexColors:true});const bed=new THREE.Mesh(g,bm);bed.receiveShadow=true;bed.name='sea4bed';scene.add(bed);
+    // seabed meshes (scene space), lab colours: white sand at the beach, pale green-grey sand deeper down. A fine mesh round the
+    // island (beaches) and a coarse one for the open sea, a little lower so the fine one wins where they overlap
+    const C=h=>new THREE.Color(h).convertSRGBToLinear(),cS=C('#f2eedf'),cW=C('#e2ecdf'),c=new THREE.Color();
+    const mkBed=(x1,x2,z1,z2,SP,drop)=>{const NX=Math.round((x2-x1)/SP),NZ=Math.round((z2-z1)/SP),g=new THREE.PlaneGeometry(x2-x1,z2-z1,NX,NZ);g.rotateX(-Math.PI/2);g.translate((x1+x2)/2,0,(z1+z2)/2);
+      const P=g.attributes.position,col=new Float32Array(P.count*3);
+      for(let i=0;i<P.count;i++){const x=P.getX(i),z=P.getZ(i),h=bedL(x,z);P.setY(i,(h>-.02?-.06:h)-drop);c.copy(cS).lerp(cW,Math.max(0,Math.min(1,(L-h+.2)/4)));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
+      g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();return g;};
+    const gIn=mkBed(IX1,IX2,IZ1,IZ2,.7,0),gOut=mkBed(X1,X2,Z1,Z2,2.4,.05),P={count:gIn.attributes.position.count+gOut.attributes.position.count};
+    const bm=new THREE.MeshLambertMaterial({vertexColors:true});const bed=new THREE.Mesh(gIn,bm);bed.receiveShadow=true;bed.name='sea4bed';scene.add(bed);const bed2=new THREE.Mesh(gOut,bm);bed2.receiveShadow=true;bed2.name='sea4bed2';bed.add(bed2);bed2.position.set(0,0,0);
     // the engine: heightmap over the island in world space, water mesh big enough to reach the horizon
     const B={x0:M<0?-X2:X1,z0:Z1,w:X2-X1,h:Z2-Z1};
-    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),bounds:B,heightRes:[1024,Math.round(1024*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:360,center:[0,0]});
+    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),bounds:B,heightRes:[1280,Math.round(1280*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:360,center:[0,0]});
     sea.mesh.name='sea4water';
     // the flat island ground opens over the lowered beach so the sloping sand shows through
     {const tm=terrain.material,prev=tm.onBeforeCompile,pk=tm.customProgramCacheKey;
