@@ -119,9 +119,21 @@ islandLate(()=>{const R=srand(4242);
     const rf=new THREE.Mesh(new THREE.BoxGeometry(3.7,.12,1.5),waM('#e8e2d0'));rf.position.y=2.42;rf.rotation.x=-.08;g.add(rf);const tr=new THREE.Mesh(new THREE.BoxGeometry(3.7,.16,.06),waM('#c8344a'));tr.position.set(0,2.32,.76);g.add(tr);
     const bn=new THREE.Mesh(new THREE.BoxGeometry(1.1,.08,.36),lmat(deckC,[1,1]));bn.position.set(.6,.62,-.25);g.add(bn);[-.4,.4].forEach(o=>{const l=new THREE.Mesh(new THREE.BoxGeometry(.06,.3,.3),legMat);l.position.set(.6+o,.45,-.25);g.add(l);});
     const tt=makeSign(['QUOKKA EXPRESS','TO '+(id==='ostn'?'SETTLEMENT':'OLIVER HILL'),'EVERY 30 MIN'],64,28,'#1f5a3a','#f5ecd8');const tb=new THREE.Mesh(new THREE.PlaneGeometry(.9,.42),new THREE.MeshLambertMaterial({map:tt,emissive:0x222222,emissiveMap:tt}));tb.position.set(-.8,1.55,.42);g.add(tb);
-    g.traverse(o=>{if(o.isMesh)o.castShadow=true;});g.position.set(c.x,0,c.z);scene.add(waMark(g));
-    [-2.25,2.25].forEach(o=>{const px=c.x+o,pz=c.z;if(!islSiteOK(px,pz,.35,.25,{path:.4,land:.6,pad:.1}))return;const pb=box(.7,.35,.4,lmat(deckC,[1,1]),px,.18,pz);pb.__wa=1;[[-.18,'#e8734a'],[.05,'#f1c64a'],[.2,'#c85ab0']].forEach(([d,cl])=>{const f=new THREE.Mesh(new THREE.SphereGeometry(.13,6,4),waM(cl));f.position.set(px+d,.45,pz);scene.add(f);f.__wa=1;});col(px-.35,pz-.2,px+.35,pz+.2);});
+    g.traverse(o=>{if(o.isMesh)o.castShadow=true;});g.position.set(c.x,0,c.z);scene.add(waMark(g));const grp=[g];(WB.stnG=WB.stnG||{})[id]=grp;
+    [-2.25,2.25].forEach(o=>{const px=c.x+o,pz=c.z;if(!islSiteOK(px,pz,.35,.25,{path:.4,land:.6,pad:.1}))return;const pb=box(.7,.35,.4,lmat(deckC,[1,1]),px,.18,pz);pb.__wa=1;grp.push(pb);[[-.18,'#e8734a'],[.05,'#f1c64a'],[.2,'#c85ab0']].forEach(([d,cl])=>{const f=new THREE.Mesh(new THREE.SphereGeometry(.13,6,4),waM(cl));f.position.set(px+d,.45,pz);scene.add(f);f.__wa=1;grp.push(f);});col(px-.35,pz-.2,px+.35,pz+.2);});
     WB[id]={x:c.x,z:c.z+2.2};});
+  // Paul: the shelters sat on the track and the stopped train went through them. Push each shelter (and its planters) sideways until it is clear of the rail, including the overhang past each rail end where the train waits.
+  WB.stnClear=function(){const R=typeof WEST!=='undefined'&&WEST.rail;if(!R||R.length<2||!WB.stnG)return;const n=R.length,ext=(a,b,k)=>{const L=Math.hypot(a[0]-b[0],a[1]-b[1])||1;return[a[0]+(a[0]-b[0])/L*k,a[1]+(a[1]-b[1])/L*k];};
+    const P=[ext(R[0],R[1],6)].concat(R,[ext(R[n-1],R[n-2],3)]),NEED=2.5;
+    Object.keys(WB.stnG).forEach(id=>{const grp=WB.stnG[id],g=grp[0];let best=null;for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1],dx=b[0]-a[0],dz=b[1]-a[1],L2=dx*dx+dz*dz||1e-6;let t=((g.position.x-a[0])*dx+(g.position.z-a[1])*dz)/L2;t=Math.max(0,Math.min(1,t));const qx=a[0]+dx*t,qz=a[1]+dz*t,d=Math.hypot(g.position.x-qx,g.position.z-qz);if(!best||d<best.d)best={d,qx,qz,nx:-dz,nz:dx};}
+      if(!best||best.d>=NEED)return;let ux=g.position.x-best.qx,uz=g.position.z-best.qz,ul=Math.hypot(ux,uz);if(ul<.05){ux=best.nx;uz=best.nz;ul=Math.hypot(ux,uz)||1;}ux/=ul;uz/=ul;const m=NEED-best.d;
+      grp.forEach(o=>{o.position.x+=ux*m;o.position.z+=uz*m;});if(WB[id]){WB[id].x+=ux*m;WB[id].z+=uz*m;}})
+    // the stone platform lies along the track beside the waiting front car, its edge just clear of the train
+    if(WEST.plat)Object.keys(WEST.plat).forEach(id=>{const pl=WEST.plat[id],g=WB.stnG&&WB.stnG[id];if(!pl||!g)return;const e=id==='sstn'?R[0]:R[n-1],q=id==='sstn'?R[1]:R[n-2];let dx=q[0]-e[0],dz=q[1]-e[1];const L=Math.hypot(dx,dz)||1;dx/=L;dz/=L;
+      let nx=-dz,nz=dx;if((g[0].position.x-e[0])*nx+(g[0].position.z-e[1])*nz<0){nx=-nx;nz=-nz;}const cx=e[0]+dx*.6+nx*1.15,cz=e[1]+dz*.6+nz*1.15,ox=pl.position.x,oz=pl.position.z;
+      colliders.forEach(c=>{if(c.x1<ox&&c.x2>ox&&c.z1<oz&&c.z2>oz&&c.x2-c.x1<4&&c.z2-c.z1<2){c.x1=c.x2=c.z1=c.z2=-9999;}});
+      pl.position.set(cx,pl.position.y,cz);pl.rotation.y=-Math.atan2(dz,dx);const hx=Math.abs(dx)*1.7+Math.abs(nx)*.6,hz=Math.abs(dz)*1.7+Math.abs(nz)*.6;col(cx-hx,cz-hz,cx+hx,cz+hz);});};
+  WB.stnClear();
   {const s=WB.sstn;const p=islFindSite(s.x+2.6,s.z,.4,.4,{path:.4,land:.6},4)||[s.x+2.6,s.z];WB.ray={x:p[0],z:p[1]};
     waNPC('ray','Ray',{hair:'#8a8a84',skin:'#d8a47a',shirt:'#1f5a3a',pants:'#2a2a30',hat:'#1f5a3a',cap:true},p[0],p[1],()=>[{who:'Ray',text:pick(['The line was built in the 1930s to carry shells up to the guns. Now it carries people with ice creams.','Toot toot! Sorry. I just like doing that.','Best seat is on the left going up. You get the salt lakes on one side and the sea on the other.'])}]);}
   // map labels for the new bays

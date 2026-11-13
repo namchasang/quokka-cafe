@@ -55,5 +55,10 @@ function westTick(dt,t){if(zoneOf(player.x)!=='island')return;WEST.boats.forEach
   WEST.snork.forEach(s=>{const y=-.08+Math.sin(t*2+s.ph)*.04;s.m.position.set(s.x+Math.sin(t*.3+s.ph)*.8,y,s.z);s.s.position.set(s.m.position.x+.1,y+.2,s.z);});
   WEST.surfers.forEach((s,i)=>{const k=((t*.12+s.ph*.1)%1),so=IW(80.5,11.5);s.m.position.set(so.x+i*2.4+k*1.2,-.1+Math.sin(k*Math.PI)*.25,so.z-k*2.8);s.m.visible=k<.92;});
   WEST.seals.forEach(s=>{s.m.position.y=.25+Math.max(0,Math.sin(t*.7+s.ph*2))*.06;});
-  if(WEST.riding)return;const k=(Math.sin(t*.05)+1)/2;const [x,z,a]=railPos(k);WEST.train.position.set(x,0,z);WEST.train.rotation.y=-a+(Math.cos(t*.05)<0?Math.PI:0);}
+  // the train runs on its own phase so a player can call it to a station (Paul: a call button at each stop); it hurries there, waits 30 s, then carries on
+  if(WEST.riding)return;if(WEST.ph==null)WEST.ph=t*.05;let dir=1;const C=WEST.call;
+  if(C){if(C.hold==null){const d=C.tp-WEST.ph,st=Math.sign(d)*Math.min(Math.abs(d),dt*.25);WEST.ph+=st;dir=st>=0?1:-1;if(Math.abs(C.tp-WEST.ph)<1e-4){C.hold=30;toast('The Quokka Express is here! Hop on.',2.4);}}else{C.hold-=dt;dir=0;if(C.hold<=0)WEST.call=null;}}else WEST.ph+=dt*.05;
+  const k=(Math.sin(WEST.ph)+1)/2;const [x,z,a]=railPos(k);const cv=Math.cos(WEST.ph)*dir;if(Math.abs(cv)>.02)WEST.face=cv<0?Math.PI:0;WEST.train.position.set(x,0,z);WEST.train.rotation.y=-a+(WEST.face||0);}
+WEST.callTo=function(end){if(WEST.riding)return;const ph=WEST.ph||0,base=end==='settle'?Math.PI*1.5:Math.PI/2,tp=base+Math.PI*2*Math.round((ph-base)/(Math.PI*2));WEST.call={end,tp};if(WEST.docked(end))WEST.call.hold=30;};
+WEST.docked=function(end){const C=WEST.call;if(C&&C.end===end&&C.hold!=null)return true;if(WEST.ph==null)return false;const k=(Math.sin(WEST.ph)+1)/2;return end==='settle'?k<.004:k>.996;};
 

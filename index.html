@@ -2552,6 +2552,16 @@ const VILLAGE={x:24,z:5};
     const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.22,8),new THREE.MeshLambertMaterial({color:0xc2603a}));pot.position.set(.42,.11,.98);g.add(pot);col(x-1.05,z-.8,x+1.05,z+.8);});
   signPost(V.x-1.4,V.z+4.4,makeSign(['QUOKKA','VILLAGE'],48,20,'#5a3a22','#f5ecd8'),1.1,.5);})();
 const VILLAGE_ELDER={x:VILLAGE.x+1.5,z:VILLAGE.z+.6};
+// Paul (Nov 2026): a pine forest in and around Quokka Village. Placed after the island grows (world spacing), on open grass only:
+// clear of the plaza, cottages, teepees, paths, the railway and water. The 3D tree layer turns each one into a leaf-card pine.
+islandLate(()=>{const V=VILLAGE,PV=treeVariants.find(v=>v.w<3.2)||treeVariants[treeVariants.length-1],r=mulberry32(2611);let n=0;
+  const railD=(x,z)=>{const R=typeof WEST!=='undefined'&&WEST.rail;if(!R)return 99;let d=99;for(let k=1;k<R.length;k++)d=Math.min(d,segD(x,z,R[k-1][0],R[k-1][1],R[k][0],R[k][1]));return d;};
+  for(let i=0;i<3000&&n<70;i++){const a=r()*6.283,d=3.4+Math.sqrt(r())*14,x=V.x+Math.cos(a)*d,z=V.z+Math.sin(a)*d;
+    if(railD(x,z)<3.2||trees.some(t=>t.m.visible!==false&&Math.hypot(x-t.m.position.x,z-t.m.position.z)<1.7))continue;
+    if(!islSiteOK(x,z,.3,.3,{path:1.1,land:1.4,pad:.7}))continue;
+    const s=.85+r()*.5;const g=new THREE.PlaneGeometry(PV.w*1.2*s,PV.h*1.25*s);g.translate(0,PV.h*1.25*s/2,0);const m=new THREE.Mesh(g,PV.m);m.customDepthMaterial=PV.d;m.castShadow=true;m.position.set(x,0,z);if(r()<.5)m.scale.x=-1;scene.add(m);BB.push(m);
+    trees.push({x,z,m,v:PV,fade:false,pine:1});col(x-.2,z-.1,x+.2,z+.1);n++;}
+  VILLAGE.pines=n;});
 
 const elder=spriteMesh(quokkaFrames('#f5ecd8',.82),1.05,1.05);elder.position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z),VILLAGE_ELDER.z);scene.add(elder);blob(.8).position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z)+.03,VILLAGE_ELDER.z);
 // ---------- café cash register with card reader ----------
@@ -2672,8 +2682,8 @@ const WEST={};
   const hill=new THREE.Mesh(new THREE.ConeGeometry(3.2,1,18),lmat(grassC,[2,2]));hill.position.set(56.6,.35,3.6);hill.scale.y=.8;hill.receiveShadow=true;scene.add(hill);col(55.2,2.4,58,4.8);
   const gun=new THREE.Group();const gb=new THREE.Mesh(new THREE.CylinderGeometry(.85,.95,.45,14),M('#6a6e76'));gb.position.y=.22;gun.add(gb);const gt=new THREE.Mesh(new THREE.BoxGeometry(1.1,.6,1),M('#5a6a4a'));gt.position.y=.7;gun.add(gt);const br=new THREE.Mesh(new THREE.CylinderGeometry(.11,.14,3,10),M('#4a5a3a'));br.rotation.z=Math.PI/2-.12;br.position.set(1.6,.95,0);gun.add(br);gun.position.set(56.6,.75,3.6);gun.rotation.y=-.6;gun.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(gun);
   signPost(54.2,4.8,makeSign(['OLIVER HILL','BATTERY'],52,20,'#4a5a3a','#f5ecd8'),1,.5);
-  box(3.4,.3,1.2,lmat(stoneC,[2,1]),54.6,.15,1.2);signPost(53.2,.5,makeSign(['OLIVER HILL STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(52.9,.6,56.3,1.8);
-  box(3.4,.3,1.2,lmat(stoneC,[2,1]),14.2,.15,-4.6);signPost(12.6,-5.2,makeSign(['SETTLEMENT STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(12.5,-5.2,15.9,-4);
+  WEST.plat={};WEST.plat.ostn=box(3.4,.3,1.2,lmat(stoneC,[2,1]),54.6,.15,1.2);signPost(53.2,.5,makeSign(['OLIVER HILL STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(52.9,.6,56.3,1.8);
+  WEST.plat.sstn=box(3.4,.3,1.2,lmat(stoneC,[2,1]),14.2,.15,-4.6);signPost(12.6,-5.2,makeSign(['SETTLEMENT STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(12.5,-5.2,15.9,-4);
   // rails along the train line
   const RAIL=[[15.8,-3.6],[24,-3.4],[36,1.6],[48,2.8],[53,1.8]];const tieM=M('#5a3a22'),railM=M('#9aa0a8');
   const buildRail=RAIL=>{const n0=scene.children.length;for(let i=0;i<RAIL.length-1;i++){const [ax,az]=RAIL[i],[bx,bz]=RAIL[i+1];const len=Math.hypot(bx-ax,bz-az),ang=Math.atan2(bz-az,bx-ax);
@@ -3004,8 +3014,10 @@ function buildTargets(){const T=[];const ph=phase();
   {const zq=zoneOf(player.x);BRANCHES.forEach(b=>{if(b.zone!==zq)return;const st=brState(b.id);T.push({x:b.x,z:b.z+(b.ry?-2.6:2.6),r:1.6,label:st.own?'Quokka Cafe '+b.name+(st.till?' \u00b7 till '+st.till:'')+' \u00b7 manage':'Caf\u00e9 lot for sale \u00b7 '+b.price,act:()=>{hqTab=b.id;openCafe();}});});}
   if(S.time>=1080||S.time<OPEN)T.push({...IW(-3.9,-3.8),r:1.2,label:'Sleep in the back room until 7:00',act:()=>endDay()});
   if(zoneOf(player.x)==='island'){COACH.forEach(b=>T.push({x:b.x,z:b.z+.6,r:1.1,label:unlocked('coach')?'Island Loop bus · '+b.name:'Bus stop (the bus starts day 3)',act:()=>unlocked('coach')?openCoach(b.id):say([{who:'Timetable',text:'The Island Loop bus starts running on day 3.'}])}));
-   T.push({...IW(14.2,-3.6),r:1.3,label:unlocked('train')?'Quokka Express to Oliver Hill · 15 min':'Settlement Station (opens soon)',act:()=>unlocked('train')?openTravel('Quokka Express','Settlement Station',[{id:'oliver',name:'Oliver Hill',note:'Scenic ride along the island',ride:()=>trainRide('oliver'),tp:()=>trainTo('oliver')}]):say([{who:'Station',text:'The Quokka Express opens once you have explored the island by coach.'}])});
-   T.push({...IW(54.6,.2),r:1.3,label:'Quokka Express to Settlement · 15 min',act:()=>openTravel('Quokka Express','Oliver Hill Station',[{id:'settle',name:'Settlement',note:'Scenic ride along the island',ride:()=>trainRide('settle'),tp:()=>trainTo('settle')}])});
+   if(unlocked('train')&&!WEST.docked('settle'))T.push({...IW(14.2,-3.6),r:1.3,label:WEST.call&&WEST.call.end==='settle'?'The Quokka Express is on its way…':'Call the Quokka Express',act:()=>{WEST.callTo('settle');toast('Train called! It will pull in shortly.',2.4);}});
+   else T.push({...IW(14.2,-3.6),r:1.3,label:unlocked('train')?'Quokka Express to Oliver Hill · 15 min':'Settlement Station (opens soon)',act:()=>unlocked('train')?openTravel('Quokka Express','Settlement Station',[{id:'oliver',name:'Oliver Hill',note:'Scenic ride along the island',ride:()=>trainRide('oliver'),tp:()=>trainTo('oliver')}]):say([{who:'Station',text:'The Quokka Express opens once you have explored the island by coach.'}])});
+   if(!WEST.docked('oliver'))T.push({...IW(54.6,.2),r:1.3,label:WEST.call&&WEST.call.end==='oliver'?'The Quokka Express is on its way…':'Call the Quokka Express',act:()=>{WEST.callTo('oliver');toast('Train called! It will pull in shortly.',2.4);}});
+   else T.push({...IW(54.6,.2),r:1.3,label:'Quokka Express to Settlement · 15 min',act:()=>openTravel('Quokka Express','Oliver Hill Station',[{id:'settle',name:'Settlement',note:'Scenic ride along the island',ride:()=>trainRide('settle'),tp:()=>trainTo('settle')}])});
    T.push({...IW(55.2,5.2),r:1.4,label:'Read the battery plaque',act:()=>say([{who:'Oliver Hill Battery',text:'Two 9.2-inch guns were installed here in the 1930s to protect Fremantle harbour. The tunnels underneath are open for tours.'}])});
    T.push({...IW(95.6,-.8),r:1.3,label:'Read the memorial',act:()=>say([{who:'Vlamingh Memorial',text:'Dutch captain Willem de Vlamingh landed in 1696 and named the island “Rotte nest”, thinking the quokkas were giant rats.'}])});
    T.push({...IW(95,3.4),r:1.6,label:'Watch the fur seals',act:()=>say([{who:'Kip',text:'New Zealand fur seals sunbathing on Cathedral Rocks. They’re so lazy. I love them.'}])});
@@ -4204,7 +4216,12 @@ function westTick(dt,t){if(zoneOf(player.x)!=='island')return;WEST.boats.forEach
   WEST.snork.forEach(s=>{const y=-.08+Math.sin(t*2+s.ph)*.04;s.m.position.set(s.x+Math.sin(t*.3+s.ph)*.8,y,s.z);s.s.position.set(s.m.position.x+.1,y+.2,s.z);});
   WEST.surfers.forEach((s,i)=>{const k=((t*.12+s.ph*.1)%1),so=IW(80.5,11.5);s.m.position.set(so.x+i*2.4+k*1.2,-.1+Math.sin(k*Math.PI)*.25,so.z-k*2.8);s.m.visible=k<.92;});
   WEST.seals.forEach(s=>{s.m.position.y=.25+Math.max(0,Math.sin(t*.7+s.ph*2))*.06;});
-  if(WEST.riding)return;const k=(Math.sin(t*.05)+1)/2;const [x,z,a]=railPos(k);WEST.train.position.set(x,0,z);WEST.train.rotation.y=-a+(Math.cos(t*.05)<0?Math.PI:0);}
+  // the train runs on its own phase so a player can call it to a station (Paul: a call button at each stop); it hurries there, waits 30 s, then carries on
+  if(WEST.riding)return;if(WEST.ph==null)WEST.ph=t*.05;let dir=1;const C=WEST.call;
+  if(C){if(C.hold==null){const d=C.tp-WEST.ph,st=Math.sign(d)*Math.min(Math.abs(d),dt*.25);WEST.ph+=st;dir=st>=0?1:-1;if(Math.abs(C.tp-WEST.ph)<1e-4){C.hold=30;toast('The Quokka Express is here! Hop on.',2.4);}}else{C.hold-=dt;dir=0;if(C.hold<=0)WEST.call=null;}}else WEST.ph+=dt*.05;
+  const k=(Math.sin(WEST.ph)+1)/2;const [x,z,a]=railPos(k);const cv=Math.cos(WEST.ph)*dir;if(Math.abs(cv)>.02)WEST.face=cv<0?Math.PI:0;WEST.train.position.set(x,0,z);WEST.train.rotation.y=-a+(WEST.face||0);}
+WEST.callTo=function(end){if(WEST.riding)return;const ph=WEST.ph||0,base=end==='settle'?Math.PI*1.5:Math.PI/2,tp=base+Math.PI*2*Math.round((ph-base)/(Math.PI*2));WEST.call={end,tp};if(WEST.docked(end))WEST.call.hold=30;};
+WEST.docked=function(end){const C=WEST.call;if(C&&C.end===end&&C.hold!=null)return true;if(WEST.ph==null)return false;const k=(Math.sin(WEST.ph)+1)/2;return end==='settle'?k<.004:k>.996;};
 
 // ---------- Dream Code: visit a friend's island (no server) ----------
 let VISIT=null;
@@ -4409,7 +4426,7 @@ const COACH_ROUTE=[[10.4,-1.2],[13,0],[26,0],[29.6,-2.4],[26,-7],[22,-7.2],[26,-
 const COACH_IDX={settle:0,basin:5,light:8,geordie:15,salmon:17,west:19};
 let coachMesh=null;
 function trainRide(dest){const R=WEST.rail;const S0=[IWx(14.2,-3.6),IWz(14.2,-3.6)];const pts=dest==='oliver'?[S0].concat(R):R.slice().reverse().concat([S0]);WEST.riding=true;toast('All aboard the Quokka Express! · '+FARE_RIDE+' coins',2.2);startCine();
-  rideAlong(pts,WEST.train,4.5,()=>{WEST.riding=false;if(dest==='oliver'){player.x=IWx(54.6,.2);player.z=IWz(54.6,.2);}else{player.x=IWx(14.2,-3.2);player.z=IWz(14.2,-3.2);}S.qg=S.qg||{};S.qg.train=1;save();},.4);}
+  rideAlong(pts,WEST.train,4.5,()=>{WEST.riding=false;{const e=dest==='oliver'?'oliver':'settle';WEST.riding=false;WEST.callTo(e);WEST.ph=WEST.call.tp;WEST.call.hold=12;}if(dest==='oliver'){player.x=IWx(54.6,.2);player.z=IWz(54.6,.2);}else{player.x=IWx(14.2,-3.2);player.z=IWz(14.2,-3.2);}S.qg=S.qg||{};S.qg.train=1;save();},.4);}
 function busRide(dest){if(transit||VISIT)return;if(PASS_ZONES.includes(dest)&&needPass(dest))return;const zq=zoneOf(player.x);const F=BUS_STOPS[zq],D=BUS_STOPS[dest];if(!F)return;const bm=window.__busProto.clone();scene.add(bm);
   const fx=F.x+.6,fz=F.z+1.4;toast('Riding the bus to '+D.name+' · '+FARE_RIDE+' coins',2.4);
   rideAlong([[fx,fz],[fx+14,fz]],bm,5,()=>{fadeTarget=.95;transit=true;setTimeout(()=>{scene.remove(bm);const bm2=window.__busProto.clone();scene.add(bm2);const tx=D.x+.6,tz=D.z+1.4;player.x=tx-14;player.z=tz;updateCamera(0,true);fadeTarget=0;
@@ -5923,9 +5940,21 @@ islandLate(()=>{const R=srand(4242);
     const rf=new THREE.Mesh(new THREE.BoxGeometry(3.7,.12,1.5),waM('#e8e2d0'));rf.position.y=2.42;rf.rotation.x=-.08;g.add(rf);const tr=new THREE.Mesh(new THREE.BoxGeometry(3.7,.16,.06),waM('#c8344a'));tr.position.set(0,2.32,.76);g.add(tr);
     const bn=new THREE.Mesh(new THREE.BoxGeometry(1.1,.08,.36),lmat(deckC,[1,1]));bn.position.set(.6,.62,-.25);g.add(bn);[-.4,.4].forEach(o=>{const l=new THREE.Mesh(new THREE.BoxGeometry(.06,.3,.3),legMat);l.position.set(.6+o,.45,-.25);g.add(l);});
     const tt=makeSign(['QUOKKA EXPRESS','TO '+(id==='ostn'?'SETTLEMENT':'OLIVER HILL'),'EVERY 30 MIN'],64,28,'#1f5a3a','#f5ecd8');const tb=new THREE.Mesh(new THREE.PlaneGeometry(.9,.42),new THREE.MeshLambertMaterial({map:tt,emissive:0x222222,emissiveMap:tt}));tb.position.set(-.8,1.55,.42);g.add(tb);
-    g.traverse(o=>{if(o.isMesh)o.castShadow=true;});g.position.set(c.x,0,c.z);scene.add(waMark(g));
-    [-2.25,2.25].forEach(o=>{const px=c.x+o,pz=c.z;if(!islSiteOK(px,pz,.35,.25,{path:.4,land:.6,pad:.1}))return;const pb=box(.7,.35,.4,lmat(deckC,[1,1]),px,.18,pz);pb.__wa=1;[[-.18,'#e8734a'],[.05,'#f1c64a'],[.2,'#c85ab0']].forEach(([d,cl])=>{const f=new THREE.Mesh(new THREE.SphereGeometry(.13,6,4),waM(cl));f.position.set(px+d,.45,pz);scene.add(f);f.__wa=1;});col(px-.35,pz-.2,px+.35,pz+.2);});
+    g.traverse(o=>{if(o.isMesh)o.castShadow=true;});g.position.set(c.x,0,c.z);scene.add(waMark(g));const grp=[g];(WB.stnG=WB.stnG||{})[id]=grp;
+    [-2.25,2.25].forEach(o=>{const px=c.x+o,pz=c.z;if(!islSiteOK(px,pz,.35,.25,{path:.4,land:.6,pad:.1}))return;const pb=box(.7,.35,.4,lmat(deckC,[1,1]),px,.18,pz);pb.__wa=1;grp.push(pb);[[-.18,'#e8734a'],[.05,'#f1c64a'],[.2,'#c85ab0']].forEach(([d,cl])=>{const f=new THREE.Mesh(new THREE.SphereGeometry(.13,6,4),waM(cl));f.position.set(px+d,.45,pz);scene.add(f);f.__wa=1;grp.push(f);});col(px-.35,pz-.2,px+.35,pz+.2);});
     WB[id]={x:c.x,z:c.z+2.2};});
+  // Paul: the shelters sat on the track and the stopped train went through them. Push each shelter (and its planters) sideways until it is clear of the rail, including the overhang past each rail end where the train waits.
+  WB.stnClear=function(){const R=typeof WEST!=='undefined'&&WEST.rail;if(!R||R.length<2||!WB.stnG)return;const n=R.length,ext=(a,b,k)=>{const L=Math.hypot(a[0]-b[0],a[1]-b[1])||1;return[a[0]+(a[0]-b[0])/L*k,a[1]+(a[1]-b[1])/L*k];};
+    const P=[ext(R[0],R[1],6)].concat(R,[ext(R[n-1],R[n-2],3)]),NEED=2.5;
+    Object.keys(WB.stnG).forEach(id=>{const grp=WB.stnG[id],g=grp[0];let best=null;for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1],dx=b[0]-a[0],dz=b[1]-a[1],L2=dx*dx+dz*dz||1e-6;let t=((g.position.x-a[0])*dx+(g.position.z-a[1])*dz)/L2;t=Math.max(0,Math.min(1,t));const qx=a[0]+dx*t,qz=a[1]+dz*t,d=Math.hypot(g.position.x-qx,g.position.z-qz);if(!best||d<best.d)best={d,qx,qz,nx:-dz,nz:dx};}
+      if(!best||best.d>=NEED)return;let ux=g.position.x-best.qx,uz=g.position.z-best.qz,ul=Math.hypot(ux,uz);if(ul<.05){ux=best.nx;uz=best.nz;ul=Math.hypot(ux,uz)||1;}ux/=ul;uz/=ul;const m=NEED-best.d;
+      grp.forEach(o=>{o.position.x+=ux*m;o.position.z+=uz*m;});if(WB[id]){WB[id].x+=ux*m;WB[id].z+=uz*m;}})
+    // the stone platform lies along the track beside the waiting front car, its edge just clear of the train
+    if(WEST.plat)Object.keys(WEST.plat).forEach(id=>{const pl=WEST.plat[id],g=WB.stnG&&WB.stnG[id];if(!pl||!g)return;const e=id==='sstn'?R[0]:R[n-1],q=id==='sstn'?R[1]:R[n-2];let dx=q[0]-e[0],dz=q[1]-e[1];const L=Math.hypot(dx,dz)||1;dx/=L;dz/=L;
+      let nx=-dz,nz=dx;if((g[0].position.x-e[0])*nx+(g[0].position.z-e[1])*nz<0){nx=-nx;nz=-nz;}const cx=e[0]+dx*.6+nx*1.15,cz=e[1]+dz*.6+nz*1.15,ox=pl.position.x,oz=pl.position.z;
+      colliders.forEach(c=>{if(c.x1<ox&&c.x2>ox&&c.z1<oz&&c.z2>oz&&c.x2-c.x1<4&&c.z2-c.z1<2){c.x1=c.x2=c.z1=c.z2=-9999;}});
+      pl.position.set(cx,pl.position.y,cz);pl.rotation.y=-Math.atan2(dz,dx);const hx=Math.abs(dx)*1.7+Math.abs(nx)*.6,hz=Math.abs(dz)*1.7+Math.abs(nz)*.6;col(cx-hx,cz-hz,cx+hx,cz+hz);});};
+  WB.stnClear();
   {const s=WB.sstn;const p=islFindSite(s.x+2.6,s.z,.4,.4,{path:.4,land:.6},4)||[s.x+2.6,s.z];WB.ray={x:p[0],z:p[1]};
     waNPC('ray','Ray',{hair:'#8a8a84',skin:'#d8a47a',shirt:'#1f5a3a',pants:'#2a2a30',hat:'#1f5a3a',cap:true},p[0],p[1],()=>[{who:'Ray',text:pick(['The line was built in the 1930s to carry shells up to the guns. Now it carries people with ice creams.','Toot toot! Sorry. I just like doing that.','Best seat is on the left going up. You get the salt lakes on one side and the sea on the other.'])}]);}
   // map labels for the new bays
@@ -8069,7 +8098,7 @@ ISL.late.push(()=>{
     const ends=[R[0],R[R.length-1]],obs=colliders.filter(c=>{const w=c.x2-c.x1,d=c.z2-c.z1;return w>.6&&d>.6&&w<9&&d<9&&!ends.some(([x,z])=>x>c.x1-1.5&&x<c.x2+1.5&&z>c.z1-1.5&&z<c.z2+1.5);}).map(c=>({x:(c.x1+c.x2)/2,z:(c.z1+c.z2)/2,r:Math.hypot(c.x2-c.x1,c.z2-c.z1)/2+1.1}));
     const push=()=>{for(let i=1;i<R.length-1;i++)for(const o of obs){const dx=R[i][0]-o.x,dz=R[i][1]-o.z,d=Math.hypot(dx,dz);if(d<o.r){const k=d>1e-3?o.r/d:1;R[i]=[o.x+(d>1e-3?dx:1)*k,o.z+(d>1e-3?dz:0)*k];}}};
     for(let it=0;it<14;it++){push();const Q=R.map(p=>p.slice());for(let i=1;i<R.length-1;i++)Q[i]=[(R[i-1][0]+R[i][0]*2+R[i+1][0])/4,(R[i-1][1]+R[i][1]*2+R[i+1][1])/4];R=Q;}push();for(let it=0;it<3;it++){const Q=R.map(p=>p.slice());for(let i=1;i<R.length-1;i++)Q[i]=[(R[i-1][0]+R[i][0]*2+R[i+1][0])/4,(R[i-1][1]+R[i][1]*2+R[i+1][1])/4];R=Q;}
-    ISL.rail.meshes=ISL.rail.build(R);WEST.rail=R;}
+    ISL.rail.meshes=ISL.rail.build(R);WEST.rail=R;if(typeof WB!=='undefined'&&WB.stnClear)WB.stnClear();}
   // more street lights along the longer paths
   if(ISL.lamp)for(const P of PATHS)for(let i=0;i<P.length-1;i++){const [ax,az]=P[i],[bx,bz]=P[i+1];if(ax>=99.5)continue;const L=Math.hypot(bx-ax,bz-az);if(L<.1)continue;const nx=-(bz-az)/L,nz=(bx-ax)/L;
     for(let d=1.5;d<L;d+=7){const t=d/L,px=ax+(bx-ax)*t,pz=az+(bz-az)*t;for(const s of [1,-1]){const x=px+nx*1.15*s,z=pz+nz*1.15*s;if(landD(x,z)>.9&&pathD(x,z)>.9){ISL.lamp(x,z);break;}}}}

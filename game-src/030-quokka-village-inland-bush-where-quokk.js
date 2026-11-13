@@ -20,6 +20,16 @@ const VILLAGE={x:24,z:5};
     const pot=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.22,8),new THREE.MeshLambertMaterial({color:0xc2603a}));pot.position.set(.42,.11,.98);g.add(pot);col(x-1.05,z-.8,x+1.05,z+.8);});
   signPost(V.x-1.4,V.z+4.4,makeSign(['QUOKKA','VILLAGE'],48,20,'#5a3a22','#f5ecd8'),1.1,.5);})();
 const VILLAGE_ELDER={x:VILLAGE.x+1.5,z:VILLAGE.z+.6};
+// Paul (Nov 2026): a pine forest in and around Quokka Village. Placed after the island grows (world spacing), on open grass only:
+// clear of the plaza, cottages, teepees, paths, the railway and water. The 3D tree layer turns each one into a leaf-card pine.
+islandLate(()=>{const V=VILLAGE,PV=treeVariants.find(v=>v.w<3.2)||treeVariants[treeVariants.length-1],r=mulberry32(2611);let n=0;
+  const railD=(x,z)=>{const R=typeof WEST!=='undefined'&&WEST.rail;if(!R)return 99;let d=99;for(let k=1;k<R.length;k++)d=Math.min(d,segD(x,z,R[k-1][0],R[k-1][1],R[k][0],R[k][1]));return d;};
+  for(let i=0;i<3000&&n<70;i++){const a=r()*6.283,d=3.4+Math.sqrt(r())*14,x=V.x+Math.cos(a)*d,z=V.z+Math.sin(a)*d;
+    if(railD(x,z)<3.2||trees.some(t=>t.m.visible!==false&&Math.hypot(x-t.m.position.x,z-t.m.position.z)<1.7))continue;
+    if(!islSiteOK(x,z,.3,.3,{path:1.1,land:1.4,pad:.7}))continue;
+    const s=.85+r()*.5;const g=new THREE.PlaneGeometry(PV.w*1.2*s,PV.h*1.25*s);g.translate(0,PV.h*1.25*s/2,0);const m=new THREE.Mesh(g,PV.m);m.customDepthMaterial=PV.d;m.castShadow=true;m.position.set(x,0,z);if(r()<.5)m.scale.x=-1;scene.add(m);BB.push(m);
+    trees.push({x,z,m,v:PV,fade:false,pine:1});col(x-.2,z-.1,x+.2,z+.1);n++;}
+  VILLAGE.pines=n;});
 
 const elder=spriteMesh(quokkaFrames('#f5ecd8',.82),1.05,1.05);elder.position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z),VILLAGE_ELDER.z);scene.add(elder);blob(.8).position.set(VILLAGE_ELDER.x,groundY(VILLAGE_ELDER.x,VILLAGE_ELDER.z)+.03,VILLAGE_ELDER.z);
 // ---------- café cash register with card reader ----------

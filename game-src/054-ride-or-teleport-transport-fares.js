@@ -11,7 +11,7 @@ const COACH_ROUTE=[[10.4,-1.2],[13,0],[26,0],[29.6,-2.4],[26,-7],[22,-7.2],[26,-
 const COACH_IDX={settle:0,basin:5,light:8,geordie:15,salmon:17,west:19};
 let coachMesh=null;
 function trainRide(dest){const R=WEST.rail;const S0=[IWx(14.2,-3.6),IWz(14.2,-3.6)];const pts=dest==='oliver'?[S0].concat(R):R.slice().reverse().concat([S0]);WEST.riding=true;toast('All aboard the Quokka Express! · '+FARE_RIDE+' coins',2.2);startCine();
-  rideAlong(pts,WEST.train,4.5,()=>{WEST.riding=false;if(dest==='oliver'){player.x=IWx(54.6,.2);player.z=IWz(54.6,.2);}else{player.x=IWx(14.2,-3.2);player.z=IWz(14.2,-3.2);}S.qg=S.qg||{};S.qg.train=1;save();},.4);}
+  rideAlong(pts,WEST.train,4.5,()=>{WEST.riding=false;{const e=dest==='oliver'?'oliver':'settle';WEST.riding=false;WEST.callTo(e);WEST.ph=WEST.call.tp;WEST.call.hold=12;}if(dest==='oliver'){player.x=IWx(54.6,.2);player.z=IWz(54.6,.2);}else{player.x=IWx(14.2,-3.2);player.z=IWz(14.2,-3.2);}S.qg=S.qg||{};S.qg.train=1;save();},.4);}
 function busRide(dest){if(transit||VISIT)return;if(PASS_ZONES.includes(dest)&&needPass(dest))return;const zq=zoneOf(player.x);const F=BUS_STOPS[zq],D=BUS_STOPS[dest];if(!F)return;const bm=window.__busProto.clone();scene.add(bm);
   const fx=F.x+.6,fz=F.z+1.4;toast('Riding the bus to '+D.name+' · '+FARE_RIDE+' coins',2.4);
   rideAlong([[fx,fz],[fx+14,fz]],bm,5,()=>{fadeTarget=.95;transit=true;setTimeout(()=>{scene.remove(bm);const bm2=window.__busProto.clone();scene.add(bm2);const tx=D.x+.6,tz=D.z+1.4;player.x=tx-14;player.z=tz;updateCamera(0,true);fadeTarget=0;

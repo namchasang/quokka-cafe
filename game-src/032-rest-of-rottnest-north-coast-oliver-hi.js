@@ -10,8 +10,8 @@ const WEST={};
   const hill=new THREE.Mesh(new THREE.ConeGeometry(3.2,1,18),lmat(grassC,[2,2]));hill.position.set(56.6,.35,3.6);hill.scale.y=.8;hill.receiveShadow=true;scene.add(hill);col(55.2,2.4,58,4.8);
   const gun=new THREE.Group();const gb=new THREE.Mesh(new THREE.CylinderGeometry(.85,.95,.45,14),M('#6a6e76'));gb.position.y=.22;gun.add(gb);const gt=new THREE.Mesh(new THREE.BoxGeometry(1.1,.6,1),M('#5a6a4a'));gt.position.y=.7;gun.add(gt);const br=new THREE.Mesh(new THREE.CylinderGeometry(.11,.14,3,10),M('#4a5a3a'));br.rotation.z=Math.PI/2-.12;br.position.set(1.6,.95,0);gun.add(br);gun.position.set(56.6,.75,3.6);gun.rotation.y=-.6;gun.traverse(o=>{if(o.isMesh)o.castShadow=true;});scene.add(gun);
   signPost(54.2,4.8,makeSign(['OLIVER HILL','BATTERY'],52,20,'#4a5a3a','#f5ecd8'),1,.5);
-  box(3.4,.3,1.2,lmat(stoneC,[2,1]),54.6,.15,1.2);signPost(53.2,.5,makeSign(['OLIVER HILL STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(52.9,.6,56.3,1.8);
-  box(3.4,.3,1.2,lmat(stoneC,[2,1]),14.2,.15,-4.6);signPost(12.6,-5.2,makeSign(['SETTLEMENT STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(12.5,-5.2,15.9,-4);
+  WEST.plat={};WEST.plat.ostn=box(3.4,.3,1.2,lmat(stoneC,[2,1]),54.6,.15,1.2);signPost(53.2,.5,makeSign(['OLIVER HILL STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(52.9,.6,56.3,1.8);
+  WEST.plat.sstn=box(3.4,.3,1.2,lmat(stoneC,[2,1]),14.2,.15,-4.6);signPost(12.6,-5.2,makeSign(['SETTLEMENT STN'],56,12,'#1f5a3a','#f5ecd8'),1.6,.3);col(12.5,-5.2,15.9,-4);
   // rails along the train line
   const RAIL=[[15.8,-3.6],[24,-3.4],[36,1.6],[48,2.8],[53,1.8]];const tieM=M('#5a3a22'),railM=M('#9aa0a8');
   const buildRail=RAIL=>{const n0=scene.children.length;for(let i=0;i<RAIL.length-1;i++){const [ax,az]=RAIL[i],[bx,bz]=RAIL[i+1];const len=Math.hypot(bx-ax,bz-az),ang=Math.atan2(bz-az,bx-ax);
