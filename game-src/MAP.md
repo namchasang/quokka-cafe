@@ -207,10 +207,10 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-build-smooth-look-lab-toon.js | 18772-18831 | 7 | BSMOOTH_LIVE, BSMOOTH |
 | 188-meadow-tufts-look-lab-toon.js | 18832-18880 | 6 | MEADOW_LIVE, MEADOW |
 | 188-rocks-look-lab-toon.js | 18881-18913 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 18914-18979 | 8 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 18980-19010 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19011-19027 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19028-19038 | 1 |  |
-| 188-auth.js | 19039-19117 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19118-19161 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19162-19183 | 3 | SHOT |
+| 188-critters-look-lab-toon.js | 18914-18980 | 9 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 18981-19011 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 19012-19028 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 19029-19039 | 1 |  |
+| 188-auth.js | 19040-19118 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 19119-19162 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19163-19184 | 3 | SHOT |
