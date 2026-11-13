@@ -19461,9 +19461,15 @@ const CRIT3={on:CRIT3_LIVE||TOON_ON,list:[]};
   function build(){if(built)return;built=true;
     if(typeof butterflies!=='undefined')butterflies.forEach((b,i)=>track(b.m,()=>{const g=butterfly(BPAL[Math.floor(i/2)%BPAL.length]);g.scale.setScalar(1.6);return g;},'b',i));
     if(typeof gulls!=='undefined')gulls.forEach((g,i)=>track(g.m,gull,'g',i));}
+  // ---- Kip on his bike (Paul, 13 Nov 2026): the same 3D bike as the island cyclists, with Kip's own toon quokka in the saddle ----
+  function kipBike(){const g=rider(1);g.children.slice().forEach(c=>{if(c.userData&&c.userData.isRider)g.remove(c);});
+    const ud=g.userData;if(ud.u){/* drop the human rider */g.children.forEach(c=>{if(c.rotation&&Math.abs(c.rotation.x-.28)<1e-3&&c.type==='Group')c.visible=false;});}
+    if(typeof TOON!=='undefined'&&TOON.quokka){const m=TOON.quokka('#3e7d5c',1.1);const k=m.g.scale.x;m.g.position.set(0,.72-.12*k,-.1);m.g.rotation.x=.18;g.add(m.g);ud.u=m.u;}
+    const bk=TM('#f2e6c8');g.add(mesh(new THREE.BoxGeometry(.28,.16,.2),bk,0,.66,.42));/* Kip's front basket */return g;}
   const seen=new Set();
   function tick(){if(!built){if(typeof butterflies==='undefined')return;build();}
     if(typeof riders!=='undefined')riders.forEach((r,i)=>{if(r.m&&!seen.has(r.m)){seen.add(r.m);track(r.m,rider,'r',i);}});
+    if(typeof GROUND3D!=='undefined'&&GROUND3D.on&&typeof player!=='undefined'&&player.bikeMesh&&!seen.has(player.bikeMesh))/* Look Lab with ?ground3d until Paul approves */{seen.add(player.bikeMesh);track(player.bikeMesh,kipBike,'r',1);}
     const t=performance.now()/1000;
     for(let k=CRIT3.list.length-1;k>=0;k--){const e=CRIT3.list[k],s=e.src,M=e.model;
       if(!s.parent){scene.remove(M);CRIT3.list.splice(k,1);continue;}
