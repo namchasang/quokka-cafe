@@ -1,9 +1,9 @@
-// ---------- Rottnest sea with the real Water Sea Engine (Look Lab: ?sea4 until SEA4_LIVE is true) ----------
+// ---------- Rottnest sea with the real Water Sea Engine (live since 13 Nov 2026; was Look Lab ?sea4) ----------
 // Paul (13 Nov 2026): "the real engine, 100% like the lab". The island gets a real seabed and sloping beaches (heights from the
 // island's own shore grid), the engine's water draws over it with real depth, refraction, breakers on the sand bar, swash that runs
 // up the beach and slides back, wet sand that dries, caustics and sand ripples underwater, sun glints and sky reflection.
 // While the camera is on Rottnest the old water layers are hidden; other maps keep their water. Quality: SEA4.q (0 = no refraction).
-const SEA4_LIVE=false;
+const SEA4_LIVE=true;// Paul approved, 13 Nov 2026 ("สวยถูกใจ เอาขึ้นเกมส์จริงเลย"); ?nosea4 not needed: ?notoon shows the old look
 const SEA4={on:(SEA4_LIVE||/[?&#]sea4\b/.test(location.search+location.hash))&&TOON_ON,built:false,L:-.09,q:1};
 /* Water Sea Engine (Paul Perth Library, Nov 2026) — clear shallow sea for three.js r128.
    Made for Quokka Cafe (Rottnest), reusable in any game. One call:
