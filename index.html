@@ -18720,11 +18720,13 @@ const SEA3={on:SEA3_LIVE||TOON_ON,built:false};
         // Paul's photos (Nov 2026): the sea round the island is clear, pale sand under the water everywhere near the shore,
         // aqua over it, bright moving light on the seabed; seagrass only as scattered dark patches further out, then deep blue
         vec3 bed=mix(${SR('#f2eedf')},${SR('#e2ecdf')},smoothstep(.5,6.,dd));
-        float grass=smoothstep(.6,.66,n1*.62+s3n(wp*.7+3.)*.25+n2*.13)*smoothstep(4.,7.,dd);
+        float grass=smoothstep(.7,.76,n1*.62+s3n(wp*.7+3.)*.25+n2*.13)*smoothstep(4.,7.,dd);
         bed=mix(bed,${SR('#1d4466')},grass*.85);bed*=.95+.1*n3;
         float ca=abs(sin((wp.x+s3n(wp*1.7+uT*.25)*2.)*3.1)*sin((wp.y+s3n(wp*1.9-uT*.2)*2.)*2.7));float ca2=abs(sin((wp.x*1.7-s3n(wp*2.3-uT*.3)*2.)*2.6)*sin((wp.y*1.5+s3n(wp*2.1+uT*.22)*2.)*3.3));
         bed+=vec3(.16,.18,.16)*(pow(1.-ca,7.)+pow(1.-ca2,8.)*.7)*(1.-smoothstep(2.,9.,dd))*(1.-grass);
-        float wd=clamp(.22+dd*.07,0.,.92);vec3 c=mix(bed,${SR('#2fbfc4')}*mix(1.,.6,grass),wd*(1.-grass*.5));c=mix(c,${SR('#2aa7c8')},smoothstep(7.,13.,dd));c=mix(c,${SR('#1a66b0')},smoothstep(12.,22.,dd));
+        /* Water Sea Engine colours (Paul, 13 Nov 2026, from his Thomson Bay and Bathurst photos): pale sand seen through aqua water, turquoise further out, a bright teal blue only in deep water; sand ripples on the seabed */
+        float rip=sin(wp.x*3.2+sin(wp.y*.7)*1.6+s3n(wp*.4)*3.)*.5+.5;bed*=1.-pow(rip,6.)*.14*smoothstep(.2,1.,dd)*(1.-grass);
+        float wd=clamp(.12+dd*.055,0.,.9);vec3 c=mix(bed*mix(vec3(1.),${SR('#5fe3d2')}*1.25,.55),${SR('#5fe3d2')}*mix(1.,.6,grass),wd*(1.-grass*.5));c=mix(c,${SR('#20c3c8')},smoothstep(6.,12.,dd));c=mix(c,${SR('#1593c4')},smoothstep(14.,28.,dd));
         c*=1.+(s3n(wp*.7+vec2(uT*.25,-uT*.15))-.5)*.06;
         float lace=smoothstep(.35,.65,s3n(wp*5.+vec2(uT*.3,0.)))*.6+.4;
         float ph=fract(uT*.08+s3n(wp*.12)*.5);
@@ -18744,6 +18746,28 @@ const SEA3={on:SEA3_LIVE||TOON_ON,built:false};
     SEA3.sea=sea;if(typeof waves!=='undefined')waves.visible=false;// the old crest lines are too hard next to this sea
   }
   const wait=()=>{if(typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'){try{build();}catch(e){console.error('sea3',e);}return;}setTimeout(wait,400);};wait();
+})();
+// ---------- Boats at anchor in Thomson Bay (Paul, 13 Nov 2026, from the Water Sea Engine lab and his bay photo) ----------
+// Motor yachts with pointed hulls, stepped white decks, dark window strips, some with a flybridge and a navy or black band, plus
+// tenders and jet skis; they bob on the clear water and cast their shadows on the sand under it. Kept away from the jetty and ferry.
+(function(){if(!TOON_ON)return;
+  const L=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c).convertSRGBToLinear()});const WH=L('#f7f7f3'),GL=L('#26313d'),TK=L('#c9a77c');
+  const hullGeo=(len,w,h)=>{const sh=new THREE.Shape();sh.moveTo(-len/2,-w/2);sh.lineTo(len*.18,-w/2);sh.quadraticCurveTo(len*.46,-w*.42,len/2,0);sh.quadraticCurveTo(len*.46,w*.42,len*.18,w/2);sh.lineTo(-len/2,w/2);sh.lineTo(-len/2,-w/2);
+    const g=new THREE.ExtrudeGeometry(sh,{depth:h,bevelEnabled:true,bevelThickness:.05,bevelSize:.05,bevelSegments:1});g.rotateX(-Math.PI/2);return g;};
+  const yacht=(len,band,tiers,fly)=>{const g=new THREE.Group(),w=len*.32,k=len/7.5;const lower=new THREE.Mesh(hullGeo(len,w*.92,.3*k),L(band));lower.position.y=-.16*k;g.add(lower);const upper=new THREE.Mesh(hullGeo(len,w,.36*k),WH);upper.position.y=.13*k;g.add(upper);
+    const plat=new THREE.Mesh(new THREE.BoxGeometry(.35*k,.06,w*.9),TK);plat.position.set(-len/2-.15*k,.04,0);g.add(plat);
+    let y=.58*k,l=len*.62,x=-len*.08;for(let t=0;t<tiers;t++){const c=new THREE.Mesh(new THREE.BoxGeometry(l,.3*k,w*(.82-t*.1)),WH);c.position.set(x,y,0);g.add(c);const win=new THREE.Mesh(new THREE.BoxGeometry(l*.86,.11*k,w*(.83-t*.1)),GL);win.position.set(x+l*.04,y+.03*k,0);g.add(win);y+=.3*k;l*=.66;x-=len*.04;}
+    if(fly){const r=new THREE.Mesh(new THREE.BoxGeometry(l*1.3,.04,w*.7),WH);r.position.set(x,y+.25*k,0);g.add(r);[[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([a,b])=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.02,.02,.25*k,5),WH);p.position.set(x+a*l*.55,y+.12*k,b*w*.3);g.add(p);});}
+    g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});return g;};
+  const small=(len,col,seat)=>{const g=new THREE.Group();const h=new THREE.Mesh(hullGeo(len,len*.42,.18),L(col));h.position.y=-.06;g.add(h);const s=new THREE.Mesh(new THREE.BoxGeometry(len*.2,.18,len*.25),L(seat));s.position.set(-len*.25,.2,0);g.add(s);g.traverse(o=>{if(o.isMesh)o.castShadow=true;});return g;};
+  const depthAt=(x,z)=>{try{const v=landD(x,z);return v===-9?-1:-v;}catch(e){return -1;}};/* landD is distance inland; out at sea it is negative */
+  function build(){const B=[];const keep=[[(JETTY.x1+JETTY.x2)/2,5,7],[JETTY.x1,5,7]];if(typeof ferry!=='undefined'&&ferry.position)keep.push([ferry.position.x,ferry.position.z,9]);const rnd=mulberry32(4242);const spots=[];
+    for(let t=0;t<900&&spots.length<14;t++){const x=-40+rnd()*70,z=-4+rnd()*30;const d=depthAt(x,z);if(d<3||d>16||d===-9)continue;if(keep.some(([a,b,r])=>Math.hypot(x-a,z-b)<r))continue;if(spots.some(s=>Math.hypot(s[0]-x,s[1]-z)<5.2))continue;spots.push([x,z]);}
+    spots.forEach(([x,z],i)=>{let g;if(i<9){const len=4.2+rnd()*2.6;g=yacht(len,['#f7f7f3','#1f3e7a','#f7f7f3','#2a2a30','#f7f7f3'][i%5],len>5.8?3:2,rnd()<.6);g.userData.lift=.12;}else if(i<12){g=small(1.3,'#f4f4f0','#2a2a30');g.userData.lift=.03;}else{g=small(.8,'#e8e8e4','#1f2a3a');g.userData.lift=.03;}
+      g.position.set(x,-.09,z);g.rotation.y=rnd()*Math.PI*2;g.userData.ph=rnd()*6;g.name='bayBoat';scene.add(g);B.push(g);});
+    (function bob(){const t=performance.now()/1000;B.forEach(b=>{b.position.y=-.09+b.userData.lift+Math.sin(t*1.1+b.userData.ph)*.035;b.rotation.z=Math.sin(t*.8+b.userData.ph)*.025;b.rotation.x=Math.sin(t*.7+b.userData.ph*1.3)*.015;});requestAnimationFrame(bob);})();
+    window.BAY_BOATS=B;}
+  const wait=()=>{if(typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'){try{build();}catch(e){console.error('bay boats',e);}return;}setTimeout(wait,500);};wait();
 })();
 // ---------- Smooth buildings on Rottnest like the Tree Lab (Look Lab: ?toon until BSMOOTH_LIVE is true) ----------
 // Paul (Nov 2026): no pixel skins (PXK) on Rottnest. Every wall box and roof the pixel kit dressed is repainted smooth, from the
