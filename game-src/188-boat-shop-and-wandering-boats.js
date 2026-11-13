@@ -41,6 +41,7 @@ const BOATS={shop:{fishing:{deck:.4,name:'Fishing boat',price:1500,vmax:6,turn:2
     trawler(){const g=new THREE.Group();H(g,6,2.2,1,'#2f5a7a',-.55);add(g,new THREE.BoxGeometry(1.8,1.2,1.8),M('#f4f2ec'),-1.4,1.05,0);add(g,new THREE.BoxGeometry(1.82,.3,1.82),M('#2b3a4c'),-1.4,1.25,0);
       const b=add(g,new THREE.CylinderGeometry(.05,.05,3.6,5),M('#d8b040'),.8,1.8,0);b.rotation.z=-.4;[-1,1].forEach(sd=>{const o=add(g,new THREE.CylinderGeometry(.03,.03,3,4),M('#d8b040'),.4,1.2,sd*.9);o.rotation.x=sd*1;});return g;},
     inflatable(){const g=new THREE.Group();[-1,1].forEach(sd=>add(g,new THREE.CylinderGeometry(.22,.22,2.4,8),M('#e8734a'),0,0,sd*.45).rotation.z=Math.PI/2);add(g,new THREE.BoxGeometry(2.2,.08,.8),M('#3a3a40'),0,-.1,0);add(g,new THREE.BoxGeometry(.25,.4,.25),M('#2a2a30'),-1.2,.15,0);add(g,new THREE.SphereGeometry(.13,8,6),M('#f1c7a0'),-.7,.45,0);return g;}};
+  delete AMB.banana;/* the towed banana boat removed (Paul, 13 Nov) */
   const AMBK=Object.keys(AMB),AMB_V={kayak:1.2,canoe:1.4,sailboat:3,catamaran:3.5,jetski:9,pontoon:2.5,dinghy:2.5,banana:6,cruiser:5,gameboat:5.5,trawler:2.5,inflatable:4};
   // ---- Kip's boat: the chosen model rides inside the tour boat's group ----
   function useBoat(k){if(typeof BOAT==='undefined'||!BOAT.g)return;const g=BOAT.g;if(!BOATS.orig)BOATS.orig=g.children.slice();if(BOATS.cur){g.remove(BOATS.cur);BOATS.cur=null;}

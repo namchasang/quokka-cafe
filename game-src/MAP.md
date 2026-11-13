@@ -205,15 +205,15 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-sea-beach-look-lab-toon.js | 18732-18804 | 8 | SEA3_LIVE, SEA3 |
 | 188-sea-real-engine-look-lab-sea4.js | 18805-18958 | 19 | SEA4_LIVE, SEA4, C, SR, create |
 | 188-open-sea-ships-and-captain-ned.js | 18959-19078 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 19079-19158 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 19159-19180 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 19181-19240 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 19241-19289 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 19290-19322 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 19323-19389 | 9 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 19390-19420 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19421-19437 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19438-19448 | 2 |  |
-| 188-auth.js | 19449-19527 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19528-19571 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19572-19593 | 3 | SHOT |
+| 188-boat-shop-and-wandering-boats.js | 19079-19159 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 19160-19181 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 19182-19241 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 19242-19290 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 19291-19323 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 19324-19390 | 9 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 19391-19421 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 19422-19438 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 19439-19449 | 2 |  |
+| 188-auth.js | 19450-19528 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 19529-19572 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19573-19594 | 3 | SHOT |

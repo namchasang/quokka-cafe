@@ -102,7 +102,7 @@ SIDEQ.push({id:'ned',zone:'island',mood:'heart',hidden:true,title:'Captain Nedâ€
     {const cf=IW(0,2.9),ang=Math.atan2(cf.z-cz,cf.x-cx);let i=Math.round(((ang+Math.PI*2)%(Math.PI*2))/(Math.PI*2)*N)%N;i=(i+N-6)%N;const a=i/N*Math.PI*2,R=last[i]+9,x=cx+Math.cos(a)*R,z=cz+Math.sin(a)*R;
       const pb=partyBoat();pb.__islKeep=1;pb.userData.swimmers.forEach(o=>{o.__islKeep=1;});pb.position.set(x,0,z);pb.rotation.y=-(a+Math.PI/2);scene.add(pb);pb.userData.swimmers.forEach(s=>scene.add(s));LIFE.party={g:pb,x,z,h:a+Math.PI/2,L:12,W:4.6,name:'the party boat'};SHIPS.list.push(LIFE.party);}
     // paddle boarders just off the beaches, gliding up and down the shore
-    for(let k=0;k<6;k++){const i=Math.floor((k+.3)/6*N),a=i/N*Math.PI*2,R=last[i]+3.5,g=board(k);g.__islKeep=1;scene.add(g);LIFE.boards.push({g,a,R,ph:k*1.7,cx,cz});}
+    /* paddle boarders removed (Paul, 13 Nov) */for(let k=0;k<0;k++){const i=Math.floor((k+.3)/6*N),a=i/N*Math.PI*2,R=last[i]+3.5,g=board(k);g.__islKeep=1;scene.add(g);LIFE.boards.push({g,a,R,ph:k*1.7,cx,cz});}
     console.log('LIFE ring '+N+' boards '+LIFE.boards.length);return true;}
   (function wait(){if(typeof SEA4!=='undefined'&&SEA4.on===false)return;let ok=false;try{ok=build();}catch(e){console.error('life',e);return;}if(!ok)setTimeout(wait,600);})();
   (function loop(){try{const t=performance.now()/1000,dt=1/60;

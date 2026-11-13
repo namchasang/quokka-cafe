@@ -19060,7 +19060,7 @@ SIDEQ.push({id:'ned',zone:'island',mood:'heart',hidden:true,title:'Captain Nedâ€
     {const cf=IW(0,2.9),ang=Math.atan2(cf.z-cz,cf.x-cx);let i=Math.round(((ang+Math.PI*2)%(Math.PI*2))/(Math.PI*2)*N)%N;i=(i+N-6)%N;const a=i/N*Math.PI*2,R=last[i]+9,x=cx+Math.cos(a)*R,z=cz+Math.sin(a)*R;
       const pb=partyBoat();pb.__islKeep=1;pb.userData.swimmers.forEach(o=>{o.__islKeep=1;});pb.position.set(x,0,z);pb.rotation.y=-(a+Math.PI/2);scene.add(pb);pb.userData.swimmers.forEach(s=>scene.add(s));LIFE.party={g:pb,x,z,h:a+Math.PI/2,L:12,W:4.6,name:'the party boat'};SHIPS.list.push(LIFE.party);}
     // paddle boarders just off the beaches, gliding up and down the shore
-    for(let k=0;k<6;k++){const i=Math.floor((k+.3)/6*N),a=i/N*Math.PI*2,R=last[i]+3.5,g=board(k);g.__islKeep=1;scene.add(g);LIFE.boards.push({g,a,R,ph:k*1.7,cx,cz});}
+    /* paddle boarders removed (Paul, 13 Nov) */for(let k=0;k<0;k++){const i=Math.floor((k+.3)/6*N),a=i/N*Math.PI*2,R=last[i]+3.5,g=board(k);g.__islKeep=1;scene.add(g);LIFE.boards.push({g,a,R,ph:k*1.7,cx,cz});}
     console.log('LIFE ring '+N+' boards '+LIFE.boards.length);return true;}
   (function wait(){if(typeof SEA4!=='undefined'&&SEA4.on===false)return;let ok=false;try{ok=build();}catch(e){console.error('life',e);return;}if(!ok)setTimeout(wait,600);})();
   (function loop(){try{const t=performance.now()/1000,dt=1/60;
@@ -19119,6 +19119,7 @@ const BOATS={shop:{fishing:{deck:.4,name:'Fishing boat',price:1500,vmax:6,turn:2
     trawler(){const g=new THREE.Group();H(g,6,2.2,1,'#2f5a7a',-.55);add(g,new THREE.BoxGeometry(1.8,1.2,1.8),M('#f4f2ec'),-1.4,1.05,0);add(g,new THREE.BoxGeometry(1.82,.3,1.82),M('#2b3a4c'),-1.4,1.25,0);
       const b=add(g,new THREE.CylinderGeometry(.05,.05,3.6,5),M('#d8b040'),.8,1.8,0);b.rotation.z=-.4;[-1,1].forEach(sd=>{const o=add(g,new THREE.CylinderGeometry(.03,.03,3,4),M('#d8b040'),.4,1.2,sd*.9);o.rotation.x=sd*1;});return g;},
     inflatable(){const g=new THREE.Group();[-1,1].forEach(sd=>add(g,new THREE.CylinderGeometry(.22,.22,2.4,8),M('#e8734a'),0,0,sd*.45).rotation.z=Math.PI/2);add(g,new THREE.BoxGeometry(2.2,.08,.8),M('#3a3a40'),0,-.1,0);add(g,new THREE.BoxGeometry(.25,.4,.25),M('#2a2a30'),-1.2,.15,0);add(g,new THREE.SphereGeometry(.13,8,6),M('#f1c7a0'),-.7,.45,0);return g;}};
+  delete AMB.banana;/* the towed banana boat removed (Paul, 13 Nov) */
   const AMBK=Object.keys(AMB),AMB_V={kayak:1.2,canoe:1.4,sailboat:3,catamaran:3.5,jetski:9,pontoon:2.5,dinghy:2.5,banana:6,cruiser:5,gameboat:5.5,trawler:2.5,inflatable:4};
   // ---- Kip's boat: the chosen model rides inside the tour boat's group ----
   function useBoat(k){if(typeof BOAT==='undefined'||!BOAT.g)return;const g=BOAT.g;if(!BOATS.orig)BOATS.orig=g.children.slice();if(BOATS.cur){g.remove(BOATS.cur);BOATS.cur=null;}
