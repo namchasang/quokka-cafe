@@ -14,15 +14,18 @@ const SEA3={on:SEA3_LIVE||TOON_ON,built:false};
     const W=GW,Hh=GH,data=new Uint8Array(W*Hh*4);
     for(let j=0;j<Hh;j++)for(let i=0;i<W;i++){const k=j*W+i,d=-Dg[k],v=Math.max(0,Math.min(255,Math.round((d+2)/12*255)));data[k*4]=v;data[k*4+1]=v;data[k*4+2]=v;data[k*4+3]=255;}
     const tD=new THREE.DataTexture(data,W,Hh,THREE.RGBAFormat);tD.magFilter=THREE.LinearFilter;tD.minFilter=THREE.LinearFilter;tD.wrapS=tD.wrapT=THREE.ClampToEdgeWrapping;tD.needsUpdate=true;
-    const U={tD:{value:tD},uB:{value:new THREE.Vector4(TB.x1,TB.z1,(GW-1)/GR,(GH-1)/GR)},uT:{value:0},uMir:{value:1}};// uMir: the island scene may be drawn mirrored (scene.scale.x = -1)
-    const pre=`uniform sampler2D tD;uniform vec4 uB;uniform float uT;uniform float uMir;uniform float uBand;varying vec3 vWp3;\n${NOISE}
-      float s3d(vec2 p){vec2 uv=(p-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>.985||uv.y>1.)return 10.;return texture2D(tD,uv).r*12.-2.;}`;
+    const U={tD:{value:tD},uB:{value:new THREE.Vector4(TB.x1,TB.z1,(GW-1)/GR,(GH-1)/GR)},uT:{value:0},uMir:{value:1},uLev:{value:0}};// uMir: the island scene may be drawn mirrored (scene.scale.x = -1)
+    const pre=`uniform sampler2D tD;uniform vec4 uB;uniform float uT;uniform float uMir;uniform float uBand;uniform float uLev;varying vec3 vWp3;\n${NOISE}
+      float s3d(vec2 p){vec2 uv=(p-uB.xy)/uB.zw;if(uv.x<0.||uv.y<0.||uv.x>.985||uv.y>1.)return 10.;return texture2D(tD,uv).r*12.-2.;}
+      /* Water Sea Engine swash (ported, in shore-distance units): each wave runs up the sand and slides back; two wave trains */
+      float s3r1(vec2 p,float t,float per,float off){float q=t/per+off+s3n(p*.05+off*3.)*.55;float c=fract(q);float r=c<.28?smoothstep(0.,.28,c):1.-smoothstep(.28,1.,c);return r*(.26+.22*s3h(vec2(floor(q),off)));}
+      float s3run(vec2 p,float t){return max(s3r1(p,t,9.,0.),s3r1(p,t,13.,.37)*.8)*3.;}`;
     const vtx=sh=>{sh.vertexShader='varying vec3 vWp3;\n'+sh.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvWp3=(modelMatrix*vec4(transformed,1.)).xyz;');};
     // --- the sea ---
     const mkSea=band=>{const m=new THREE.MeshLambertMaterial({color:0xffffff,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2});
     m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U,{uBand:{value:band}});vtx(sh);
       sh.fragmentShader=pre+sh.fragmentShader.replace('#include <map_fragment>',`
-        vec2 wp=vec2(vWp3.x*uMir,vWp3.z);float d0=s3d(wp);if(uBand>.5&&(d0<0.||d0>1.6))discard;float d=s3d(wp+vec2(sin(uT*.5+wp.y*.9),cos(uT*.4+wp.x*.8))*.06*(1.-uBand));
+        vec2 wp=vec2(vWp3.x*uMir,vWp3.z);float d0=s3d(wp)+uLev;if(uBand>.5&&(d0<-1.7||d0>1.6))discard;float d=s3d(wp+vec2(sin(uT*.5+wp.y*.9),cos(uT*.4+wp.x*.8))*.06*(1.-uBand))+uLev;
         float wob=(s3n(wp*.35+uT*.05)-.5)*1.2;float dd=max(d+wob*.35,0.);
         // Paul's reference (Nov 2026): clear green-teal water you can see the seabed through (sand, darker weed patches, pebbles,
         // dancing light), deepening to a teal blue; a thin lacy foam line on the sand and a second one just behind it
@@ -45,7 +48,11 @@ const SEA3={on:SEA3_LIVE||TOON_ON,built:false};
         float f2=exp(-pow((d-(.3+ph*.9))/.05,2.))*(1.-ph)*.8*lace;
         float f3=exp(-pow((d-.55)/.05,2.))*.35*lace*smoothstep(.4,.7,s3n(wp*.8+uT*.05));
         c=mix(c,${SR('#fbfaf4')},clamp(f1+f2+f3,0.,1.)*.9);
-        diffuseColor.rgb=c;`);};m.customProgramCacheKey=()=>'sea3'+band;return m;};const seaM=mkSea(0);
+        diffuseColor.rgb=c;
+        /* on the sand: a thin sheet of water with a lacy foam front while a wave runs up, then dark wet sand that dries over a few seconds */
+        if(uBand>.5&&d0<0.){float sw=s3run(wp,uT);
+          if(d0>-sw){float fr=exp(-pow((d0+sw)/.1,2.))*lace;diffuseColor.rgb=mix(mix(${SR('#f2eedf')},${SR('#5fe3d2')},.7),${SR('#fbfaf4')},clamp(fr*1.3,0.,1.));diffuseColor.a=clamp(.55+fr*.55+smoothstep(-.4,0.,d0)*.3,0.,1.);}
+          else{float wet=0.;for(int k=1;k<7;k++){wet=max(wet,step(-s3run(wp,uT-float(k)*.8),d0)*(1.-float(k)/7.));}if(wet<.02)discard;diffuseColor.rgb=${SR('#6e5a3e')};diffuseColor.a=wet*.42;}}`);};m.customProgramCacheKey=()=>'sea3'+band;if(band){m.transparent=true;m.depthWrite=false;}return m;};const seaM=mkSea(0);
     const ext=60,x1=TB.x1-ext,x2=TB.x2+ext+80,z1=TB.z1-ext,z2=TB.z2+ext;
     // it lies under every ground mesh (the settlement lawns are separate meshes over the grid's water) and over the old pixel water layers
     const sea=flat(x2-x1,z2-z1,seaM,(x1+x2)/2,-.09,(z1+z2)/2);sea.receiveShadow=true;sea.renderOrder=-1;sea.name='sea3';
@@ -53,7 +60,10 @@ const SEA3={on:SEA3_LIVE||TOON_ON,built:false};
     // the shore band: the same water drawn just over the ground from the true waterline out to 1.6, so the coast is a smooth line
     // instead of the ground's pixel steps; it stays under the settlement lawns (they sit higher)
     const band=flat(TB.x2-TB.x1,TB.z2-TB.z1,mkSea(1),(TB.x1+TB.x2)/2,.009,(TB.z1+TB.z2)/2);band.receiveShadow=true;band.name='sea3band';
-    sea.onBeforeRender=()=>{U.uT.value=performance.now()/1000;U.uMir.value=scene.scale.x<0?-1:1;};
+    sea.onBeforeRender=()=>{U.uT.value=performance.now()/1000;U.uMir.value=scene.scale.x<0?-1:1;
+      // water level: SEA3.level if set (Look Lab / events), otherwise a gentle tide, two highs a day; it only rises over today's waterline (0 = low water) (shore-distance units)
+      U.uLev.value=SEA3.level!=null?SEA3.level:(typeof S!=='undefined'&&S.time!=null?.2+.2*Math.sin(S.time/720*Math.PI*2):0);};
+    SEA3.setLevel=v=>{SEA3.level=v==null?null:Math.max(0,v);};
     SEA3.sea=sea;if(typeof waves!=='undefined')waves.visible=false;// the old crest lines are too hard next to this sea
   }
   const wait=()=>{if(typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'){try{build();}catch(e){console.error('sea3',e);}return;}setTimeout(wait,400);};wait();

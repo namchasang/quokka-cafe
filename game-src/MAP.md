@@ -202,15 +202,15 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 18439-18583 | 19 | TREE3D_LIVE, TREE3D |
 | 188-toon-characters-look-lab-toon.js | 18584-18662 | 9 | TOON_LIVE, TOON |
 | 188-paint-look-look-lab-toon.js | 18663-18718 | 5 | PAINT_LIVE, PAINT |
-| 188-sea-beach-look-lab-toon.js | 18719-18778 | 6 | SEA3_LIVE, SEA3 |
-| 188-bay-boats-look-lab-toon.js | 18779-18800 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 18801-18860 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 18861-18909 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 18910-18942 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 18943-19009 | 9 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 19010-19040 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19041-19057 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19058-19068 | 1 |  |
-| 188-auth.js | 19069-19147 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19148-19191 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19192-19213 | 3 | SHOT |
+| 188-sea-beach-look-lab-toon.js | 18719-18788 | 7 | SEA3_LIVE, SEA3 |
+| 188-bay-boats-look-lab-toon.js | 18789-18810 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 18811-18870 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 18871-18919 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 18920-18952 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 18953-19019 | 9 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 19020-19050 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 19051-19067 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 19068-19078 | 1 |  |
+| 188-auth.js | 19079-19157 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 19158-19201 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19202-19223 | 3 | SHOT |
