@@ -204,17 +204,17 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-paint-look-look-lab-toon.js | 18676-18731 | 5 | PAINT_LIVE, PAINT |
 | 188-sea-beach-look-lab-toon.js | 18732-18804 | 8 | SEA3_LIVE, SEA3 |
 | 188-sea-real-engine-look-lab-sea4.js | 18805-18979 | 23 | SEA4_LIVE, SEA4, C, SR, create |
-| 188-ground3d-look-lab.js | 18980-19027 | 6 | GROUND3D_LIVE, GROUND3D |
-| 188-open-sea-ships-and-captain-ned.js | 19028-19147 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 19148-19228 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 19229-19250 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 19251-19310 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 19311-19359 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 19360-19392 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 19393-19459 | 9 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 19460-19490 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19491-19507 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19508-19518 | 2 |  |
-| 188-auth.js | 19519-19597 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19598-19641 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19642-19663 | 3 | SHOT |
+| 188-ground3d-look-lab.js | 18980-19051 | 9 | GROUND3D_LIVE, GROUND3D |
+| 188-open-sea-ships-and-captain-ned.js | 19052-19171 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 19172-19252 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 19253-19274 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 19275-19334 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 19335-19383 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 19384-19416 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 19417-19483 | 9 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 19484-19514 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 19515-19531 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 19532-19542 | 2 |  |
+| 188-auth.js | 19543-19621 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 19622-19665 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19666-19687 | 3 | SHOT |

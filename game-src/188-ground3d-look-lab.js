@@ -46,3 +46,27 @@ const GROUND3D={on:(GROUND3D_LIVE||/[?&#]ground3d\b/.test(location.search+locati
   // show the old sheets again away from Rottnest, hide them back on the island
   (function loop(){try{if(GROUND3D.done){const on=scene.scale.x<0&&zoneOf(camTarget.x)==='island';GROUND3D.hidden.forEach(o=>{o.visible=!on;});}}catch(e){}setTimeout(loop,500);})();
 })();
+// ---------- clear the beach: buildings, signs, lamps and props within 2 units of the water step inland (Paul, 13 Nov 2026) ----------
+// Jetties and anything that reaches well out over the water stay. Pieces close together move together; their colliders and the
+// Island Loop bus stops move with them. Look Lab ?ground3d only.
+GROUND3D.clearBeach=function(){const NEED=2,inv=new THREE.Matrix4().copy(scene.matrixWorld).invert(),B=new THREE.Box3();scene.updateMatrixWorld(true);
+  const bb=new Set(typeof BB!=='undefined'?BB:[]),items=[];const ld=(x,z)=>{const t=landD(x,z);return t===-9?-9:t;};
+  scene.children.forEach(o=>{if(!o.visible||o.isLight||o.isInstancedMesh||o.__islKeep||o.__g3||bb.has(o)||(o.userData&&o.userData.frames)||/^(sea|bay)/.test(o.name||''))return;
+    try{B.setFromObject(o).applyMatrix4(inv);}catch(e){return;}if(B.isEmpty())return;const w=B.max.x-B.min.x,d=B.max.z-B.min.z,h=B.max.y-B.min.y;if(w>14||d>14||h<.05)return;
+    const cx=(B.min.x+B.max.x)/2,cz=(B.min.z+B.max.z)/2;if(zoneOf(cx)!=='island')return;const t=ld(cx,cz);if(t<=0||t>=NEED)return;
+    const cs=[ld(B.min.x,B.min.z),ld(B.max.x,B.max.z),ld(B.min.x,B.max.z),ld(B.max.x,B.min.z)];if(Math.min(...cs)<-1.5)return;/* a jetty or something meant to sit over the water */
+    items.push({o,b:B.clone()});});
+  // group pieces that touch (a bench and its legs, a sign and its post)
+  const par=items.map((_,i)=>i),f=i=>{while(par[i]!==i)i=par[i]=par[par[i]];return i;};
+  for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){const a=items[i].b,b=items[j].b;if(a.min.x-.5<b.max.x&&b.min.x-.5<a.max.x&&a.min.z-.5<b.max.z&&b.min.z-.5<a.max.z)par[f(j)]=f(i);}
+  const G=new Map();items.forEach((it,i)=>{const r=f(i);if(!G.has(r))G.set(r,{m:[],b:new THREE.Box3()});const g=G.get(r);g.m.push(it);g.b.union(it.b);});
+  let moved=0,stops=0;G.forEach(g=>{const b=g.b,cx=(b.min.x+b.max.x)/2,cz=(b.min.z+b.max.z)/2;if(b.max.x-b.min.x>14||b.max.z-b.min.z>14)return;
+    const e=.4,gx=ld(cx+e,cz)-ld(cx-e,cz),gz=ld(cx,cz+e)-ld(cx,cz-e),gl=Math.hypot(gx,gz);if(gl<1e-4)return;const ux=gx/gl,uz=gz/gl;
+    const minAt=s=>Math.min(ld(b.min.x+ux*s,b.min.z+uz*s),ld(b.max.x+ux*s,b.max.z+uz*s),ld(b.min.x+ux*s,b.max.z+uz*s),ld(b.max.x+ux*s,b.min.z+uz*s),ld(cx+ux*s,cz+uz*s));
+    let s=0;while(s<6&&minAt(s)<NEED)s+=.25;if(s<=0||s>=6)return;const dx=ux*s,dz=uz*s;
+    g.m.forEach(it=>{it.o.position.x+=dx;it.o.position.z+=dz;});
+    if(typeof colliders!=='undefined')colliders.forEach(c=>{if(c.x1>=b.min.x-.3&&c.x2<=b.max.x+.3&&c.z1>=b.min.z-.3&&c.z2<=b.max.z+.3){c.x1+=dx;c.x2+=dx;c.z1+=dz;c.z2+=dz;}});
+    if(typeof COACH!=='undefined')COACH.forEach(c=>{if(c.x>b.min.x-1.5&&c.x<b.max.x+1.5&&c.z>b.min.z-1.5&&c.z<b.max.z+1.5){c.x+=dx;c.z+=dz;stops++;}});
+    moved++;});
+  GROUND3D.moved=moved;GROUND3D.stops=stops;console.log('GROUND3D clear beach: groups moved '+moved+', bus stops '+stops);};
+(function w2(){if(GROUND3D.on&&GROUND3D.done&&!GROUND3D.cleared){GROUND3D.cleared=1;try{GROUND3D.clearBeach();}catch(e){console.error('clearBeach',e);}return;}if(GROUND3D.on)setTimeout(w2,1000);})();
