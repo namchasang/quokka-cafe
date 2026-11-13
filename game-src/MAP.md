@@ -213,5 +213,5 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-rail-clear-look-lab-toon.js | 19186-19202 | 2 | RAILCLR |
 | 188-island-only-look-lab-toon.js | 19203-19213 | 1 |  |
 | 188-auth.js | 19214-19292 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19293-19335 | 7 |  |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19336-19357 | 3 | SHOT |
+| 189b-island-builder.js | 19293-19336 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19337-19358 | 3 | SHOT |

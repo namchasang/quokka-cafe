@@ -1,7 +1,8 @@
 // ===== Island Builder (Paul Nov 2026): players build their own Rottnest. Tap "Build" on the island: add trees, flowers, benches,
 // cottages, kiosks and shops and working vegetable plots for coins, pick anything on the island to move, turn, resize or remove it,
 // paint the ground. Kept on this device, re-built every time the game opens. Kip's café and the story spots stay put in this first version. =====
-(()=>{if(typeof mapEditorMake!=='function'||EDIT_ON){console.log('IB skip',typeof mapEditorMake,EDIT_ON);return;}try{
+const IB_LIVE=false;/* Look Lab until Paul says it goes live: open the game with ?build */
+(()=>{if(!(IB_LIVE||/[?&#]build\b/.test(location.search+location.hash)))return;if(typeof mapEditorMake!=='function'||EDIT_ON){console.log('IB skip',typeof mapEditorMake,EDIT_ON);return;}try{
   const tex=c=>{const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestMipMapLinearFilter;try{t.encoding=THREE.sRGBEncoding;}catch(e){}return t;};
   const MC={};const mat=c=>MC[c]||(MC[c]=new THREE.MeshLambertMaterial({map:tex(c)}));const flatM={};const fm=c=>flatM[c]||(flatM[c]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
   /* a small building from the pixel kit: walled box with a hipped or gabled roof */
