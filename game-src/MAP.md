@@ -203,14 +203,15 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-toon-characters-look-lab-toon.js | 18584-18662 | 9 | TOON_LIVE, TOON |
 | 188-paint-look-look-lab-toon.js | 18663-18718 | 5 | PAINT_LIVE, PAINT |
 | 188-sea-beach-look-lab-toon.js | 18719-18791 | 8 | SEA3_LIVE, SEA3 |
-| 188-bay-boats-look-lab-toon.js | 18792-18813 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 18814-18873 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 18874-18922 | 6 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 18923-18955 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 18956-19022 | 9 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 19023-19053 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19054-19070 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19071-19081 | 1 |  |
-| 188-auth.js | 19082-19160 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19161-19204 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19205-19226 | 3 | SHOT |
+| 188-sea-real-engine-look-lab-sea4.js | 18792-18924 | 16 | SEA4_LIVE, SEA4, C, SR, create |
+| 188-bay-boats-look-lab-toon.js | 18925-18946 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 18947-19006 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 19007-19055 | 6 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 19056-19088 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 19089-19155 | 9 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 19156-19186 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 19187-19203 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 19204-19214 | 1 |  |
+| 188-auth.js | 19215-19293 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 19294-19337 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19338-19359 | 3 | SHOT |

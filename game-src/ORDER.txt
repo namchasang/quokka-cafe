@@ -196,6 +196,7 @@
 188-toon-characters-look-lab-toon.js
 188-paint-look-look-lab-toon.js
 188-sea-beach-look-lab-toon.js
+188-sea-real-engine-look-lab-sea4.js
 188-bay-boats-look-lab-toon.js
 188-build-smooth-look-lab-toon.js
 188-meadow-tufts-look-lab-toon.js
