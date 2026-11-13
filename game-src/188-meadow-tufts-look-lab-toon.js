@@ -34,7 +34,7 @@ const MEADOW={on:MEADOW_LIVE||TOON_ON,chunks:new Map(),n:0};
   function chunk(ci,cj){if(!MAT){MAT=[tuftTex(false),tuftTex(true)].map(t=>new THREE.MeshLambertMaterial({map:t,alphaTest:.5,side:THREE.DoubleSide,emissive:new THREE.Color('#0d1a08')}));GEO=tuftGeo();}
     const r=mulberry32((ci*73856093)^(cj*19349663)),pts=[[],[]],n=Math.round(CS*CS*DENS);
     for(let k=0;k<n*2&&pts[0].length+pts[1].length<n;k++){const x=(ci+r())*CS,z=(cj+r())*CS;if(zoneOf(x)!=='island')continue;if(!green(x,z)||inBuilding(x,z))continue;
-      if(!(typeof GROUND3D!=='undefined'&&GROUND3D.on)){if(typeof pathD==='function'&&pathD(x,z)<1.0)continue;if(onLane(x,z))continue;}pts[r()<.2?1:0].push([x,z,.55+r()*.6,r()*3.14]);}
+      if(!(typeof GROUND3D!=='undefined'&&GROUND3D.on)||(typeof PATHS3D!=='undefined'&&PATHS3D.n)){if(typeof pathD==='function'&&pathD(x,z)<.75)continue;if(onLane(x,z))continue;}pts[r()<.2?1:0].push([x,z,.55+r()*.6,r()*3.14]);}
     const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),Y=new THREE.Vector3(0,1,0),meshes=[];
     pts.forEach((L,f)=>{if(!L.length)return;const im=new THREE.InstancedMesh(GEO,MAT[f],L.length);L.forEach(([x,z,s,a],i)=>{q.setFromAxisAngle(Y,a);m4.compose(new THREE.Vector3(x,0,z),q,new THREE.Vector3(s,s*(.8+((i*7)%5)*.1),s));im.setMatrixAt(i,m4);});
       im.receiveShadow=true;im.__pxSkip=1;im.__pt=1;scene.add(im);meshes.push(im);MEADOW.n+=L.length;});

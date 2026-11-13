@@ -9,7 +9,7 @@ const GROUND3D={on:(GROUND3D_LIVE||/[?&#]ground3d\b/.test(location.search+locati
 (function(){if(!GROUND3D.on)return;
   function sheets(){/* the flat painted ground pieces of the island: the big ground and the small bay/lawn sheets */
     const out=[],B=new THREE.Box3(),inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();scene.updateMatrixWorld(true);
-    scene.traverse(o=>{if(!o.isMesh||o.__g3||!o.geometry||!o.material||Array.isArray(o.material)||!o.material.map||(o.name||'').startsWith('sea'))return;
+    scene.traverse(o=>{if(!o.isMesh||o.__g3||!o.geometry||!o.material||Array.isArray(o.material)||!o.material.map||(o.name||'').startsWith('sea')||o.name==='paths3d')return;
       if(!(o.material.isMeshLambertMaterial||o.material.isMeshStandardMaterial||o.material.isMeshPhongMaterial))return;
       B.setFromObject(o).applyMatrix4(inv);const w=B.max.x-B.min.x,d=B.max.z-B.min.z;if(w<4||d<4||B.max.y-B.min.y>.03||B.min.y<-.02||B.max.y>.07)return;
       if(B.max.x<TB.x1||B.min.x>TB.x2||B.max.z<TB.z1||B.min.z>TB.z2)return;out.push(o);});return out;}

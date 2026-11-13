@@ -207,16 +207,17 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-ground3d-look-lab.js | 18982-19071 | 13 | GROUND3D_LIVE, GROUND3D |
 | 188-more3d-look-lab.js | 19072-19120 | 7 | MORE3D |
 | 188-island-tidy-and-gfx.js | 19121-19156 | 5 | ISLAND_STORE |
-| 188-open-sea-ships-and-captain-ned.js | 19157-19276 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 19277-19357 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 19358-19379 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 19380-19439 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 19440-19489 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 19490-19522 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 19523-19595 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 19596-19626 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19627-19643 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19644-19654 | 2 |  |
-| 188-auth.js | 19655-19733 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19734-19777 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19778-19799 | 3 | SHOT |
+| 188-paths3d-look-lab.js | 19157-19187 | 3 | PATHS3D |
+| 188-open-sea-ships-and-captain-ned.js | 19188-19307 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 19308-19388 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 19389-19410 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 19411-19470 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 19471-19520 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 19521-19553 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 19554-19626 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 19627-19657 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 19658-19674 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 19675-19685 | 2 |  |
+| 188-auth.js | 19686-19764 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 19765-19808 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19809-19830 | 3 | SHOT |
