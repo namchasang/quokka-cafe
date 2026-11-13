@@ -208,16 +208,20 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-more3d-look-lab.js | 19072-19120 | 7 | MORE3D |
 | 188-island-tidy-and-gfx.js | 19121-19156 | 5 | ISLAND_STORE |
 | 188-paths3d-look-lab.js | 19157-19187 | 3 | PATHS3D |
-| 188-open-sea-ships-and-captain-ned.js | 19188-19307 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 19308-19388 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 19389-19410 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 19411-19470 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 19471-19520 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 19521-19553 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 19554-19626 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 19627-19657 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 19658-19674 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 19675-19685 | 2 |  |
-| 188-auth.js | 19686-19764 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 19765-19808 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 19809-19830 | 3 | SHOT |
+| 188-engine-terrain.js | 19188-19285 | 14 | lin, DEF, create |
+| 188-engine-foliage.js | 19286-19389 | 15 | lin, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
+| 188-engine-road.js | 19390-19595 | 32 | TY, lin, asphalt, create |
+| 188-engmap-look-lab.js | 19596-19651 | 6 | ENGMAP_LIVE, ENGMAP |
+| 188-open-sea-ships-and-captain-ned.js | 19652-19771 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 19772-19852 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 19853-19874 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 19875-19934 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 19935-19984 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 19985-20017 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 20018-20090 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 20091-20121 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 20122-20138 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 20139-20149 | 2 |  |
+| 188-auth.js | 20150-20228 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 20229-20272 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 20273-20294 | 3 | SHOT |
