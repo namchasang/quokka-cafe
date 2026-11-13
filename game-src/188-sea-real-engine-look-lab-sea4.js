@@ -103,7 +103,9 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   // boats, clear enough to see their shadows on the sand. Beaches keep their width; other coast gets a narrow sandy edge.
   function bedL(x,z){const t=landD(x,z);if(t===-9&&!WD)return -6;/* past the island grid it is open water: keep the same gentle slope (no drop-off at the grid edge) */
     if(t>=0&&t!==-9){if(t>2.6)return 0;const sand=sandAt(x,z),bw=sand?beachW(x,z):.9;if(t>=bw)return 0;if(!sand&&islPD(x,z)<1.1)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
-    const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);return Math.max(h,L-2.4);/* Paul (13 Nov): the open sea is 2.4 deep at most */}
+    const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);h=Math.max(h,L-2.4);/* Paul (13 Nov): the open sea is 2.4 deep at most */
+    /* ...and deepens to 4 towards each edge of the map (only well away from land) */{const SB=seaBounds(),db=Math.min(x-SB.x1,SB.x2-x,z-SB.z1,SB.z2-z),e=(1-Math.min(1,Math.max(0,(db-4)/36)))*Math.min(1,Math.max(0,(w-12)/14));if(e>0){const k=e*e*(3-2*e);h=Math.min(h,L-2.4-1.6*k);}}
+    return h;}
   // the island grid's water values are not true distances everywhere (inside the Settlement's bays they read hundreds of units),
   // so the seabed uses its own distance-to-shore field: a chamfer distance transform over a fine grid of land/water
   let WD=null,WX0=0,WZ0=0,WR=.35,WW=0,WH=0;
@@ -130,7 +132,7 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
     // the engine: heightmap over the island in world space, water mesh big enough to reach the horizon
     const B={x0:M<0?-X2:X1,z0:Z1,w:X2-X1,h:Z2-Z1};
     const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),bounds:B,heightRes:[1280,Math.round(1280*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:360,center:[0,0]});
-    sea.mesh.name='sea4water';
+    sea.mesh.name='sea4water';sea.mesh.__islKeep=1;bed.__islKeep=1;
     // the flat island ground opens over the lowered beach so the sloping sand shows through
     {const tm=terrain.material,prev=tm.onBeforeCompile,pk=tm.customProgramCacheKey;
       tm.onBeforeCompile=(sh,r)=>{if(prev)prev(sh,r);sh.uniforms.tHM4=sea.uniforms.tHM;sh.uniforms.uHB4=sea.uniforms.uHB;

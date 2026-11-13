@@ -68,7 +68,9 @@ function sea2Build(){if(sea2Build.done)return;sea2Build.done=true;
   sea2Place();}
 function sea2Place(){const g=BOAT.g;if(!g)return;g.position.set(BOAT.x,Math.sin(performance.now()/700)*.04,BOAT.z);g.rotation.y=-BOAT.h;g.rotation.z=Math.sin(performance.now()/900)*.03;}
 /* the open sea round Rottnest (Paul, 13 Nov 2026: 50% more room on every side the other maps allow; the West End side meets the Perth maps at x 96) */
-function seaBounds(){return{x1:TB.x1-140,x2:96,z1:TB.z1-65,z2:TB.z2+65};}
+/* Paul (13 Nov): room past the West End too. The Perth maps live east of x 99.5 in the same scene, but while Kip is out on the boat the
+   game treats him as on Rottnest (see zoneOf below) and those maps stay hidden, so the sea can run on over their spot. */
+function seaBounds(){return{x1:TB.x1-140,x2:TB.x2+60,z1:TB.z1-65,z2:TB.z2+65};}
 function sea2Water(x,z,h){const SB=seaBounds();if(x>SB.x2-4||x<SB.x1+4||z<SB.z1+4||z>SB.z2-4)return false;if(typeof SHIPS!=='undefined'&&SHIPS.hit(x,z))return false;if(landD(x,z)>=-.7)return false;if(h==null)return true;const c=Math.cos(h),sn=Math.sin(h);for(const[a,b]of[[2,0],[-1.7,0],[0,.8],[0,-.8],[1,.6],[1,-.6]])if(landD(x+c*a-sn*b,z+sn*a+c*b)>=-.3)return false;return true;}
 function sea2Tick(dt){if(!BOAT.g)return;const t=performance.now()/1000;BOAT.mat.uniforms.uT.value=t;BOAT.mat.uniforms.uN.value=(typeof NIGHT==='number'?NIGHT:0)*.75;
   if(BOAT.on){player.x=BOAT.x;player.z=BOAT.z;}sea2Place();
