@@ -18,10 +18,20 @@ const N=121;
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
 const lineD=(x,z,pts)=>{let m=1e9;for(let i=1;i<pts.length;i++)m=Math.min(m,segD(x,z,pts[i-1],pts[i]));return m;};
 const RW={bikepath:1.3,island:2.4,street:3.3,arterial:5,highway:4.6,lane:1.6,bridge:4.6};
+/* clean shoreline for a height grid (Paul, 14 Nov 2026: pale-green flat facets on the beach when the waves ran up): pools cut off
+   from the sea are filled, and cells next to the waterline are kept clearly above or below the sea, so the water never lies in
+   thin flat sheets on the sand. Returns a new array. */
+function coastFix(h0,N,sea){const h=h0.slice(),oc=new Uint8Array(N*N),q=[];
+  for(let i=0;i<N;i++)[[i,0],[i,N-1],[0,i],[N-1,i]].forEach(([a,b])=>{const k=b*N+a;if(h[k]<sea&&!oc[k]){oc[k]=1;q.push(k);}});
+  while(q.length){const k=q.pop(),i=k%N,j=(k/N)|0;[[1,0],[-1,0],[0,1],[0,-1]].forEach(([a,b])=>{const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)return;const n=jj*N+ii;if(!oc[n]&&h[n]<sea){oc[n]=1;q.push(n);}});}
+  for(let k=0;k<N*N;k++)if(h[k]<sea&&!oc[k])h[k]=sea+.12;
+  const nb=(k,f)=>{const i=k%N,j=(k/N)|0;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]]){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)continue;if(f(h0[jj*N+ii]<sea&&oc[jj*N+ii]))return true;}return false;};
+  for(let k=0;k<N*N;k++){const w=h[k]<sea;if(w){h[k]=Math.min(h[k],nb(k,x=>!x)?sea-.18:sea-.32);}else if(nb(k,x=>x))h[k]=Math.max(h[k],sea+.14);}
+  return h;}
 function create(o){
   const doc=o.doc,CS=o.cs||2,BS=o.bscale||.75,par=o.parent,HW=60*CS,S=120*CS,gam=!!o.gammaOut,skip=o.skip||{},hm=o.heightMap||(h=>h),sea=doc.sea||0;
   const G={},E={};['terr','road','props','bld','fol','rail','veh'].forEach(k=>{G[k]=new THREE.Group();G[k].name='im_'+k;par.add(G[k]);});
-  const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,h=doc.h,a=h[j*N+i],b=h[j*N+i+1],c=h[(j+1)*N+i],d=h[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
+  const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,h=HH,a=h[j*N+i],b=h[j*N+i+1],c=h[(j+1)*N+i],d=h[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
   const Hfn=(x,z)=>hm(raw(x,z),x,z),SEA=hm(sea,0,0);
   const Hg=(x,z)=>{let h=Hfn(x,z);if(E.road&&E.road.junctions)h=E.road.groundAt(x,z,h);if(E.bike&&E.bike.junctions)h=E.bike.groundAt(x,z,h);return h;};
   const rail=doc.rail||[];
@@ -76,5 +86,5 @@ function create(o){
   const ms=Math.round(performance.now()-t0);
   return{doc,G,E,heightAt:Hg,rawHeight:Hfn,seaLevel:SEA,kindAt,solidAt:(x,z,m)=>inFoot(x,z,m||0)||inStation(x,z,0),onRail,footprints:FP,stations:ST,ms,
     update(t,x,z,op){try{E.fol.update(t,x,z,op);}catch(e){}try{E.road.update&&E.road.update(t,1/60);E.bike.update&&E.bike.update(t,1/60);}catch(e){}try{E.terr.update&&E.terr.update(t);}catch(e){}try{E.veh&&E.veh.update(t,1/60);}catch(e){}}};}
-g.IslandMap={create,lineD};
+g.IslandMap={create,lineD,coastFix};
 })(typeof window!=='undefined'?window:globalThis);

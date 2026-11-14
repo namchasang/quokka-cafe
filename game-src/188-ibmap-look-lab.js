@@ -29,7 +29,7 @@ window.__IBMAP=IBMAP;
   const L=()=>SEA4.L;const yOf=h=>h<=0?L()+Math.max(h,-6):L()+(0-L())*Math.min(1,h/1.0)+Math.max(0,h-1.3)*.35;
   /* phase 4 (Paul, 14 Nov 2026): the sea follows the new island's coast. A signed distance to the new shore (+ on land, - in the
      water, game units, -9 off the grid like the old landD) is ready before the sea is built; the sea part (SEA4) reads it */
-  {const D0=startDoc(),N=121,CS=2,raw=(xb,zb)=>{const fx=xb/CS+60,fz=zb/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,h=D0.h,a=h[j*N+i],b=h[j*N+i+1],c=h[(j+1)*N+i],d=h[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
+  {const D0=startDoc(),N=121,CS=2,HC=IslandMap.coastFix(D0.h,N,D0.sea||0),raw=(xb,zb)=>{const fx=xb/CS+60,fz=zb/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,h=HC,a=h[j*N+i],b=h[j*N+i+1],c=h[(j+1)*N+i],d=h[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
     const R=.5,X0=TB.x1-40,Z0=TB.z1-40,W=Math.ceil((TB.x2+40-X0)/R)+1,H=Math.ceil((TB.z2+40-Z0)/R)+1,land=new Uint8Array(W*H),dI=new Float32Array(W*H),dO=new Float32Array(W*H),BIG=1e6;
     for(let j=0;j<H;j++)for(let i=0;i<W;i++){const x=X0+i*R,z=Z0+j*R,m=toMap(x,z);land[j*W+i]=wetCut(raw(m[0],m[1])-(D0.sea||0),x,z)>0?1:0;}
     const cham=(D,src)=>{for(let k=0;k<D.length;k++)D[k]=src(k)?0:BIG;const S2=1.4142;
