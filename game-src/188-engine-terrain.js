@@ -11,10 +11,13 @@
    Fields baked once on the CPU (height, slope, distance to water, path masks) into one texture, so the shader stays cheap.
    Quality: T.setQuality(0..2) changes the detail layers (blade strokes and speckles off on 0). */
 (function(g){
-const lin=h=>{const c=new THREE.Color(h);c.convertSRGBToLinear();return`vec3(${c.r.toFixed(4)},${c.g.toFixed(4)},${c.b.toFixed(4)})`;};
+/* gammaOut (create option): the host renders straight to the screen with no sRGB output step (a game in gamma space); colours and
+   textures then skip the sRGB->linear step so everything looks the same as in the lab. */
+let GAMMA=false;const ENC=()=>GAMMA?THREE.LinearEncoding:THREE.sRGBEncoding;const L2=c=>GAMMA?c:c.convertSRGBToLinear();
+const lin=h=>{const c=L2(new THREE.Color(h));return`vec3(${c.r.toFixed(4)},${c.g.toFixed(4)},${c.b.toFixed(4)})`;};
 const DEF={/* Rottnest: muted island greens (scrub heath + settlement lawn), bright white limestone sand */g0:'#4c5832',g1:'#5f6a3c',g2:'#757b48',g3:'#8c8c56',g4:'#a49d66',dry:'#b3a874',sandW:'#c4bba2',sand:'#f5f1e8',sandB:'#ebe4d2',dirt:'#8a6a48',rock:'#9a948a',
   lake:'#e8a6b8',path:'#d9cfb4',pathE:'#bdb294',lane:'#7c7f82',laneL:'#f2efe6',gravel:'#8e8a82'};
-function create(o){const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.size[1],cx=(o.center||[0,0])[0],cz=(o.center||[0,0])[1],x0=cx-W/2,z0=cz-D/2,R=o.res||.5;
+function create(o){GAMMA=!!(o&&o.gammaOut);const P=Object.assign({},DEF,o.palette||{}),W=o.size[0],D=o.size[1],cx=(o.center||[0,0])[0],cz=(o.center||[0,0])[1],x0=cx-W/2,z0=cz-D/2,R=o.res||.5;
   const H=o.heightAt,SEA=o.seaLevel||0,NX=Math.ceil(W/R),NZ=Math.ceil(D/R);
   // ---- bake fields: r=height, g=distance to water (0..1 over 6 units), b=path kind mask, a=path edge softness ----
   const FW=Math.min(2048,Math.ceil(W*4)),FD=Math.min(2048,Math.ceil(D*4)),fd=new Float32Array(FW*FD*4),hf=THREE.DataUtils.toHalfFloat,hd=new Uint16Array(FW*FD*4);
@@ -87,7 +90,7 @@ vec3 sand(vec2 q,float u){vec3 c=u<.12?mix(${lin(P.sandW)},${lin(P.sand)},u/.12)
   const mesh=new THREE.Mesh(geo,m);mesh.receiveShadow=true;mesh.name='terrainEngine';
   /* 3D pebbles and rocks sitting on the ground (instanced), part of the pebbles layer */
   const peb=(()=>{const r=(s=>()=>{s=(s*16807)%2147483647;return s/2147483647;})(97),list=[];for(let i=0;i<W*D*.06;i++){const x=x0+r()*W,z=z0+r()*D,h=H(x,z);if(h<SEA-.3)continue;list.push([x,h,z,.06+r()*.14,r()*6]);}
-    const geo=new THREE.IcosahedronGeometry(1,0),mm=new THREE.MeshLambertMaterial({color:new THREE.Color('#a8a296').convertSRGBToLinear()}),im=new THREE.InstancedMesh(geo,mm,list.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion();
+    const geo=new THREE.IcosahedronGeometry(1,0),mm=new THREE.MeshLambertMaterial({color:L2(new THREE.Color('#a8a296'))}),im=new THREE.InstancedMesh(geo,mm,list.length),m4=new THREE.Matrix4(),q=new THREE.Quaternion();
     list.forEach((e,i)=>{q.setFromEuler(new THREE.Euler(e[4],e[4]*2,0));m4.compose(new THREE.Vector3(e[0],e[1]+e[3]*.2,e[2]),q,new THREE.Vector3(e[3],e[3]*.6,e[3]));im.setMatrixAt(i,m4);});im.castShadow=true;im.receiveShadow=true;return im;})();
   mesh.add(peb);
   const api={mesh,material:m,uniforms:U,pebbles:peb,layers:LAYERS,
