@@ -92,7 +92,7 @@ window.__IBMAP=IBMAP;
       /* ground and grass in the Foliage lab's own colours (Paul, 14 Nov 2026) */noGrow:(xb,zb)=>{const g=toGame(xb,zb);return inCafe(g[0],g[1]);},fol:{radius:FOLR},
       /* every engine on the island (Paul, 15 Nov 2026: straight to the live game): moving vehicles and Vehicle Engine boats, island folk
          and animals on the paths (Life Engine), sea life in the game's own sea (Water Life over the SEA4 seabed) */
-      lifeScale:GQ.startsWith('l')?.4:GQ.startsWith('m')?.7:1,seaBed:(xb,zb)=>{const g=toGame(xb,zb);try{return SEA4.bedL(g[0],g[1])*K;}catch(e){return (L()-2)*K;}},waterLevel:L()*K});
+      /* phones (Paul, 15 Nov 2026: iPhone 12 lagged): still meshes merged into a few draws, fewer folk, a coarser ground on Medium/Low */merge:true,terrain:GQ.startsWith('l')?{res:2.1}:GQ.startsWith('m')?{res:1.5}:undefined,lifeScale:GQ.startsWith('l')?.1:GQ.startsWith('m')?.18:.45,lifeNear:(GQ.startsWith('h')?60:38)*K,seaBed:(xb,zb)=>{const g=toGame(xb,zb);try{return SEA4.bedL(g[0],g[1])*K;}catch(e){return (L()-2)*K;}},waterLevel:L()*K});
     sinkOldLand(I);
     IBMAP.I=I;try{if(I.E.fol.setQuality)I.E.fol.setQuality(GQ.startsWith('l')?0:GQ.startsWith('m')?1:2);}catch(e){}grp.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;if(o.isMesh){o.receiveShadow=true;}});
     IBMAP.nHid=hideOld();gmButton();oldWalkersOff();skyMake();IBMAP.ms=Math.round(performance.now()-t0);IBMAP.done=true;

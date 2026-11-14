@@ -17,6 +17,18 @@
 (function(g){
 const N=121;
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
+/* merge still meshes that share a material into one draw (option merge:true, for phones: hundreds of buildings, props and
+   sleepers become a few dozen draws). Only plain meshes; instanced, skinned, points, lines and sprites stay as they are. */
+function mergeStatic(G){if(!G)return 0;G.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(G.matrixWorld).invert(),B={},rm=[];
+  G.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||m.isSkinnedMesh||Array.isArray(m.material)||!m.geometry||!m.visible||m.userData.noMerge)return;let p=m.parent;while(p&&p!==G){if(!p.visible)return;p=p.parent;}
+    const g=m.geometry,at=Object.keys(g.attributes).sort().join(',');if(at.indexOf('position')<0||g.morphAttributes&&Object.keys(g.morphAttributes).length)return;
+    const k=m.material.uuid+'|'+at+'|'+(m.castShadow?1:0)+(m.receiveShadow?1:0)+'|'+m.renderOrder;(B[k]=B[k]||[]).push(m);});
+  let n=0;Object.values(B).forEach(L=>{if(L.length<2)return;const parts=L.map(m=>{let g=m.geometry.index?m.geometry.toNonIndexed():m.geometry.clone();g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv,m.matrixWorld));return g;});
+    const names=Object.keys(parts[0].attributes),out=new THREE.BufferGeometry();
+    names.forEach(a=>{const sz=parts[0].attributes[a].itemSize,tot=parts.reduce((s,g)=>s+g.attributes[a].count,0),arr=new Float32Array(tot*sz);let o=0;parts.forEach(g=>{const A=g.attributes[a];for(let i=0;i<A.count;i++)for(let c=0;c<sz;c++)arr[o++]=A.array[i*sz+c]!==undefined&&!A.isInterleavedBufferAttribute?A.array[i*sz+c]:A.getComponent?A.getComponent(i,c):[A.getX(i),A.getY(i),A.getZ(i),A.getW(i)][c];});out.setAttribute(a,new THREE.BufferAttribute(arr,sz,parts[0].attributes[a].normalized));});
+    out.computeBoundingSphere();out.computeBoundingBox();const M=new THREE.Mesh(out,L[0].material);M.castShadow=L[0].castShadow;M.receiveShadow=L[0].receiveShadow;M.renderOrder=L[0].renderOrder;M.name='merged';M.matrixAutoUpdate=false;G.add(M);
+    L.forEach(m=>{m.visible=false;rm.push(m);});parts.forEach(g=>g.dispose());n+=L.length;});
+  rm.forEach(m=>{if(m.parent)m.parent.remove(m);});return n;}
 /* paths join up (Paul, 15 Nov 2026: ride and walk round the island without a break): a path or bike-path end that stops short of
    another path, bike path or road (gap up to 6 units) gets a short link onto the nearest point of that line */
 function weldPaths(doc){const L=[].concat((doc.paths||[]).map(p=>p.pts),(doc.roads||[]).filter(r=>r.type!=='bridge').map(r=>r.pts));let n=0;
@@ -152,6 +164,7 @@ function create(o){
       const c=(VehicleEngine.KINDS[v.k]||{}).cat,a=v.r||0,ca=Math.cos(a),sa=Math.sin(a);
       try{if(c==='road'||c==='bike'){let best=0,bd=1e9,net=E.road;[E.road].concat(c==='bike'?[E.bike]:[]).forEach(N=>(N.roads||[]).forEach((r,i)=>{const d=lineD(v.x,v.z,r.pts.map(p=>Array.isArray(p)?p:[p.x,p.z]));if(d<bd){bd=d;best=i;net=N;}}));if(bd<8)V.drive(q,net,{road:best,t:.5});}
         else if(c==='water'){let P=null;for(const R of[Math.max(4,q.L*1.6),Math.max(3,q.L*1.1),2.5]){const Q=[];for(let i=0;i<16;i++){const t=i/16*Math.PI*2;Q.push([v.x+Math.cos(t)*R-ca*R,v.z+Math.sin(t)*R+sa*R]);}if(Q.every(p=>Hg(p[0],p[1])<SEA-.5)){P=Q;break;}}if(P)V.sail(q,P,{});}}catch(e){console.warn('islandmap veh',v.k,e);}});}
+  if(o.merge){E.merged=0;['bld','props','rail'].forEach(k=>{try{E.merged+=mergeStatic(G[k]);}catch(e){console.warn('islandmap merge',k,e);}});}
   /* island folk on the paths, quokkas, kangaroos, gulls, butterflies, pelicans and dolphins (Life Engine; counts from the map's life
      settings, lifeScale to thin them on phones) */
   if(o.life!==false&&typeof LifeEngine!=='undefined'){G.life=new THREE.Group();G.life.name='im_life';par.add(G.life);
@@ -162,6 +175,6 @@ function create(o){
     try{E.wl=WaterLife.create(Object.assign({scene:G.wl,heightAt:o.seaBed||Hg,level:o.waterLevel!=null?o.waterLevel:SEA,bounds:o.seaBounds||[-60*CS,-60*CS,60*CS,60*CS]},G0));if(!o.searocks)E.wl.setLayer('searocks',false);}catch(e){console.warn('islandmap waterlife',e);}}
   const ms=Math.round(performance.now()-t0);
   return{doc,G,E,heightAt:Hg,rawHeight:Hfn,seaLevel:SEA,kindAt,solidAt:(x,z,m)=>inFoot(x,z,m||0)||inStation(x,z,0),onRail,footprints:FP,stations:ST,ms,
-    update(t,x,z,op){E.biz.forEach(q=>{if(!q.R)return;q.ph+=(1/60)*q.sp*14/q.R;const a=q.ph;q.g.position.set(q.b.x+Math.cos(a)*q.R,SEA+Math.sin(t*1.3+q.ph)*.05,q.b.z+Math.sin(a)*q.R);q.g.rotation.y=-a-Math.PI;});try{E.fol.update(t,x,z,op);}catch(e){}try{E.road.update&&E.road.update(t,1/60);E.bike.update&&E.bike.update(t,1/60);}catch(e){}try{E.terr.update&&E.terr.update(t);}catch(e){}const nt=(op&&op.night)||0;try{if(E.veh){E.veh.night=nt;E.veh.update(t,1/60);}}catch(e){}try{E.life&&E.life.update(t,1/60,{night:nt});}catch(e){}try{E.wl&&E.wl.update(t,1/60);}catch(e){}}};}
+    update(t,x,z,op){E.biz.forEach(q=>{if(!q.R)return;q.ph+=(1/60)*q.sp*14/q.R;const a=q.ph;q.g.position.set(q.b.x+Math.cos(a)*q.R,SEA+Math.sin(t*1.3+q.ph)*.05,q.b.z+Math.sin(a)*q.R);q.g.rotation.y=-a-Math.PI;});try{E.fol.update(t,x,z,op);}catch(e){}try{E.road.update&&E.road.update(t,1/60);E.bike.update&&E.bike.update(t,1/60);}catch(e){}try{E.terr.update&&E.terr.update(t);}catch(e){}const nt=(op&&op.night)||0;try{if(E.veh){E.veh.night=nt;E.veh.update(t,1/60);}}catch(e){}try{E.life&&E.life.update(t,1/60,{night:nt,near:o.lifeNear?[x,z,o.lifeNear]:null});}catch(e){}try{E.wl&&E.wl.update(t,1/60);}catch(e){}}};}
 g.IslandMap={create,lineD,coastFix,gridH};
 })(typeof window!=='undefined'?window:globalThis);
