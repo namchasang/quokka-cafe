@@ -2,14 +2,19 @@
 /* Foliage Engine (Paul Perth Library, Nov 2026) — grass tufts, flowers, bushes and trees for three.js r128.
    const F=FoliageEngine.create({scene,bounds:[x0,z0,x1,z1],heightAt,kindAt:(x,z)=>'grass'|'sand'|'path'|'water'|'none',
                                   density:{tuft:2.2,flower:.35,bush:.03,tree:.012},keepOut:(x,z)=>bool,seed:1,chunk:10,radius:40,palette});
+   each frame: F.update(time,camX,camZ,{push:[x,z],reveal:[x,z,r]})  // reveal: tree crowns within r of x,z thin out so the player stays visible
    each frame: F.update(time,camX,camZ)   // builds chunks near the camera, drops far ones, sways everything in the wind
    F.setWind(strength)  F.setQuality(0..2)  F.addTree(x,z,{kind:'gum'|'pine'|'peppermint'|'palm'|'islandpine'|'teatree'|'wattle'|'saltbush'|'daisybush'|'fig'|'norfolk'|'datepalm',size})
+   create option treeKeepOut:(x,z)=>bool keeps trees (not grass) further off rails and buildings so crowns never overhang them
+   create option gammaOut:true for a host renderer with linear output (no sRGB encoding step)
    create option mix:'rottnest' = island pine and tea tree woodland with wattle, saltbush and daisy bush
    What it does: everything is instanced (one draw per kind per chunk). Tufts and flowers are crossed painted cards; bushes and tree
    crowns are leaf-card clusters with crown-shaped normals (they shade like soft balls) and cast dappled shadows through the cards.
    Grass bends from the root, crowns sway from the trunk; the wind is a travelling gust field so neighbours move together. */
 (function(g){
-const lin=h=>new THREE.Color(h).convertSRGBToLinear();
+/* gammaOut: the host renders straight to the screen with no sRGB output step (a game in gamma space); colours and textures then
+   skip the sRGB->linear step so the trees look the same as in the lab. */
+let GAMMA=false;const lin=h=>{const c=new THREE.Color(h);return GAMMA?c:c.convertSRGBToLinear();};const ENC=()=>GAMMA?THREE.LinearEncoding:THREE.sRGBEncoding;
 function rnd(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
 function tuftTex(flowers,pal){const c=canvas(128,128),x=c.getContext('2d'),r=rnd(flowers?7:3);
@@ -17,9 +22,9 @@ function tuftTex(flowers,pal){const c=canvas(128,128),x=c.getContext('2d'),r=rnd
     x.quadraticCurveTo(x0+Math.cos(a)*l*.45,128+Math.sin(a)*l*.5,x0+Math.cos(a)*l,128+Math.sin(a)*l);x.stroke();}
   if(flowers)for(let i=0;i<8;i++){const fx=24+r()*80,fy=14+r()*46,col=pal.flowers[(r()*pal.flowers.length)|0];x.strokeStyle='#4f7a3a';x.lineWidth=1.6;x.beginPath();x.moveTo(fx,fy);x.lineTo(fx+(r()-.5)*6,128);x.stroke();
     x.fillStyle=col;for(let k=0;k<5;k++){const a=k/5*6.283;x.beginPath();x.arc(fx+Math.cos(a)*3.4,fy+Math.sin(a)*3.4,3,0,6.283);x.fill();}x.fillStyle='#f0b030';x.beginPath();x.arc(fx,fy,2,0,6.283);x.fill();}
-  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;return t;}
+  const t=new THREE.CanvasTexture(c);t.encoding=ENC();t.anisotropy=4;return t;}
 function leafTex(cols,seed){const c=canvas(128,128),x=c.getContext('2d'),r=rnd(seed);for(let i=0;i<70;i++){const px=14+r()*100,py=14+r()*100;if(Math.hypot(px-64,py-64)>54)continue;const a=r()*6.283;x.save();x.translate(px,py);x.rotate(a);
-    x.fillStyle=cols[(r()*cols.length)|0];x.beginPath();x.ellipse(0,0,10,4.5,0,0,6.283);x.fill();x.restore();}const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t;}
+    x.fillStyle=cols[(r()*cols.length)|0];x.beginPath();x.ellipse(0,0,10,4.5,0,0,6.283);x.fill();x.restore();}const t=new THREE.CanvasTexture(c);t.encoding=ENC();return t;}
 const WIND=`uniform float uT,uWind;uniform vec4 uPush;vec2 windAt(vec2 p){float g=sin(p.x*.13+uT*1.1)*.5+sin(p.y*.17+uT*.8+p.x*.05)*.5;return vec2(.8,.3)*(.35+.65*(g*.5+.5))*uWind;}`;
 function swayMat(map,opts){const m=new THREE.MeshLambertMaterial(Object.assign({map,alphaTest:.5,side:THREE.DoubleSide},opts.mat||{}));const U=opts.U;
   m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.vertexShader=WIND+'\n'+s.vertexShader.replace('#include <lights_lambert_vertex>','#include <lights_lambert_vertex>\n#ifdef DOUBLE_SIDED\nvLightBack=vLightFront;vIndirectBack=vIndirectFront;\n#endif')/* both faces of a card take the front light: no black blades seen from behind */.replace('#include <begin_vertex>',`#include <begin_vertex>
@@ -27,8 +32,11 @@ function swayMat(map,opts){const m=new THREE.MeshLambertMaterial(Object.assign({
      d+=vec2(sin(uT*3.1+wp.x*1.7),cos(uT*2.7+wp.z*1.9))*.04*w*uWind;
      {vec2 pd=wp.xz-uPush.xy;float pl=length(pd);if(pl<uPush.z&&pl>.01)d+=pd/pl*(1.-pl/uPush.z)*.35*w*uPush.w;} /* someone walking through pushes it aside */mat3 IR=transpose(mat3(instanceMatrix));transformed+=IR*vec3(d.x,0.,d.y);}`);
     /* crowns: normals point out from the crown centre (plus a little up) so the cluster shades like one soft ball */
-    if(opts.crown)s.vertexShader=s.vertexShader.replace('#include <beginnormal_vertex>','#include <beginnormal_vertex>\nobjectNormal=normalize(position-vec3(0.,'+opts.cy+',0.)+vec3(0.,.35,0.));');};
-  m.customProgramCacheKey=()=>'fol'+opts.key;return m;}
+    if(opts.crown)s.vertexShader=s.vertexShader.replace('#include <beginnormal_vertex>','#include <beginnormal_vertex>\nobjectNormal=normalize(position-vec3(0.,'+opts.cy+',0.)+vec3(0.,.35,0.));');
+    /* reveal: crown leaves near the player thin out (dithered), so a character under a tree is never hidden */
+    if(opts.crown){s.vertexShader='varying vec3 vWp;\n'+s.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvWp=(modelMatrix*instanceMatrix*vec4(transformed,1.)).xyz;');
+      s.fragmentShader='uniform vec4 uReveal;uniform float uRevealY;varying vec3 vWp;\n'+s.fragmentShader.replace('#include <alphatest_fragment>','#include <alphatest_fragment>\nif(uReveal.w>0.&&vWp.y>uRevealY){float rd=length(vWp.xz-uReveal.xy);float ra=smoothstep(uReveal.z,uReveal.z*.4,rd)*smoothstep(uRevealY,uRevealY+.6,vWp.y)*uReveal.w;if(fract(sin(dot(floor(gl_FragCoord.xy*.5),vec2(12.9898,78.233)))*43758.5453)<ra*.7)discard;}');}};
+  m.customProgramCacheKey=()=>'fol'+opts.key+(opts.crown?'r':'');return m;}
 function cards(n,r0,h,seed){/* crossed cards for tufts: two quads */const P=[],U=[],I=[];for(let k=0;k<n;k++){const a=k/n*Math.PI,cx=Math.cos(a)*r0,cz=Math.sin(a)*r0,b=k*4;
     [[-1,0,0,0],[1,0,1,0],[1,h,1,1],[-1,h,0,1]].forEach(([s,y,u,v])=>{P.push(cx*s,y,cz*s);U.push(u,v);});I.push(b,b+1,b+2,b,b+2,b+3);}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeVertexNormals();
@@ -49,8 +57,8 @@ const DEFPAL={/* Rottnest palette: grey-olive heath, muted lawn blades, white an
   bark:{gum:'#d8cfc0',pine:'#5a3a26',pepper:'#6a4a32',palm:'#8a7458',islandpine:'#5b4632',teatree:'#8b7d6a',wattle:'#5e4a38',saltbush:'#6e6252',daisybush:'#6e6252',fig:'#8f8676',norfolk:'#6a5040',datepalm:'#9a8462'}};
 /* the island mix: woodland of island pine and tea tree, with wattle, saltbush and daisy bush between (figs, Norfolk pines and palms are planted by hand near buildings) */
 const ROTT_MIX=['islandpine','islandpine','islandpine','teatree','teatree','teatree','wattle','saltbush','daisybush'];
-function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
-  const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)}};let Q=2;
+function create(o){GAMMA=!!o.gammaOut;const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.chunk||10,RAD=o.radius||40,pal=Object.assign({},DEFPAL,o.palette||{}),D=Object.assign({tuft:2.2,flower:.35,bush:.03,tree:.012},o.density||{});
+  const U={uT:{value:0},uWind:{value:o.wind==null?1:o.wind},uPush:{value:new THREE.Vector4(0,0,1.2,0)},uReveal:{value:new THREE.Vector4(0,0,0,0)},uRevealY:{value:0}};let Q=2;
   const LAYERS={tufts:true,flowers:true,bushes:true,trees:true,spinifex:false,wildflowers:true,reeds:true,heath:true,saplings:true,litter:true,fallingleaves:true,push:true};
   const tuftG=cards(2,.32,.5),tM=swayMat(tuftTex(false,pal),{U,bend:'.28',h:.5,pow:1.6,key:'t'}),fM=swayMat(tuftTex(true,pal),{U,bend:'.3',h:.5,pow:1.6,key:'f'});
   const bushG=crown(.55,26,.45,5),bM=swayMat(leafTex(pal.bush,11),{U,bend:'.05',h:1,pow:1,crown:true,cy:'.45',key:'b',mat:{emissive:lin('#0a1406')}});
@@ -86,7 +94,7 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
     place(Math.round(area*D.tuft*qm),(x,z,k)=>{if(k!=='grass')return;L.t.push([x,H(x,z),z,r()*6.28,.7+r()*.6,.8+r()*.5]);});
     place(Math.round(area*D.flower*qm),(x,z,k)=>{if(k!=='grass')return;L.f.push([x,H(x,z),z,r()*6.28,.7+r()*.4,1]);});
     place(Math.round(area*D.bush+r()),(x,z,k)=>{if(k!=='grass')return;L.b.push([x,H(x,z)-.05,z,r()*6.28,.7+r()*.7,.8+r()*.3]);});
-    place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;const ks=o.treeKinds||(o.mix==='rottnest'?ROTT_MIX:['gum','pepper','pine']);const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
+    place(Math.round(area*D.tree+r()*.6),(x,z,k)=>{if(k!=='grass')return;if(o.treeKeepOut&&o.treeKeepOut(x,z))return;const ks=o.treeKinds||(o.mix==='rottnest'?ROTT_MIX:['gum','pepper','pine']);const kk=ks[(r()*ks.length)|0];T[kk].push([x,H(x,z),z,r()*6.28,.75+r()*.5,1]);});
     const X={sp:[],wf:[],rd:[],hz:[],sa:[],lit:[]};
     if(LAYERS.spinifex)place(Math.round(area*1.2*qm),(x,z,k)=>{if(k!=='sand')return;const h=H(x,z);if(h<.25)return;X.sp.push([x,h,z,r()*6.28,.8+r()*.6,.7+r()*.4]);});
     if(LAYERS.wildflowers)place(Math.round(area*.9*qm),(x,z,k)=>{if(k!=='grass')return;const n=Math.sin(x*.21+Math.sin(z*.17)*2)*Math.cos(z*.19+x*.07);if(n<.45)return;X.wf.push([x,H(x,z),z,r()*6.28,.6+r()*.4,1]);});
@@ -104,7 +112,7 @@ function create(o){const scene=o.scene,H=o.heightAt,K=o.kindAt,B=o.bounds,CS=o.c
     for(let i=0;i<n;i++){P.push({x:(rr()-.5)*30,y:rr()*6,z:(rr()-.5)*30,s:rr()*6,v:.3+rr()*.4});im.setColorAt(i,litCols[i%litCols.length]);}im.instanceColor.needsUpdate=true;scene.add(im);return{im,P};})();
   let lx=1e9,lz=1e9,cx0=0,cz0=0;
   return{uniforms:U,
-    update(t,x,z,op){U.uT.value=t;cx0=x;cz0=z;op=op||{};if(op.push&&LAYERS.push){U.uPush.value.set(op.push[0],op.push[1],1.2,1);}else U.uPush.value.w=0;
+    update(t,x,z,op){U.uT.value=t;cx0=x;cz0=z;op=op||{};if(op.reveal){/* given in the host group's own coordinates; the shader works in world space (the host may be scaled or mirrored) */const v=new THREE.Vector3(op.reveal[0],H(op.reveal[0],op.reveal[1])+.7/* only leaves above a small character's head thin out */,op.reveal[1]);scene.updateWorldMatrix(true,false);v.applyMatrix4(scene.matrixWorld);U.uReveal.value.set(v.x,v.z,op.reveal[2]||2.6,1);U.uRevealY.value=v.y;}else U.uReveal.value.w=0;if(op.push&&LAYERS.push){/* world space too (mirrored or scaled hosts) */const v=new THREE.Vector3(op.push[0],0,op.push[1]);scene.updateWorldMatrix(true,false);v.applyMatrix4(scene.matrixWorld);U.uPush.value.set(v.x,v.z,1.2,1);}else U.uPush.value.w=0;
       {const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),w=U.uWind.value;FL.im.visible=LAYERS.fallingleaves;if(FL.im.visible)FL.P.forEach((p,i)=>{p.y-=p.v*.016;p.x+=.8*w*.016*2;p.z+=.3*w*.016*2;if(p.y<H(cx0+p.x,cz0+p.z)){p.y=4+Math.random()*3;p.x=(Math.random()-.5)*30;p.z=(Math.random()-.5)*30;}
         e.set(t*2+p.s,t*1.3+p.s,t*1.7);q.setFromEuler(e);m4.compose(new THREE.Vector3(cx0+p.x+Math.sin(t+p.s)*.4,p.y,cz0+p.z),q,new THREE.Vector3(1,1,1));FL.im.setMatrixAt(i,m4);});FL.im.instanceMatrix.needsUpdate=true;}if(Math.hypot(x-lx,z-lz)<3)return;let made=0;
       const i0=Math.floor((x-RAD)/CS),i1=Math.floor((x+RAD)/CS),j0=Math.floor((z-RAD)/CS),j1=Math.floor((z+RAD)/CS);
