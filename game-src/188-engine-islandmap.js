@@ -16,6 +16,17 @@
 (function(g){
 const N=121;
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
+/* paths and bike paths turn in long smooth curves instead of sharp corners (Paul, 15 Nov 2026): drawn lines keep their points in the
+   map file; the curve is made when drawing (R = curve size in map units) */
+const RNDC=new WeakMap();const rndP=(P,R)=>{if(!P||P.length<3)return P;let c=RNDC.get(P);if(c)return c;const A=[P[0]];
+  for(let i=1;i<P.length-1;i++){const a=A[A.length-1],b=P[i],n=P[i+1],ux=b[0]-a[0],uz=b[1]-a[1],vx=n[0]-b[0],vz=n[1]-b[1],l1=Math.hypot(ux,uz),l2=Math.hypot(vx,vz);
+    if(l1<.05)continue;if(l2<.05){continue;}if(Math.abs(ux*vz-uz*vx)/(l1*l2)<.03&&ux*vx+uz*vz>0)continue;A.push(b);}A.push(P[P.length-1]);
+  if(A.length<3){RNDC.set(P,A);return A;}const O=[A[0]];
+  for(let i=1;i<A.length-1;i++){const a=A[i-1],b=A[i],n=A[i+1],l1=Math.hypot(b[0]-a[0],b[1]-a[1]),l2=Math.hypot(n[0]-b[0],n[1]-b[1]);
+    const d=Math.min(R,l1*(i===1?.9:.5),l2*(i===A.length-2?.9:.5));const p0=[b[0]+(a[0]-b[0])*d/l1,b[1]+(a[1]-b[1])*d/l1],p2=[b[0]+(n[0]-b[0])*d/l2,b[1]+(n[1]-b[1])*d/l2];
+    const K=Math.max(4,Math.round(d*1.5));for(let k=0;k<=K;k++){const t=k/K,s=1-t;O.push([s*s*p0[0]+2*s*t*b[0]+t*t*p2[0],s*s*p0[1]+2*s*t*b[1]+t*t*p2[1]]);}}
+  O.push(A[A.length-1]);RNDC.set(P,O);return O;};
+const RNDT={bikepath:1,lane:1};const rpts=(r,R)=>RNDT[r.type]?rndP(r.pts,R):r.pts;
 const lineD=(x,z,pts)=>{let m=1e9;for(let i=1;i<pts.length;i++)m=Math.min(m,segD(x,z,pts[i-1],pts[i]));return m;};
 const RW={bikepath:1.3,island:2.4,street:3.3,arterial:5,highway:4.6,lane:1.6,bridge:4.6};
 /* clean shoreline for a height grid (Paul, 14 Nov 2026: pale-green flat facets on the beach when the waves ran up): pools cut off
@@ -78,7 +89,7 @@ function create(o){
       [[B.min.x,B.min.z],[B.max.x,B.min.z],[B.min.x,B.max.z],[B.max.x,B.max.z]].forEach(([x,z])=>{const dx=x-b.x,dz=z-b.z,lx=dx*c-dz*s,lz=dx*s+dz*c;x0=Math.min(x0,lx);x1=Math.max(x1,lx);z0=Math.min(z0,lz);z1=Math.max(z1,lz);});});
     return x0<x1?{x:b.x,z:b.z,r,F:[x0,z0,x1,z1]}:null;};
   const inFoot=(x,z,m)=>FP.some(e=>{const c=Math.cos(e.r),s=Math.sin(e.r),dx=x-e.x,dz=z-e.z,lx=dx*c-dz*s,lz=dx*s+dz*c,F=e.F;return lx>F[0]-m&&lx<F[2]+m&&lz>F[1]-m&&lz<F[3]+m;});
-  const kindAt=(x,z)=>{const h=Hg(x,z);if(h<SEA)return'water';if(o.noGrow&&o.noGrow(x,z))return'none';/* the host's own places (the game's café and deck) */if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type])||inCul(x,z))return'path';if(inFoot(x,z,0))return'none';
+  const kindAt=(x,z)=>{const h=Hg(x,z);if(h<SEA)return'water';if(o.noGrow&&o.noGrow(x,z))return'none';/* the host's own places (the game's café and deck) */if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,rndP(p.pts,5*CS))<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,rpts(r,5*CS))<RW[r.type])||inCul(x,z))return'path';if(inFoot(x,z,0))return'none';
     if(E.terr&&E.terr.groundKind)return E.terr.groundKind(x,z)==='sand'?'sand':'grass';return h<SEA+.9?'sand':'grass';};
   const inCul=(x,z,m)=>(doc.culs||[]).some(q=>Math.hypot(q.x-x,q.z-z)<6+(m||0));
   const keepOut=(x,z)=>inCul(x,z,.5)||onRail(x,z,1.6)||inFoot(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
@@ -86,10 +97,10 @@ function create(o){
   /* roads first: the ground is fitted to their beds */
   E.road=RoadEngine.create(Object.assign({scene:G.road,heightAt:Hfn,smooth:true,maxGrade:.06},G0));const GB=new THREE.Group();G.road.add(GB);E.bike=RoadEngine.create(Object.assign({scene:GB,heightAt:Hfn,smooth:true,maxGrade:.06},G0));
   (doc.culs||[]).forEach(q=>{E.road.culdesac(q.x,q.z);E.bike.culdesac(q.x,q.z);});
-  doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(r.type==='bikepath')E.bike.road(r.pts,{type:r.type});else E.road.road(r.pts,r.type==='lane'?{type:'lane',color:'#a08c6a'}:{type:r.type});});
+  doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(r.type==='bikepath')E.bike.road(rpts(r,5*CS),{type:r.type});else E.road.road(rpts(r,5*CS),r.type==='lane'?{type:'lane',color:'#a08c6a'}:{type:r.type});});
   E.road.build();E.bike.build();GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});
   /* ground */
-  E.terr=TerrainEngine.create(Object.assign({size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:SEA,paths:doc.paths.map(p=>({pts:p.pts,w:p.w,kind:p.kind})).concat(rail.length>1?[{pts:rail,w:2.2,kind:'gravel'}]:[])},o.terrain||{},G0));
+  E.terr=TerrainEngine.create(Object.assign({size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:SEA,paths:doc.paths.map(p=>({pts:rndP(p.pts,5*CS),w:p.w,kind:p.kind})).concat(rail.length>1?[{pts:rail,w:2.2,kind:'gravel'}]:[])},o.terrain||{},G0));
   if(o.landOnly){/* the host keeps its own sea and seabed: drop the ground's underwater triangles */const gm=E.terr.mesh.geometry,P=gm.attributes.position,I=gm.index.array,keep=[];const up=v=>P.getY(v)>SEA-.25;
     for(let i=0;i<I.length;i+=3)if(up(I[i])||up(I[i+1])||up(I[i+2]))keep.push(I[i],I[i+1],I[i+2]);gm.setIndex(keep);}
   G.terr.add(E.terr.mesh);

@@ -19215,6 +19215,7 @@ function create(o){const R=o.renderer,scene=o.scene,cam=o.camera,S=o.size||140,H
 float wh(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float wn(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(wh(vec2(i,1.3)),wh(vec2(i+1.,1.3)),f);}
 float bedAt(vec2 xz){vec2 uv=(xz-uHB.xy)/uHB.zw;if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)return -6.;return texture2D(tHM,uv).r;}
+/* how steeply the seabed rises: waves only break where the bed shelves up (a beach or a bar), not over a flat shallow sea */float bedSl(vec2 p){float e=1.;return length(vec2(bedAt(p+vec2(e,0.))-bedAt(p-vec2(e,0.)),bedAt(p+vec2(0.,e))-bedAt(p-vec2(0.,e))))/(2.*e);}
 float runup1(vec2 xz,float t,float per,float off){float p=t/per+off+wn(xz.y*.045+off*3.)*.55;float c=fract(p);float r=c<.28?smoothstep(0.,.28,c):1.-smoothstep(.28,1.,c);return r*(.26+.22*wh(vec2(floor(p),off)));}
 float runup(vec2 xz,float t){return max(runup1(xz,t,9.,0.),runup1(xz,t,13.,.37)*.8)*uRun;}`;
   if(o.ground){const gm=o.ground;gm.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vW;').replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvW=(modelMatrix*vec4(transformed,1.)).xyz;');
@@ -19235,7 +19236,7 @@ float cz(vec2 p){vec2 i=floor(p),f=fract(p);float m=8.;for(int y=-1;y<=1;y++)for
     if(dep>0.){float rip=sin(vW.x*3.2+sin(vW.z*.7)*1.6+fbmS(vW.xz*.4)*3.)*.5+.5;gl_FragColor.rgb*=1.-pow(rip,6.)*.16*smoothstep(0.,.3,dep);float c=pow(1.-cz(vW.xz*.55+vec2(uT*.08,uT*.05)),5.)+pow(1.-cz(vW.xz*.9-vec2(uT*.06,0.)),6.)*.6;gl_FragColor.rgb+=vec3(.55,.62,.6)*c*.45*exp(-dep*.35)*smoothstep(0.,.25,dep);}}`);};}
   const rt=new THREE.WebGLRenderTarget(2,2);rt.texture.encoding=THREE.sRGBEncoding;rt.depthTexture=new THREE.DepthTexture();rt.depthTexture.type=THREE.UnsignedIntType;
   const wm=new THREE.ShaderMaterial({transparent:false,uniforms:Object.assign({tCol:{value:rt.texture},tDep:{value:rt.depthTexture},uRes:{value:new THREE.Vector2()},uPI:{value:new THREE.Matrix4()},uCW:{value:new THREE.Matrix4()},uSun:{value:new THREE.Vector3()},uSunC:{value:new THREE.Color()},uCam:{value:new THREE.Vector3()},uNear:{value:.5},uFar:{value:600},uNew:{value:1},uQ:{value:1},uSky:{value:new THREE.Color()}},U),
- vertexShader:`varying vec3 vW;varying float vRun;uniform float uT,uLevel;${WAVE}void main(){vec3 p=position;vec2 wxz=(modelMatrix*vec4(p,1.)).xz;float bed=bedAt(wxz);float d0=uLevel-bed;float near=1.-smoothstep(.8,3.5,d0);float ru=runup(wxz,uT)*near;vRun=ru;float cr=fract(d0*.55+uT*.16+wn(wxz.y*.05)*.4);float crest=exp(-pow((cr-.08)/.06,2.))*smoothstep(.2,.9,d0)*(1.-smoothstep(2.6,3.4,d0));p.y=uLevel+ru+crest*.09+sin(p.x*.25+uT*1.1)*.03*(1.-near)+sin(p.z*.31-uT*.9)*.03*(1.-near);vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+ vertexShader:`varying vec3 vW;varying float vRun;uniform float uT,uLevel;${WAVE}void main(){vec3 p=position;vec2 wxz=(modelMatrix*vec4(p,1.)).xz;float bed=bedAt(wxz);float d0=uLevel-bed;float near=1.-smoothstep(.8,3.5,d0);float ru=runup(wxz,uT)*near;vRun=ru;float cr=fract(d0*.55+uT*.16+wn(wxz.y*.05)*.4);float crest=exp(-pow((cr-.08)/.06,2.))*smoothstep(.2,.9,d0)*(1.-smoothstep(2.6,3.4,d0))*smoothstep(.03,.1,bedSl(wxz));p.y=uLevel+ru+crest*.09+sin(p.x*.25+uT*1.1)*.03*(1.-near)+sin(p.z*.31-uT*.9)*.03*(1.-near);vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
  fragmentShader:`precision highp float;varying vec3 vW;varying float vRun;${WAVE}uniform sampler2D tCol,tDep;uniform vec2 uRes;uniform mat4 uPI,uCW;uniform vec3 uSun,uCam;uniform vec3 uSunC,uSky;uniform float uT,uLevel,uNear,uFar,uNew,uQ;
 /* hash without sin: stays smooth far from 0,0 (big game maps) */float hh(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float n2(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),u.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),u.x),u.y);}
@@ -19261,7 +19262,7 @@ void main(){vec2 uv=gl_FragCoord.xy/uRes;
   float edgeD=lvl-bedH;/* the leading edge of each wash, white and frothy */float f1=smoothstep(.2,.0,edgeD)*(.55+.45*lace)+exp(-pow((edgeD-.28)/.06,2.))*lace2*.4;
   /* the thin sheet of a wash is milky with foam lace */float f2=(1.-smoothstep(.0,.25,edgeD))*vRun*2.2*(.35+.65*lace2);
   /* breaking crests: white lines that roll in from the sand bar and fade as they spread */float cr=fract(d0*.55+uT*.16+n2(vec2(vW.z*.05,1.))*.4);
-  float brk=exp(-pow((d0-1.3)/.9,2.));/* waves break over the bar and fall apart into foam towards the sand */float broken=smoothstep(.3,.62,n2(vec2(vW.z*.35,d0*1.5)+vec2(0.,uT*.2)));
+  float brk=exp(-pow((d0-1.3)/.9,2.))*smoothstep(.03,.1,bedSl(vW.xz));/* waves break over the bar and fall apart into foam towards the sand */float broken=smoothstep(.3,.62,n2(vec2(vW.z*.35,d0*1.5)+vec2(0.,uT*.2)));
   float f3=exp(-pow((cr-.1)/.08,2.))*brk*broken*(.55+.45*lace)+exp(-pow((cr-.22)/.12,2.))*brk*lace2*broken*.5;
   /* a soft bubbly band behind the breakers */f3+=smoothstep(1.2,.3,d0)*smoothstep(.0,.3,d0)*lace*lace2*.35;
   float ring=smoothstep(.35,.0,viewD*abs(dot(V,vec3(0,1,0)))-.02)*(1.-smoothstep(1.2,2.5,depth+0.))*lace;
@@ -20598,6 +20599,17 @@ g.VehicleEngine={create,KINDS,kinds:Object.keys(KINDS),ROAD};})(typeof window!==
 (function(g){
 const N=121;
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
+/* paths and bike paths turn in long smooth curves instead of sharp corners (Paul, 15 Nov 2026): drawn lines keep their points in the
+   map file; the curve is made when drawing (R = curve size in map units) */
+const RNDC=new WeakMap();const rndP=(P,R)=>{if(!P||P.length<3)return P;let c=RNDC.get(P);if(c)return c;const A=[P[0]];
+  for(let i=1;i<P.length-1;i++){const a=A[A.length-1],b=P[i],n=P[i+1],ux=b[0]-a[0],uz=b[1]-a[1],vx=n[0]-b[0],vz=n[1]-b[1],l1=Math.hypot(ux,uz),l2=Math.hypot(vx,vz);
+    if(l1<.05)continue;if(l2<.05){continue;}if(Math.abs(ux*vz-uz*vx)/(l1*l2)<.03&&ux*vx+uz*vz>0)continue;A.push(b);}A.push(P[P.length-1]);
+  if(A.length<3){RNDC.set(P,A);return A;}const O=[A[0]];
+  for(let i=1;i<A.length-1;i++){const a=A[i-1],b=A[i],n=A[i+1],l1=Math.hypot(b[0]-a[0],b[1]-a[1]),l2=Math.hypot(n[0]-b[0],n[1]-b[1]);
+    const d=Math.min(R,l1*(i===1?.9:.5),l2*(i===A.length-2?.9:.5));const p0=[b[0]+(a[0]-b[0])*d/l1,b[1]+(a[1]-b[1])*d/l1],p2=[b[0]+(n[0]-b[0])*d/l2,b[1]+(n[1]-b[1])*d/l2];
+    const K=Math.max(4,Math.round(d*1.5));for(let k=0;k<=K;k++){const t=k/K,s=1-t;O.push([s*s*p0[0]+2*s*t*b[0]+t*t*p2[0],s*s*p0[1]+2*s*t*b[1]+t*t*p2[1]]);}}
+  O.push(A[A.length-1]);RNDC.set(P,O);return O;};
+const RNDT={bikepath:1,lane:1};const rpts=(r,R)=>RNDT[r.type]?rndP(r.pts,R):r.pts;
 const lineD=(x,z,pts)=>{let m=1e9;for(let i=1;i<pts.length;i++)m=Math.min(m,segD(x,z,pts[i-1],pts[i]));return m;};
 const RW={bikepath:1.3,island:2.4,street:3.3,arterial:5,highway:4.6,lane:1.6,bridge:4.6};
 /* clean shoreline for a height grid (Paul, 14 Nov 2026: pale-green flat facets on the beach when the waves ran up): pools cut off
@@ -20660,7 +20672,7 @@ function create(o){
       [[B.min.x,B.min.z],[B.max.x,B.min.z],[B.min.x,B.max.z],[B.max.x,B.max.z]].forEach(([x,z])=>{const dx=x-b.x,dz=z-b.z,lx=dx*c-dz*s,lz=dx*s+dz*c;x0=Math.min(x0,lx);x1=Math.max(x1,lx);z0=Math.min(z0,lz);z1=Math.max(z1,lz);});});
     return x0<x1?{x:b.x,z:b.z,r,F:[x0,z0,x1,z1]}:null;};
   const inFoot=(x,z,m)=>FP.some(e=>{const c=Math.cos(e.r),s=Math.sin(e.r),dx=x-e.x,dz=z-e.z,lx=dx*c-dz*s,lz=dx*s+dz*c,F=e.F;return lx>F[0]-m&&lx<F[2]+m&&lz>F[1]-m&&lz<F[3]+m;});
-  const kindAt=(x,z)=>{const h=Hg(x,z);if(h<SEA)return'water';if(o.noGrow&&o.noGrow(x,z))return'none';/* the host's own places (the game's café and deck) */if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type])||inCul(x,z))return'path';if(inFoot(x,z,0))return'none';
+  const kindAt=(x,z)=>{const h=Hg(x,z);if(h<SEA)return'water';if(o.noGrow&&o.noGrow(x,z))return'none';/* the host's own places (the game's café and deck) */if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,rndP(p.pts,5*CS))<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,rpts(r,5*CS))<RW[r.type])||inCul(x,z))return'path';if(inFoot(x,z,0))return'none';
     if(E.terr&&E.terr.groundKind)return E.terr.groundKind(x,z)==='sand'?'sand':'grass';return h<SEA+.9?'sand':'grass';};
   const inCul=(x,z,m)=>(doc.culs||[]).some(q=>Math.hypot(q.x-x,q.z-z)<6+(m||0));
   const keepOut=(x,z)=>inCul(x,z,.5)||onRail(x,z,1.6)||inFoot(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
@@ -20668,10 +20680,10 @@ function create(o){
   /* roads first: the ground is fitted to their beds */
   E.road=RoadEngine.create(Object.assign({scene:G.road,heightAt:Hfn,smooth:true,maxGrade:.06},G0));const GB=new THREE.Group();G.road.add(GB);E.bike=RoadEngine.create(Object.assign({scene:GB,heightAt:Hfn,smooth:true,maxGrade:.06},G0));
   (doc.culs||[]).forEach(q=>{E.road.culdesac(q.x,q.z);E.bike.culdesac(q.x,q.z);});
-  doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(r.type==='bikepath')E.bike.road(r.pts,{type:r.type});else E.road.road(r.pts,r.type==='lane'?{type:'lane',color:'#a08c6a'}:{type:r.type});});
+  doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(r.type==='bikepath')E.bike.road(rpts(r,5*CS),{type:r.type});else E.road.road(rpts(r,5*CS),r.type==='lane'?{type:'lane',color:'#a08c6a'}:{type:r.type});});
   E.road.build();E.bike.build();GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});
   /* ground */
-  E.terr=TerrainEngine.create(Object.assign({size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:SEA,paths:doc.paths.map(p=>({pts:p.pts,w:p.w,kind:p.kind})).concat(rail.length>1?[{pts:rail,w:2.2,kind:'gravel'}]:[])},o.terrain||{},G0));
+  E.terr=TerrainEngine.create(Object.assign({size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:SEA,paths:doc.paths.map(p=>({pts:rndP(p.pts,5*CS),w:p.w,kind:p.kind})).concat(rail.length>1?[{pts:rail,w:2.2,kind:'gravel'}]:[])},o.terrain||{},G0));
   if(o.landOnly){/* the host keeps its own sea and seabed: drop the ground's underwater triangles */const gm=E.terr.mesh.geometry,P=gm.attributes.position,I=gm.index.array,keep=[];const up=v=>P.getY(v)>SEA-.25;
     for(let i=0;i<I.length;i+=3)if(up(I[i])||up(I[i+1])||up(I[i+2]))keep.push(I[i],I[i+1],I[i+2]);gm.setIndex(keep);}
   G.terr.add(E.terr.mesh);

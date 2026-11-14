@@ -167,6 +167,7 @@ function create(o){const R=o.renderer,scene=o.scene,cam=o.camera,S=o.size||140,H
 float wh(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float wn(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(wh(vec2(i,1.3)),wh(vec2(i+1.,1.3)),f);}
 float bedAt(vec2 xz){vec2 uv=(xz-uHB.xy)/uHB.zw;if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.)return -6.;return texture2D(tHM,uv).r;}
+/* how steeply the seabed rises: waves only break where the bed shelves up (a beach or a bar), not over a flat shallow sea */float bedSl(vec2 p){float e=1.;return length(vec2(bedAt(p+vec2(e,0.))-bedAt(p-vec2(e,0.)),bedAt(p+vec2(0.,e))-bedAt(p-vec2(0.,e))))/(2.*e);}
 float runup1(vec2 xz,float t,float per,float off){float p=t/per+off+wn(xz.y*.045+off*3.)*.55;float c=fract(p);float r=c<.28?smoothstep(0.,.28,c):1.-smoothstep(.28,1.,c);return r*(.26+.22*wh(vec2(floor(p),off)));}
 float runup(vec2 xz,float t){return max(runup1(xz,t,9.,0.),runup1(xz,t,13.,.37)*.8)*uRun;}`;
   if(o.ground){const gm=o.ground;gm.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vW;').replace('#include <worldpos_vertex>','#include <worldpos_vertex>\nvW=(modelMatrix*vec4(transformed,1.)).xyz;');
@@ -187,7 +188,7 @@ float cz(vec2 p){vec2 i=floor(p),f=fract(p);float m=8.;for(int y=-1;y<=1;y++)for
     if(dep>0.){float rip=sin(vW.x*3.2+sin(vW.z*.7)*1.6+fbmS(vW.xz*.4)*3.)*.5+.5;gl_FragColor.rgb*=1.-pow(rip,6.)*.16*smoothstep(0.,.3,dep);float c=pow(1.-cz(vW.xz*.55+vec2(uT*.08,uT*.05)),5.)+pow(1.-cz(vW.xz*.9-vec2(uT*.06,0.)),6.)*.6;gl_FragColor.rgb+=vec3(.55,.62,.6)*c*.45*exp(-dep*.35)*smoothstep(0.,.25,dep);}}`);};}
   const rt=new THREE.WebGLRenderTarget(2,2);rt.texture.encoding=THREE.sRGBEncoding;rt.depthTexture=new THREE.DepthTexture();rt.depthTexture.type=THREE.UnsignedIntType;
   const wm=new THREE.ShaderMaterial({transparent:false,uniforms:Object.assign({tCol:{value:rt.texture},tDep:{value:rt.depthTexture},uRes:{value:new THREE.Vector2()},uPI:{value:new THREE.Matrix4()},uCW:{value:new THREE.Matrix4()},uSun:{value:new THREE.Vector3()},uSunC:{value:new THREE.Color()},uCam:{value:new THREE.Vector3()},uNear:{value:.5},uFar:{value:600},uNew:{value:1},uQ:{value:1},uSky:{value:new THREE.Color()}},U),
- vertexShader:`varying vec3 vW;varying float vRun;uniform float uT,uLevel;${WAVE}void main(){vec3 p=position;vec2 wxz=(modelMatrix*vec4(p,1.)).xz;float bed=bedAt(wxz);float d0=uLevel-bed;float near=1.-smoothstep(.8,3.5,d0);float ru=runup(wxz,uT)*near;vRun=ru;float cr=fract(d0*.55+uT*.16+wn(wxz.y*.05)*.4);float crest=exp(-pow((cr-.08)/.06,2.))*smoothstep(.2,.9,d0)*(1.-smoothstep(2.6,3.4,d0));p.y=uLevel+ru+crest*.09+sin(p.x*.25+uT*1.1)*.03*(1.-near)+sin(p.z*.31-uT*.9)*.03*(1.-near);vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+ vertexShader:`varying vec3 vW;varying float vRun;uniform float uT,uLevel;${WAVE}void main(){vec3 p=position;vec2 wxz=(modelMatrix*vec4(p,1.)).xz;float bed=bedAt(wxz);float d0=uLevel-bed;float near=1.-smoothstep(.8,3.5,d0);float ru=runup(wxz,uT)*near;vRun=ru;float cr=fract(d0*.55+uT*.16+wn(wxz.y*.05)*.4);float crest=exp(-pow((cr-.08)/.06,2.))*smoothstep(.2,.9,d0)*(1.-smoothstep(2.6,3.4,d0))*smoothstep(.03,.1,bedSl(wxz));p.y=uLevel+ru+crest*.09+sin(p.x*.25+uT*1.1)*.03*(1.-near)+sin(p.z*.31-uT*.9)*.03*(1.-near);vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
  fragmentShader:`precision highp float;varying vec3 vW;varying float vRun;${WAVE}uniform sampler2D tCol,tDep;uniform vec2 uRes;uniform mat4 uPI,uCW;uniform vec3 uSun,uCam;uniform vec3 uSunC,uSky;uniform float uT,uLevel,uNear,uFar,uNew,uQ;
 /* hash without sin: stays smooth far from 0,0 (big game maps) */float hh(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float n2(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(hh(i),hh(i+vec2(1,0)),u.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),u.x),u.y);}
@@ -213,7 +214,7 @@ void main(){vec2 uv=gl_FragCoord.xy/uRes;
   float edgeD=lvl-bedH;/* the leading edge of each wash, white and frothy */float f1=smoothstep(.2,.0,edgeD)*(.55+.45*lace)+exp(-pow((edgeD-.28)/.06,2.))*lace2*.4;
   /* the thin sheet of a wash is milky with foam lace */float f2=(1.-smoothstep(.0,.25,edgeD))*vRun*2.2*(.35+.65*lace2);
   /* breaking crests: white lines that roll in from the sand bar and fade as they spread */float cr=fract(d0*.55+uT*.16+n2(vec2(vW.z*.05,1.))*.4);
-  float brk=exp(-pow((d0-1.3)/.9,2.));/* waves break over the bar and fall apart into foam towards the sand */float broken=smoothstep(.3,.62,n2(vec2(vW.z*.35,d0*1.5)+vec2(0.,uT*.2)));
+  float brk=exp(-pow((d0-1.3)/.9,2.))*smoothstep(.03,.1,bedSl(vW.xz));/* waves break over the bar and fall apart into foam towards the sand */float broken=smoothstep(.3,.62,n2(vec2(vW.z*.35,d0*1.5)+vec2(0.,uT*.2)));
   float f3=exp(-pow((cr-.1)/.08,2.))*brk*broken*(.55+.45*lace)+exp(-pow((cr-.22)/.12,2.))*brk*lace2*broken*.5;
   /* a soft bubbly band behind the breakers */f3+=smoothstep(1.2,.3,d0)*smoothstep(.0,.3,d0)*lace*lace2*.35;
   float ring=smoothstep(.35,.0,viewD*abs(dot(V,vec3(0,1,0)))-.02)*(1.-smoothstep(1.2,2.5,depth+0.))*lace;
@@ -1449,6 +1450,17 @@ const Hfn=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)re
 /* ground fitted to the roads (smooth, level road beds); everything except the road engine itself stands on this */
 const Hg=(x,z)=>{let h=Hfn(x,z);if(E.road&&E.road.junctions)h=E.road.groundAt(x,z,h);if(E.bike&&E.bike.junctions)h=E.bike.groundAt(x,z,h);return h;};
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
+/* paths and bike paths turn in long smooth curves instead of sharp corners (Paul, 15 Nov 2026): drawn lines keep their points in the
+   map file; the curve is made when drawing (R = curve size in map units) */
+const RNDC=new WeakMap();const rndP=(P,R)=>{if(!P||P.length<3)return P;let c=RNDC.get(P);if(c)return c;const A=[P[0]];
+  for(let i=1;i<P.length-1;i++){const a=A[A.length-1],b=P[i],n=P[i+1],ux=b[0]-a[0],uz=b[1]-a[1],vx=n[0]-b[0],vz=n[1]-b[1],l1=Math.hypot(ux,uz),l2=Math.hypot(vx,vz);
+    if(l1<.05)continue;if(l2<.05){continue;}if(Math.abs(ux*vz-uz*vx)/(l1*l2)<.03&&ux*vx+uz*vz>0)continue;A.push(b);}A.push(P[P.length-1]);
+  if(A.length<3){RNDC.set(P,A);return A;}const O=[A[0]];
+  for(let i=1;i<A.length-1;i++){const a=A[i-1],b=A[i],n=A[i+1],l1=Math.hypot(b[0]-a[0],b[1]-a[1]),l2=Math.hypot(n[0]-b[0],n[1]-b[1]);
+    const d=Math.min(R,l1*(i===1?.9:.5),l2*(i===A.length-2?.9:.5));const p0=[b[0]+(a[0]-b[0])*d/l1,b[1]+(a[1]-b[1])*d/l1],p2=[b[0]+(n[0]-b[0])*d/l2,b[1]+(n[1]-b[1])*d/l2];
+    const K=Math.max(4,Math.round(d*1.5));for(let k=0;k<=K;k++){const t=k/K,s=1-t;O.push([s*s*p0[0]+2*s*t*b[0]+t*t*p2[0],s*s*p0[1]+2*s*t*b[1]+t*t*p2[1]]);}}
+  O.push(A[A.length-1]);RNDC.set(P,O);return O;};
+const RNDT={bikepath:1,lane:1};const rpts=(r,R)=>RNDT[r.type]?rndP(r.pts,R):r.pts;
 const lineD=(x,z,pts)=>{let m=1e9;for(let i=1;i<pts.length;i++)m=Math.min(m,segD(x,z,pts[i-1],pts[i]));return m;};
 const RW={bikepath:1.3,island:2.4,street:3.3,arterial:5,highway:4.6,lane:1.6,bridge:4.6};
 /* footprints of everything built (buildings and businesses, terraces included) and their front yards, in world space (QA, 14 Nov 2026) */
@@ -1475,7 +1487,7 @@ function roadVsRail(pts,type){const R=railPts();if(R.length<2||pts.length<2)retu
   for(let k=1;k<pts.length;k++){const a=pts[k-1],b=pts[k],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/.5));for(let i=0;i<=n;i++){if(k>1&&i===0)continue;const x=a[0]+(b[0]-a[0])*i/n,z=a[1]+(b[1]-a[1])*i/n;
     if(inStation(x,z,hw))return'station';if(lineD(x,z,R)<band){run+=L/n;if(run>inside)inside=run;}else run=0;}}
   return inside>2*band+1.5?'along':null;}
-const kindAt=(x,z)=>{const h=Hg(x,z);if(h<doc.sea)return'water';if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type])||inCul(x,z))return'path';if(inBld(x,z,0))return'none';
+const kindAt=(x,z)=>{const h=Hg(x,z);if(h<doc.sea)return'water';if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,rndP(p.pts,5*CS))<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,rpts(r,5*CS))<RW[r.type])||inCul(x,z))return'path';if(inBld(x,z,0))return'none';
   /* the ground engine decides where the beach is, so no grass grows on the sand */if(E.terr&&E.terr.groundKind)return E.terr.groundKind(x,z)==='sand'?'sand':'grass';if(h<doc.sea+.9)return'sand';return'grass';};
 const inCul=(x,z,m)=>(doc.culs||[]).some(q=>Math.hypot(q.x-x,q.z-z)<6+(m||0))/* a turning circle and its kerb */;
 const keepOut=(x,z)=>inCul(x,z,.5)||onRail(x,z,1.6)||inBld(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
@@ -1486,13 +1498,13 @@ const clear=g=>{while(g.children.length){const c=g.children.pop();c.traverse&&c.
 const E={};const Sky=SkyEngine.create({scene,renderer:R,sun,hemi,target:ctl.target});E.sky=Sky;/* no light shafts over the map (Paul, 14 Nov 2026) */try{Sky.setLayer('godrays',false);}catch(e){}
 const BOUNDS=[-HW,-HW,HW,HW];
 const mk={
-  terr(){clear(G.terr);E.terr=TerrainEngine.create({size:PLAYER?[S*1.5,S*1.5]:[S,S]/* the seabed reaches the edge of the wider sea */,center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:doc.sea,paths:doc.paths.map(p=>({pts:p.pts,w:p.w,kind:p.kind})).concat(railPts().length>1?[{pts:railPts(),w:2.2,kind:'gravel'}]:[])/* the rail bed */});G.terr.add(E.terr.mesh);},
+  terr(){clear(G.terr);E.terr=TerrainEngine.create({size:PLAYER?[S*1.5,S*1.5]:[S,S]/* the seabed reaches the edge of the wider sea */,center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:doc.sea,paths:doc.paths.map(p=>({pts:rndP(p.pts,5*CS),w:p.w,kind:p.kind})).concat(railPts().length>1?[{pts:railPts(),w:2.2,kind:'gravel'}]:[])/* the rail bed */});G.terr.add(E.terr.mesh);},
   water(){if(E.water&&E.water.dispose)E.water.dispose();clear(G.water);E.water=WaterSea.create({renderer:R,scene,camera:cam,heightAt:Hg,size:220*CS,heightRes:PLAYER?384:256,ground:null,level:doc.sea,parent:G.water});},
   fol(){clear(G.fol);E.fol=FoliageEngine.create({mix:PLAYER?'rottnest':undefined,scene:G.fol,bounds:BOUNDS,heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46*Math.min(CS,1.4)});doc.trees.forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6)||inCul(t.x,t.z,1.5))return;/* never on the railway or a turning circle */try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});},
   wl(){clear(G.wl);E.wl=WaterLife.create({scene:G.wl,heightAt:Hg,level:doc.sea,bounds:BOUNDS});if(PLAYER)try{E.wl.setLayer('searocks',false);}catch(e){}/* no sea rocks (Paul, 15 Nov 2026) */},
   props(){clear(G.props);E.props=PropsEngine.create({scene:G.props,heightAt:Hg});doc.props.forEach(addProp);},
   road(){clear(G.road);E.road=RoadEngine.create({scene:G.road,heightAt:Hfn,smooth:true,maxGrade:.06});/* bike paths are their own network: where one meets a road it just crosses, no junction pad or sign (QA, 14 Nov 2026) */const GB=new THREE.Group();G.road.add(GB);E.bike=PLAYER?RoadEngine.create({scene:GB,heightAt:Hfn,smooth:true,maxGrade:.06}):null;
-    (doc.culs||[]).forEach(q=>{E.road.culdesac(q.x,q.z);if(E.bike)E.bike.culdesac(q.x,q.z);});doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(E.bike&&r.type==='bikepath')E.bike.road(r.pts,{type:r.type});else E.road.road(r.pts,r.type==='lane'&&PLAYER?{type:'lane',color:'#a08c6a'}:{type:r.type});});E.road.build();if(E.bike){E.bike.build();/* where it crosses a road the road is drawn on top */GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});}if(doc.roads.length&&!PLAYER)E.road.cars(doc.cars||0);/* player version: no generic traffic, only the island's own vehicles */},
+    (doc.culs||[]).forEach(q=>{E.road.culdesac(q.x,q.z);if(E.bike)E.bike.culdesac(q.x,q.z);});doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(E.bike&&r.type==='bikepath')E.bike.road(rpts(r,5*CS),{type:r.type});else E.road.road(rpts(r,5*CS),r.type==='lane'&&PLAYER?{type:'lane',color:'#a08c6a'}:{type:r.type});});E.road.build();if(E.bike){E.bike.build();/* where it crosses a road the road is drawn on top */GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});}if(doc.roads.length&&!PLAYER)E.road.cars(doc.cars||0);/* player version: no generic traffic, only the island's own vehicles */},
   bld(){clear(G.bld);E.bld=BuildingKit.create({scene:G.bld,heightAt:Hg});const L=doc.bld.map(addBld);L.forEach((g,i)=>yard(g,doc.bld[i],G.bld));},
   biz(){clear(G.biz);const BB=BuildingKit.create({scene:G.biz,heightAt:Hg}),BP=PropsEngine.create({scene:G.biz,heightAt:Hg});E.biz={list:doc.biz.map(b=>makeBiz(b,BB,BP,G.biz))};E.bizBoats=[];E.biz.list.forEach((g,i)=>{const b=doc.biz[i];if(!g||!BIZ[b.t]||!BIZ[b.t].boat)return;
       /* bought boats sail a loop round where they were put (Paul, 14 Nov 2026): the widest circle that stays in deep water */let R0=0;for(const R of[14,11,8,6,4]){let ok=true;for(let a=0;a<6.28&&ok;a+=.4)if(Hg(b.x+Math.cos(a)*R,b.z+Math.sin(a)*R)>doc.sea-.6)ok=false;if(ok){R0=R;break;}}
@@ -1510,7 +1522,7 @@ const mk={
       const roof=new THREE.Mesh(new THREE.BoxGeometry(7,.1,1.6),new THREE.MeshLambertMaterial({color:new THREE.Color('#2f6a74').convertSRGBToLinear()}));roof.position.set(S.x+S.px*.3,pf.position.y+1.8,S.z+S.pz*.3);roof.rotation.y=S.ang;roof.castShadow=true;G.rail.add(roof);});
     /* the island train runs the line back and forth and stops at each end (by the platforms) */E.train=VehicleEngine.create({scene:G.rail,heightAt:(x,z)=>Math.max(Hg(x,z),doc.sea)+.1,waterLevel:doc.sea});const t=E.train.add('islandtrain',R[0][0],R[0][1],{cars:3});{const cv2=new THREE.CatmullRomCurve3(R.map(p=>new THREE.Vector3(p[0],0,p[1]))),L2=cv2.getLength(),f=Math.min(.45,6/L2);E.train.rail(t,R,{speed:3,stops:[f,1-f]});}},
   veh(){clear(G.veh);E.veh=VehicleEngine.create({scene:G.veh,heightAt:Hg,waterLevel:doc.sea});if(PLAYER)doc.veh=(doc.veh||[]).filter(o=>vehOK(o.k));E.veh.list=(doc.veh||[]).map(addVeh);},
-  life(){clear(G.life);E.life=LifeEngine.create({scene:G.life,heightAt:Hg,kindAt,paths:doc.paths.map(p=>p.pts),water:(x,z)=>Hg(x,z)<doc.sea,bounds:[-55*CS,-55*CS,55*CS,55*CS]});
+  life(){clear(G.life);E.life=LifeEngine.create({scene:G.life,heightAt:Hg,kindAt,paths:doc.paths.map(p=>rndP(p.pts,5*CS)),water:(x,z)=>Hg(x,z)<doc.sea,bounds:[-55*CS,-55*CS,55*CS,55*CS]});
     KINDS_LIFE.forEach(k=>{const n=doc.life[k]|0;if(!n)return;if(!doc.paths.length&&(k==='walker'||k==='jogger'||k==='cyclist'))return;try{E.life.spawn(k,n);}catch(e){console.warn(k,e);}});}};
 /* ---------- businesses: buy, earn every day (rentals: every night), upgrade to 3 stars ---------- */
 const BIZ={
