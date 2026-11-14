@@ -223,16 +223,17 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-engine-islandmap.js | 20844-21010 | 24 | N, segD, weldPaths, RNDC, RNDT, lineD, RW, coastFix, gridH, GAM |
 | 188-engmap-look-lab.js | 21011-21068 | 9 | ENGMAP_LIVE, ENGMAP |
 | 188-ibmap-look-lab.js | 21069-21188 | 93 | embedded data, do not open |
-| 188-open-sea-ships-and-captain-ned.js | 21189-21308 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 21309-21389 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 21390-21411 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 21412-21471 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 21472-21521 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 21522-21554 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 21555-21627 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 21628-21658 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 21659-21675 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 21676-21686 | 2 |  |
-| 188-auth.js | 21687-21765 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 21766-21809 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 21810-21831 | 3 | SHOT |
+| 188-freomap-look-lab.js | 21189-21307 | 14 | FREOMAP_LIVE, FREOMAP |
+| 188-open-sea-ships-and-captain-ned.js | 21308-21427 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 21428-21508 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 21509-21530 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 21531-21590 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 21591-21640 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 21641-21673 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 21674-21746 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 21747-21777 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 21778-21794 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 21795-21805 | 2 |  |
+| 188-auth.js | 21806-21884 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 21885-21928 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 21929-21950 | 3 | SHOT |
