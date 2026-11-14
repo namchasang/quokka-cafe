@@ -1,5 +1,5 @@
 // ---------- Home screen 2 (Look Lab ?home2, Paul Nov 2026): only the title, the place and New / Load game; everything else sits behind a settings icon so the game scene behind is clear ----------
-var HOME2_LIVE=true;var HOMEIMG_LIVE=false;
+var HOME2_LIVE=true;var HOMEIMG_LIVE=true;
 (function(){if(!(HOME2_LIVE||/[?&#]home2\b/.test(location.search+location.hash)))return;document.documentElement.classList.add('home2');
   const st=document.createElement('style');st.textContent=`
 .home2 .ovTitle{background:linear-gradient(180deg,rgba(10,14,28,.55) 0%,rgba(10,14,28,0) 34%,rgba(10,14,28,0) 72%,rgba(10,14,28,.45) 100%);place-items:start center;padding:calc(28px + env(safe-area-inset-top,0px)) 16px 0}
