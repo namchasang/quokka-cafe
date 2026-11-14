@@ -2,6 +2,7 @@
 /* Road Engine (Paul Perth Library, Nov 2026) — a road network as real 3D for three.js r128.
    const N=RoadEngine.create({scene,heightAt});
    N.road(pts,{type:'street'|'arterial'|'highway'|'lane',lanes,kerb:true,footpath:true,median:false})  -> id   (create option roundabouts:false = plain crossroads only)
+   N.roundabout(x,z)   a roundabout where 3+ roads meet near x,z, any type, sized from the widest road
    N.bridge(pts,{height,type})   N.build()   // finds junctions, cuts the roads back, fills each junction with its own pad,
                                              // adds zebra crossings on streets, stop lines, kerb returns and a roundabout where 4+ meet
    Smooth driving (default; smooth:false keeps raw ground): 1 sample the ground along each road every 2 units, 2 average over ~20 units,
@@ -89,7 +90,9 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
   const lights=[];let night=0;
   const glow=ctex(64,64,(x)=>{const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,240,190,.9)');g.addColorStop(1,'rgba(255,240,190,0)');x.fillStyle=g;x.fillRect(0,0,64,64);});
   function addLamps(c){if(c.lamps)return;const m=new THREE.Mesh(new THREE.PlaneGeometry(3.2,1.6),new THREE.MeshBasicMaterial({map:glow,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));m.rotation.x=-Math.PI/2;m.position.set(2.6,.08,0);c.C.add(m);c.lamps=m;lg('headlights').add(new THREE.Object3D());}
-  const api={roads,
+  const FR=[];const api={roads,
+    /* a roundabout where roads meet near x,z (3+ arms, any road type): sized from the widest road so the ring is one road wide and
+       the white kerbs follow it (Paul, 14 Nov 2026) */roundabout(x,z){FR.push([x,z]);},
     road(pts,op){op=op||{};const t=Object.assign({},TY[op.type||'street'],op);const r={pts,t,type:op.type||'street',cv:new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],0,p[1])),false,'centripetal'),bridge:null};roads.push(r);return roads.length-1;},
     /* ground that fits the roads: inside the road + 1.5 shoulder the ground sits just under the road; it blends back to the
        natural ground over 'blend' units. Junction pads flatten a disc. Use it as the heightAt of terrain, plants, props, buildings. */
@@ -128,7 +131,8 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
         const near=J.find(j=>j.c.distanceTo(c)<Math.max(3,(a.W+b.W)/4));
         if(near){[[ia,ta],[ib,tb]].forEach(e=>{if(!near.roads.some(q=>q[0]===e[0]))near.roads.push(e);});}else J.push({c,roads:[[ia,ta],[ib,tb]]});}));
       J.forEach(j=>{j.arms=j.roads.reduce((n,[ri,t])=>n+(t<.02||t>.98?1:2),0);j.W=Math.max(...j.roads.map(([k])=>roads[k].W));
-        j.round=o.roundabouts!==false&&j.arms>=4&&j.W>=5&&j.roads.some(([k])=>roads[k].type==='arterial');j.R=j.round?j.W/2+2.8:j.W/2+1.6;j.exits=[];});
+        j.round=o.roundabouts!==false&&j.arms>=4&&j.W>=5&&j.roads.some(([k])=>roads[k].type==='arterial');j.R=j.round?j.W/2+2.8:j.W/2+1.6;j.exits=[];
+        if(j.arms>=3&&FR.some(p=>Math.hypot(p[0]-j.c.x,p[1]-j.c.z)<Math.max(6,j.W*1.5))){j.round=true;j.forced=true;j.ir=Math.max(1.2,j.W*.6);j.R=j.ir+j.W;}});
       /* smooth height profile per road: sample the ground every 2 units, average over ~20 units, limit the grade (6%),
          then pull each road to its junction height so pads are level with every arm. Cars and the ribbons follow this,
          not the raw ground, so driving is smooth; groundAt() lets the terrain fit itself to the roads. */
@@ -210,9 +214,9 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
         /* roads without a kerb (island roads, country lanes) still give their pad a low kerb and a white footpath ring in their shoulder width, so a pad never ends in bare grass (Paul, 14 Nov 2026) */
         if(!foot){const sh=j.roads.map(([k])=>roads[k].t).filter(t=>t.shoulder||t.type!=='bikepath');kerb=Math.max(kerb,.08);foot=Math.max(1,...sh.map(t=>(t.shoulderW||1)*1.2));fc='#ece6d6';}
         if(kerb&&spans.length){spans.sort((a,b)=>a[0]-b[0]);for(let i=0;i<spans.length;i++){let a0=spans[i][1],a1=spans[(i+1)%spans.length][0];if(i===spans.length-1)a1+=Math.PI*2;if(a1-a0<.02)continue;
-          arc(c,R,R,a0,a1,0,kerb,'#e8e4dc',true);if(foot)arc(c,R,R+foot,a0,a1,kerb+.01,0,fc,false);}}
-        if(j.round){const ir=j.W*.3;const ig=new THREE.CylinderGeometry(ir,ir+.1,.2,32);const isl=new THREE.Mesh(ig,plain('#6a8a50'));isl.position.set(c.x,j.y+.1,c.z);isl.receiveShadow=true;group.add(isl);
-          arc(c,ir+.1,ir+.1,0,Math.PI*2,0,.2,'#e8e4dc',true);
+          arc(c,R,R,a0,a1,0,kerb,j.forced?'#ffffff':'#e8e4dc',true);if(foot)arc(c,R,R+foot,a0,a1,kerb+.01,0,fc,false);}}
+        if(j.round){const ir=j.ir||j.W*.3;const ig=new THREE.CylinderGeometry(ir,ir+.1,.2,32);const isl=new THREE.Mesh(ig,plain('#6a8a50'));isl.position.set(c.x,j.y+.1,c.z);isl.receiveShadow=true;group.add(isl);
+          arc(c,ir+.1,ir+.1,0,Math.PI*2,0,.2,j.forced?'#ffffff':'#e8e4dc',true);
           /* painted circulating lane line and give-way lines at each entry */
           const dash=new THREE.MeshLambertMaterial({color:0xf2efe6,polygonOffset:true,polygonOffsetFactor:-5,polygonOffsetUnits:-5});const mr=(ir+R)/2;for(let a=0;a<Math.PI*2;a+=.35){const d=new THREE.Mesh(new THREE.PlaneGeometry(.7,.12),dash);d.rotation.order='YXZ';d.rotation.set(-Math.PI/2,-a-Math.PI/2,0);const x=c.x+Math.cos(a)*mr,z=c.z+Math.sin(a)*mr;d.position.set(x,H(x,z)+.05,z);group.add(d);}
           spans.forEach(([a0,a1])=>{const am=(a0+a1)/2,x=c.x+Math.cos(am)*(R-.35),z=c.z+Math.sin(am)*(R-.35),w=(a1-a0)*R*.5;for(let s=-w/2;s<w/2;s+=.5){const px=x-Math.sin(am)*(s+.12),pz=z+Math.cos(am)*(s+.12);const d=new THREE.Mesh(new THREE.PlaneGeometry(.3,.15),dash);d.rotation.order='YXZ';d.rotation.set(-Math.PI/2,-am,0);d.position.set(px,H(px,pz)+.05,pz);group.add(d);}});}

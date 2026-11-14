@@ -40,6 +40,7 @@ function create(o){
   const t0=performance.now(),G0=gam?{gammaOut:true}:{};
   /* roads first: the ground is fitted to their beds */
   E.road=RoadEngine.create(Object.assign({scene:G.road,heightAt:Hfn,smooth:true,maxGrade:.06},G0));const GB=new THREE.Group();G.road.add(GB);E.bike=RoadEngine.create(Object.assign({scene:GB,heightAt:Hfn,smooth:true,maxGrade:.06},G0));
+  (doc.rounds||[]).forEach(q=>{E.road.roundabout(q.x,q.z);E.bike.roundabout(q.x,q.z);});
   doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(r.type==='bikepath')E.bike.road(r.pts,{type:r.type});else E.road.road(r.pts,r.type==='lane'?{type:'lane',color:'#a08c6a'}:{type:r.type});});
   E.road.build();E.bike.build();GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});
   /* ground */
