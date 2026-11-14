@@ -212,19 +212,19 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-island-tidy-and-gfx.js | 19479-19514 | 5 | ISLAND_STORE |
 | 188-paths3d-look-lab.js | 19515-19545 | 3 | PATHS3D |
 | 188-engine-terrain.js | 19546-19643 | 14 | lin, DEF, create |
-| 188-engine-foliage.js | 19644-19747 | 16 | lin, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
-| 188-engine-road.js | 19748-19976 | 36 | TY, lin, asphalt, create |
-| 188-engmap-look-lab.js | 19977-20034 | 8 | ENGMAP_LIVE, ENGMAP |
-| 188-open-sea-ships-and-captain-ned.js | 20035-20154 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 20155-20235 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 20236-20257 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 20258-20317 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 20318-20367 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 20368-20400 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 20401-20473 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 20474-20504 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 20505-20521 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 20522-20532 | 2 |  |
-| 188-auth.js | 20533-20611 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 20612-20655 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 20656-20677 | 3 | SHOT |
+| 188-engine-foliage.js | 19644-19761 | 18 | lin, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
+| 188-engine-road.js | 19762-19990 | 36 | TY, lin, asphalt, create |
+| 188-engmap-look-lab.js | 19991-20048 | 8 | ENGMAP_LIVE, ENGMAP |
+| 188-open-sea-ships-and-captain-ned.js | 20049-20168 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 20169-20249 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 20250-20271 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 20272-20331 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 20332-20381 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 20382-20414 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 20415-20487 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 20488-20518 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 20519-20535 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 20536-20546 | 2 |  |
+| 188-auth.js | 20547-20625 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 20626-20669 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 20670-20691 | 3 | SHOT |
