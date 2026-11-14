@@ -15,11 +15,17 @@ const IBMAP={on:(IBMAP_LIVE||/[?&#]ibmap\b/.test(location.search+location.hash))
 window.__IBMAP=IBMAP;
 (function(){if(!IBMAP.on)return;
   const K=IBMAP.K,CX=IBMAP.CX,CZ=IBMAP.CZ,toMap=(x,z)=>[-(x-CX)*K,(z-CZ)*K],toGame=(xb,zb)=>[CX-xb/K,CZ+zb/K];IBMAP.toMap=toMap;IBMAP.toGame=toGame;
-  function startDoc(){/* the player's island from the Island Builder page (same site, same device) if there is one */const N=121;
+  function startDoc(){/* the game master's map from the Master Island Builder (GM accounts, this device) comes first, then the player's
+     island from the Island Builder page (same site, same device), then the start map */const N=121;
+    try{if(isGM()){const t=localStorage.getItem('ppl-mapedit-master');const d=t&&JSON.parse(t);if(d&&d.h&&d.h.length===N*N){IBMAP.src='master (GM)';IBMAP.mtxt=t;return d;}}}catch(e){}
     try{const keys=Object.keys(localStorage).filter(k=>k.indexOf('ppl-mapedit-player-rott')===0).sort();for(let i=keys.length-1;i>=0;i--){const d=JSON.parse(localStorage.getItem(keys[i])||'null');if(d&&d.h&&d.h.length===N*N&&d.ver===IBMAP_START.ver){IBMAP.src='player save '+keys[i];return d;}}}catch(e){}
     IBMAP.src='start map';return JSON.parse(JSON.stringify(IBMAP_START));}
   /* the builder's heights (sea 0, beaches up to ~1.3, low hills) on the game's flat island: beaches run from the sea level up to
      the old ground (0), hills stay gentle so everyone on the old paths keeps their feet; the seabed goes down to 6 below the sea */
+  /* the jetty stands in the water (Paul, 14 Nov 2026): the start map's coast had land there, so the bay round the jetty and the
+     ferry berth is sea again, sloping up to a beach over 4 units (room for every harbour level's longer jetty) */
+  const WET={x1:-163,x2:-124.5,z1:-32,z2:-19};
+  const wetCut=(h,x,z)=>{const dx=Math.max(WET.x1-x,0,x-WET.x2),dz=Math.max(WET.z1-z,0,z-WET.z2),d=Math.hypot(dx,dz);if(d>=4)return h;const t=d/4,w=-1.4*(1-t)+h*t;return Math.min(h,w);};
   const L=()=>SEA4.L;const yOf=h=>h<=0?L()+Math.max(h,-6):L()+(0-L())*Math.min(1,h/1.0)+Math.max(0,h-1.3)*.35;
   /* what of the old island to hide: its land scenery. Kept: characters and animals, boats and anything on the water, the café, deck
      and jetty, the train, the sea, the sky, and this map */
@@ -27,7 +33,7 @@ window.__IBMAP=IBMAP;
   function keepSet(){const S=new Set();try{TOON.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}try{CRIT3.list.forEach(e=>e.model&&S.add(e.model));}catch(e){}try{MORE3D.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}
     try{[WEST.train,WEST.car2].forEach(o=>o&&S.add(o));(WEST.boats||[]).forEach(o=>o&&S.add(o.g||o));}catch(e){}try{S.add(player.g||player.mesh||player.sprite);}catch(e){}S.add(IBMAP.grp);if(window.__ENGMAP&&__ENGMAP.grp)S.add(__ENGMAP.grp);return S;}
   function cafeZones(){const c=IW(0,-.7),j=IW(-17,5);return[[c.x,c.z,7.5],[j.x,j.z,6]];/* just the café, its deck and the jetty */}
-  const inCafe=(x,z)=>cafeZ.some(([a,b,r])=>Math.hypot(x-a,z-b)<r);
+  const inCafe=(x,z)=>cafeZ.some(([a,b,r])=>Math.hypot(x-a,z-b)<r)||(x>JETTY.x1-1.2&&x<DECK.x1+1&&z>JETTY.z1-1.6&&z<JETTY.z2+1.6)/* the jetty walk, any harbour level */;
   const B=new THREE.Box3();
   function hideOld(){scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();let n=0;
     scene.children.forEach(o=>{if(o.__ibSeen||keep.has(o)||!o.visible)return;o.__ibSeen=1;if(o.isLight||o.isCamera||o.isSprite||o.isPoints)return;if(o.userData&&(o.userData.frames||o.userData.lights||o.userData.lift))return;
@@ -46,15 +52,21 @@ window.__IBMAP=IBMAP;
     scene.traverse(o=>{if(!o.isMesh||!o.name||!/^sea4bed/.test(o.name))return;const P=o.geometry.attributes.position,M=new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld),Mi=new THREE.Matrix4().copy(M).invert();
       for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(v.y<L()-.02||zoneOf(v.x)!=='island'||v.x>99.5||inCafe(v.x,v.z))continue;const m=toMap(v.x,v.z),ny=I.heightAt(m[0],m[1])/K-.06;if(v.y>ny){v.y=ny;v.applyMatrix4(Mi);P.setY(i,v.y);n++;}}
       P.needsUpdate=true;o.geometry.computeVertexNormals();});IBMAP.sunk=n;}
+  function teardown(){const g=IBMAP.grp;if(!g)return;scene.remove(g);g.traverse(o=>{if(o.geometry)o.geometry.dispose();});IBMAP.grp=null;IBMAP.I=null;IBMAP.done=false;}
+  /* GM only: a button that opens the Master Island Builder on the same island; coming back to the game rebuilds the island with the edits */
+  function gmButton(){if(!isGM()||document.getElementById('ibmGM'))return;const b=document.createElement('button');b.id='ibmGM';b.textContent='🛠️ Master Builder';
+    b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 8px);z-index:40;padding:8px 14px;border-radius:999px;border:0;background:#1e2a3a;color:#ffd84a;font:700 14px system-ui;box-shadow:0 3px 0 rgba(0,0,0,.3)';
+    b.onclick=()=>{window.open('./lib/engines/editor/master.html','_blank');};document.body.appendChild(b);IBMAP.gmBtn=b;
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;let t=null;try{t=localStorage.getItem('ppl-mapedit-master');}catch(e){}if(t&&t!==IBMAP.mtxt){teardown();try{build();toast('อัปเดตเกาะจาก Master Builder แล้ว');}catch(e){console.error('ibmap rebuild',e);}}});}
   function build(){const t0=performance.now();cafeZ=cafeZones();
     const grp=new THREE.Group();grp.name='ibmap';grp.position.set(CX,0,CZ);grp.scale.set(-1/K,1/K,1/K);scene.add(grp);IBMAP.grp=grp;grp.updateMatrixWorld(true);
     const doc=startDoc();IBMAP.doc=doc;keep=keepSet();
-    const I=IslandMap.create({doc,parent:grp,cs:2,bscale:.75,gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding,landOnly:true,heightMap:h=>yOf(h)*K,
+    const I=IslandMap.create({doc,parent:grp,cs:2,bscale:.75,gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding,landOnly:true,heightMap:(h,xb,zb)=>{const g=toGame(xb,zb);return yOf(wetCut(h,g[0],g[1]))*K;},
       skip:{cafe:1,jetty:1,fishingboat:1,yacht:1}/* the game's own café, jetty and boats stay for now */,
-      /* the approved Rottnest lawn (the live toon look's greens, as they show on screen) and the meadow-tuft greens */terrain:{palette:LAWN},noGrow:(xb,zb)=>{const g=toGame(xb,zb);return inCafe(g[0],g[1]);},fol:{palette:{blades:['#14410b','#1f5a10','#307416','#478a1d','#64a426']}}});
+      /* the approved Rottnest lawn (the live toon look's greens, as they show on screen) and the meadow-tuft greens */noGrow:(xb,zb)=>{const g=toGame(xb,zb);return inCafe(g[0],g[1]);}/* ground and grass in the Foliage lab's own colours (Paul, 14 Nov 2026) */});
     sinkOldLand(I);
     IBMAP.I=I;grp.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;if(o.isMesh){o.receiveShadow=true;}});
-    IBMAP.nHid=hideOld();IBMAP.ms=Math.round(performance.now()-t0);IBMAP.done=true;
+    IBMAP.nHid=hideOld();gmButton();IBMAP.ms=Math.round(performance.now()-t0);IBMAP.done=true;
     try{toast('🏝️ เกาะใหม่จาก Island Builder (Look Lab) / New island from the Island Builder',4200);}catch(e){}console.log('IBMAP built ('+IBMAP.src+'): '+doc.bld.length+' buildings, '+doc.roads.length+' roads, '+doc.paths.length+' paths, hid '+IBMAP.nHid+' old pieces, '+IBMAP.ms+' ms (engines '+I.ms+' ms)');}
   /* Kip on the new island: ground height and what blocks him (the café area keeps the old rules) */
   const onNew=(x,z)=>IBMAP.done&&x<99.5&&x>TB.x1-8&&z>TB.z1-8&&z<TB.z2+8&&zoneOf(x)==='island'&&!inCafe(x,z);
@@ -62,7 +74,7 @@ window.__IBMAP=IBMAP;
   const _gy=groundY;groundY=function(x,z){if(onNew(x,z))return Math.max(0,IBMAP.groundAt(x,z));return _gy(x,z);};
   const _bl=blocked;blocked=function(x,z){if(!onNew(x,z))return _bl(x,z);const m=toMap(x,z),I=IBMAP.I;if(I.heightAt(m[0],m[1])/K<L()+.02)return _bl(x,z)/* the water's edge: as before (swimming, boats) */;return I.solidAt(m[0],m[1],.25*K);};
   let tStart=performance.now();
-  (function loop(){requestAnimationFrame(loop);if(!IBMAP.done)return;const on=typeof zoneOf==='function'&&zoneOf(camTarget.x)==='island';IBMAP.grp.visible=on;if(!on)return;
+  (function loop(){requestAnimationFrame(loop);if(!IBMAP.done||!IBMAP.grp)return;const on=typeof zoneOf==='function'&&zoneOf(camTarget.x)==='island';IBMAP.grp.visible=on;if(IBMAP.gmBtn)IBMAP.gmBtn.style.display=on&&!document.body.classList.contains('studio')?'':'none';if(!on)return;
     const t=(performance.now()-tStart)/1000,c=toMap(camTarget.x,camTarget.z),p=toMap(player.x,player.z);IBMAP.player=player;
     IBMAP.I.update(t,c[0],c[1],{push:p,reveal:[p[0],p[1],2.6*K]});
     if((IBMAP.k=(IBMAP.k||0)+1)%180===0){IBMAP.hidden.forEach(o=>{o.visible=false;});hideOld();}})();

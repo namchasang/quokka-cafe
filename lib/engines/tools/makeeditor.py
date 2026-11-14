@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Build the Map Editor page: python3 tools/makeeditor.py editor/index.html
+   Master builder for the game master (every tool, fixed pieces movable, free; saves as ppl-mapedit-master, which the game uses on that device):
+     python3 tools/makeeditor.py editor/master.html --master --start editor/rottnest-start.json
    Player version (no ground/life/sky, no nature sliders, roads on X/Z only, starts on the real Rottnest): python3 tools/makeeditor.py editor/player.html --player --start editor/rottnest-start.json"""
 import sys
 engines=['terrain/terrain.js','water-sea/water-sea.js','water-sea/waterlife.js','sky/sky.js','foliage/foliage.js','props/props.js','road/road.js','building/building.js','life/life.js','vehicle/vehicle.js']
@@ -58,5 +60,9 @@ if demo:html=html.replace('<title>Island Builder · Map Editor','<title>Island B
 start=sys.argv[sys.argv.index('--start')+1] if '--start' in sys.argv else None
 if start:html=html.replace('@@ENG@@','<script>window.IB_START='+open(start).read().strip()+';</script>\n@@ENG@@',1)
 if pro:html=html.replace('<title>Island Builder · Map Editor','<title>Quokka Cafe · Prologue preview (Last Summer)',1).replace('@@ENG@@','<script>window.IB_PRO={before:'+open(pro[0]).read().strip()+',after:'+open(pro[1]).read().strip()+'};window.IB_DEMO=Object.assign({},window.IB_PRO.before,{ver:"pro"});</script>\n@@ENG@@',1)
-if player:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (player)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;</script>\n@@ENG@@',1)
+master='--master' in sys.argv
+if master:
+    player=True
+    html=html.replace('<title>Island Builder · Map Editor','<title>Master Island Builder · Rottnest (GM)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;window.IB_MASTER=true;</script>\n@@ENG@@',1)
+if player and not master:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (player)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;</script>\n@@ENG@@',1)
 open([a for i,a in enumerate(sys.argv[1:],1) if not a.startswith('--') and sys.argv[i-1] not in('--demo','--start','--prologue') and (not pro or a not in pro)][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()+('\n'+open('editor/prologue.js').read() if pro else '')))
