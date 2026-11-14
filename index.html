@@ -21219,10 +21219,10 @@ if(FREOMAP.on)(()=>{
     if(x<274.5){if(z>-12&&z<22){const t=(x-266)/8.5;return t<0?-Math.min(2.6,.4-t*2.2):-.45+t*.85;}/* Bathers Beach slopes into the bay */
       const d=274.5-x;return -Math.min(2.6,.7+d*.2);}
     return .35+hill+rise;};
-  const doc={v:1,name:'Fremantle',sea:0,h:[],paths:[],roads:[],props:[],bld:[],trees:[],culs:[],biz:[],veh:[],rail:[],
+  const doc={v:1,ver:1,town:'freo',name:'Fremantle',sea:0,h:[],paths:[],roads:[],props:[],bld:[],trees:[],culs:[],biz:[],veh:[],rail:[],
     fol:{tuft:.7,flower:.35,bush:.025,tree:.002},
     life:{walker:40,jogger:4,cyclist:8,gull:12,pelican:3,dolphin:4,boat:4,kayak:2,sitter:8,picnic:4,dogfetch:3,fisher:2,flock:3,butterfly:3,swimmer:3,sunbather:6}};
-  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=CX+(i-60),z=CZ+(j-60);doc.h.push(+landH(x,z).toFixed(2));}
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=CX+(i-60)*2,z=CZ+(j-60)*2;doc.h.push(+landH(x,z).toFixed(2));}/* grid every 2 units, like the master builder */
   const M=(x,z)=>[+(x-CX).toFixed(2),+(z-CZ).toFixed(2)];
   const road=(pts,type)=>doc.roads.push({pts:pts.map(p=>M(p[0],p[1])),type:type||'street'});
   const path=(pts,w,kind)=>doc.paths.push({pts:pts.map(p=>M(p[0],p[1])),w:w||1.6,kind:kind||'path'});
@@ -21271,7 +21271,11 @@ if(FREOMAP.on)(()=>{
   V('sedan',290,-7,0,1);V('hatch',325,-7,Math.PI,1);V('taxi',318,6,Math.PI/2,1);V('citybus',305,-7,0,1);V('ute',331,30,Math.PI/2,1);V('van',300,24.7,0,1);V('hatch',305.4,16,Math.PI/2,1);
   V('ferry',300,-30,0,1);V('fishingboat',262,4,1.2,0);V('fishingboat',261,10,1.4,0);V('speedboat',264,-8,.4,1);V('yacht',250,-20,0,1);
   // ---- build ----
-  FREOMAP.doc=doc;
+  /* Paul checks and edits Fremantle in the Master Builder (lib/engines/editor/freo-master.html, GM): his saved map wins here.
+     A map file he sends becomes FREO_START (bump ver). */
+  let D=doc;try{if(typeof FREO_START!=='undefined')D=FREO_START;}catch(e){}
+  try{const g=typeof isGM==='function'&&isGM(),sv=g&&localStorage.getItem('ppl-mapedit-freo-master');if(sv){const j=JSON.parse(sv);if(j&&j.h&&j.h.length===N*N)D=j;}}catch(e){}
+  FREOMAP.doc=D;FREOMAP.gen=doc;
   let I=null,grp=null,sea=null,SKY=null,skyG=null,keep=null;
   const yOf=h=>WL+h*.6;/* map height (sea 0) to game y: the sea sits at WL */
   function keepSet(){const S=new Set();try{TOON.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}try{CRIT3.list.forEach(e=>e.model&&S.add(e.model));}catch(e){}try{MORE3D.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}
@@ -21286,16 +21290,18 @@ if(FREOMAP.on)(()=>{
   function build(){const t0=performance.now();
     grp=new THREE.Group();grp.name='freomap';grp.position.set(CX,0,CZ);scene.add(grp);grp.updateMatrixWorld(true);
     const gq=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase();
-    I=IslandMap.create({doc,parent:grp,cs:1,bscale:.62,gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding,heightMap:h=>yOf(h),
-      fol:{mix:null,radius:gq.startsWith('l')?16:gq.startsWith('m')?22:28},lifeScale:gq.startsWith('l')?.4:gq.startsWith('m')?.7:1,waterLevel:WL,searocks:false});
+    I=IslandMap.create({doc:FREOMAP.doc,parent:grp,cs:2,bscale:.75,merge:true,lifeNear:gq.startsWith('h')?60:38,gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding,heightMap:h=>yOf(h),
+      fol:{mix:null,radius:gq.startsWith('l')?16:gq.startsWith('m')?22:28},lifeScale:gq.startsWith('l')?.1:gq.startsWith('m')?.18:.45,waterLevel:WL,searocks:false});
     FREOMAP.I=I;grp.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;if(o.isMesh)o.receiveShadow=true;});
     // the Water Sea Engine over the harbour and the bay (the copy the Rottnest sea uses), drawn by the game's own pre-pass
     try{if(typeof WaterSea!=='undefined'){sea=WaterSea.create({renderer,scene,camera,heightAt:(x,z)=>I.heightAt(x-CX,z-CZ),bounds:{x0:CX-60,z0:CZ-60,w:120,h:120},heightRes:[512,512],ground:null,level:WL,run:.2,wetScale:.3,size:120,meshSize:160});
       sea.mesh.name='seaFreo';sea.mesh.visible=false;FREOMAP.sea=sea;}}catch(e){console.warn('freomap sea',e);sea=null;}
     // the Sky Engine (draws only: the game keeps its own sun, shade and fog)
     try{if(typeof SkyEngine!=='undefined'){skyG=new THREE.Group();skyG.name='fmSky';scene.add(skyG);SKY=SkyEngine.create({scene:skyG,renderer,sun:null,hemi:null,radius:Math.min(400,camera.far*.9)});try{SKY.setLayer('godrays',false);SKY.setLayer('flare',false);}catch(e){}}}catch(e){console.warn('freomap sky',e);}
+    try{if(typeof isGM==='function'&&isGM()){const b=document.createElement('button');b.textContent='🛠️ Master Builder · Fremantle';b.style.cssText='position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:60;padding:6px 12px;border-radius:12px;border:2px solid #e8c37a;background:#1d2a3a;color:#ffe6a8;font:600 13px system-ui;display:none';b.onclick=()=>window.open('./lib/engines/editor/freo-master.html','_blank');document.body.appendChild(b);FREOMAP.btn=b;
+      let st=localStorage.getItem('ppl-mapedit-freo-master');document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const n=localStorage.getItem('ppl-mapedit-freo-master');if(n&&n!==st)location.reload();}});}}catch(e){}
     FREOMAP.nHid=hideOld();FREOMAP.ms=Math.round(performance.now()-t0);FREOMAP.done=true;
-    console.log('FREOMAP built: '+doc.bld.length+' buildings, '+doc.roads.length+' roads, '+doc.paths.length+' paths, hid '+FREOMAP.nHid+' old pieces, '+FREOMAP.ms+' ms');
+    console.log('FREOMAP built: '+FREOMAP.doc.bld.length+' buildings, '+FREOMAP.doc.roads.length+' roads, '+FREOMAP.doc.paths.length+' paths, hid '+FREOMAP.nHid+' old pieces, '+FREOMAP.ms+' ms');
     try{toast('🧪 Fremantle จาก engine (Look Lab) / Fremantle built with the engines',4200);}catch(e){}}
   // Kip in the engine Fremantle: its ground and what blocks him (sea, buildings)
   const onFM=(x,z)=>FREOMAP.done&&zoneOf(x)==='freo'&&inFreo(x,z);
@@ -21311,7 +21317,7 @@ if(FREOMAP.on)(()=>{
     sea.mesh.position.set(Math.round(camTarget.x),0,Math.round(camTarget.z));sea.pre(performance.now()/1000);}
   (function hook(){if(typeof SEA4==='undefined'||!SEA4.pre){setTimeout(hook,500);return;}const p0=SEA4.pre;SEA4.pre=function(){p0();try{freoPre();}catch(e){}};})();
   let t0=performance.now(),lt=0;const tg=new THREE.Vector3();
-  (function loop(){requestAnimationFrame(loop);if(!FREOMAP.done)return;const on=zoneOf(camTarget.x)==='freo';grp.visible=on;if(skyG)skyG.visible=on;if(!on)return;
+  (function loop(){requestAnimationFrame(loop);if(!FREOMAP.done)return;const on=zoneOf(camTarget.x)==='freo';grp.visible=on;if(skyG)skyG.visible=on;if(FREOMAP.btn)FREOMAP.btn.style.display=on?'block':'none';if(!on)return;
     const t=(performance.now()-t0)/1000,dt=Math.min(.1,t-lt);lt=t;const nt=typeof NIGHT!=='undefined'?NIGHT:0;
     I.update(t,camTarget.x-CX,camTarget.z-CZ,{push:[player.x-CX,player.z-CZ],reveal:[player.x-CX,player.z-CZ,2.6],night:nt});
     if(SKY){tg.set(player.x,0,player.z);try{SKY.update(dt,{hour:(S.time||600)/60,target:tg});SKY.animate(t,dt,camera);}catch(e){}}
