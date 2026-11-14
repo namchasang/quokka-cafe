@@ -43,7 +43,7 @@ const RKG=new Map();let RKU=null;const RKS=r=>(RKU||(RKU=new Map([[UV.street,'st
 const rgb=(kind,x,z)=>{const k=kind+'|'+Math.floor(x/96)+'|'+Math.floor(z/96);let g=RKG.get(k);if(!g){g=new GB();g.kind=kind;RKG.set(k,g);}return g;};
 const RKSEG=[],RKCIR=[];// carriageways for "nothing stands on the road": [a,b,inner,outer half-width] and [x,z,r]
 const rkCover=(x,z)=>{let m=deckH(x,z);for(const[a,b]of[[1.3,0],[-1.3,0],[0,1.3],[0,-1.3],[2.6,0],[-2.6,0],[0,2.6],[0,-2.6],[1.8,1.8],[-1.8,1.8],[1.8,-1.8],[-1.8,-1.8]])m=Math.max(m,H(x+a,z+b));return m+.26;};
-function rstrip(P,w,kind,yo,tl,k){drvPaint(P,w/2,1);const D=[P[0]];for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<1e-4)continue;const n=Math.max(1,Math.round(L/tl));for(let j=1;j<=n;j++)D.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n]);}
+function rstrip(P,w,kind,yo,tl,k){drvPaint(P,w/2,1);(O.rkLines||(O.rkLines=[])).push({P:P.slice(),w,kind});/* ?owengine rebuilds every road from these centre lines */const D=[P[0]];for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]);if(L<1e-4)continue;const n=Math.max(1,Math.round(L/tl));for(let j=1;j<=n;j++)D.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n]);}
   if(D.length<2)return;const nc=Math.max(1,Math.ceil(w/1.1)),Y={lane:.05,ramp:.06,street:.07,art:.09}[kind]||yo,rows=[];
   for(let i=0;i<D.length;i++){const p=D[Math.max(0,i-1)],q=D[Math.min(D.length-1,i+1)];let dx=q[0]-p[0],dz=q[1]-p[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;const x=D[i][0],z=D[i][1],r=[];
     for(let j=0;j<=nc;j++){const o=-w/2+w*j/nc,X=x-dz*o,Z=z+dx*o;r.push([X,Math.max(gy(X,Z),.05)+Y+(kind==='art'&&O.brLift?O.brLift(X,Z):0),Z]);/* a low causeway where a street crosses a creek */}rows.push(r);}

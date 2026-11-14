@@ -48,7 +48,7 @@ const RAIL=[G(115.747,-32.053),G(115.754,-32.036),G(115.758,-31.995),G(115.785,-
 const segDist=(px,pz,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz;let t=L?((px-a[0])*dx+(pz-a[1])*dz)/L:0;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(a[0]+dx*t),pz-(a[1]+dz*t));};
 const onRoad=(x,z,w=2.4)=>(z<40&&NORTH&&NORTH.onRoad(x,z,w))||(z>WZ-12&&SOUTH&&SOUTH.onRoad(x,z,w))||ROADS.some(r=>r.p.some((a,i)=>i&&segDist(x,z,r.p[i-1],a)<w));
 const deckH=(x,z)=>Math.max(H(x,z),1.4);// bridges carry the road over the water
-const groundAt=(x,z)=>onRoad(x,z,2.6)?deckH(x,z):Math.max(H(x,z),-.2);
+let OWG_HOOK=null;/* ?owengine: the engine-built ground and roads take over the height Kip and the car stand on */const groundAt0=(x,z)=>onRoad(x,z,2.6)?deckH(x,z):Math.max(H(x,z),-.2),groundAt=(x,z)=>OWG_HOOK?OWG_HOOK(x,z):groundAt0(x,z);
 /* DRIVE: every drawn road surface painted into a half-unit grid (1 = road, 2 = freeway), so the car never snags on a road it can see (Paul Nov 2026) */
 const DRV_R=2,DRIVE=new Uint8Array(WX*DRV_R*WZ*DRV_R),DRVX=new Map();const drvAt=(x,z)=>{const i=Math.floor(x*DRV_R),j=Math.floor(z*DRV_R);if(i<0||j<0||i>=WX*DRV_R||j>=WZ*DRV_R){const v=DRVX.get(i*1000003+j);return v||(DRV_FAR?DRV_FAR(x,z):0);}return DRIVE[j*WX*DRV_R+i];};let DRV_FAR=null;
 const drvPaint=(P,hw,v)=>{v=v||1;if(!P||P.length<1)return;const W=WX*DRV_R,Hh=WZ*DRV_R,put=(cx,cz,r)=>{const r2=r*DRV_R,x0=Math.max(0,Math.floor(cx*DRV_R-r2)),x1=Math.min(W-1,Math.ceil(cx*DRV_R+r2)),z0=Math.max(0,Math.floor(cz*DRV_R-r2)),z1=Math.min(Hh-1,Math.ceil(cz*DRV_R+r2));for(let j=z0;j<=z1;j++)for(let i=x0;i<=x1;i++){const dx=(i+.5)/DRV_R-cx,dz=(j+.5)/DRV_R-cz;if(dx*dx+dz*dz<=r*r){const k=j*W+i;if(DIVE_MAX(DRIVE[k],v))DRIVE[k]=v;}}

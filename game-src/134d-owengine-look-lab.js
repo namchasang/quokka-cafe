@@ -1,0 +1,88 @@
+// ===== Outer world built with the real engines (Look Lab ?owengine, Paul 14 Nov 2026: 'ทำ map ด้วย engine: Rottnest กับ outer world') =====
+// Phase 3, first pass. The same map data, rebuilt by the library engines (parts 188-engine-*), no look-alikes:
+//  - RoadEngine: every road of the outer world (the city ribbons and every street, arterial, lane and ramp of the road kit, from their
+//    own centre lines) as one joined network: smooth 6% profiles, real junction pads, kerbs, lines. The old road meshes are hidden.
+//  - TerrainEngine: the ground of the Perth map (Fremantle to the airport) from its own heights, fitted to the road beds with the road
+//    engine's groundAt (cut/fill + blend), in 50-unit tiles built near the car first. The old ground hides once every tile is in.
+//  - FoliageEngine: grass, flowers and bushes round the car, never on roads, sand, water, towns or under buildings.
+// Kip and the car stand on the engine ground and roads (OWG_HOOK in the part with groundAt). Includes the CBD, Perth Water and
+// South Perth (Paul allowed it, 14 Nov 2026): nothing there moves, the engines only redraw ground and roads in place.
+// OWENGINE_LIVE turns it on for everyone once Paul has tested it on his phone.
+const OWENGINE_LIVE=false,OWENG=(OWENGINE_LIVE||/[?&#]owengine\b/.test(location.search+location.hash))&&typeof RoadEngine!=='undefined'&&typeof TerrainEngine!=='undefined';
+if(OWENG)try{(()=>{const t0=performance.now(),E={tiles:[],todo:[],done:0};window.__OWE=E;
+  const q=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),LOW=q.startsWith('l'),MED=q.startsWith('m');
+  // ---- 1. roads: centre lines from the city ribbons and the road kit ----
+  const lines=[];const inWorld=p=>p&&isFinite(p[0])&&isFinite(p[1]);
+  const clean=P=>{const o=[];P.forEach(p=>{if(!inWorld(p))return;const l=o[o.length-1];if(!l||Math.hypot(p[0]-l[0],p[1]-l[1])>.6)o.push([p[0],p[1]]);});return o;};
+  RIBS.forEach(r=>{if(!r.m.visible||r.hidden||r.pts===RAIL||r.w<2)return;/* narrow ribbons (1.6) are the other railway lines *//* the railway is drawn as a ribbon too: it stays as it is */const P=clean(r.pts);if(P.length<2)return;lines.push({P,w:r.w,kind:r.w>=4?'art':'street',deck:true,m:r.m});});
+  (O.rkLines||[]).forEach(l=>{if(!/^(street|art|lane|ramp)$/.test(l.kind))return;const P=clean(l.P);if(P.length<2)return;
+    let len=0;for(let i=1;i<P.length;i++)len+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);if(len<1.5)return;lines.push({P,w:l.w,kind:l.kind});});
+  /* the same street often comes as several short strips: join the ones that meet end to end with the same kind and width */
+  {const key=p=>Math.round(p[0]*2)+','+Math.round(p[1]*2);let merged=true,guard=0;while(merged&&guard++<6){merged=false;const ends=new Map();lines.forEach((l,i)=>{if(l.gone)return;[key(l.P[0]),key(l.P[l.P.length-1])].forEach(k=>{(ends.get(k)||ends.set(k,[]).get(k)).push(i);});});
+    ends.forEach(ids=>{if(ids.length!==2)return;const a=lines[ids[0]],b=lines[ids[1]];if(a===b||a.gone||b.gone||a.deck||b.deck||a.kind!==b.kind||Math.abs(a.w-b.w)>.2)return;
+      const A=a.P,B=b.P,ka=[key(A[0]),key(A[A.length-1])],kb=[key(B[0]),key(B[B.length-1])];let P=null;
+      if(ka[1]===kb[0])P=A.concat(B.slice(1));else if(ka[1]===kb[1])P=A.concat(B.slice(0,-1).reverse());else if(ka[0]===kb[1])P=B.concat(A.slice(1));else if(ka[0]===kb[0])P=A.slice().reverse().concat(B.slice(1));
+      if(!P)return;/* never join into a hairpin: the turn at the joint must stay under about 70 degrees */{const n=(ka[1]===kb[0]||ka[1]===kb[1])?A.length-1:(ka[0]===kb[1]?B.length-1:A.length-1);const p0=P[n-1],p1=P[n],p2=P[n+1];if(p0&&p2){const ux=p1[0]-p0[0],uz=p1[1]-p0[1],vx=p2[0]-p1[0],vz=p2[1]-p1[1],c=(ux*vx+uz*vz)/((Math.hypot(ux,uz)*Math.hypot(vx,vz))||1);if(c<.35)return;}}a.P=P;b.gone=true;merged=true;});}
+    for(let i=lines.length-1;i>=0;i--){if(!lines[i].gone)lines[i].P=clean(lines[i].P);const l=lines[i];let len=0;if(!l.gone)for(let k=1;k<l.P.length;k++)len+=Math.hypot(l.P[k][0]-l.P[k-1][0],l.P[k][1]-l.P[k-1][1]);/* stubs shorter than a junction pad would be cut back to nothing */if(l.gone||l.P.length<2||len<1.5)lines.splice(i,1);}}
+  const gy=(x,z)=>Math.max(H(x,z),H(x+.6,z),H(x-.6,z),H(x,z+.6),H(x,z-.6));const roadH=(x,z,deck)=>(deck?deckH(x,z):Math.max(gy(x,z),.05))+(O.brLift?O.brLift(x,z):0);
+  const DH=new Map();lines.forEach(l=>{if(!l.deck)return;for(let i=1;i<l.P.length;i++){const a=l.P[i-1],b=l.P[i],r=l.w/2+.5;for(let gx=Math.floor((Math.min(a[0],b[0])-r)/8);gx<=Math.floor((Math.max(a[0],b[0])+r)/8);gx++)for(let gz=Math.floor((Math.min(a[1],b[1])-r)/8);gz<=Math.floor((Math.max(a[1],b[1])+r)/8);gz++){const k=gx*100003+gz;(DH.get(k)||DH.set(k,[]).get(k)).push([a,b,r]);}}});
+  const deckAt=(x,z)=>{const L=DH.get(Math.floor(x/8)*100003+Math.floor(z/8));return!!L&&L.some(s=>segDist(x,z,s[0],s[1])<s[2]);};
+  const RG=new THREE.Group();RG.name='owengine-roads';scene.add(RG);RG.userData.L='roads';
+  const N=RoadEngine.create({scene:RG,roundabouts:false,heightAt:(x,z)=>roadH(x,z,deckAt(x,z)),smooth:true,maxGrade:.08});E.N=N;
+  /* carriageway widths as the map draws them (the kit's 'art' strip of 6.5 includes verges and footpaths; its carriageway is 3.1) */
+  lines.forEach(l=>{const t=l.deck?{type:'arterial',lanes:4,lw:l.w/4,kerb:false,footpath:false,median:false}:l.kind==='art'?{type:'arterial',lanes:2,lw:1.6,kerb:.12,footpath:true,foot:.9}:l.kind==='street'?{type:'street',lanes:2,lw:1.1,kerb:.1,footpath:false}:l.kind==='ramp'?{type:'lane',lanes:2,lw:.8,kerb:false}:{type:'lane',lanes:2,lw:.6,kerb:false};
+    l.id=N.road(l.P,t);});
+  E.lines=lines.map(l=>({P:l.P,w:l.w,kind:l.kind,deck:!!l.deck,t:l.t}));E.tm={lines:Math.round(performance.now()-t0)};N.build();E.tm.build=Math.round(performance.now()-t0);/* the map keeps its own signals and signs */['patches','cracks','leaves','skids','headlights','parking','lights','signs'].forEach(n=>{try{N.setLayer(n,false);}catch(e){}});
+  /* one draw per material: the engine adds every decal, sign and kerb as its own mesh (hundreds over a whole map) */
+  (function mergeStatic(root){root.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(root.matrixWorld).invert(),by=new Map(),drop=[];
+    root.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.geometry||!o.geometry.attributes.position)return;let p=o.parent;while(p&&p!==root){if(!p.visible)return;p=p.parent;}if(!o.visible)return;
+      const m=Array.isArray(o.material)?null:o.material;if(!m)return;const k=m.uuid;(by.get(k)||by.set(k,{m,list:[]}).get(k)).list.push(o);});
+    by.forEach(({m,list})=>{if(list.length<2)return;const P=[],Nn=[],U=[],I=[];let base=0;const mx=new THREE.Matrix4(),nm=new THREE.Matrix3(),v=new THREE.Vector3();
+      list.forEach(o=>{const g=o.geometry.index?o.geometry:o.geometry;mx.multiplyMatrices(inv,o.matrixWorld);nm.getNormalMatrix(mx);const pa=g.attributes.position,na=g.attributes.normal,ua=g.attributes.uv;
+        for(let i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i).applyMatrix4(mx);P.push(v.x,v.y,v.z);if(na){v.fromBufferAttribute(na,i).applyMatrix3(nm).normalize();Nn.push(v.x,v.y,v.z);}else Nn.push(0,1,0);U.push(ua?ua.getX(i):0,ua?ua.getY(i):0);}
+        if(g.index)for(let i=0;i<g.index.count;i++)I.push(g.index.getX(i)+base);else for(let i=0;i<pa.count;i++)I.push(i+base);base+=pa.count;drop.push(o);});
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));
+      g.setIndex(base>65535?new THREE.Uint32BufferAttribute(I,1):new THREE.Uint16BufferAttribute(I,1));g.computeBoundingSphere();const me=new THREE.Mesh(g,m);me.receiveShadow=true;me.castShadow=list.some(o=>o.castShadow);me.name='owengine-merged';root.add(me);});
+    drop.forEach(o=>{if(o.parent)o.parent.remove(o);});E.merged=drop.length;})(RG);
+  E.tm.merge=Math.round(performance.now()-t0);
+  /* cul-de-sac bulbs and turning circles of the road kit (the engine draws junctions, not dead ends) */
+  {const asM=new THREE.MeshLambertMaterial({color:new THREE.Color('#5a5d61').convertSRGBToLinear(),polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});const D=(O.auDisc||[]).filter(d=>d[2]<5);
+    if(D.length){const P=[],I=[];D.forEach(([x,z,r])=>{const b=P.length/3,n=18;P.push(x,N.groundAt(x,z,roadH(x,z,false))+.035,z);for(let k=0;k<=n;k++){const a=k/n*6.2832,X=x+Math.cos(a)*r,Z=z+Math.sin(a)*r;P.push(X,N.groundAt(X,Z,roadH(X,Z,false))+.035,Z);if(k)I.push(b,b+k+1,b+k);}});
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex(I);g.computeVertexNormals();const m=new THREE.Mesh(g,asM);m.receiveShadow=true;m.name='owengine-bulbs';RG.add(m);E.bulbs=D.length;}}
+  RG.traverse(o=>{o.__pxSkip=1;});
+  /* the old roads go: city ribbons and the road kit's merged chunks (streets, arterials, lanes, ramps, junction boxes, bulbs, crossings) */
+  const hideOld=()=>{lines.forEach(l=>{if(l.m)l.m.visible=false;});scene.traverse(o=>{if(o.isMesh&&o.name&&/^rk:/.test(o.name))o.visible=false;});};hideOld();
+  // ---- 2. ground: the map's heights fitted to the road beds, baked once on a 1-unit grid ----
+  const nearRail=(x,z)=>{for(let i=1;i<RAIL.length;i++)if(segDist(x,z,RAIL[i-1],RAIL[i])<2.2)return true;return false;};const X0=0,Z0=0,X1=WX,Z1=WZ,GW=WX+1,GD=WZ+1,FG=new Float32Array(GW*GD);
+  for(let j=0;j<GD;j++)for(let i=0;i<GW;i++){const x=X0+i,z=Z0+j,h=H(x,z);let g=h>.05?N.groundAt(x,z,h):h;/* the railway (in the freeway median too) keeps its own bed: no fill over it */if(nearRail(x,z))g=Math.min(g,h-.05);FG[j*GW+i]=g;}
+  E.tm.grid=Math.round(performance.now()-t0);const fitH=(x,z)=>{if(x<X0||z<Z0||x>X1||z>Z1)return H(x,z);const fx=Math.min(GW-1.001,x-X0),fz=Math.min(GD-1.001,z-Z0),i=fx|0,j=fz|0,u=fx-i,w=fz-j,k=j*GW+i;return(FG[k]*(1-u)+FG[k+1]*u)*(1-w)+(FG[k+GW]*(1-u)+FG[k+GW+1]*u)*w;};
+  E.fitH=fitH;OWG_HOOK=(x,z)=>{const g=groundAt0(x,z);return x>=X0&&z>=Z0&&x<=X1&&z<=Z1&&H(x,z)>.05?N.groundAt(x,z,g)+.05/* road top sits .06 over the fitted ground */:g;};
+  const PAL={/* Perth's coastal-plain greens: a touch drier and warmer than the island lawn */g0:'#4c7a2c',g1:'#5a8634',g2:'#68903c',g3:'#7a9a46',g4:'#8ea452',dry:'#a8a466',sand:'#f2ead6',sandB:'#e6dcc0',sandW:'#c9bc9a'};
+  const TS=50;for(let tz=Z0;tz<Z1;tz+=TS)for(let tx=X0;tx<X1;tx+=TS)E.todo.push([tx,tz,Math.min(TS,X1-tx),Math.min(TS,Z1-tz)]);E.total=E.todo.length;
+  const GG=new THREE.Group();GG.name='owengine-ground';scene.add(GG);GG.userData.L='ground';
+  function buildTile(t){const[x0,z0,w,d]=t;const T=TerrainEngine.create({palette:PAL,size:[w,d],center:[x0+w/2,z0+d/2],res:LOW?1:.5,heightAt:fitH,seaLevel:0});
+    T.mesh.position.y=.02;T.mesh.receiveShadow=true;T.mesh.__pxSkip=1;T.mesh.userData.L='ground';try{if(LOW)T.setQuality(0);else if(MED)T.setQuality(1);}catch(e){}GG.add(T.mesh);E.tiles.push({T,b:t});}
+  // ---- 3. foliage round the car ----
+  const boxes=[];{const B=new THREE.Box3();scene.updateMatrixWorld(true);scene.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.geometry)return;let p=o,L=null;while(p){if(p.userData&&p.userData.L){L=p.userData.L;break;}p=p.parent;}
+    if(L!=='build'&&L!=='mark'&&L!=='props')return;try{if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();B.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld);}catch(e){return;}
+    const w=B.max.x-B.min.x,dd=B.max.z-B.min.z;if(w>30||dd>30||w<.2)return;boxes.push([B.min.x-.4,B.min.z-.4,B.max.x+.4,B.max.z+.4]);});}
+  const BH=new Map();boxes.forEach(b=>{for(let i=Math.floor(b[0]/8);i<=Math.floor(b[2]/8);i++)for(let j=Math.floor(b[1]/8);j<=Math.floor(b[3]/8);j++){const k=i*100003+j;(BH.get(k)||BH.set(k,[]).get(k)).push(b);}});
+  const inBox=(x,z)=>{const L=BH.get(Math.floor(x/8)*100003+Math.floor(z/8));return!!L&&L.some(b=>x>b[0]&&x<b[2]&&z>b[1]&&z<b[3]);};
+  const LH=new Map();lines.forEach(l=>{for(let i=1;i<l.P.length;i++){const a=l.P[i-1],b=l.P[i],r=l.w/2+1.2;for(let gx=Math.floor((Math.min(a[0],b[0])-r)/8);gx<=Math.floor((Math.max(a[0],b[0])+r)/8);gx++)for(let gz=Math.floor((Math.min(a[1],b[1])-r)/8);gz<=Math.floor((Math.max(a[1],b[1])+r)/8);gz++){const k=gx*100003+gz;(LH.get(k)||LH.set(k,[]).get(k)).push([a,b,r]);}}});
+  const nearRoad=(x,z)=>{const L=LH.get(Math.floor(x/8)*100003+Math.floor(z/8));return!!L&&L.some(s=>segDist(x,z,s[0],s[1])<s[2]);};
+  const kindAt=(x,z)=>{const h=H(x,z);if(h<.1)return'water';const i=Math.min(WZ-1,Math.max(0,z|0))*WX+Math.min(WX-1,Math.max(0,x|0));if(LAND[i]&&DL[i]<2.2)return'sand';if(nearRoad(x,z))return'path';
+    if(Math.hypot(x-CBDP[0],z-CBDP[1])<9||Math.hypot(x-FRP[0],z-FRP[1])<6)return'none';return'grass';};
+  const F=typeof FoliageEngine!=='undefined'?FoliageEngine.create({scene:GG,bounds:[X0,Z0,X1,Z1],heightAt:(x,z)=>fitH(x,z)+.04,kindAt,keepOut:inBox,palette:{blades:['#4c8434','#5e963e','#72a848','#88b654','#9ec462']},
+    density:{tuft:LOW?.9:1.5,flower:.3,bush:.025,tree:0},radius:LOW?24:34,chunk:10}):null;
+  if(F){['reeds','saplings'].forEach(n=>{try{F.setLayer(n,false);}catch(e){}});try{if(LOW)F.setQuality(0);else if(MED)F.setQuality(1);}catch(e){}}E.F=F;
+  E.ms=Math.round(performance.now()-t0);console.log('OWENGINE '+JSON.stringify(E.tm)+' roads '+lines.length+', junctions '+((N.junctions||[]).length)+', merged '+E.merged+', boxes '+boxes.length+', '+E.ms+' ms');
+  // ---- each frame while the outer world is open: build the nearest ground tile, then move the foliage and the roads ----
+  /* the old map ground: the main mesh and its copies on other camera layers (the town look draws one per pass) */const oldGs=()=>{const o=[];scene.traverse(m=>{if(m.isMesh&&m.geometry&&m.geometry.type==='PlaneGeometry'&&m.geometry.parameters&&m.geometry.parameters.width===WX&&m.geometry.parameters.height===WZ){let L=null;for(let p=m;p;p=p.parent)if(p.userData&&p.userData.L){L=p.userData.L;break;}if(L==='ground')o.push(m);}});return o;};let oldG=oldGs();
+  const tS=performance.now();(function loop(){requestAnimationFrame(loop);if(!OPEN)return;const t=(performance.now()-tS)/1000;
+    if(E.todo.length){const cx=ST.inCar?ST.carX:ST.x,cz=ST.inCar?ST.carZ:ST.z;let bi=0,bd=1e9;E.todo.forEach((b,i)=>{const d=Math.hypot(b[0]+b[2]/2-cx,b[1]+b[3]/2-cz);if(d<bd){bd=d;bi=i;}});
+      const b=E.todo.splice(bi,1)[0];const t1=performance.now();try{buildTile(b);}catch(e){console.error('owengine tile',e);}E.done++;E.tileMs=(E.tileMs||0)+performance.now()-t1;
+      if(!E.todo.length){oldG.forEach(m=>{m.visible=false;m.position.y=-60;m.updateMatrix();m.updateMatrixWorld(true);/* the town-look pass shows its ground again every frame: move it out of sight instead */});console.log('OWENGINE ground done: '+E.done+' tiles, '+Math.round(E.tileMs)+' ms');}}
+    
+    const cx=ST.inCar?ST.carX:ST.x,cz=ST.inCar?ST.carZ:ST.z;try{E.tiles.forEach(o=>o.T.update&&o.T.update(t));if(F)F.update(t,cx,cz,{push:[cx,cz]});N.update(t,1/60);}catch(e){}
+    if((E.k=(E.k||0)+1)%180===0){hideOld();if(!E.todo.length){oldG=oldGs();oldG.forEach(m=>{m.visible=false;m.position.y=-60;m.updateMatrix();m.updateMatrixWorld(true);/* the town-look pass shows its ground again every frame: move it out of sight instead */});}}})();
+})();}catch(e){console.error('owengine',e&&e.stack);}
