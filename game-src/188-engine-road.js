@@ -170,11 +170,12 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[]
           if(vertical){const y=SM&&c.__y!=null?c.__y:H(x0,z0);P.push(x0,y+y0,z0,x0,y+y1,z0);}else P.push(x0,(SM&&c.__y!=null?c.__y:H(x0,z0))+y0,z0,x1,(SM&&c.__y!=null?c.__y:H(x1,z1))+y0,z1);}
         for(let i=0;i<n;i++){const k=i*2;I.push(k,k+1,k+2,k+1,k+3,k+2);}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex(I);g.computeVertexNormals();const m=new THREE.Mesh(g,plain(col));m.material.side=THREE.DoubleSide;m.receiveShadow=true;if(vertical)m.castShadow=true;group.add(m);return m;};
       const padMat=new THREE.MeshLambertMaterial({color:lin('#55585c'),polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+      /* the pad takes the colour of the junction's widest road, so an island-road junction is not darker than its roads (Paul, 14 Nov 2026) */const PMS={},pm=j=>{let best=null;j.roads.forEach(([k])=>{const r=roads[k];if(!best||r.W>best.W)best=r;});const c=(best&&best.t.color)||'#55585c';return PMS[c]||(PMS[c]=new THREE.MeshLambertMaterial({color:lin(c),polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}));};
       J.forEach(j=>{if(!j.tee)return;const y=(SM?j.y:H(j.c.x,j.c.z));j.y=y+.035;
-        (j.tee.mouths||[]).forEach(Q=>{const P=[],yy=SM?y:H(j.c.x,j.c.z);Q.forEach(q=>P.push(q.x,yy+.031,q.z));const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex([0,1,2,0,2,3]);g.computeVertexNormals();const mm=new THREE.Mesh(g,padMat);mm.material.side=THREE.DoubleSide;mm.receiveShadow=true;group.add(mm);});
+        (j.tee.mouths||[]).forEach(Q=>{const P=[],yy=SM?y:H(j.c.x,j.c.z);Q.forEach(q=>P.push(q.x,yy+.031,q.z));const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex([0,1,2,0,2,3]);g.computeVertexNormals();const mm=new THREE.Mesh(g,pm(j));mm.material.side=THREE.DoubleSide;mm.receiveShadow=true;group.add(mm);});
         j.tee.corners.forEach(C=>{const O=C.O,yy=SM?y:H(C.P.x,C.P.z);let a1=Math.atan2(C.T1.z-O.z,C.T1.x-O.x),a2=Math.atan2(C.T2.z-O.z,C.T2.x-O.x),d=a2-a1;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
           /* asphalt fillet: fan from the corner point P over the arc */const n=10,P=[C.P.x,yy+.032,C.P.z],I=[];for(let i=0;i<=n;i++){const a=a1+d*i/n;P.push(O.x+Math.cos(a)*C.rc,yy+.032,O.z+Math.sin(a)*C.rc);if(i)I.push(0,i,i+1);}
-          const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex(I);g.computeVertexNormals();const fm=new THREE.Mesh(g,padMat);fm.material.side=THREE.DoubleSide;fm.receiveShadow=true;group.add(fm);
+          const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex(I);g.computeVertexNormals();const fm=new THREE.Mesh(g,pm(j));fm.material.side=THREE.DoubleSide;fm.receiveShadow=true;group.add(fm);
           const a0=d<0?a1+d:a1,a3=d<0?a1:a1+d,oc={x:O.x,z:O.z,__y:SM?yy:null};
           if(C.kerb){arc(oc,C.rc,C.rc,a0,a3,0,C.kerb,'#c8c4ba',true);if(C.foot)arc(oc,Math.max(.05,C.rc-C.foot),C.rc,a0,a3,C.kerb+.01,0,'#cfc9bc',false);}});
         j.exits.forEach(e=>{const r=roads[e.k];if(r.type!=='street'&&r.type!=='arterial')return;const L=r.cv.getLength();const t2=e.t+e.dir*1.2/L;if(t2<0||t2>1)return;const p=r.cv.getPointAt(t2),tg=r.cv.getTangentAt(t2),nx=-tg.z,nz=tg.x;
@@ -182,7 +183,7 @@ function create(o){const scene=o.scene,H=o.heightAt||(()=>0),roads=[],bridges=[]
       J.forEach(j=>{if(j.tee)return;const c=j.c,R=j.R;if(SM)c.__y=j.y;
         /* the pad: a disc whose every vertex sits on the ground, so it meets the road ends on slopes too */
         const pg=new THREE.CircleGeometry(R,Math.max(28,Math.ceil(R*8)),0,Math.PI*2).rotateX(-Math.PI/2);const pp=pg.attributes.position;for(let i=0;i<pp.count;i++)pp.setY(i,(SM?j.y:H(c.x+pp.getX(i),c.z+pp.getZ(i)))+.035);pg.computeVertexNormals();
-        const pad=new THREE.Mesh(pg,padMat);pad.position.set(c.x,0,c.z);pad.receiveShadow=true;group.add(pad);if(!SM)j.y=H(c.x,c.z);const jy=j.y;j.y=jy+.035;
+        const pad=new THREE.Mesh(pg,pm(j));pad.position.set(c.x,0,c.z);pad.receiveShadow=true;group.add(pad);if(!SM)j.y=H(c.x,c.z);const jy=j.y;j.y=jy+.035;
         /* arm gaps (angles where asphalt enters) */
         const spans=j.exits.map(e=>{const r=roads[e.k],p=r.cv.getPointAt(e.t),a=Math.atan2(p.z-c.z,p.x-c.x),h=Math.asin(Math.min(.99,(r.W/2)/R));return[a-h,a+h,r];});
         let kerb=Math.max(0,...j.roads.map(([k])=>roads[k].t.kerb||0)),foot=Math.max(0,...j.roads.map(([k])=>roads[k].t.foot||0)),fc='#cfc9bc';
