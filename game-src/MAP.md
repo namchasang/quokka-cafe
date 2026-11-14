@@ -203,28 +203,28 @@ Find code: `grep -n 'name' game-src/*`.
 | 187-account-cloud-save-ranking-shop.js | 18725-18741 | 2 | ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
 | 188-garden-meadow-look-lab-toon.js | 18742-18811 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
 | 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 18812-18965 | 20 | TREE3D_LIVE, NATIVE_LIVE, NATIVE_PAL, TREE3D |
-| 188-toon-characters-look-lab-toon.js | 18966-19044 | 9 | TOON_LIVE, TOON |
-| 188-paint-look-look-lab-toon.js | 19045-19100 | 5 | PAINT_LIVE, PAINT |
-| 188-sea-beach-look-lab-toon.js | 19101-19173 | 8 | SEA3_LIVE, SEA3 |
-| 188-sea-real-engine-look-lab-sea4.js | 19174-19348 | 23 | SEA4_LIVE, SEA4, C, SR, create |
-| 188-ground3d-look-lab.js | 19349-19438 | 13 | GROUND3D_LIVE, GROUND3D |
-| 188-more3d-look-lab.js | 19439-19487 | 7 | MORE3D |
-| 188-island-tidy-and-gfx.js | 19488-19523 | 5 | ISLAND_STORE |
-| 188-paths3d-look-lab.js | 19524-19554 | 3 | PATHS3D |
-| 188-engine-terrain.js | 19555-19652 | 14 | lin, DEF, create |
-| 188-engine-foliage.js | 19653-19770 | 18 | lin, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
-| 188-engine-road.js | 19771-19999 | 36 | TY, lin, asphalt, create |
-| 188-engmap-look-lab.js | 20000-20057 | 8 | ENGMAP_LIVE, ENGMAP |
-| 188-open-sea-ships-and-captain-ned.js | 20058-20177 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 20178-20258 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 20259-20280 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 20281-20340 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 20341-20390 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 20391-20423 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 20424-20496 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 20497-20527 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 20528-20544 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 20545-20555 | 2 |  |
-| 188-auth.js | 20556-20634 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 20635-20678 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 20679-20700 | 3 | SHOT |
+| 188-toon-characters-look-lab-toon.js | 18966-19057 | 11 | TOON_LIVE, TOON, FOLK3D_LIVE |
+| 188-paint-look-look-lab-toon.js | 19058-19113 | 5 | PAINT_LIVE, PAINT |
+| 188-sea-beach-look-lab-toon.js | 19114-19186 | 8 | SEA3_LIVE, SEA3 |
+| 188-sea-real-engine-look-lab-sea4.js | 19187-19361 | 23 | SEA4_LIVE, SEA4, C, SR, create |
+| 188-ground3d-look-lab.js | 19362-19451 | 13 | GROUND3D_LIVE, GROUND3D |
+| 188-more3d-look-lab.js | 19452-19500 | 7 | MORE3D |
+| 188-island-tidy-and-gfx.js | 19501-19536 | 5 | ISLAND_STORE |
+| 188-paths3d-look-lab.js | 19537-19567 | 3 | PATHS3D |
+| 188-engine-terrain.js | 19568-19665 | 14 | lin, DEF, create |
+| 188-engine-foliage.js | 19666-19783 | 18 | lin, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
+| 188-engine-road.js | 19784-20012 | 36 | TY, lin, asphalt, create |
+| 188-engmap-look-lab.js | 20013-20070 | 8 | ENGMAP_LIVE, ENGMAP |
+| 188-open-sea-ships-and-captain-ned.js | 20071-20190 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 20191-20271 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 20272-20293 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 20294-20353 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 20354-20403 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 20404-20436 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 20437-20509 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 20510-20540 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 20541-20557 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 20558-20568 | 2 |  |
+| 188-auth.js | 20569-20647 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 20648-20691 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 20692-20713 | 3 | SHOT |
