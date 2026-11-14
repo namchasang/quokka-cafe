@@ -104,12 +104,17 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   // Paul (13 Nov): the coast came out in pixel steps (the island's shore grid is coarse). A finer land field, blurred, gives a smooth
   // shoreline; the beach is drawn by the seabed mesh (the flat island ground opens over it, mask in the heightmap's green channel).
   let LS=null;
-  function tS(x,z){if(!LS)return landD(x,z);const u=(x-WX0)/WR,v=(z-WZ0)/WR;if(u<0||v<0||u>=WW-1||v>=WH-1)return landD(x,z);const i=u|0,j=v|0,a=u-i,b=v-j,k=j*WW+i;return(LS[k]*(1-a)+LS[k+1]*a)*(1-b)+(LS[k+WW]*(1-a)+LS[k+WW+1]*a)*b;}
+  /* Rottnest = the Island Builder island (part 188-ibmap): the sea, seabed and beaches follow the new island's shore */
+  const landD_=(x,z)=>(window.__IBMAP&&__IBMAP.on&&__IBMAP.landD)?__IBMAP.landD(x,z):landD(x,z);
+  function tS(x,z){if(!LS)return landD_(x,z);const u=(x-WX0)/WR,v=(z-WZ0)/WR;if(u<0||v<0||u>=WW-1||v>=WH-1)return landD_(x,z);const i=u|0,j=v|0,a=u-i,b=v-j,k=j*WW+i;return(LS[k]*(1-a)+LS[k+1]*a)*(1-b)+(LS[k+WW]*(1-a)+LS[k+WW+1]*a)*b;}
   function beachMask(x,z){const t=tS(x,z);if(t<-.3||t>3.2)return 0;if(islPD(x,z)<.45)return 0;return t<beachW(x,z)+.25?1:0;}
   function bedL(x,z){const t=tS(x,z);if(t===-9&&!WD)return -6;/* past the island grid it is open water: keep the same gentle slope (no drop-off at the grid edge) */
     if(t>=0&&t!==-9){if(t>2.6)return 0;const bw=beachW(x,z);/* one smooth beach width everywhere: a width that jumped between sand and lawn left a sawtooth shoreline */if(t>=bw)return 0;if(islPD(x,z)<.45)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
     const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);h=Math.max(h,L-2.4);/* Paul (13 Nov): the open sea is 2.4 deep at most */
-    /* ...and deepens to 4 towards each edge of the map (only well away from land) */{const SB=seaBounds(),db=Math.min(x-SB.x1,SB.x2-x,z-SB.z1,SB.z2-z),e=(1-Math.min(1,Math.max(0,(db-4)/36)))*Math.min(1,Math.max(0,(w-12)/14));if(e>0){const k=e*e*(3-2*e);h=Math.min(h,L-2.4-1.6*k);}}
+    if(window.__IBMAP&&__IBMAP.on){/* phase 4 (Paul, 14 Nov 2026): a Rottnest-like seabed: reef platforms and sandy lagoons near the island, the Indian Ocean
+      side deeper, the far sea down to 6 */const reef=vnoise(x*.05+3,z*.05-7);if(w>3&&w<22&&reef>.62)h+=Math.min(.9,(reef-.62)*3)*Math.min(1,(w-3)/3)*Math.min(1,(22-w)/4);
+      const west=Math.min(1,Math.max(0,(x-(TB.x2-60))/120));h-=west*Math.min(1,Math.max(0,(w-6)/14))*1.6;}
+    /* ...and deepens to 4 towards each edge of the map (only well away from land) */{const SB=seaBounds(),db=Math.min(x-SB.x1,SB.x2-x,z-SB.z1,SB.z2-z),e=(1-Math.min(1,Math.max(0,(db-4)/36)))*Math.min(1,Math.max(0,(w-12)/14));if(e>0){const k=e*e*(3-2*e);h=Math.min(h,L-2.4-((window.__IBMAP&&__IBMAP.on)?3.6:1.6)*k);}}h=Math.max(h,L-6);/* 6 deep at most */
     return h;}
   // the island grid's water values are not true distances everywhere (inside the Settlement's bays they read hundreds of units),
   // so the seabed uses its own distance-to-shore field: a chamfer distance transform over a fine grid of land/water
@@ -117,7 +122,7 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
   function wdist(x,z){const u=(x-WX0)/WR,v=(z-WZ0)/WR;if(u<0||v<0||u>=WW-1||v>=WH-1)return 40;const i=u|0,j=v|0,a=u-i,b=v-j,k=j*WW+i;return(WD[k]*(1-a)+WD[k+1]*a)*(1-b)+(WD[k+WW]*(1-a)+WD[k+WW+1]*a)*b;}
   function distField(X1,X2,Z1,Z2){WX0=X1;WZ0=Z1;WW=Math.ceil((X2-X1)/WR)+1;WH=Math.ceil((Z2-Z1)/WR)+1;const D=new Float32Array(WW*WH),BIG=1e6;
     /* the blurred land field: shore grid clamped to +-4, two box blurs of about one unit each way */
-    {const A=new Float32Array(WW*WH),T=new Float32Array(WW*WH);for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){let t=landD(X1+i*WR,Z1+j*WR);if(t===-9)t=-4;A[j*WW+i]=Math.max(-4,Math.min(4,t));}
+    {const A=new Float32Array(WW*WH),T=new Float32Array(WW*WH);for(let j=0;j<WH;j++)for(let i=0;i<WW;i++){let t=landD_(X1+i*WR,Z1+j*WR);if(t===-9)t=-4;A[j*WW+i]=Math.max(-4,Math.min(4,t));}
       const R=3;for(let pass=0;pass<2;pass++){for(let j=0;j<WH;j++){let acc=0,n=0;for(let i=-R;i<=R;i++)if(i>=0&&i<WW){acc+=A[j*WW+i];n++;}for(let i=0;i<WW;i++){T[j*WW+i]=acc/n;const o=i-R,ad=i+R+1;if(o>=0){acc-=A[j*WW+o];n--;}if(ad<WW){acc+=A[j*WW+ad];n++;}}}
         for(let i=0;i<WW;i++){let acc=0,n=0;for(let j=-R;j<=R;j++)if(j>=0&&j<WH){acc+=T[j*WW+i];n++;}for(let j=0;j<WH;j++){A[j*WW+i]=acc/n;const o=j-R,ad=j+R+1;if(o>=0){acc-=T[o*WW+i];n--;}if(ad<WH){acc+=T[ad*WW+i];n++;}}}}
       LS=A;}
@@ -171,5 +176,5 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
       /* the dense water mesh follows the camera in steps of one cell, so the waves stay fine everywhere without swimming */const stp=260/360;sea.mesh.position.set(Math.round(camTarget.x/stp)*stp,0,Math.round(camTarget.z/stp)*stp);
       sea.pre(performance.now()/1000);};
     console.log('SEA4 built '+SEA4.ms+' ms, bed verts '+P.count);}
-  const wait=()=>{if(typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'&&typeof terrain!=='undefined'&&typeof SEA3!=='undefined'&&(SEA3.built||!SEA3.on)){try{build();}catch(e){console.error('sea4',e);SEA4.pre=null;}return;}setTimeout(wait,400);};wait();
+  const wait=()=>{if(window.__IBMAP!==undefined/* the island map's coast is ready (part 188-ibmap) */&&typeof ISL!=='undefined'&&ISL.done&&typeof Dg!=='undefined'&&typeof terrain!=='undefined'&&typeof SEA3!=='undefined'&&(SEA3.built||!SEA3.on)){try{build();}catch(e){console.error('sea4',e);SEA4.pre=null;}return;}setTimeout(wait,400);};wait();
 })();

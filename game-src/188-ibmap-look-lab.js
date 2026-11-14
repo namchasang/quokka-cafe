@@ -27,6 +27,16 @@ window.__IBMAP=IBMAP;
   const WET={x1:-163,x2:-124.5,z1:-32,z2:-19};
   const wetCut=(h,x,z)=>{const dx=Math.max(WET.x1-x,0,x-WET.x2),dz=Math.max(WET.z1-z,0,z-WET.z2),d=Math.hypot(dx,dz);if(d>=4)return h;const t=d/4,w=-1.4*(1-t)+h*t;return Math.min(h,w);};
   const L=()=>SEA4.L;const yOf=h=>h<=0?L()+Math.max(h,-6):L()+(0-L())*Math.min(1,h/1.0)+Math.max(0,h-1.3)*.35;
+  /* phase 4 (Paul, 14 Nov 2026): the sea follows the new island's coast. A signed distance to the new shore (+ on land, - in the
+     water, game units, -9 off the grid like the old landD) is ready before the sea is built; the sea part (SEA4) reads it */
+  {const D0=startDoc(),N=121,CS=2,raw=(xb,zb)=>{const fx=xb/CS+60,fz=zb/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,h=D0.h,a=h[j*N+i],b=h[j*N+i+1],c=h[(j+1)*N+i],d=h[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
+    const R=.5,X0=TB.x1-40,Z0=TB.z1-40,W=Math.ceil((TB.x2+40-X0)/R)+1,H=Math.ceil((TB.z2+40-Z0)/R)+1,land=new Uint8Array(W*H),dI=new Float32Array(W*H),dO=new Float32Array(W*H),BIG=1e6;
+    for(let j=0;j<H;j++)for(let i=0;i<W;i++){const x=X0+i*R,z=Z0+j*R,m=toMap(x,z);land[j*W+i]=wetCut(raw(m[0],m[1]),x,z)>0?1:0;}
+    const cham=(D,src)=>{for(let k=0;k<D.length;k++)D[k]=src(k)?0:BIG;const S2=1.4142;
+      for(let j=0;j<H;j++)for(let i=0;i<W;i++){const k=j*W+i;let d=D[k];if(!d)continue;if(i>0)d=Math.min(d,D[k-1]+1);if(j>0){d=Math.min(d,D[k-W]+1);if(i>0)d=Math.min(d,D[k-W-1]+S2);if(i<W-1)d=Math.min(d,D[k-W+1]+S2);}D[k]=d;}
+      for(let j=H-1;j>=0;j--)for(let i=W-1;i>=0;i--){const k=j*W+i;let d=D[k];if(!d)continue;if(i<W-1)d=Math.min(d,D[k+1]+1);if(j<H-1){d=Math.min(d,D[k+W]+1);if(i<W-1)d=Math.min(d,D[k+W+1]+S2);if(i>0)d=Math.min(d,D[k+W-1]+S2);}D[k]=d;}};
+    cham(dI,k=>!land[k]);cham(dO,k=>land[k]);const F=new Float32Array(W*H);for(let k=0;k<F.length;k++)F[k]=land[k]?Math.min(40,dI[k]*R)-R/2:-Math.min(40,dO[k]*R)+R/2;
+    IBMAP.landD=(x,z)=>{const u=(x-X0)/R,v=(z-Z0)/R;if(u<0||v<0||u>=W-1||v>=H-1)return -9;const i=u|0,j=v|0,a=u-i,b=v-j,k=j*W+i;return(F[k]*(1-a)+F[k+1]*a)*(1-b)+(F[k+W]*(1-a)+F[k+W+1]*a)*b;};}
   /* what of the old island to hide: its land scenery. Kept: characters and animals, boats and anything on the water, the café, deck
      and jetty, the train, the sea, the sky, and this map */
   let keep=null,cafeZ=[];
@@ -41,7 +51,7 @@ window.__IBMAP=IBMAP;
       if(o.__t3){/* the old leaf-card trees go everywhere, café included (the new island plants its own) */o.visible=false;o.__ibHid=1;IBMAP.hidden.push(o);n++;return;}
       try{B.setFromObject(o);}catch(e){return;}if(B.isEmpty())return;B.applyMatrix4(inv);const cx=(B.min.x+B.max.x)/2,cz=(B.min.z+B.max.z)/2,w=Math.max(B.max.x-B.min.x,B.max.z-B.min.z),h=B.max.y-B.min.y;
       if(zoneOf(cx)!=='island'||cx<TB.x1-8||cx>TB.x2+8||cz<TB.z1-8||cz>TB.z2+8)return;if(w>330||(w>60&&h>8))return;
-      if(w<60){if(inCafe(cx,cz))return;let wet=false;try{wet=SEA4.bedL(cx,cz)<L()-.05;}catch(e){}if(wet)return;}
+      if(w<60){if(inCafe(cx,cz))return;let wet=false;try{wet=landD(cx,cz)<-.2;/* on the old island's water (boats, rocks, buoys) */}catch(e){}if(wet)return;}
       o.visible=false;o.__ibHid=1;IBMAP.hidden.push(o);n++;});
     try{MEADOW.on=false;}catch(e){}return n;}
   const shown=h=>'#'+new THREE.Color(h).convertSRGBToLinear().getHexString();
@@ -77,7 +87,7 @@ window.__IBMAP=IBMAP;
   const onNew=(x,z)=>IBMAP.done&&x<99.5&&x>TB.x1-8&&z>TB.z1-8&&z<TB.z2+8&&zoneOf(x)==='island'&&!inCafe(x,z);
   IBMAP.groundAt=(x,z)=>{const m=toMap(x,z);return IBMAP.I.heightAt(m[0],m[1])/K;};
   const _gy=groundY;groundY=function(x,z){if(onNew(x,z))return Math.max(0,IBMAP.groundAt(x,z));return _gy(x,z);};
-  const _bl=blocked;blocked=function(x,z){if(!onNew(x,z))return _bl(x,z);const m=toMap(x,z),I=IBMAP.I;if(I.heightAt(m[0],m[1])/K<L()+.02)return _bl(x,z)/* the water's edge: as before (swimming, boats) */;return I.solidAt(m[0],m[1],.25*K);};
+  const _bl=blocked;blocked=function(x,z){if(!onNew(x,z))return _bl(x,z);const m=toMap(x,z),I=IBMAP.I;if(I.heightAt(m[0],m[1])/K<L()+.02)return true/* the new island's sea */;return I.solidAt(m[0],m[1],.25*K);};
   let tStart=performance.now();
   (function loop(){requestAnimationFrame(loop);if(!IBMAP.done||!IBMAP.grp)return;const on=typeof zoneOf==='function'&&zoneOf(camTarget.x)==='island';IBMAP.grp.visible=on;if(IBMAP.gmBtn)IBMAP.gmBtn.style.display=on&&!document.body.classList.contains('studio')?'':'none';if(!on)return;
     const t=(performance.now()-tStart)/1000,c=toMap(camTarget.x,camTarget.z),p=toMap(player.x,player.z);IBMAP.player=player;
