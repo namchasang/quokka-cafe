@@ -219,7 +219,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-engine-vehicle.js | 20292-20566 | 40 | GAMMA, lin, MC, GLASS, mesh, box, cyl, prof, tex, decal |
 | 188-engine-islandmap.js | 20567-20644 | 11 | N, segD, lineD, RW, create |
 | 188-engmap-look-lab.js | 20645-20702 | 9 | ENGMAP_LIVE, ENGMAP |
-| 188-ibmap-look-lab.js | 20703-20799 | 90 | embedded data, do not open |
+| 188-ibmap-look-lab.js | 20703-20799 | 86 | embedded data, do not open |
 | 188-open-sea-ships-and-captain-ned.js | 20800-20919 | 21 | SHIPS, OPENSEA |
 | 188-boat-shop-and-wandering-boats.js | 20920-21000 | 14 | BOATS |
 | 188-bay-boats-look-lab-toon.js | 21001-21022 | 3 |  |
