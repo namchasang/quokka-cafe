@@ -87,7 +87,7 @@ window.__IBMAP=IBMAP;
   function build(){const t0=performance.now();cafeZ=cafeZones();
     const grp=new THREE.Group();grp.name='ibmap';grp.position.set(CX,0,CZ);grp.scale.set(-1/K,1/K,1/K);scene.add(grp);IBMAP.grp=grp;grp.updateMatrixWorld(true);
     const doc=startDoc();IBMAP.doc=doc;keep=keepSet();
-    const I=IslandMap.create({doc,parent:grp,cs:2,bscale:.75,gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding,landOnly:true,heightMap:(h,xb,zb)=>{const g=toGame(xb,zb);return yOf(wetCut(h-(doc.sea||0),g[0],g[1],xb,zb))*K;}/* heights from the map's own sea level */,
+    const I=IslandMap.create({doc,parent:grp,cs:2,bscale:.75,gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding,landOnly:true,groundClamp:(xb,zb,h)=>{const c0=cafeZ[0];if(!c0)return h;const g=toGame(xb,zb),dx=Math.abs(g[0]-c0[0]),dz=Math.abs(g[1]-c0[1]);if(dx>=7.5||dz>=6)return h;const t=Math.max(0,Math.min(1,Math.max((dx-6)/1.5,(dz-4.6)/1.4))),lo=.08*K;return Math.min(h,lo+t*Math.max(0,h-lo));}/* the café deck shows: the ground under it stays just below the boards (Paul, 15 Nov 2026) */,heightMap:(h,xb,zb)=>{const g=toGame(xb,zb);let y=yOf(wetCut(h-(doc.sea||0),g[0],g[1],xb,zb));return y*K;}/* heights from the map's own sea level */,
       skip:{cafe:1,jetty:1,fishingboat:1,yacht:1}/* the game's own café, jetty and boats stay for now */,
       /* ground and grass in the Foliage lab's own colours (Paul, 14 Nov 2026) */noGrow:(xb,zb)=>{const g=toGame(xb,zb);return inCafe(g[0],g[1]);},fol:{radius:FOLR},
       /* every engine on the island (Paul, 15 Nov 2026: straight to the live game): moving vehicles and Vehicle Engine boats, island folk
@@ -96,7 +96,7 @@ window.__IBMAP=IBMAP;
     sinkOldLand(I);
     IBMAP.I=I;try{if(I.E.fol.setQuality)I.E.fol.setQuality(GQ.startsWith('l')?0:GQ.startsWith('m')?1:2);}catch(e){}grp.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;if(o.isMesh){o.receiveShadow=true;}});
     IBMAP.nHid=hideOld();gmButton();oldWalkersOff();skyMake();mapRefresh();IBMAP.ms=Math.round(performance.now()-t0);IBMAP.done=true;
-    try{toast('🏝️ เกาะใหม่จาก Island Builder (Look Lab) / New island from the Island Builder',4200);}catch(e){}console.log('IBMAP built ('+IBMAP.src+'): '+doc.bld.length+' buildings, '+doc.roads.length+' roads, '+doc.paths.length+' paths, hid '+IBMAP.nHid+' old pieces, '+IBMAP.ms+' ms (engines '+I.ms+' ms)');}
+    veilOff();console.log('IBMAP built ('+IBMAP.src+'): '+doc.bld.length+' buildings, '+doc.roads.length+' roads, '+doc.paths.length+' paths, hid '+IBMAP.nHid+' old pieces, '+IBMAP.ms+' ms (engines '+I.ms+' ms)');}
   /* the old ambient walkers followed the old island's paths: on the new island the Life Engine's folk walk the map's own paths */
   function oldWalkersOff(){try{walkers.forEach(w=>{if(w.zone==='island'){w.zone='island-old';w.m.visible=false;w.sh.visible=false;}});}catch(e){}}
   /* Sky Engine over the island: sky dome, drifting clouds, dust motes in golden light, fireflies at dusk, a far flock of birds and
@@ -105,6 +105,11 @@ window.__IBMAP=IBMAP;
   let SKY=null,skyG=null,lastT=0;const skyT=new THREE.Vector3();
   function skyMake(){if(typeof SkyEngine==='undefined'||SKY)return;try{skyG=new THREE.Group();skyG.name='ibSky';scene.add(skyG);SKY=SkyEngine.create({scene:skyG,renderer,sun:null,hemi:null,radius:Math.min(400,camera.far*.9),gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding});try{SKY.setLayer('godrays',false);SKY.setLayer('flare',false);}catch(e){}IBMAP.sky=SKY;skyG.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;});}catch(e){console.warn('ibmap sky',e);SKY=null;}}
   function skyTick(t,nt){if(!SKY)return;const dt=Math.min(.1,Math.max(0,t-lastT));lastT=t;skyG.visible=true;skyT.set(player.x,0,player.z);try{SKY.update(dt,{hour:(S.time||600)/60,target:skyT});SKY.animate(t,dt,camera);}catch(e){}}
+  /* the old island never shows (Paul, 15 Nov 2026): a sea-coloured veil covers the game, under the home screen and dialogs,
+     until the new island is built, then fades away */
+  const veil=document.createElement('div');veil.id='ibVeil';veil.style.cssText='position:fixed;inset:0;z-index:9;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#8fd6d8,#3f9fb8 75%);display:grid;place-items:center;transition:opacity .8s;font:700 15px "Pixelify Sans",monospace;color:#f5ecd8;text-shadow:0 2px 0 rgba(15,20,38,.6)';
+  veil.innerHTML='<div style="text-align:center"><div style="font-size:34px;margin-bottom:8px">🏝️</div>Rottnest Island…</div>';document.body.appendChild(veil);
+  function veilOff(){veil.style.opacity='0';setTimeout(()=>veil.remove(),900);}setTimeout(()=>{if(document.body.contains(veil))veilOff();},30000);
   /* the minimap and the big map draw the new island (Paul, 15 Nov 2026, phase 2): land, beaches and the sea from the island's
      shore field, the map's roads, paths, rail and buildings, then the usual place names */
   let MMR=null;function mmRaster(){if(MMR)return MMR;const S=2,W=Math.ceil((TB.x2-TB.x1)*S),H=Math.ceil((TB.z2-TB.z1)*S),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),im=x.createImageData(W,H),A=im.data;
