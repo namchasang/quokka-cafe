@@ -18,7 +18,7 @@ if(FREOMAP.on)(()=>{
     if(x<274.5){if(z>-12&&z<22){const t=(x-266)/8.5;return t<0?-Math.min(2.6,.4-t*2.2):-.45+t*.85;}/* Bathers Beach slopes into the bay */
       const d=274.5-x;return -Math.min(2.6,.7+d*.2);}
     return .35+hill+rise;};
-  const doc={v:1,ver:1,town:'freo',name:'Fremantle',sea:0,h:[],paths:[],roads:[],props:[],bld:[],trees:[],culs:[],biz:[],veh:[],rail:[],
+  const doc={v:1,ver:2,town:'freo',name:'Fremantle',sea:0,h:[],paths:[],roads:[],props:[],bld:[],trees:[],culs:[],biz:[],veh:[],rail:[],
     fol:{tuft:.7,flower:.35,bush:.025,tree:.002},
     life:{walker:40,jogger:4,cyclist:8,gull:12,pelican:3,dolphin:4,boat:4,kayak:2,sitter:8,picnic:4,dogfetch:3,fisher:2,flock:3,butterfly:3,swimmer:3,sunbather:6}};
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=CX+(i-60)*2,z=CZ+(j-60)*2;doc.h.push(+landH(x,z).toFixed(2));}/* grid every 2 units, like the master builder */
@@ -41,15 +41,10 @@ if(FREOMAP.on)(()=>{
   const NAMES=['HARBOUR LANE BOOKS','OLD PORT BAKERY','THE GALLEY CAFE','SALT & PEPPER DELI','SEA CHEST ANTIQUES','TIDE & TALLOW','CRAY POT GRILL','LIMESTONE GALLERY','SPICE WHARF','PORT GELATO','BLUE DOOR BOOKS','THE TEA CADDY','DUNE SURF SHOP','LACE & IRON','CHANDLERY','PORTSIDE SHOES'];let ni=0;
   const row=(x1,x2,z,r,step,o)=>{let k=0;for(let x=x1;x<=x2;x+=step){B(SH[k%SH.length],x,z,r,Object.assign({wall:WALL[(k*3+ni)%WALL.length],awning:AW[(k+ni)%AW.length],d:5.5},o||{}),NAMES[ni++%NAMES.length]);k++;}};
   const col=(x,z1,z2,r,step,o)=>{let k=0;for(let z=z1;z<=z2;z+=step){B(SH[k%SH.length],x,z,r,Object.assign({wall:WALL[(k*5+ni)%WALL.length],awning:AW[(k+ni)%AW.length],d:5.5},o||{}),NAMES[ni++%NAMES.length]);k++;}};
-  row(305,316,-13.2,0,5.4);row(322,343,-13.2,0,5.4);/* Phillimore St, harbour side */
-  row(282,293,-1.6,Math.PI,5,{d:4});/* High St, its back to Phillimore */row(323,329,-1.4,Math.PI,5.4);
-  col(302.2,12,20,-Math.PI/2,5);col(310.6,12,20,Math.PI/2,5);/* South Terrace, the café strip */
-  col(323.4,13.5,20,Math.PI/2,6.5,{floors:1});col(336.4,-1,4,Math.PI/2,6);
-  B('bigbox',282.5,-13.4,0,{w:9,d:6,wall:'#e8dcc0',awning:'#1d3a6e',fh:3.6},'B-SHED');
-  B('heritage',297.4,-13,0,{w:9,d:6,wall:'#e2d2a8',floors:1,fh:4},'FREMANTLE STATION');
-  B('heritage',303.2,3.5,Math.PI/2,{w:9,d:7,floors:2,wall:'#e8d4a8'},'TOWN HALL');B('heritage',312.6,5.2,-Math.PI/2,{w:6,d:9,floors:2,wall:'#d8c8a8',fh:4},"ST JOHN'S");
-  B('pub',291.2,7.4,Math.PI/2,{w:9,d:8},'ESPLANADE HOTEL');B('bigbox',312.4,16.6,-Math.PI/2,{w:9,d:8,wall:'#efe3c4',awning:'#5a3a22',fh:3.4},'FREO MARKETS');
-  B('heritage',326.6,17.8,0,{w:10,d:6,floors:2,wall:'#e8dcc0'},'THE OLD PRISON');B('pub',336.6,-12.6,0,{w:9,d:7},'PORT HOTEL');
+  /* the buildings of the old Fremantle (Paul, 15 Nov 2026: "put all the old Fremantle buildings in the new map"): read from the
+     old town's houses and shops (place, size, storeys), each facing its nearest street, as Building Kit buildings */
+  const FREO_OLD=[["heritage", 296.0, -13.5, 0, 11.1, 11.1, 2], ["shop", 301.0, 13.0, 3.142, 5.9, 5.7, 2], ["shop", 300.9, 15.4, 1.571, 5.7, 5.9, 2], ["shop", 300.9, 19.7, 1.571, 5.7, 5.9, 2], ["heritage", 311.5, 2.1, 1.571, 8.0, 11.3, 2], ["heritage", 322.8, -11.8, -1.571, 6.7, 6.7, 2], ["heritage", 325.5, -11.8, 0, 6.7, 6.7, 2], ["shop", 308.8, -13.7, 0, 7.2, 11.7, 1], ["cottage", 278, -0.6, 0, 9.1, 9.1, 1], ["shop", 324.9, 17.7, 1.571, 9.3, 8.8, 1], ["shop", 309.6, 16.5, -1.571, 5.1, 5.1, 1], ["shop", 312.3, 16.5, 1.571, 5.1, 5.1, 1], ["shop", 313.8, 16.5, 1.571, 5.1, 5.1, 1], ["shop", 290.5, 2.0, -1.571, 5.5, 11.3, 2], ["cottage", 311.7, 20.1, 0, 8.8, 6.1, 1], ["shop", 322.7, 3.4, -1.571, 4.0, 6.4, 2], ["shop", 326.3, 3.4, 1.571, 4.0, 6.4, 2], ["shop", 277.5, -11.1, 0, 9.9, 4.8, 1], ["pub", 285, -12.6, 0, 10.7, 4.3, 1], ["shop", 326.9, -2.9, 3.142, 9.7, 4.7, 2], ["pub", 312.8, -11.9, 0, 10.8, 4.1, 1], ["shop", 308, -2.4, 3.142, 9.1, 4.8, 1], ["cottage", 289.4, -2, 0, 6.9, 5.7, 1], ["shop", 284.5, -2, 0, 6.3, 5.7, 2], ["shop", 323.2, -2.9, 3.142, 7.6, 4.7, 2], ["heritage", 312.8, -1.8, 3.142, 4.3, 7.7, 2], ["shop", 304.6, -11.6, 0, 5.3, 6.1, 2], ["cottage", 295.4, 15.6, 3.142, 9.3, 3.5, 1], ["cottage", 313.8, 12.8, 3.142, 6.1, 5.1, 1], ["shop", 283.5, -3.2, 3.142, 7.3, 4.1, 2], ["shop", 302.0, -2.0, -1.571, 4.1, 7.3, 2], ["shop", 326.8, -2.1, 1.571, 5.6, 5.2, 2], ["cottage", 326.8, 6.3, 1.571, 5.6, 5.2, 1], ["shop", 322.6, 6.7, -1.571, 4.5, 6.1, 2], ["shop", 289, 1.1, 0, 5.7, 4.8, 1], ["shop", 331.6, -11.6, 0, 4.4, 6.1, 2], ["cottage", 309.7, 12.9, 3.142, 4.7, 5.3, 1], ["cottage", 322.3, 15.2, -1.571, 4.5, 5.3, 1], ["cottage", 326.7, 15.2, 1.571, 4.5, 5.3, 1], ["shop", 289.0, -3.2, 3.142, 6.0, 4.0, 2], ["shop", 309.6, 13.9, -1.571, 4.5, 5.2, 2], ["cottage", 293.5, 17.4, 0, 4.7, 4.1, 1], ["shop", 321.5, 3.4, -1.571, 4.5, 3.2, 2]];
+  FREO_OLD.forEach(([st,x,z,r,w,d,fl],k)=>B(st,x,z,r,{w,d,floors:fl,wall:WALL[k%WALL.length],awning:AW[k%AW.length]},st==='cottage'?undefined:NAMES[ni++%NAMES.length]));
   B('lighthouse',276.4,1.6,0,{w:5,d:5,floors:1,fh:3.2,wall:'#e2d2a8',trim:'#8a7a6a'});/* the Round House */
   // homes along the southern streets: limestone cottages, weatherboard houses, a few terraces
   const HS=['cottage','house','cottage','terrace','cottage','house'];let hk=0;
@@ -72,8 +67,8 @@ if(FREOMAP.on)(()=>{
   // ---- build ----
   /* Paul checks and edits Fremantle in the Master Builder (lib/engines/editor/freo-master.html, GM): his saved map wins here.
      A map file he sends becomes FREO_START (bump ver). */
-  let D=doc;try{if(typeof FREO_START!=='undefined')D=FREO_START;}catch(e){}
-  try{const g=typeof isGM==='function'&&isGM(),sv=g&&localStorage.getItem('ppl-mapedit-freo-master');if(sv){const j=JSON.parse(sv);if(j&&j.h&&j.h.length===N*N)D=j;}}catch(e){}
+  const FMKEY='ppl-mapedit-freo-master'+(doc.ver>1?'-v'+doc.ver:'');/* a new start map (ver) starts fresh in the builder */let D=doc;try{if(typeof FREO_START!=='undefined')D=FREO_START;}catch(e){}
+  try{const g=typeof isGM==='function'&&isGM(),sv=g&&localStorage.getItem(FMKEY);if(sv){const j=JSON.parse(sv);if(j&&j.h&&j.h.length===N*N)D=j;}}catch(e){}
   FREOMAP.doc=D;FREOMAP.gen=doc;
   let I=null,grp=null,sea=null,SKY=null,skyG=null,keep=null;
   const yOf=h=>WL+h*.6;/* map height (sea 0) to game y: the sea sits at WL */
@@ -98,7 +93,7 @@ if(FREOMAP.on)(()=>{
     // the Sky Engine (draws only: the game keeps its own sun, shade and fog)
     try{if(typeof SkyEngine!=='undefined'){skyG=new THREE.Group();skyG.name='fmSky';scene.add(skyG);SKY=SkyEngine.create({scene:skyG,renderer,sun:null,hemi:null,radius:Math.min(400,camera.far*.9)});try{SKY.setLayer('godrays',false);SKY.setLayer('flare',false);}catch(e){}}}catch(e){console.warn('freomap sky',e);}
     try{if(typeof isGM==='function'&&isGM()){const b=document.createElement('button');b.textContent='🛠️ Master Builder · Fremantle';b.style.cssText='position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:60;padding:6px 12px;border-radius:12px;border:2px solid #e8c37a;background:#1d2a3a;color:#ffe6a8;font:600 13px system-ui;display:none';b.onclick=()=>window.open('./lib/engines/editor/freo-master.html','_blank');document.body.appendChild(b);FREOMAP.btn=b;
-      let st=localStorage.getItem('ppl-mapedit-freo-master');document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const n=localStorage.getItem('ppl-mapedit-freo-master');if(n&&n!==st)location.reload();}});}}catch(e){}
+      let st=localStorage.getItem(FMKEY);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const n=localStorage.getItem(FMKEY);if(n&&n!==st)location.reload();}});}}catch(e){}
     FREOMAP.nHid=hideOld();FREOMAP.ms=Math.round(performance.now()-t0);FREOMAP.done=true;
     console.log('FREOMAP built: '+FREOMAP.doc.bld.length+' buildings, '+FREOMAP.doc.roads.length+' roads, '+FREOMAP.doc.paths.length+' paths, hid '+FREOMAP.nHid+' old pieces, '+FREOMAP.ms+' ms');
     try{toast('🧪 Fremantle จาก engine (Look Lab) / Fremantle built with the engines',4200);}catch(e){}}
