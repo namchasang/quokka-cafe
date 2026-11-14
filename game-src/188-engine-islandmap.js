@@ -10,12 +10,19 @@
    noGrow    optional (x,z)=>bool in map units: no grass or trees there (the host's own places)
    I.heightAt(x,z)  ground height in map units (road beds levelled)   I.kindAt(x,z) 'water'|'sand'|'path'|'none'|'grass'
    I.solidAt(x,z,m) true inside a building footprint (+m)              I.update(t,camX,camZ,{push,reveal})   each frame (wind, sway)
-   Uses: TerrainEngine, RoadEngine, FoliageEngine, PropsEngine, BuildingKit (and VehicleEngine for parked vehicles). Map units: the
+   Uses: TerrainEngine, RoadEngine, FoliageEngine, PropsEngine, BuildingKit, VehicleEngine (vehicles and boats, parked or moving),
+   LifeEngine (option life:false) and WaterLife (option waterLife:false; seaBed/waterLevel for a host with its own seabed). Map units: the
    doc's height grid is 121 x 121 cells of cs units centred on 0,0. Same rules as the editor: nothing on the railway, trees off the
    roads and footprints, bike paths their own network. */
 (function(g){
 const N=121;
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
+/* paths join up (Paul, 15 Nov 2026: ride and walk round the island without a break): a path or bike-path end that stops short of
+   another path, bike path or road (gap up to 6 units) gets a short link onto the nearest point of that line */
+function weldPaths(doc){const L=[].concat((doc.paths||[]).map(p=>p.pts),(doc.roads||[]).filter(r=>r.type!=='bridge').map(r=>r.pts));let n=0;
+  const near=(x,z,P)=>{let b=null,bd=1e9;for(let i=1;i<P.length;i++){const a=P[i-1],c=P[i],dx=c[0]-a[0],dz=c[1]-a[1],l=dx*dx+dz*dz;const t=l?Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/l)):0;const q=[a[0]+t*dx,a[1]+t*dz],d=Math.hypot(x-q[0],z-q[1]);if(d<bd){bd=d;b=q;}}return[bd,b];};
+  L.forEach(P=>{if(P.length<2)return;[0,1].forEach(end=>{const e=end?P[P.length-1]:P[0];let best=[1e9,null];L.forEach(Q=>{if(Q===P||Q.length<2)return;const r=near(e[0],e[1],Q);if(r[0]<best[0])best=r;});
+    if(best[0]>.05&&best[0]<6){const q=[+best[1][0].toFixed(2),+best[1][1].toFixed(2)];if(end)P.push(q);else P.unshift(q);n++;}});});return n;}
 /* paths and bike paths turn in long smooth curves instead of sharp corners (Paul, 15 Nov 2026): drawn lines keep their points in the
    map file; the curve is made when drawing (R = curve size in map units) */
 const RNDC=new WeakMap();const rndP=(P,R)=>{if(!P||P.length<3)return P;let c=RNDC.get(P);if(c)return c;const A=[P[0]];
@@ -61,6 +68,8 @@ const BIZ={
   fishing:{n:'เรือประมง',ic:'🎣',price:6000,inc:330,boat:'fishing'},
   party:{n:'เรือปาร์ตี้',ic:'🎉',price:15000,inc:850,boat:'party'},
   ferry:{n:'เรือเฟอร์รี่เช่าเหมา',ic:'⛴️',price:30000,inc:1600,boat:'ferry'}};
+/* boat businesses as Vehicle Engine boats: kind, scale, speed */
+const BOATK={fishing:['fishingboat',1,2.2],party:['partyboat',.7,1.6],ferry:['ferry',.8,1.8]};
 const LM=c=>new THREE.MeshLambertMaterial({color:GAM?new THREE.Color(c):new THREE.Color(c).convertSRGBToLinear()});
 function boatMesh(kind){const G=new THREE.Group(),bx=(w,h,d,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),LM(c));m.position.set(x,y,z);m.castShadow=true;G.add(m);return m;};
   const hull=(L,W,H,c)=>{const g=new THREE.BoxGeometry(L,H,W,6,1,1),p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i);if(x>L*.25){const f=1-(x-L*.25)/(L*.75)*.85;p.setZ(i,p.getZ(i)*f);}if(p.getY(i)<0)p.setZ(i,p.getZ(i)*.7);}g.computeVertexNormals();const m=new THREE.Mesh(g,LM(c));m.position.y=H/2-.35;m.castShadow=true;G.add(m);return m;};
@@ -74,7 +83,7 @@ function boatMesh(kind){const G=new THREE.Group(),bx=(w,h,d,c,x,y,z)=>{const m=n
   return G;}
 const bopts=(d,o)=>{const r=Object.assign({style:d.style,verandah:true},o);['sign','awning','wall','roofColor','shutters','floors','balcony','w','d'].forEach(k=>{if(d[k]!==undefined)r[k]=d[k];});return r;};
 function create(o){
-  GAM=!!o.gammaOut;const doc=o.doc,CS=o.cs||2,BS=o.bscale||.75,par=o.parent,HW=60*CS,S=120*CS,gam=!!o.gammaOut,skip=o.skip||{},hm=o.heightMap||(h=>h),sea=doc.sea||0;
+  GAM=!!o.gammaOut;if(o.weld!==false)try{weldPaths(o.doc);}catch(e){}const doc=o.doc,CS=o.cs||2,BS=o.bscale||.75,par=o.parent,HW=60*CS,S=120*CS,gam=!!o.gammaOut,skip=o.skip||{},hm=o.heightMap||(h=>h),sea=doc.sea||0;
   const G={},E={};['terr','road','props','bld','fol','rail','veh'].forEach(k=>{G[k]=new THREE.Group();G[k].name='im_'+k;par.add(G[k]);});
   const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -2.8;return gridH(HH,N,fx,fz);};
   const Hfn=(x,z)=>hm(raw(x,z),x,z),SEA=hm(sea,0,0);
@@ -112,8 +121,9 @@ function create(o){
   E.bld=BuildingKit.create(Object.assign({scene:G.bld,heightAt:Hg},G0));E.bld.list=doc.bld.map(b=>{if(skip[b.s])return null;let grp=null;try{grp=E.bld.build({style:b.s,x:b.x,z:b.z,rot:b.r||0,sign:b.sign||undefined,wall:b.wall||undefined});}catch(e){console.warn('islandmap bld',b.s,e);}
     if(grp&&BS!==1)grp.scale.setScalar(BS);if(grp){const f=footOf(grp,b);if(f)FP.push(f);}return grp;});
   /* businesses: shops and rentals from the Building Kit, bought boats sail a loop in deep water */
-  E.biz=[];G.biz=new THREE.Group();G.biz.name='im_biz';par.add(G.biz);{const BB=BuildingKit.create(Object.assign({scene:G.biz,heightAt:Hg},G0));let PB=null;
+  const BQ=[];E.biz=[];G.biz=new THREE.Group();G.biz.name='im_biz';par.add(G.biz);{const BB=BuildingKit.create(Object.assign({scene:G.biz,heightAt:Hg},G0));let PB=null;
     (doc.biz||[]).forEach((b,i)=>{const d=BIZ[b.t];if(!d)return;let grp=null;try{
+      if(d.boat&&typeof VehicleEngine!=='undefined'){BQ.push({b,d,i});return;}/* Vehicle Engine boats, added with the vehicles below */
       if(d.boat){grp=boatMesh(d.boat);grp.position.set(b.x,SEA,b.z);grp.rotation.y=b.r||0;G.biz.add(grp);let R0=0;for(const R of[14,11,8,6,4]){let ok=true;for(let a=0;a<6.28&&ok;a+=.4)if(Hg(b.x+Math.cos(a)*R,b.z+Math.sin(a)*R)>SEA-.6)ok=false;if(ok){R0=R;break;}}E.biz.push({g:grp,b,R:R0,ph:i*1.7,sp:{fishing:.05,party:.035,ferry:.03}[d.boat]||.04});}
       else if(d.prop){PB=PB||PropsEngine.create(Object.assign({scene:G.biz,heightAt:Hg},G0));grp=PB.add(d.prop,b.x,b.z,{rot:b.r||0,sign:d.sign});}
       else{grp=BB.build(bopts(d,{x:b.x,z:b.z,rot:b.r||0}));if(grp&&BS!==1)grp.scale.setScalar(BS);if(grp){const f=footOf(grp,b);if(f)FP.push(f);}}}catch(e){console.warn('islandmap biz',b.t,e);}});}
@@ -132,10 +142,26 @@ function create(o){
   E.fol=FoliageEngine.create(Object.assign({mix:'rottnest',scene:G.fol,bounds:[-HW,-HW,HW,HW],heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46*Math.min(CS,1.4),
     treeKeepOut:(x,z)=>inCul(x,z,2.5)||onRail(x,z,3.2)||inFoot(x,z,2.4)||!!(o.noGrow&&o.noGrow(x,z))},o.fol||{},G0));
   (doc.trees||[]).forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6)||inFoot(t.x,t.z,1.5)||inCul(t.x,t.z,1.5))return;try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});
-  /* parked vehicles (boats stay on the sea) */
-  if(o.vehicles!==false&&typeof VehicleEngine!=='undefined'){E.veh=VehicleEngine.create(Object.assign({scene:G.veh,heightAt:Hg,waterLevel:SEA},G0));(doc.veh||[]).forEach(v=>{if(skip[v.k]||onRail(v.x,v.z,2.6))return;/* never parked on the railway */try{E.veh.add(v.k,v.x,v.z,{rot:v.r||0,color:v.c||undefined});}catch(e){}});}
+  /* vehicles (Vehicle Engine): parked, or on the move like in the builder: road vehicles and bikes drive the road and bike-path
+     networks, boats sail a loop in deep water (Paul, 15 Nov 2026). The boat businesses are Vehicle Engine boats too (more detail,
+     wakes, lights at night). */
+  if(typeof VehicleEngine!=='undefined'&&(o.vehicles!==false||BQ.length)){const V=E.veh=VehicleEngine.create(Object.assign({scene:G.veh,heightAt:Hg,waterLevel:SEA},G0));
+    const deepLoop=(x,z,Rs,m)=>{for(const R of Rs){const Q=[];for(let i=0;i<20;i++){const q=i/20*6.2832;Q.push([x+Math.cos(q)*R,z+Math.sin(q)*R]);}if(Q.every(p=>Hg(p[0],p[1])<SEA-m))return Q;}return null;};
+    BQ.forEach(({b,d})=>{const K=BOATK[d.boat]||['fishingboat',1];try{const v=V.add(K[0],b.x,b.z,{rot:b.r||0});if(K[1]!==1)v.g.scale.setScalar(K[1]);const P=deepLoop(b.x,b.z,[14,11,8,6,4],.6);if(P)V.sail(v,P,{speed:K[2]});}catch(e){console.warn('islandmap boat',e);}});
+    if(o.vehicles!==false)(doc.veh||[]).forEach(v=>{if(skip[v.k]||onRail(v.x,v.z,2.6))return;/* never parked on the railway */let q;try{q=V.add(v.k,v.x,v.z,{rot:v.r||0,color:v.c||undefined});}catch(e){return;}if(!v.go||o.vehiclesMove===false)return;
+      const c=(VehicleEngine.KINDS[v.k]||{}).cat,a=v.r||0,ca=Math.cos(a),sa=Math.sin(a);
+      try{if(c==='road'||c==='bike'){let best=0,bd=1e9,net=E.road;[E.road].concat(c==='bike'?[E.bike]:[]).forEach(N=>(N.roads||[]).forEach((r,i)=>{const d=lineD(v.x,v.z,r.pts.map(p=>Array.isArray(p)?p:[p.x,p.z]));if(d<bd){bd=d;best=i;net=N;}}));if(bd<8)V.drive(q,net,{road:best,t:.5});}
+        else if(c==='water'){let P=null;for(const R of[Math.max(4,q.L*1.6),Math.max(3,q.L*1.1),2.5]){const Q=[];for(let i=0;i<16;i++){const t=i/16*Math.PI*2;Q.push([v.x+Math.cos(t)*R-ca*R,v.z+Math.sin(t)*R+sa*R]);}if(Q.every(p=>Hg(p[0],p[1])<SEA-.5)){P=Q;break;}}if(P)V.sail(q,P,{});}}catch(e){console.warn('islandmap veh',v.k,e);}});}
+  /* island folk on the paths, quokkas, kangaroos, gulls, butterflies, pelicans and dolphins (Life Engine; counts from the map's life
+     settings, lifeScale to thin them on phones) */
+  if(o.life!==false&&typeof LifeEngine!=='undefined'){G.life=new THREE.Group();G.life.name='im_life';par.add(G.life);
+    try{E.life=LifeEngine.create(Object.assign({scene:G.life,heightAt:Hg,kindAt,paths:doc.paths.map(p=>rndP(p.pts,5*CS)),water:(x,z)=>Hg(x,z)<SEA,bounds:[-55*CS,-55*CS,55*CS,55*CS]},G0));
+      const LSC=o.lifeScale==null?1:o.lifeScale;Object.keys(doc.life||{}).forEach(k=>{const n=Math.round((doc.life[k]|0)*LSC);if(!n)return;if(!doc.paths.length&&(k==='walker'||k==='jogger'||k==='cyclist'))return;if(o.lifeSkip&&o.lifeSkip[k])return;try{E.life.spawn(k,n);}catch(e){console.warn('life',k,e);}});}catch(e){console.warn('islandmap life',e);}}
+  /* sea life (Water Life layers): seagrass, fish schools, kelp, shells, jellyfish, glints, a stingray; no sea rocks */
+  if(o.waterLife!==false&&typeof WaterLife!=='undefined'){G.wl=new THREE.Group();G.wl.name='im_wl';par.add(G.wl);
+    try{E.wl=WaterLife.create(Object.assign({scene:G.wl,heightAt:o.seaBed||Hg,level:o.waterLevel!=null?o.waterLevel:SEA,bounds:o.seaBounds||[-60*CS,-60*CS,60*CS,60*CS]},G0));if(!o.searocks)E.wl.setLayer('searocks',false);}catch(e){console.warn('islandmap waterlife',e);}}
   const ms=Math.round(performance.now()-t0);
   return{doc,G,E,heightAt:Hg,rawHeight:Hfn,seaLevel:SEA,kindAt,solidAt:(x,z,m)=>inFoot(x,z,m||0)||inStation(x,z,0),onRail,footprints:FP,stations:ST,ms,
-    update(t,x,z,op){E.biz.forEach(q=>{if(!q.R)return;q.ph+=(1/60)*q.sp*14/q.R;const a=q.ph;q.g.position.set(q.b.x+Math.cos(a)*q.R,SEA+Math.sin(t*1.3+q.ph)*.05,q.b.z+Math.sin(a)*q.R);q.g.rotation.y=-a-Math.PI;});try{E.fol.update(t,x,z,op);}catch(e){}try{E.road.update&&E.road.update(t,1/60);E.bike.update&&E.bike.update(t,1/60);}catch(e){}try{E.terr.update&&E.terr.update(t);}catch(e){}try{E.veh&&E.veh.update(t,1/60);}catch(e){}}};}
+    update(t,x,z,op){E.biz.forEach(q=>{if(!q.R)return;q.ph+=(1/60)*q.sp*14/q.R;const a=q.ph;q.g.position.set(q.b.x+Math.cos(a)*q.R,SEA+Math.sin(t*1.3+q.ph)*.05,q.b.z+Math.sin(a)*q.R);q.g.rotation.y=-a-Math.PI;});try{E.fol.update(t,x,z,op);}catch(e){}try{E.road.update&&E.road.update(t,1/60);E.bike.update&&E.bike.update(t,1/60);}catch(e){}try{E.terr.update&&E.terr.update(t);}catch(e){}const nt=(op&&op.night)||0;try{if(E.veh){E.veh.night=nt;E.veh.update(t,1/60);}}catch(e){}try{E.life&&E.life.update(t,1/60,{night:nt});}catch(e){}try{E.wl&&E.wl.update(t,1/60);}catch(e){}}};}
 g.IslandMap={create,lineD,coastFix,gridH};
 })(typeof window!=='undefined'?window:globalThis);

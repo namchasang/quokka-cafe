@@ -210,6 +210,9 @@
 188-engine-building.js
 188-engine-props.js
 188-engine-vehicle.js
+188-engine-life.js
+188-engine-waterlife.js
+188-engine-sky.js
 188-engine-islandmap.js
 188-engmap-look-lab.js
 188-ibmap-look-lab.js
