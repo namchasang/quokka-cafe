@@ -1409,6 +1409,9 @@ function coastFix(h0,N,sea){const h=h0.slice(),oc=new Uint8Array(N*N),q=[];
   for(let k=0;k<N*N;k++)if(h[k]<sea&&!oc[k])h[k]=sea+.12;
   const nb=(k,f)=>{const i=k%N,j=(k/N)|0;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]]){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)continue;if(f(h0[jj*N+ii]<sea&&oc[jj*N+ii]))return true;}return false;};
   for(let k=0;k<N*N;k++){const w=h[k]<sea;if(w){h[k]=Math.min(h[k],nb(k,x=>!x)?sea-.18:sea-.32);}else if(nb(k,x=>x))h[k]=Math.max(h[k],sea+.14);}
+  /* the sea deepens away from the island to 6 at the map's edge, matching the open sea past the grid (Paul, 14 Nov 2026) */
+  {const D=new Float32Array(N*N).fill(1e9),Q=[];for(let k=0;k<N*N;k++)if(h[k]>=sea){D[k]=0;Q.push(k);}for(let qi=0;qi<Q.length;qi++){const k=Q[qi],i=k%N,j=(k/N)|0;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]]){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)continue;const n=jj*N+ii;if(D[n]>D[k]+1){D[n]=D[k]+1;Q.push(n);}}}
+    for(let k=0;k<N*N;k++){if(h[k]>=sea||D[k]<=3)continue;const i=k%N,j=(k/N)|0,e=Math.min(i,j,N-1-i,N-1-j);const t=Math.min(6,.7+(D[k]-3)*.3),te=e<8?6-(6-t)*e/8:t;h[k]=Math.min(h[k],sea-Math.max(t,te));}}
   return h;}
 
 const CS=window.IB_PLAYER?2:1/* player version: the island is twice as big (Paul, 14 Nov 2026: buildings, roads and objects at half size next to the island) */,S=120*CS,N=121,HW=60*CS,LIM=58*CS;/* height grid: 121 x 121 cells of CS units */
@@ -1474,7 +1477,7 @@ const E={};const Sky=SkyEngine.create({scene,renderer:R,sun,hemi,target:ctl.targ
 const BOUNDS=[-HW,-HW,HW,HW];
 const mk={
   terr(){clear(G.terr);E.terr=TerrainEngine.create({size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:doc.sea,paths:doc.paths.map(p=>({pts:p.pts,w:p.w,kind:p.kind})).concat(railPts().length>1?[{pts:railPts(),w:2.2,kind:'gravel'}]:[])/* the rail bed */});G.terr.add(E.terr.mesh);},
-  water(){if(E.water&&E.water.dispose)E.water.dispose();clear(G.water);E.water=WaterSea.create({renderer:R,scene,camera:cam,heightAt:Hg,size:220*CS,ground:null,level:doc.sea,parent:G.water});},
+  water(){if(E.water&&E.water.dispose)E.water.dispose();clear(G.water);E.water=WaterSea.create({renderer:R,scene,camera:cam,heightAt:Hg,size:(PLAYER?330:220)*CS,ground:null,level:doc.sea,parent:G.water});},
   fol(){clear(G.fol);E.fol=FoliageEngine.create({mix:PLAYER?'rottnest':undefined,scene:G.fol,bounds:BOUNDS,heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46*Math.min(CS,1.4)});doc.trees.forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6)||inCul(t.x,t.z,1.5))return;/* never on the railway or a turning circle */try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});},
   wl(){clear(G.wl);E.wl=WaterLife.create({scene:G.wl,heightAt:Hg,level:doc.sea,bounds:BOUNDS});},
   props(){clear(G.props);E.props=PropsEngine.create({scene:G.props,heightAt:Hg});doc.props.forEach(addProp);},
@@ -1603,7 +1606,7 @@ let status=t=>{};
    Camera: drag = move around, right-drag or two fingers = turn, wheel or pinch = zoom. */
 const toastEl=$('toast');let toastT=0;function toast(t){toastEl.textContent=t;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),2200);}
 status=toast;
-cam.position.set(0,62*CS,58*CS);ctl.target.set(0,0,0);ctl.screenSpacePanning=false;ctl.minDistance=8;ctl.maxDistance=160*CS;ctl.maxPolarAngle=1.25;
+cam.position.set(0,62*CS,58*CS);ctl.target.set(0,0,0);ctl.screenSpacePanning=false;ctl.minDistance=8;ctl.maxDistance=(PLAYER?210:160)*CS;ctl.maxPolarAngle=1.25;
 
 /* ---------- picture cards: each building and prop drawn once into a small image ---------- */
 const TH={};const TR=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});TR.setSize(112,112);TR.outputEncoding=THREE.sRGBEncoding;
@@ -1618,7 +1621,7 @@ const SAMPLE_SIGN={shop:'STORE',cafe:'CAFE',kiosk:'KIOSK',strip:'NOODLES',pub:'H
 
 /* ---------- names and icons ---------- */
 const BNAME={units:'บ้านพักสีเหลือง',islandcottage:'บ้านพักหินปูน',cabin:'กระท่อมพัก',cottage:'กระท่อม',house:'บ้าน',bungalow:'บ้านอิฐ',terrace:'ทาวน์เฮาส์',flats:'อพาร์ตเมนต์',shop:'ร้านค้า',strip:'ร้านริมถนน',mallshop:'ร้านในห้าง',cafe:'คาเฟ่',kiosk:'คีออส',pub:'โรงแรมหัวมุม',bigbox:'ห้างใหญ่',heritage:'อาคารเก่า',slab:'ออฟฟิศ',tower:'ตึกสูง',lighthouse:'ประภาคาร'};
-const BGROUP=[['บ้านบนเกาะ',['islandcottage','units','cabin','cottage','lighthouse']],['บ้าน',['house','bungalow','terrace','flats']],['ร้านค้า',['shop','strip','mallshop','cafe','kiosk','pub','bigbox']],['เมือง',['heritage','slab','tower']]];
+const BGROUP=[['บ้านบนเกาะ',['islandcottage','units','cabin','cottage','lighthouse']],['บ้าน',['house','bungalow','terrace','flats']],['ร้านค้า',['shop','strip','mallshop','cafe','kiosk','pub','bigbox']]].concat(window.IB_PLAYER?[]:[['เมือง',['heritage','slab','tower']]]);/* no city blocks on Rottnest (Paul, 14 Nov 2026) */
 const LIFE_IC={walker:'🚶',jogger:'🏃',cyclist:'🚴',quokka:'🐹',kangaroo:'🦘',gull:'🕊️',butterfly:'🦋',pelican:'🦢',dolphin:'🐬',boat:'⛵',kayak:'🛶',picnic:'🧺',sandcastle:'🏰',dogfetch:'🐕',flock:'🐦',fishjump:'🐟',sitter:'🪑',swimmer:'🏊',sunbather:'🏖️',fisher:'🎣',seal:'🦭'};
 const LIFE_TH={walker:'คนเดิน',jogger:'คนวิ่ง',cyclist:'จักรยาน',quokka:'ควอกก้า',kangaroo:'จิงโจ้',gull:'นกนางนวล',butterfly:'ผีเสื้อ',pelican:'นกกระทุง',dolphin:'โลมา',boat:'เรือ',kayak:'คายัค',picnic:'ปิกนิก',sandcastle:'ปราสาททราย',dogfetch:'หมาคาบบอล',flock:'ฝูงนก',fishjump:'ปลากระโดด',sitter:'คนนั่งม้านั่ง',swimmer:'คนว่ายน้ำ',sunbather:'อาบแดด',fisher:'ตกปลา',seal:'แมวน้ำ'};
 const CATS=[['build','🏠','สร้าง'],['road','🛣️','ถนน'],['nature','🌳','ธรรมชาติ'],['decor','🪑','ตกแต่ง'],['veh','🚗','ยานพาหนะ'],['land','⛰️','พื้นดิน'],['life','🐾','ชีวิต'],['sky','☀️','ฟ้า'],['biz','💼','ธุรกิจ'],['bulldoze','🚜','รื้อ']].filter(c=>!UIP||!['land','life','sky'].includes(c[0]));
@@ -1715,8 +1718,8 @@ function snapB(x,z,front,F){if(F)front=F[3];let best=null,bd=1e9;doc.roads.forEa
 const fpName=e=>e.t==='biz'?(BIZ[doc.biz[e.i].t]||{}).n||'ร้าน':(BNAME[doc.bld[e.i].s]||'ตึก');
 const isSkip=(sk,t,i)=>sk&&sk.type===t&&sk.i===i;
 function why(o){const k=o.k,p=o.p||'',x=o.x,z=o.z,r=o.r||0,sk=o.skip,h=Hg(x,z);
-  if(Math.abs(x)>LIM||Math.abs(z)>LIM)return'นอกเขตเกาะ';
   const boat=(k==='biz'&&BIZ[p]&&BIZ[p].boat)||(k==='veh'&&(VCAT(p)==='water'||p==='seaplane'));
+  /* the deep sea round the map reaches 50% further on every side (Paul, 14 Nov 2026: quest boats and rare fishing spots out there) */const LM=boat||(k==='decor'&&/buoy/.test(p))?LIM*1.5:LIM;if(Math.abs(x)>LM||Math.abs(z)>LM)return'นอกเขตแผนที่';
   if(boat){if(h>doc.sea-.5)return'เรือต้องลอยในน้ำลึก';
     if(doc.biz.some((b,i)=>!isSkip(sk,'biz',i)&&BIZ[b.t]&&BIZ[b.t].boat&&Math.hypot(b.x-x,b.z-z)<7)||(doc.veh||[]).some((v,i)=>!isSkip(sk,'veh',i)&&VCAT(v.k)==='water'&&Math.hypot(v.x-x,v.z-z)<5))return'มีเรือลำอื่นจอดใกล้เกินไป';
     if(doc.props.some(q=>q.k==='jetty'&&lineD(x,z,[[q.x,q.z],[q.x+Math.sin(q.r||0)*(q.len||10),q.z+Math.cos(q.r||0)*(q.len||10)]])<1.2+(q.w||2)/2))return'ทับท่าเทียบเรือ';return'';}
