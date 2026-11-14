@@ -26,12 +26,13 @@ window.__IBMAP=IBMAP;
   let keep=null,cafeZ=[];
   function keepSet(){const S=new Set();try{TOON.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}try{CRIT3.list.forEach(e=>e.model&&S.add(e.model));}catch(e){}try{MORE3D.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}
     try{[WEST.train,WEST.car2].forEach(o=>o&&S.add(o));(WEST.boats||[]).forEach(o=>o&&S.add(o.g||o));}catch(e){}try{S.add(player.g||player.mesh||player.sprite);}catch(e){}S.add(IBMAP.grp);if(window.__ENGMAP&&__ENGMAP.grp)S.add(__ENGMAP.grp);return S;}
-  function cafeZones(){const c=IW(0,-.7),j=IW(-17,5);return[[c.x,c.z,11],[j.x,j.z,7]];}
+  function cafeZones(){const c=IW(0,-.7),j=IW(-17,5);return[[c.x,c.z,7.5],[j.x,j.z,6]];/* just the café, its deck and the jetty */}
   const inCafe=(x,z)=>cafeZ.some(([a,b,r])=>Math.hypot(x-a,z-b)<r);
   const B=new THREE.Box3();
   function hideOld(){scene.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert();let n=0;
     scene.children.forEach(o=>{if(o.__ibSeen||keep.has(o)||!o.visible)return;o.__ibSeen=1;if(o.isLight||o.isCamera||o.isSprite||o.isPoints)return;if(o.userData&&(o.userData.frames||o.userData.lights||o.userData.lift))return;
       if(o.name&&/sea|boat|ship|ferry|trip_|sky|cloud|bird/i.test(o.name))return;
+      if(o.__t3){/* the old leaf-card trees go everywhere, café included (the new island plants its own) */o.visible=false;o.__ibHid=1;IBMAP.hidden.push(o);n++;return;}
       try{B.setFromObject(o);}catch(e){return;}if(B.isEmpty())return;B.applyMatrix4(inv);const cx=(B.min.x+B.max.x)/2,cz=(B.min.z+B.max.z)/2,w=Math.max(B.max.x-B.min.x,B.max.z-B.min.z),h=B.max.y-B.min.y;
       if(zoneOf(cx)!=='island'||cx<TB.x1-8||cx>TB.x2+8||cz<TB.z1-8||cz>TB.z2+8)return;if(w>330||(w>60&&h>8))return;
       if(w<60){if(inCafe(cx,cz))return;let wet=false;try{wet=SEA4.bedL(cx,cz)<L()-.05;}catch(e){}if(wet)return;}
@@ -50,11 +51,11 @@ window.__IBMAP=IBMAP;
     const doc=startDoc();IBMAP.doc=doc;keep=keepSet();
     const I=IslandMap.create({doc,parent:grp,cs:2,bscale:.75,gammaOut:renderer.outputEncoding!==THREE.sRGBEncoding,landOnly:true,heightMap:h=>yOf(h)*K,
       skip:{cafe:1,jetty:1,fishingboat:1,yacht:1}/* the game's own café, jetty and boats stay for now */,
-      /* the approved Rottnest lawn (the live toon look's greens, as they show on screen) and the meadow-tuft greens */terrain:{palette:LAWN},fol:{palette:{blades:['#14410b','#1f5a10','#307416','#478a1d','#64a426']}}});
+      /* the approved Rottnest lawn (the live toon look's greens, as they show on screen) and the meadow-tuft greens */terrain:{palette:LAWN},noGrow:(xb,zb)=>{const g=toGame(xb,zb);return inCafe(g[0],g[1]);},fol:{palette:{blades:['#14410b','#1f5a10','#307416','#478a1d','#64a426']}}});
     sinkOldLand(I);
     IBMAP.I=I;grp.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;if(o.isMesh){o.receiveShadow=true;}});
     IBMAP.nHid=hideOld();IBMAP.ms=Math.round(performance.now()-t0);IBMAP.done=true;
-    console.log('IBMAP built ('+IBMAP.src+'): '+doc.bld.length+' buildings, '+doc.roads.length+' roads, '+doc.paths.length+' paths, hid '+IBMAP.nHid+' old pieces, '+IBMAP.ms+' ms (engines '+I.ms+' ms)');}
+    try{toast('🏝️ เกาะใหม่จาก Island Builder (Look Lab) / New island from the Island Builder',4200);}catch(e){}console.log('IBMAP built ('+IBMAP.src+'): '+doc.bld.length+' buildings, '+doc.roads.length+' roads, '+doc.paths.length+' paths, hid '+IBMAP.nHid+' old pieces, '+IBMAP.ms+' ms (engines '+I.ms+' ms)');}
   /* Kip on the new island: ground height and what blocks him (the café area keeps the old rules) */
   const onNew=(x,z)=>IBMAP.done&&x<99.5&&x>TB.x1-8&&z>TB.z1-8&&z<TB.z2+8&&zoneOf(x)==='island'&&!inCafe(x,z);
   IBMAP.groundAt=(x,z)=>{const m=toMap(x,z);return IBMAP.I.heightAt(m[0],m[1])/K;};
@@ -65,5 +66,5 @@ window.__IBMAP=IBMAP;
     const t=(performance.now()-tStart)/1000,c=toMap(camTarget.x,camTarget.z),p=toMap(player.x,player.z);IBMAP.player=player;
     IBMAP.I.update(t,c[0],c[1],{push:p,reveal:[p[0],p[1],2.6*K]});
     if((IBMAP.k=(IBMAP.k||0)+1)%180===0){IBMAP.hidden.forEach(o=>{o.visible=false;});hideOld();}})();
-  (function wait(){if(typeof SEA4!=='undefined'&&SEA4.built&&typeof GROUND3D!=='undefined'&&GROUND3D.done&&ISL.done&&performance.now()>20000){try{build();}catch(e){console.error('ibmap',e);}return;}setTimeout(wait,1000);})();
+  (function wait(){if(typeof SEA4!=='undefined'&&SEA4.built&&typeof GROUND3D!=='undefined'&&GROUND3D.done&&ISL.done&&performance.now()>8000){try{build();}catch(e){console.error('ibmap',e);}return;}setTimeout(wait,1000);})();
 })();
