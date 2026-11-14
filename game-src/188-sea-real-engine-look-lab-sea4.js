@@ -141,7 +141,7 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
     const bm=new THREE.MeshLambertMaterial({vertexColors:true});const bed=new THREE.Mesh(gIn,bm);bed.receiveShadow=true;bed.name='sea4bed';scene.add(bed);const bed2=new THREE.Mesh(gOut,bm);bed2.receiveShadow=true;bed2.name='sea4bed2';bed.add(bed2);bed2.position.set(0,0,0);
     // the engine: heightmap over the island in world space, water mesh big enough to reach the horizon
     const B={x0:M<0?-X2:X1,z0:Z1,w:X2-X1,h:Z2-Z1};
-    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),maskAt:(xw,z)=>beachMask(M<0?-xw:xw,z),bounds:B,heightRes:[1280,Math.round(1280*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:360,center:[0,0]});
+    const sea=WaterSea.create({renderer,scene,camera,heightAt:(xw,z)=>bedL(M<0?-xw:xw,z),maskAt:(xw,z)=>beachMask(M<0?-xw:xw,z),bounds:B,heightRes:[1280,Math.round(1280*(Z2-Z1)/(X2-X1))],ground:bm,level:L,run:.2,wetScale:.3,size:B.w,meshSize:260,meshSeg:(()=>{/* speed (Paul, 14 Nov 2026: laggy on the phone): the sea surface mesh follows Graphics (Low 160, Medium 240, High 360) */let q='high';try{q=localStorage.getItem('qc-gfx')||(matchMedia&&matchMedia('(pointer:coarse)').matches?'medium':'high');}catch(e){}return q==='low'?160:q==='medium'?240:360;})(),center:[0,0]});
     sea.mesh.name='sea4water';sea.mesh.__islKeep=1;bed.__islKeep=1;
     // the flat island ground opens over the lowered beach so the sloping sand shows through
     const PATCHED=[];const patchGround=tm=>{if(!tm||(tm.__s4&&tm.onBeforeCompile===tm.__s4f))return;if(!tm.__s4)PATCHED.push(tm);tm.__s4=1;const prev=tm.onBeforeCompile,pk=tm.customProgramCacheKey;
