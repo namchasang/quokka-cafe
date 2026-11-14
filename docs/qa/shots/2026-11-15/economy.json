@@ -1,0 +1,72 @@
+{
+ "res": {
+  "out": [
+   {
+    "day": 1,
+    "staff": 1,
+    "served": 31,
+    "earned": 353,
+    "coinsDelta": 353,
+    "wx": 0,
+    "lv": 1
+   },
+   {
+    "day": 2,
+    "staff": 3,
+    "served": 31,
+    "earned": 378,
+    "coinsDelta": 378,
+    "wx": 0,
+    "lv": 1
+   },
+   {
+    "day": 3,
+    "staff": 3,
+    "served": 47,
+    "earned": 554,
+    "coinsDelta": 554,
+    "wx": 0,
+    "lv": 1
+   }
+  ],
+  "prices": {
+   "items": {
+    "flat": 8,
+    "lam": 6,
+    "smo": 10,
+    "capp": 9,
+    "thai": 9,
+    "fc": 12
+   },
+   "wish": [
+    [
+     "hammock",
+     40
+    ],
+    [
+     "machine",
+     70
+    ],
+    [
+     "staff",
+     50
+    ],
+    [
+     "room",
+     120
+    ],
+    [
+     "tickets",
+     150
+    ]
+   ],
+   "cafeLv": [
+    0,
+    450,
+    900,
+    1500
+   ]
+  }
+ },
+ "errs": []
+}
