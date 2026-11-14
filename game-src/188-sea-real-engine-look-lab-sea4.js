@@ -112,9 +112,9 @@ g.WaterSea={create};})(typeof window!=='undefined'?window:this);
     if(t>=0&&t!==-9){if(t>2.6)return 0;const bw=beachW(x,z);/* one smooth beach width everywhere: a width that jumped between sand and lawn left a sawtooth shoreline */if(t>=bw)return 0;if(islPD(x,z)<.45)return 0;const u=t/bw;return L*(1-u*u*(3-2*u));}
     const w=WD?wdist(x,z):-t;let h=L-Math.min(w,10)*.15-Math.max(0,w-10)*.05+Math.exp(-Math.pow((w-12)/4,2))*.12+(vnoise(x*.08,z*.08)-.5)*.08*Math.min(1,w/6);h=Math.max(h,L-2.4);/* Paul (13 Nov): the open sea is 2.4 deep at most */
     if(window.__IBMAP&&__IBMAP.on){/* phase 4 (Paul, 14 Nov 2026): a Rottnest-like seabed: reef platforms and sandy lagoons near the island, the Indian Ocean
-      side deeper, the far sea down to 6 */const reef=vnoise(x*.05+3,z*.05-7);if(w>3&&w<22&&reef>.62)h+=Math.min(.9,(reef-.62)*3)*Math.min(1,(w-3)/3)*Math.min(1,(22-w)/4);
+      side deeper, the far sea down to 4 */const reef=vnoise(x*.05+3,z*.05-7);if(w>3&&w<22&&reef>.62)h+=Math.min(.9,(reef-.62)*3)*Math.min(1,(w-3)/3)*Math.min(1,(22-w)/4);
       const west=Math.min(1,Math.max(0,(x-(TB.x2-60))/120));h-=west*Math.min(1,Math.max(0,(w-6)/14))*1.6;}
-    /* ...and deepens to 4 towards each edge of the map (only well away from land) */{const SB=seaBounds(),db=Math.min(x-SB.x1,SB.x2-x,z-SB.z1,SB.z2-z),e=(1-Math.min(1,Math.max(0,(db-4)/36)))*Math.min(1,Math.max(0,(w-12)/14));if(e>0){const k=e*e*(3-2*e);h=Math.min(h,L-2.4-((window.__IBMAP&&__IBMAP.on)?3.6:1.6)*k);}}h=Math.max(h,L-6);/* 6 deep at most */
+    /* ...and deepens to 4 towards each edge of the map (only well away from land) */{const SB=seaBounds(),db=Math.min(x-SB.x1,SB.x2-x,z-SB.z1,SB.z2-z),e=(1-Math.min(1,Math.max(0,(db-4)/36)))*Math.min(1,Math.max(0,(w-12)/14));if(e>0){const k=e*e*(3-2*e);h=Math.min(h,L-2.4-1.6*k);}}h=Math.max(h,L-4);/* 4 deep at most (Paul, 14 Nov 2026) */
     return h;}
   // the island grid's water values are not true distances everywhere (inside the Settlement's bays they read hundreds of units),
   // so the seabed uses its own distance-to-shore field: a chamfer distance transform over a fine grid of land/water

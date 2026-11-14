@@ -27,9 +27,9 @@ function coastFix(h0,N,sea){const h=h0.slice(),oc=new Uint8Array(N*N),q=[];
   for(let k=0;k<N*N;k++)if(h[k]<sea&&!oc[k])h[k]=sea+.12;
   const nb=(k,f)=>{const i=k%N,j=(k/N)|0;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]]){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)continue;if(f(h0[jj*N+ii]<sea&&oc[jj*N+ii]))return true;}return false;};
   for(let k=0;k<N*N;k++){const w=h[k]<sea;if(w){h[k]=Math.min(h[k],nb(k,x=>!x)?sea-.18:sea-.32);}else if(nb(k,x=>x))h[k]=Math.max(h[k],sea+.14);}
-  /* the sea deepens away from the island to 6 at the map's edge, matching the open sea past the grid (Paul, 14 Nov 2026) */
+  /* the sea deepens away from the island to 4 at the map's edge, matching the open sea past the grid (Paul, 14 Nov 2026) */
   {const D=new Float32Array(N*N).fill(1e9),Q=[];for(let k=0;k<N*N;k++)if(h[k]>=sea){D[k]=0;Q.push(k);}for(let qi=0;qi<Q.length;qi++){const k=Q[qi],i=k%N,j=(k/N)|0;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]]){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)continue;const n=jj*N+ii;if(D[n]>D[k]+1){D[n]=D[k]+1;Q.push(n);}}}
-    for(let k=0;k<N*N;k++){if(h[k]>=sea||D[k]<=3)continue;const i=k%N,j=(k/N)|0,e=Math.min(i,j,N-1-i,N-1-j);const t=Math.min(6,.7+(D[k]-3)*.3),te=e<8?6-(6-t)*e/8:t;h[k]=Math.min(h[k],sea-Math.max(t,te));}}
+    for(let k=0;k<N*N;k++){if(h[k]>=sea||D[k]<=3)continue;const i=k%N,j=(k/N)|0,e=Math.min(i,j,N-1-i,N-1-j);const t=Math.min(4,.7+(D[k]-3)*.2),te=e<8?4-(4-t)*e/8:t;/* 4 deep at most, at the map's edge (Paul, 14 Nov 2026) */h[k]=Math.min(h[k],sea-Math.max(t,te));}}
   return h;}
 /* smooth heights between the grid points (cubic B-spline over 4x4 points): coasts and hills come out as curves, not straight facets
    (Paul, 14 Nov 2026: straight-edged shallow bands along the beach) */
@@ -38,7 +38,7 @@ function gridH(h,N,fx,fz){const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,
 function create(o){
   const doc=o.doc,CS=o.cs||2,BS=o.bscale||.75,par=o.parent,HW=60*CS,S=120*CS,gam=!!o.gammaOut,skip=o.skip||{},hm=o.heightMap||(h=>h),sea=doc.sea||0;
   const G={},E={};['terr','road','props','bld','fol','rail','veh'].forEach(k=>{G[k]=new THREE.Group();G[k].name='im_'+k;par.add(G[k]);});
-  const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;return gridH(HH,N,fx,fz);};
+  const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -4;return gridH(HH,N,fx,fz);};
   const Hfn=(x,z)=>hm(raw(x,z),x,z),SEA=hm(sea,0,0);
   const Hg=(x,z)=>{let h=Hfn(x,z);if(E.road&&E.road.junctions)h=E.road.groundAt(x,z,h);if(E.bike&&E.bike.junctions)h=E.bike.groundAt(x,z,h);return h;};
   const rail=doc.rail||[];
