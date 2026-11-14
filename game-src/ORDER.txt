@@ -204,6 +204,7 @@
 188-ground3d-look-lab.js
 188-more3d-look-lab.js
 188-island-tidy-and-gfx.js
+188-menu-groups.js
 188-paths3d-look-lab.js
 188-engine-terrain.js
 188-engine-foliage.js

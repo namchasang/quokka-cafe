@@ -1,4 +1,5 @@
 // ---------- movement ----------
+var RAWDT=0;/* frame time before the 0.05 s cap (set in the render loop) */
 function groundY(x,z){if(x>286.9&&x<289.1&&z>-19&&z<-14.6)return .11;if(x>149.4&&x<150.6&&z>-9.4&&z<-3.8)return .11;if(x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2)return .16;if(x>JETTY.x1&&x<JETTY.x2+.4&&z>JETTY.z1&&z<JETTY.z2)return .11;if(x<100&&ISL_WALK.length&&ISL_WALK.some(r=>x>r.x1-.1&&x<r.x2+.1&&z>r.z1&&z<r.z2))return .13;return 0;}
 function blocked(x,z){const r=.28;const inLand=x>840&&typeof tripOf==='function'&&tripOf(x)?tripWalk(x,z):x>710?airWalk(x,z):x>590?cbdWalk(x,z):x>470?vpWalk(x,z):x>380?hiWalk(x,z):x>250?freoWalk(x,z):x>100?(((x>114&&x<169&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>10.6&&z<24.2))||(x>101&&x<=114&&z>-3.7&&z<23.6)||(x>=169&&x<199&&z>-3.7&&z<=10.6)||(x>149.45&&x<150.55&&z>-9.1&&z<=-3.6)||(x>185.45&&x<186.55&&z>-9.1&&z<=-3.6)):landD(x,z)>.45&&!islGroundBlock(x,z);const inJ=(x>JETTY.x1&&x<=JETTY.x2+.5&&z>JETTY.z1+.05&&z<JETTY.z2-.05)||(x<100&&ISL_WALK.some(r=>x>r.x1&&x<r.x2&&z>r.z1&&z<r.z2));if(!inLand&&!inJ)return true;
   for(const b of colliders)if(x>b.x1-r&&x<b.x2+r&&z>b.z1-r&&z<b.z2+r)return true;
@@ -45,7 +46,7 @@ function update(dt){if(RIDE){rideTick(dt);}
   else if(!S.closed){S.closed=true;evClose();customers.forEach(c=>{if(c.state==='wait'||c.state==='arrive'){if(c.state==='wait')popText('café closed!',{x:c.x,y:2,z:c.z},'sad');leave(c);}});player.carry=null;
     toast(S.time<CLOSE?'Showers today, so the café stays closed. Tend the garden or explore!':'16:00 · Café closed. Time to explore Rottnest!',3.4);if(S.quest<2)SHELLS.forEach((s,i)=>s.mesh.visible=S.quest===1&&!S.shells[i]);
     if(!S.afterNoonTalk&&S.day===1){S.afterNoonTalk=true;say(['Kip: Phew, the café\u2019s closed for the day! Let’s see what Rottnest is hiding.','Kip: Glowing stones, a lighthouse to the east… and was that a fairy-wren waving at me?']);}}
-  if(!dlgOpen()&&!transit){updatePlayer(dt);if(player.bike&&!VISIT&&player.x>DECK.x1-.3&&player.x<DECK.x2+.3&&player.z>DECK.z1-.3&&player.z<DECK.z2+.3){player.bike=false;toast('\u{1F6B2} No bikes on the caf\u00e9 deck. Use the bike lane out front!',2.6);}updateCustomers(dt);updateStaff(dt,performance.now()/1000);updateRiders(dt);}
+  if(!dlgOpen()&&!transit){const pd=Math.max(dt,RAWDT||0);if(pd>.055){updatePlayer(pd/2);updatePlayer(pd/2);}else updatePlayer(pd);if(player.bike&&!VISIT&&player.x>DECK.x1-.3&&player.x<DECK.x2+.3&&player.z>DECK.z1-.3&&player.z<DECK.z2+.3){player.bike=false;toast('\u{1F6B2} No bikes on the caf\u00e9 deck. Use the bike lane out front!',2.6);}updateCustomers(dt);updateStaff(dt,performance.now()/1000);updateRiders(dt);}
 }
 function shellVis(){SHELLS.forEach((s,i)=>s.mesh.visible=phase()==='explore'&&S.quest===1&&!S.shells[i]);}
 function endDay(){running=false;customers.slice().forEach(removeCustomer);player.carry=null;
