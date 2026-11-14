@@ -460,7 +460,7 @@ body.th .dlgTxt,body.th #dlgTxt,body.th p{line-height:1.6}
 
   <script>
 // ---------- Home screen 2 (Look Lab ?home2, Paul Nov 2026): only the title, the place and New / Load game; everything else sits behind a settings icon so the game scene behind is clear ----------
-var HOME2_LIVE=true;
+var HOME2_LIVE=true;var HOMEIMG_LIVE=false;
 (function(){if(!(HOME2_LIVE||/[?&#]home2\b/.test(location.search+location.hash)))return;document.documentElement.classList.add('home2');
   const st=document.createElement('style');st.textContent=`
 .home2 .ovTitle{background:linear-gradient(180deg,rgba(10,14,28,.55) 0%,rgba(10,14,28,0) 34%,rgba(10,14,28,0) 72%,rgba(10,14,28,.45) 100%);place-items:start center;padding:calc(28px + env(safe-area-inset-top,0px)) 16px 0}
@@ -478,6 +478,12 @@ var HOME2_LIVE=true;
 #homeSet h3{margin:0 0 10px;font-family:"Pixelify Sans",monospace;color:#ffd34d}`;
   document.head.appendChild(st);
   const ov=document.getElementById('titleOv'),card=ov.querySelector('.card');
+  /* still picture behind the title (Paul, 14 Nov 2026: the moving home scene loaded slowly): the café, the jetty, sea and beach. Shows at once; the game still builds behind it.
+     Look Lab ?homeimg until Paul says it goes live (HOMEIMG_LIVE). */
+  if(HOMEIMG_LIVE||/[?&#]homeimg\b/.test(location.search+location.hash)){const im=document.createElement('img');im.id='homeImg';const pick=()=>{const t=innerHeight>innerWidth*1.1,src=t?'./home-tall.webp':'./home.webp';if(!im.src.endsWith(src.slice(1)))im.src=src;im.style.objectPosition=t?'50% 45%':'52% 40%';};pick();addEventListener('resize',pick);im.alt='';im.decoding='async';im.fetchPriority='high';
+    im.style.cssText='position:fixed;inset:0;width:100%;height:100%;object-fit:cover;object-position:52% 40%;z-index:-1;pointer-events:none';
+    const sh=document.createElement('div');sh.style.cssText='position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(10,14,28,.55) 0%,rgba(10,14,28,0) 30%,rgba(10,14,28,0) 72%,rgba(10,14,28,.5) 100%)';
+    ov.style.isolation='isolate';ov.insertBefore(sh,ov.firstChild);ov.insertBefore(im,ov.firstChild);}
   const g=document.createElement('button');g.id='homeGear';g.type='button';g.setAttribute('aria-label','Settings, language and controls');g.textContent='⚙';ov.appendChild(g);
   const p=document.createElement('div');p.id='homeSet';p.hidden=true;p.innerHTML='<h3>Settings</h3>';ov.appendChild(p);
   // move the story blurb, language buttons and the controls list into the settings panel (same elements, so their handlers keep working)
