@@ -60,10 +60,10 @@ window.__IBMAP=IBMAP;
      only the new ground shows (the seabed is left alone; the old surface comes back without the flag) */
   function sinkOldLand(I){const I_=I;const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert(),v=new THREE.Vector3();let n=0;scene.updateMatrixWorld(true);
     scene.traverse(o=>{if(!o.isMesh||!o.name||!/^sea4bed/.test(o.name))return;const P=o.geometry.attributes.position,M=new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld),Mi=new THREE.Matrix4().copy(M).invert();
-      for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(v.y<L()-.02||zoneOf(v.x)!=='island'||v.x>99.5||inCafe(v.x,v.z))continue;const m=toMap(v.x,v.z),ny=I.heightAt(m[0],m[1])/K-.06;if(v.y>ny){v.y=ny;v.applyMatrix4(Mi);P.setY(i,v.y);n++;}}
+      for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(v.y<L()-.02||zoneOf(v.x)!=='island'||v.x>99.5)continue;/* the café area too: only the new ground shows round the deck */const m=toMap(v.x,v.z),ny=I.heightAt(m[0],m[1])/K-.06;if(v.y>ny){v.y=ny;v.applyMatrix4(Mi);P.setY(i,v.y);n++;}}
       P.needsUpdate=true;o.geometry.computeVertexNormals();
       /* speed: triangles now wholly under the new island are not drawn at all (about half of this big surface) */const g=o.geometry;if(g.index){const I=g.index.array,keep=[],up=new Uint8Array(P.count);
-        for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(zoneOf(v.x)!=='island'||v.x>99.5||inCafe(v.x,v.z)){up[i]=1;continue;}const m=toMap(v.x,v.z);up[i]=I_.heightAt(m[0],m[1])/K<L()+.01?1:0;}
+        for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(zoneOf(v.x)!=='island'||v.x>99.5){up[i]=1;continue;}const m=toMap(v.x,v.z);up[i]=I_.heightAt(m[0],m[1])/K<L()+.01?1:0;}
         for(let i=0;i<I.length;i+=3)if(up[I[i]]||up[I[i+1]]||up[I[i+2]])keep.push(I[i],I[i+1],I[i+2]);IBMAP.cut=(IBMAP.cut||0)+(I.length-keep.length)/3;g.setIndex(keep);}});IBMAP.sunk=n;}
   function teardown(){const g=IBMAP.grp;if(!g)return;scene.remove(g);g.traverse(o=>{if(o.geometry)o.geometry.dispose();});IBMAP.grp=null;IBMAP.I=null;IBMAP.done=false;}
   /* GM only: a button that opens the Master Island Builder on the same island; coming back to the game rebuilds the island with the edits */

@@ -20611,7 +20611,7 @@ function coastFix(h0,N,sea){const h=h0.slice(),oc=new Uint8Array(N*N),q=[];
   for(let k=0;k<N*N;k++){const w=h[k]<sea;if(w){h[k]=Math.min(h[k],nb(k,x=>!x)?sea-.18:sea-.32);}else if(nb(k,x=>x))h[k]=Math.max(h[k],sea+.14);}
   /* the sea deepens away from the island to 4 at the map's edge, matching the open sea past the grid (Paul, 14 Nov 2026) */
   {const D=new Float32Array(N*N).fill(1e9),Q=[];for(let k=0;k<N*N;k++)if(h[k]>=sea){D[k]=0;Q.push(k);}for(let qi=0;qi<Q.length;qi++){const k=Q[qi],i=k%N,j=(k/N)|0;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]]){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)continue;const n=jj*N+ii;if(D[n]>D[k]+1){D[n]=D[k]+1;Q.push(n);}}}
-    for(let k=0;k<N*N;k++){if(h[k]>=sea||D[k]<=3)continue;const i=k%N,j=(k/N)|0,e=Math.min(i,j,N-1-i,N-1-j);const t=Math.min(4,.7+(D[k]-3)*.2),te=e<8?4-(4-t)*e/8:t;/* 4 deep at most, at the map's edge (Paul, 14 Nov 2026) */h[k]=Math.min(h[k],sea-Math.max(t,te));}}
+    for(let k=0;k<N*N;k++){if(h[k]>=sea||D[k]<=3)continue;const i=k%N,j=(k/N)|0,e=Math.min(i,j,N-1-i,N-1-j);const t=Math.min(1.6,.7+(D[k]-3)*.08),te=t;/* shallow turquoise sea over the whole map, 1.6 deep at most (Paul, 15 Nov 2026) */h[k]=Math.min(Math.max(h[k],sea-1.6),sea-Math.max(t,te));}}
   return h;}
 /* smooth heights between the grid points (cubic B-spline over 4x4 points): coasts and hills come out as curves, not straight facets
    (Paul, 14 Nov 2026: straight-edged shallow bands along the beach) */
@@ -20647,7 +20647,7 @@ const bopts=(d,o)=>{const r=Object.assign({style:d.style,verandah:true},o);['sig
 function create(o){
   GAM=!!o.gammaOut;const doc=o.doc,CS=o.cs||2,BS=o.bscale||.75,par=o.parent,HW=60*CS,S=120*CS,gam=!!o.gammaOut,skip=o.skip||{},hm=o.heightMap||(h=>h),sea=doc.sea||0;
   const G={},E={};['terr','road','props','bld','fol','rail','veh'].forEach(k=>{G[k]=new THREE.Group();G[k].name='im_'+k;par.add(G[k]);});
-  const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -4;return gridH(HH,N,fx,fz);};
+  const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -1.6;return gridH(HH,N,fx,fz);};
   const Hfn=(x,z)=>hm(raw(x,z),x,z),SEA=hm(sea,0,0);
   const Hg=(x,z)=>{let h=Hfn(x,z);if(E.road&&E.road.junctions)h=E.road.groundAt(x,z,h);if(E.bike&&E.bike.junctions)h=E.bike.groundAt(x,z,h);return h;};
   const rail=doc.rail||[];
@@ -20830,10 +20830,10 @@ window.__IBMAP=IBMAP;
      only the new ground shows (the seabed is left alone; the old surface comes back without the flag) */
   function sinkOldLand(I){const I_=I;const inv=new THREE.Matrix4().copy(scene.matrixWorld).invert(),v=new THREE.Vector3();let n=0;scene.updateMatrixWorld(true);
     scene.traverse(o=>{if(!o.isMesh||!o.name||!/^sea4bed/.test(o.name))return;const P=o.geometry.attributes.position,M=new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld),Mi=new THREE.Matrix4().copy(M).invert();
-      for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(v.y<L()-.02||zoneOf(v.x)!=='island'||v.x>99.5||inCafe(v.x,v.z))continue;const m=toMap(v.x,v.z),ny=I.heightAt(m[0],m[1])/K-.06;if(v.y>ny){v.y=ny;v.applyMatrix4(Mi);P.setY(i,v.y);n++;}}
+      for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(v.y<L()-.02||zoneOf(v.x)!=='island'||v.x>99.5)continue;/* the café area too: only the new ground shows round the deck */const m=toMap(v.x,v.z),ny=I.heightAt(m[0],m[1])/K-.06;if(v.y>ny){v.y=ny;v.applyMatrix4(Mi);P.setY(i,v.y);n++;}}
       P.needsUpdate=true;o.geometry.computeVertexNormals();
       /* speed: triangles now wholly under the new island are not drawn at all (about half of this big surface) */const g=o.geometry;if(g.index){const I=g.index.array,keep=[],up=new Uint8Array(P.count);
-        for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(zoneOf(v.x)!=='island'||v.x>99.5||inCafe(v.x,v.z)){up[i]=1;continue;}const m=toMap(v.x,v.z);up[i]=I_.heightAt(m[0],m[1])/K<L()+.01?1:0;}
+        for(let i=0;i<P.count;i++){v.set(P.getX(i),P.getY(i),P.getZ(i)).applyMatrix4(M);if(zoneOf(v.x)!=='island'||v.x>99.5){up[i]=1;continue;}const m=toMap(v.x,v.z);up[i]=I_.heightAt(m[0],m[1])/K<L()+.01?1:0;}
         for(let i=0;i<I.length;i+=3)if(up[I[i]]||up[I[i+1]]||up[I[i+2]])keep.push(I[i],I[i+1],I[i+2]);IBMAP.cut=(IBMAP.cut||0)+(I.length-keep.length)/3;g.setIndex(keep);}});IBMAP.sunk=n;}
   function teardown(){const g=IBMAP.grp;if(!g)return;scene.remove(g);g.traverse(o=>{if(o.geometry)o.geometry.dispose();});IBMAP.grp=null;IBMAP.I=null;IBMAP.done=false;}
   /* GM only: a button that opens the Master Island Builder on the same island; coming back to the game rebuilds the island with the edits */
