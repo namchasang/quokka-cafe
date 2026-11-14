@@ -202,29 +202,29 @@ Find code: `grep -n 'name' game-src/*`.
 | 186-home4-paul-nov-2026-home-screen-shows.js | 18666-18724 | 8 | H4, h4Busy, H4_BUILD, h4Step, h4Pass, h4Mark, t2Targets, pxbCatchUp, pxbTick, tex3Scene |
 | 187-account-cloud-save-ranking-shop.js | 18725-18741 | 2 | ACCT_LIVE, SHOP_LINKS, PACKS, AUTH, premList, premHas, premGrant |
 | 188-garden-meadow-look-lab-toon.js | 18742-18811 | 8 | GARDEN_MEADOW_LIVE, GARDEN_MEADOW |
-| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 18812-18956 | 19 | TREE3D_LIVE, TREE3D |
-| 188-toon-characters-look-lab-toon.js | 18957-19035 | 9 | TOON_LIVE, TOON |
-| 188-paint-look-look-lab-toon.js | 19036-19091 | 5 | PAINT_LIVE, PAINT |
-| 188-sea-beach-look-lab-toon.js | 19092-19164 | 8 | SEA3_LIVE, SEA3 |
-| 188-sea-real-engine-look-lab-sea4.js | 19165-19339 | 23 | SEA4_LIVE, SEA4, C, SR, create |
-| 188-ground3d-look-lab.js | 19340-19429 | 13 | GROUND3D_LIVE, GROUND3D |
-| 188-more3d-look-lab.js | 19430-19478 | 7 | MORE3D |
-| 188-island-tidy-and-gfx.js | 19479-19514 | 5 | ISLAND_STORE |
-| 188-paths3d-look-lab.js | 19515-19545 | 3 | PATHS3D |
-| 188-engine-terrain.js | 19546-19643 | 14 | lin, DEF, create |
-| 188-engine-foliage.js | 19644-19761 | 18 | lin, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
-| 188-engine-road.js | 19762-19990 | 36 | TY, lin, asphalt, create |
-| 188-engmap-look-lab.js | 19991-20048 | 8 | ENGMAP_LIVE, ENGMAP |
-| 188-open-sea-ships-and-captain-ned.js | 20049-20168 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 20169-20249 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 20250-20271 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 20272-20331 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 20332-20381 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 20382-20414 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 20415-20487 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 20488-20518 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 20519-20535 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 20536-20546 | 2 |  |
-| 188-auth.js | 20547-20625 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 189b-island-builder.js | 20626-20669 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 20670-20691 | 3 | SHOT |
+| 188-tree3d-leaf-card-trees-look-lab-tree3d.js | 18812-18965 | 20 | TREE3D_LIVE, NATIVE_LIVE, NATIVE_PAL, TREE3D |
+| 188-toon-characters-look-lab-toon.js | 18966-19044 | 9 | TOON_LIVE, TOON |
+| 188-paint-look-look-lab-toon.js | 19045-19100 | 5 | PAINT_LIVE, PAINT |
+| 188-sea-beach-look-lab-toon.js | 19101-19173 | 8 | SEA3_LIVE, SEA3 |
+| 188-sea-real-engine-look-lab-sea4.js | 19174-19348 | 23 | SEA4_LIVE, SEA4, C, SR, create |
+| 188-ground3d-look-lab.js | 19349-19438 | 13 | GROUND3D_LIVE, GROUND3D |
+| 188-more3d-look-lab.js | 19439-19487 | 7 | MORE3D |
+| 188-island-tidy-and-gfx.js | 19488-19523 | 5 | ISLAND_STORE |
+| 188-paths3d-look-lab.js | 19524-19554 | 3 | PATHS3D |
+| 188-engine-terrain.js | 19555-19652 | 14 | lin, DEF, create |
+| 188-engine-foliage.js | 19653-19770 | 18 | lin, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
+| 188-engine-road.js | 19771-19999 | 36 | TY, lin, asphalt, create |
+| 188-engmap-look-lab.js | 20000-20057 | 8 | ENGMAP_LIVE, ENGMAP |
+| 188-open-sea-ships-and-captain-ned.js | 20058-20177 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 20178-20258 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 20259-20280 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 20281-20340 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 20341-20390 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 20391-20423 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 20424-20496 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 20497-20527 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 20528-20544 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 20545-20555 | 2 |  |
+| 188-auth.js | 20556-20634 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 189b-island-builder.js | 20635-20678 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 20679-20700 | 3 | SHOT |

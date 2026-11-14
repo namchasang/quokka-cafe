@@ -5,6 +5,12 @@
 // Light: deeper blue shade under trees and buildings. People and animals take the shade when they walk under a tree.
 // Rottnest only for now (Paul approves before other maps). Not swapped yet: palms, grass tufts, plants built later on demand (trip maps, outer world).
 const TREE3D_LIVE=false;
+/* Rottnest native trees (Paul approved 14 Nov 2026, live): the swapped trees become the island's own species, same spots:
+   island pine (dark narrow column), island tea tree (low, wide, grey-green), coastal wattle (bushy, yellow flowers) and saltbush (grey shrubs).
+   Palms and grass tufts stay. ?nonative shows the old mix for comparison. */
+const NATIVE_LIVE=true,NATIVE_ON=NATIVE_LIVE&&!/[?&#]nonative\b/.test(location.search+location.hash);
+const NATIVE_PAL={islandpine:['#25351f','#2f4228','#3a5030','#456038','#527044','#62804f'],teatree:['#3e4a36','#4c5a42','#5a6a4e','#68785a','#788866','#8a9876'],
+  wattle:['#3a4a28','#4a5e32','#5a703a','#6a8244','#d8b830','#ecd04a'],saltbush:['#56604e','#66705c','#76806a','#869078','#98a288','#aab49a']};
 const TREE3D={pos:[],on:TREE3D_LIVE||(TOON_ON||/[?&#]tree3d\b/.test(location.search+location.hash)),t:{value:0},n:0,cards:0,meshes:[],skipped:{}};
 (function(){if(!TREE3D.on)return;
   const V=(x,y,z)=>new THREE.Vector3(x,y,z),UP=V(0,1,0);
@@ -94,7 +100,10 @@ const TREE3D={pos:[],on:TREE3D_LIVE||(TOON_ON||/[?&#]tree3d\b/.test(location.sea
       if(h0>1.2&&(d<2.4||e.some(q=>Math.hypot(q[0]-x,q[1]-z)<6))){o.visible=false;TREE3D.cleared=(TREE3D.cleared||0)+1;return;}}
     const P=infoOf(o);if(!P)return;const gp=o.geometry&&o.geometry.parameters;if(!gp||!gp.height)return;const H=gp.height*Math.abs(o.scale.y),W=gp.width*Math.abs(o.scale.x);
     let kind=P.kind;if(kind==='grass')kind=W>=.6?'bush':(H>=.25?'tuft':null);if(!kind||!BUILD[kind]){TREE3D.skipped[P.kind]=(TREE3D.skipped[P.kind]||0)+1;return;}if(H<.2)return;
-    const pal=palOf(P),bk=['pine','bush','gum','jac','tuft','palm'].includes(kind)?kind:'broad',tk=bk+pal[2]+pal[4];TREE3D.pos.push([o.position.x,o.position.z,Math.max(W,1)]);
+    let ns=null,Hn=H,Wn=W,bkind=kind;if(NATIVE_ON&&kind!=='palm'&&kind!=='tuft'){const hv=((Math.round(o.position.x*7)*73856093^Math.round(o.position.z*7)*19349663)>>>0)%1000/1000;
+      ns=kind==='pine'?'islandpine':kind==='bush'?(hv<.65?'saltbush':'teatree'):(hv<.45?'teatree':hv<.8?'islandpine':'wattle');
+      if(ns==='islandpine'){bkind='pine';Wn=W*.6;Hn=H*1.05;}else if(ns==='teatree'){bkind='broad';Hn=H*.62;Wn=W*1.15;}else if(ns==='wattle'){bkind='broad';Hn=H*.55;Wn=W*.9;}else{bkind='bush';}}
+    const pal=ns?NATIVE_PAL[ns]:palOf(P),bk=ns?(ns==='islandpine'?'pine':'bush'):(['pine','bush','gum','jac','tuft','palm'].includes(kind)?kind:'broad'),tk=bk+pal[2]+pal[4];TREE3D.pos.push([o.position.x,o.position.z,Math.max(W,1)]);
     if(!texCache.has(tk)){const t=atlas(bk,pal,texCache.size*131+7);const mat=windify(new THREE.MeshLambertMaterial({map:t,alphaTest:.45,side:THREE.DoubleSide,emissive:new THREE.Color(.05,.06,.03)}),true);
       const dep=windify(new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:t,alphaTest:.45}),false);texCache.set(tk,{mat,dep});}
     const bkey=kind==='gum'?'gum':hx(P.barkC.map(v=>Math.round(v/24)*24));if(!barkCache.has(bkey))barkCache.set(bkey,new THREE.MeshLambertMaterial({map:barkTex(P.barkC,kind==='gum')}));
@@ -103,7 +112,7 @@ const TREE3D={pos:[],on:TREE3D_LIVE||(TOON_ON||/[?&#]tree3d\b/.test(location.sea
     if(!G.leaf.has(tk))G.leaf.set(tk,new Batch());if(!G.bark.has(bkey))G.bark.set(bkey,new Batch());
     const r=mulberry32((Math.round(x*10)*73856093^Math.round(z*10)*19349663)>>>0);
     // the sprite's crown is drawn a bit wider than the tree; 3D crowns read fuller, so keep them a touch narrower
-    BUILD[kind](G.leaf.get(tk),G.bark.get(bkey),x,z,H,W*(kind==='bush'?1:.92),r);
+    BUILD[bkind](G.leaf.get(tk),G.bark.get(bkey),x,z,Hn,Wn*(bkind==='bush'?1:.92),r);
     G.y=Math.min(G.y,o.position.y);gone.push(o);TREE3D.n++;});
   // swap: the sprite leaves the scene, the 3D tree takes its place (same parent, so towns that hide and show still work)
   const goneSet=new Set(gone);for(let i=BB.length-1;i>=0;i--)if(goneSet.has(BB[i]))BB.splice(i,1);
