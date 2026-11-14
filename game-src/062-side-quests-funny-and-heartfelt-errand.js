@@ -111,7 +111,7 @@ function sqTick(dt){if(!SIDEQ_SHOW||VISIT||!running||dlgOpen()||overlay||transit
     say(lines);return;}}
 /* side quests hidden from the quest list for now (Paul, 15 Nov 2026: the island is being rebuilt; their spots move in phase 2).
    Set SIDEQ_SHOW=true to bring them back; progress is kept. */
-const SIDEQ_SHOW=/[?&#]phase2\b/.test(location.search+location.hash)/* back with phase 2: their spots land on the new island */;
+const SIDEQ_SHOW=true;/* back with phase 2 (live 15 Nov 2026): their spots land on the new island */
 function sqQuests(){if(!SIDEQ_SHOW)return[];return SIDEQ.map(q=>{const i=sqStep(q),done=i>=q.steps.length;return{id:'sq_'+q.id,title:(done?'':(q.mood==='funny'?'\u{1F602} ':'\u{1F49B} '))+'Side \u00b7 '+q.title,giver:q.giver+' \u00b7 '+({island:'Rottnest',sp:'South Perth',hi:'Heirisson Island',freo:'Fremantle',vp:'Victoria Park',cbd:'Perth CBD',air:'Perth Airport'})[q.zone],desc:q.desc,steps:q.steps.map((st,k)=>[st.l,k<i]),reward:rw(q.coins)+' coins'+(rewardMult()>1?' (\u00d7'+rewardMult()+' Kip\u2019s Journey bonus)':''),open:sqOpen(q)};});}
 function sqTarget(id){if(!SIDEQ_SHOW)return null;const q=SIDEQ.find(x=>x.id===id);if(!q||zoneOf(player.x)!==q.zone)return null;const i=sqStep(q);const st=q.steps[i];if(!st)return null;if(st.carry&&player.carry!==st.carry){const k=STATIONS.find(x=>x.key===st.carry);if(k)return{x:k.x,z:k.z+.9,label:'Make a '+ITEMS[st.carry].name};}const P=sqPos(st);return P?{x:P.x,z:P.z,label:st.l}:null;}
 let snapPending=null;
