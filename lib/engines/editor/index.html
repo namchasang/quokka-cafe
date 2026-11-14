@@ -581,6 +581,7 @@ g.PropsEngine={create,kinds:Object.keys(K)};})(typeof window!=='undefined'?windo
 <script>/* Road Engine (Paul Perth Library, Nov 2026) — a road network as real 3D for three.js r128.
    const N=RoadEngine.create({scene,heightAt});
    N.road(pts,{type:'street'|'arterial'|'highway'|'lane',lanes,kerb:true,footpath:true,median:false})  -> id   (create option roundabouts:false = plain crossroads only)
+   N.culdesac(x,z)   a turning circle (ring round a small island, white kerbs) at the road end nearest x,z
    N.roundabout(x,z)   a roundabout where 3+ roads meet near x,z, any type, sized from the widest road
    N.bridge(pts,{height,type})   N.build()   // finds junctions, cuts the roads back, fills each junction with its own pad,
                                              // adds zebra crossings on streets, stop lines, kerb returns and a roundabout where 4+ meet
@@ -669,7 +670,9 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
   const lights=[];let night=0;
   const glow=ctex(64,64,(x)=>{const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,240,190,.9)');g.addColorStop(1,'rgba(255,240,190,0)');x.fillStyle=g;x.fillRect(0,0,64,64);});
   function addLamps(c){if(c.lamps)return;const m=new THREE.Mesh(new THREE.PlaneGeometry(3.2,1.6),new THREE.MeshBasicMaterial({map:glow,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));m.rotation.x=-Math.PI/2;m.position.set(2.6,.08,0);c.C.add(m);c.lamps=m;lg('headlights').add(new THREE.Object3D());}
-  const FR=[];const api={roads,
+  const FR=[],CU=[];const api={roads,
+    /* a turning circle at a road end near x,z (Paul, 14 Nov 2026: roundabouts only at the end of a road, as a cul-de-sac): a ring one road wide
+       round a small island, white kerbs, sized from the road */culdesac(x,z){CU.push([x,z]);},
     /* a roundabout where roads meet near x,z (3+ arms, any road type): sized from the widest road so the ring is one road wide and
        the white kerbs follow it (Paul, 14 Nov 2026) */roundabout(x,z){FR.push([x,z]);},
     road(pts,op){op=op||{};const t=Object.assign({},TY[op.type||'street'],op);const r={pts,t,type:op.type||'street',cv:new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p[0],0,p[1])),false,'centripetal'),bridge:null};roads.push(r);return roads.length-1;},
@@ -709,8 +712,11 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
         const pa=a.cv.getPointAt(ta),pb=b.cv.getPointAt(tb);const c=endA&&!endB?pb.clone():endB&&!endA?pa.clone():pa.clone().add(pb).multiplyScalar(.5);
         const near=J.find(j=>j.c.distanceTo(c)<Math.max(3,(a.W+b.W)/4));
         if(near){[[ia,ta],[ib,tb]].forEach(e=>{if(!near.roads.some(q=>q[0]===e[0]))near.roads.push(e);});}else J.push({c,roads:[[ia,ta],[ib,tb]]});}));
+      CU.forEach(([x,z])=>{let best=null,bd=8;roads.forEach((r,k)=>{if(r.bridge)return;[0,1].forEach(t=>{const p=r.cv.getPointAt(t),d=Math.hypot(p.x-x,p.z-z);if(d<bd){bd=d;best={k,t,p};}});});if(!best)return;
+        const r=roads[best.k],tg=r.cv.getTangentAt(best.t),s0=best.t?1:-1,ir=Math.max(.9,r.W*.35),R=ir+r.W;const c=new THREE.Vector3(best.p.x+tg.x*s0*R*.75,0,best.p.z+tg.z*s0*R*.75);J.push({c,roads:[[best.k,best.t]],cul:{ir,R}});});
       J.forEach(j=>{j.arms=j.roads.reduce((n,[ri,t])=>n+(t<.02||t>.98?1:2),0);j.W=Math.max(...j.roads.map(([k])=>roads[k].W));
         j.round=o.roundabouts!==false&&j.arms>=4&&j.W>=5&&j.roads.some(([k])=>roads[k].type==='arterial');j.R=j.round?j.W/2+2.8:j.W/2+1.6;j.exits=[];
+        if(j.cul){j.round=true;j.forced=true;j.ir=j.cul.ir;j.R=j.cul.R;}
         if(j.arms>=3&&FR.some(p=>Math.hypot(p[0]-j.c.x,p[1]-j.c.z)<Math.max(6,j.W*1.5))){j.round=true;j.forced=true;j.ir=Math.max(1.2,j.W*.6);j.R=j.ir+j.W;}});
       /* smooth height profile per road: sample the ground every 2 units, average over ~20 units, limit the grade (6%),
          then pull each road to its junction height so pads are level with every arm. Cars and the ribbons follow this,
@@ -791,7 +797,7 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
         const spans=j.exits.map(e=>{const r=roads[e.k],p=r.cv.getPointAt(e.t),a=Math.atan2(p.z-c.z,p.x-c.x),h=Math.asin(Math.min(.99,(r.W/2)/R));return[a-h,a+h,r];});
         let kerb=Math.max(0,...j.roads.map(([k])=>roads[k].t.kerb||0)),foot=Math.max(0,...j.roads.map(([k])=>roads[k].t.foot||0)),fc='#cfc9bc';
         /* roads without a kerb (island roads, country lanes) still give their pad a low kerb and a white footpath ring in their shoulder width, so a pad never ends in bare grass (Paul, 14 Nov 2026) */
-        if(!foot){const sh=j.roads.map(([k])=>roads[k].t).filter(t=>t.shoulder||t.type!=='bikepath');kerb=Math.max(kerb,.08);foot=Math.max(1,...sh.map(t=>(t.shoulderW||1)*1.2));fc='#ece6d6';}
+        if(!foot){const sh=j.roads.map(([k])=>roads[k].t).filter(t=>t.shoulder||t.type!=='bikepath');kerb=Math.max(kerb,.08);foot=Math.max(1,...sh.map(t=>(t.shoulderW||1)*1.2));fc='#ece6d6';}if(j.cul){foot=Math.min(foot,.35);fc='#ffffff';}/* a turning circle: just a white kerb strip, as wide as the road's edge */
         if(kerb&&spans.length){spans.sort((a,b)=>a[0]-b[0]);for(let i=0;i<spans.length;i++){let a0=spans[i][1],a1=spans[(i+1)%spans.length][0];if(i===spans.length-1)a1+=Math.PI*2;if(a1-a0<.02)continue;
           arc(c,R,R,a0,a1,0,kerb,j.forced?'#ffffff':'#e8e4dc',true);if(foot)arc(c,R,R+foot,a0,a1,kerb+.01,0,fc,false);}}
         if(j.round){const ir=j.ir||j.W*.3;const ig=new THREE.CylinderGeometry(ir,ir+.1,.2,32);const isl=new THREE.Mesh(ig,plain('#6a8a50'));isl.position.set(c.x,j.y+.1,c.z);isl.receiveShadow=true;group.add(isl);
@@ -1442,9 +1448,10 @@ function roadVsRail(pts,type){const R=railPts();if(R.length<2||pts.length<2)retu
   for(let k=1;k<pts.length;k++){const a=pts[k-1],b=pts[k],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/.5));for(let i=0;i<=n;i++){if(k>1&&i===0)continue;const x=a[0]+(b[0]-a[0])*i/n,z=a[1]+(b[1]-a[1])*i/n;
     if(inStation(x,z,hw))return'station';if(lineD(x,z,R)<band){run+=L/n;if(run>inside)inside=run;}else run=0;}}
   return inside>2*band+1.5?'along':null;}
-const kindAt=(x,z)=>{const h=Hg(x,z);if(h<doc.sea)return'water';if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]))return'path';if(inBld(x,z,0))return'none';
+const kindAt=(x,z)=>{const h=Hg(x,z);if(h<doc.sea)return'water';if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type])||inCul(x,z))return'path';if(inBld(x,z,0))return'none';
   /* the ground engine decides where the beach is, so no grass grows on the sand */if(E.terr&&E.terr.groundKind)return E.terr.groundKind(x,z)==='sand'?'sand':'grass';if(h<doc.sea+.9)return'sand';return'grass';};
-const keepOut=(x,z)=>onRail(x,z,1.6)||inBld(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
+const inCul=(x,z,m)=>(doc.culs||[]).some(q=>Math.hypot(q.x-x,q.z-z)<6+(m||0))/* a turning circle and its kerb */;
+const keepOut=(x,z)=>inCul(x,z,.5)||onRail(x,z,1.6)||inBld(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
 
 /* ---------- engines, each in its own group so it can be rebuilt alone ---------- */
 const G={};['terr','water','fol','wl','props','road','bld','biz','life','veh','rail'].forEach(k=>{G[k]=new THREE.Group();G[k].name=k;scene.add(G[k]);});
@@ -1454,11 +1461,11 @@ const BOUNDS=[-HW,-HW,HW,HW];
 const mk={
   terr(){clear(G.terr);E.terr=TerrainEngine.create({size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:doc.sea,paths:doc.paths.map(p=>({pts:p.pts,w:p.w,kind:p.kind})).concat(railPts().length>1?[{pts:railPts(),w:2.2,kind:'gravel'}]:[])/* the rail bed */});G.terr.add(E.terr.mesh);},
   water(){if(E.water&&E.water.dispose)E.water.dispose();clear(G.water);E.water=WaterSea.create({renderer:R,scene,camera:cam,heightAt:Hg,size:220*CS,ground:null,level:doc.sea,parent:G.water});},
-  fol(){clear(G.fol);E.fol=FoliageEngine.create({mix:PLAYER?'rottnest':undefined,scene:G.fol,bounds:BOUNDS,heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46*Math.min(CS,1.4)});doc.trees.forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6))return;/* never on the railway */try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});},
+  fol(){clear(G.fol);E.fol=FoliageEngine.create({mix:PLAYER?'rottnest':undefined,scene:G.fol,bounds:BOUNDS,heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46*Math.min(CS,1.4)});doc.trees.forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6)||inCul(t.x,t.z,1.5))return;/* never on the railway or a turning circle */try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});},
   wl(){clear(G.wl);E.wl=WaterLife.create({scene:G.wl,heightAt:Hg,level:doc.sea,bounds:BOUNDS});},
   props(){clear(G.props);E.props=PropsEngine.create({scene:G.props,heightAt:Hg});doc.props.forEach(addProp);},
   road(){clear(G.road);E.road=RoadEngine.create({scene:G.road,heightAt:Hfn,smooth:true,maxGrade:.06});/* bike paths are their own network: where one meets a road it just crosses, no junction pad or sign (QA, 14 Nov 2026) */const GB=new THREE.Group();G.road.add(GB);E.bike=PLAYER?RoadEngine.create({scene:GB,heightAt:Hfn,smooth:true,maxGrade:.06}):null;
-    (doc.rounds||[]).forEach(q=>{E.road.roundabout(q.x,q.z);if(E.bike)E.bike.roundabout(q.x,q.z);});doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(E.bike&&r.type==='bikepath')E.bike.road(r.pts,{type:r.type});else E.road.road(r.pts,r.type==='lane'&&PLAYER?{type:'lane',color:'#a08c6a'}:{type:r.type});});E.road.build();if(E.bike){E.bike.build();/* where it crosses a road the road is drawn on top */GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});}if(doc.roads.length&&!PLAYER)E.road.cars(doc.cars||0);/* player version: no generic traffic, only the island's own vehicles */},
+    (doc.culs||[]).forEach(q=>{E.road.culdesac(q.x,q.z);if(E.bike)E.bike.culdesac(q.x,q.z);});doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(E.bike&&r.type==='bikepath')E.bike.road(r.pts,{type:r.type});else E.road.road(r.pts,r.type==='lane'&&PLAYER?{type:'lane',color:'#a08c6a'}:{type:r.type});});E.road.build();if(E.bike){E.bike.build();/* where it crosses a road the road is drawn on top */GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});}if(doc.roads.length&&!PLAYER)E.road.cars(doc.cars||0);/* player version: no generic traffic, only the island's own vehicles */},
   bld(){clear(G.bld);E.bld=BuildingKit.create({scene:G.bld,heightAt:Hg});const L=doc.bld.map(addBld);L.forEach((g,i)=>yard(g,doc.bld[i],G.bld));},
   biz(){clear(G.biz);const BB=BuildingKit.create({scene:G.biz,heightAt:Hg}),BP=PropsEngine.create({scene:G.biz,heightAt:Hg});E.biz={list:doc.biz.map(b=>makeBiz(b,BB,BP,G.biz))};E.biz.list.forEach((g,i)=>{const b=doc.biz[i];if(BIZ[b.t]&&!BIZ[b.t].boat)yard(g,b,G.biz);});},
   rail(){clear(G.rail);const R=railPts();if(R.length<2)return;const cv=new THREE.CatmullRomCurve3(R.map(p=>new THREE.Vector3(p[0],0,p[1])),false,'centripetal'),P=cv.getSpacedPoints(Math.ceil(cv.getLength()/1.2));
@@ -1629,7 +1636,7 @@ function fillTray(){const k=st.cat;let h='';
     `<div class=opts><label><input type=checkbox id=o_vgo ${st.vgo!==false?'checked':''}> ให้วิ่ง (วางบนถนน/ในน้ำ)</label><label>สี <input type=color id=o_vc value="${st.vc||'#c8344a'}"><input type=checkbox id=o_vcon ${st.vc?'checked':''}></label><button class=mini id=o_rot>⟳ หมุน</button></div>`;}
   if(k==='nature')h=`<div class=cards>${(UIP?[]:[['gum','🌳','ยูคาลิปตัส'],['pine','🌲','สน'],['pepper','🌿','เปปเปอร์มินต์']]).concat([['islandpine','🌲','สนเกาะ'],['teatree','🌳','ทีทรีเกาะ'],['wattle','🌼','วอตเทิล'],['saltbush','🌿','ซอลต์บุช'],['daisybush','🌼','เดซี่ชายฝั่ง'],['fig','🌳','มะเดื่อใหญ่'],['norfolk','🎄','สนนอร์ฟอล์ก'],['datepalm','🌴','อินทผลัม'],['palm','🌴','ปาล์ม']]).map(([t,e,n])=>card(t,n,`<i>${e}</i>`,st.pick===t)).join('')}</div>
     <div class=opts>${UIP?'':['tuft','flower','bush','tree'].map(q=>`<label>${{tuft:'หญ้า',flower:'ดอกไม้',bush:'พุ่มไม้',tree:'ป่า'}[q]} <input type=range class=o_den data-k=${q} min=0 max=${{tuft:3,flower:1,bush:.12,tree:.03}[q]} step=${{tuft:.1,flower:.05,bush:.005,tree:.001}[q]} value=${doc.fol[q]}></label>`).join('')}</div>`;
-  if(k==='road')h=`<div class=grp><b>ถนน (ลากเพื่อวาด)</b><div class=cards>${[['island','🛵','ถนนบนเกาะ'],['bikepath','🚲','ทางจักรยานแดง'],['street','🛣️','ถนนเมือง'],['arterial','🛤️','ถนนใหญ่'],['highway','🏎️','ทางหลวง'],['lane','🌾','ถนนชนบท'],['bridge','🌉','สะพาน']].filter(r=>!UIP||['island','bikepath','lane'].includes(r[0]))/* player version: island roads only (Paul, 14 Nov 2026) */.map(([t,e,n])=>card('r:'+t,n,`<i>${e}</i>`,st.pick==='r:'+t)).join('')}${card('x:round','วงเวียน (แตะจุดที่ถนนตัดกัน)','<i>⭕</i>',st.pick==='x:round')}</div></div>
+  if(k==='road')h=`<div class=grp><b>ถนน (ลากเพื่อวาด)</b><div class=cards>${[['island','🛵','ถนนบนเกาะ'],['bikepath','🚲','ทางจักรยานแดง'],['street','🛣️','ถนนเมือง'],['arterial','🛤️','ถนนใหญ่'],['highway','🏎️','ทางหลวง'],['lane','🌾','ถนนชนบท'],['bridge','🌉','สะพาน']].filter(r=>!UIP||['island','bikepath','lane'].includes(r[0]))/* player version: island roads only (Paul, 14 Nov 2026) */.filter(r=>!PLAYER||!['street','arterial','bridge','highway'].includes(r[0]))/* Rottnest has no city streets, big roads or bridges (Paul, 14 Nov 2026) */.map(([t,e,n])=>card('r:'+t,n,`<i>${e}</i>`,st.pick==='r:'+t)).join('')}${card('x:round','วงกลับรถปลายถนน','<i>⭕</i>',st.pick==='x:round')}</div></div>
     ${`<div class=grp><b>ทางเดิน</b><div class=cards>${[['path','👣','ทางเท้า'],['lane','🚴','เลนจักรยาน'],['gravel','🪨','ทางกรวด']].filter(r=>!UIP||r[0]==='path')/* players: footpaths (Paul, 14 Nov 2026) */.map(([t,e,n])=>card('p:'+t,n,`<i>${e}</i>`,st.pick==='p:'+t)).join('')}${card('x:bikerack','จุดจอดจักรยาน','<i>🚲</i>',st.pick==='x:bikerack')}</div></div>`}
     <div class=opts>${UIP?'<label>แนวตรง X / Z</label>':`<label><input type=checkbox id=o_s8 ${st.snap8!==false?'checked':''}> แนว 8 ทิศ</label>`}${UIP?'':`<label>🚗 รถ <button class=mini data-step=-2>−</button> <b id=o_cars>${doc.cars||0}</b> <button class=mini data-step=2>+</button></label>`}</div>`;
   if(k==='land')h=`<div class=cards>${[['raise','⛰️','ยกขึ้น'],['lower','🕳️','กดลง'],['flatten','▭','ปรับเรียบ'],['smooth','〰️','ลบเหลี่ยม'],['beach','🏖️','หาดทราย'],['sea','🌊','ขุดทะเล'],['noise','🪨','ขรุขระ']].map(([t,e,n])=>card(t,n,`<i>${e}</i>`,st.pick===t)).join('')}</div>
@@ -1786,11 +1793,11 @@ function placeMoved(p){const m=st.moving,arr=doc[m.type],src=arr[m.i];let x=+p.x
    kerbs round the ring; tap it again to take it away) and a bike rack beside a path */
 function pointRoadItem(p){const t=st.pick.slice(2);
   if(t==='bikerack'){propose({kind:'place',x:p.x,z:p.z,label:'วางจุดจอดจักรยานตรงนี้?',ok:()=>{snap();const o={k:'bikerack',x:+p.x.toFixed(2),z:+p.z.toFixed(2),r:+(st.rot||0).toFixed(3),n:3};doc.props.push(o);addProp(o);puff(p);save();hud();toast('วางจุดจอดจักรยานแล้ว');}});return;}
-  if(t==='round'){doc.rounds=doc.rounds||[];const old=doc.rounds.findIndex(q=>Math.hypot(q.x-p.x,q.z-p.z)<4);
-    if(old>=0){propose({kind:'remove',x:p.x,z:p.z,label:'เอาวงเวียนออก?',ok:()=>{snap();doc.rounds.splice(old,1);rebuild(REB.roads||['road','terr','fol']);save();toast('เอาวงเวียนออกแล้ว');}});return;}
-    const J=[].concat((E.road&&E.road.junctions)||[],(E.bike&&E.bike.junctions)||[]).filter(j=>j.arms>=3);let best=null,bd=8;J.forEach(j=>{const d=Math.hypot(j.c.x-p.x,j.c.z-p.z);if(d<bd){bd=d;best=j;}});
-    if(!best){toast('แตะตรงจุดที่ถนนตัดกัน 3 ทางขึ้นไป');return;}const q={x:+best.c.x.toFixed(2),z:+best.c.z.toFixed(2)};
-    propose({kind:'place',x:q.x,z:q.z,label:'สร้างวงเวียนตรงนี้?',ok:()=>{snap();doc.rounds.push(q);rebuild(REB.roads||['road','terr','fol']);save();toast('สร้างวงเวียนแล้ว');}});}}
+  if(t==='round'){/* only at the end of a road, as a cul-de-sac (Paul, 14 Nov 2026) */doc.culs=doc.culs||[];const old=doc.culs.findIndex(q=>Math.hypot(q.x-p.x,q.z-p.z)<5);
+    if(old>=0){propose({kind:'remove',x:p.x,z:p.z,label:'เอาวงกลับรถออก?',ok:()=>{snap();doc.culs.splice(old,1);rebuild(REB.roads);save();toast('เอาวงกลับรถออกแล้ว');}});return;}
+    let best=null,bd=6;doc.roads.forEach(r=>{if(r.type==='bridge'||r.pts.length<2)return;[r.pts[0],r.pts[r.pts.length-1]].forEach(q=>{const d=Math.hypot(q[0]-p.x,q[1]-p.z);if(d<bd){bd=d;best=q;}});});
+    if(!best){toast('แตะที่ปลายถนน');return;}const q={x:best[0],z:best[1]};
+    propose({kind:'place',x:q.x,z:q.z,label:'สร้างวงกลับรถตรงปลายถนนนี้?',ok:()=>{snap();doc.culs.push(q);rebuild(REB.roads);save();toast('สร้างวงกลับรถแล้ว');}});}}
 const boatPick=()=>st.cat==='biz'&&BIZ[st.pick]&&!!BIZ[st.pick].boat;
 function placeAt(p){const k=st.cat;let rr=null;if((k==='build'||(k==='biz'&&!boatPick()))&&!st.snapTo&&ghost.obj){/* a tap with no hover first (phones): snap now */const sn=snapLot(p.x,p.z,ghost.obj,st.cat==='biz'?st.pick:'');if(sn)st.snapTo=sn;else if(GRID){const h=GRID/2;p={x:Math.round(p.x/h)*h,z:Math.round(p.z/h)*h};}}if((k==='build'||k==='biz')&&st.snapTo){p={x:st.snapTo.x,z:st.snapTo.z};rr=st.snapTo.r;}const x=+p.x.toFixed(2),z=+p.z.toFixed(2);if(!validAt(x,z)){toast('วางตรงนี้ไม่ได้: '+st.why);return;}
   if(pend)cancelPend(true);st.hold=true;ghost.grp.visible=true;ghost.grp.position.set(x,boatPick()?doc.sea:Hg(x,z),z);okRing.material.color.set(0x3ccf6a);okRing.position.y=boatPick()?.15:Math.max(0,doc.sea-Hg(x,z))+.12;

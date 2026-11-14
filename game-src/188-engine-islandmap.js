@@ -34,13 +34,14 @@ function create(o){
       [[B.min.x,B.min.z],[B.max.x,B.min.z],[B.min.x,B.max.z],[B.max.x,B.max.z]].forEach(([x,z])=>{const dx=x-b.x,dz=z-b.z,lx=dx*c-dz*s,lz=dx*s+dz*c;x0=Math.min(x0,lx);x1=Math.max(x1,lx);z0=Math.min(z0,lz);z1=Math.max(z1,lz);});});
     return x0<x1?{x:b.x,z:b.z,r,F:[x0,z0,x1,z1]}:null;};
   const inFoot=(x,z,m)=>FP.some(e=>{const c=Math.cos(e.r),s=Math.sin(e.r),dx=x-e.x,dz=z-e.z,lx=dx*c-dz*s,lz=dx*s+dz*c,F=e.F;return lx>F[0]-m&&lx<F[2]+m&&lz>F[1]-m&&lz<F[3]+m;});
-  const kindAt=(x,z)=>{const h=Hg(x,z);if(h<SEA)return'water';if(o.noGrow&&o.noGrow(x,z))return'none';/* the host's own places (the game's café and deck) */if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]))return'path';if(inFoot(x,z,0))return'none';
+  const kindAt=(x,z)=>{const h=Hg(x,z);if(h<SEA)return'water';if(o.noGrow&&o.noGrow(x,z))return'none';/* the host's own places (the game's café and deck) */if(onRail(x,z,1.3))return'path';if(doc.paths.some(p=>lineD(x,z,p.pts)<p.w/2+.3))return'path';if(doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type])||inCul(x,z))return'path';if(inFoot(x,z,0))return'none';
     if(E.terr&&E.terr.groundKind)return E.terr.groundKind(x,z)==='sand'?'sand':'grass';return h<SEA+.9?'sand':'grass';};
-  const keepOut=(x,z)=>onRail(x,z,1.6)||inFoot(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
+  const inCul=(x,z,m)=>(doc.culs||[]).some(q=>Math.hypot(q.x-x,q.z-z)<6+(m||0));
+  const keepOut=(x,z)=>inCul(x,z,.5)||onRail(x,z,1.6)||inFoot(x,z,.5)||doc.roads.some(r=>lineD(x,z,r.pts)<RW[r.type]+.6)||doc.props.some(p=>Math.hypot(p.x-x,p.z-z)<1.2);
   const t0=performance.now(),G0=gam?{gammaOut:true}:{};
   /* roads first: the ground is fitted to their beds */
   E.road=RoadEngine.create(Object.assign({scene:G.road,heightAt:Hfn,smooth:true,maxGrade:.06},G0));const GB=new THREE.Group();G.road.add(GB);E.bike=RoadEngine.create(Object.assign({scene:GB,heightAt:Hfn,smooth:true,maxGrade:.06},G0));
-  (doc.rounds||[]).forEach(q=>{E.road.roundabout(q.x,q.z);E.bike.roundabout(q.x,q.z);});
+  (doc.culs||[]).forEach(q=>{E.road.culdesac(q.x,q.z);E.bike.culdesac(q.x,q.z);});
   doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(r.type==='bikepath')E.bike.road(r.pts,{type:r.type});else E.road.road(r.pts,r.type==='lane'?{type:'lane',color:'#a08c6a'}:{type:r.type});});
   E.road.build();E.bike.build();GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});
   /* ground */
@@ -68,8 +69,8 @@ function create(o){
       [-3,0,3].forEach(o=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.6,6),LM('#3a4048'));c.position.set(S.x+S.ux*o+S.px*.6,pf.position.y+.95,S.z+S.uz*o+S.pz*.6);G.rail.add(c);});});}
   /* nature after the buildings, so it keeps clear of every footprint */
   E.fol=FoliageEngine.create(Object.assign({mix:'rottnest',scene:G.fol,bounds:[-HW,-HW,HW,HW],heightAt:Hg,kindAt,keepOut,density:doc.fol,radius:46*Math.min(CS,1.4),
-    treeKeepOut:(x,z)=>onRail(x,z,3.2)||inFoot(x,z,2.4)||!!(o.noGrow&&o.noGrow(x,z))},o.fol||{},G0));
-  (doc.trees||[]).forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6)||inFoot(t.x,t.z,1.5))return;try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});
+    treeKeepOut:(x,z)=>inCul(x,z,2.5)||onRail(x,z,3.2)||inFoot(x,z,2.4)||!!(o.noGrow&&o.noGrow(x,z))},o.fol||{},G0));
+  (doc.trees||[]).forEach(t=>{if(t.k==='peppermint')t.k='pepper';if(onRail(t.x,t.z,2.6)||inFoot(t.x,t.z,1.5)||inCul(t.x,t.z,1.5))return;try{E.fol.addTree(t.x,t.z,{kind:t.k,size:t.s||1});}catch(e){}});
   /* parked vehicles (boats stay on the sea) */
   if(o.vehicles!==false&&typeof VehicleEngine!=='undefined'){E.veh=VehicleEngine.create(Object.assign({scene:G.veh,heightAt:Hg,waterLevel:SEA},G0));(doc.veh||[]).forEach(v=>{if(skip[v.k]||onRail(v.x,v.z,2.6))return;/* never parked on the railway */try{E.veh.add(v.k,v.x,v.z,{rot:v.r||0,color:v.c||undefined});}catch(e){}});}
   const ms=Math.round(performance.now()-t0);
