@@ -31,10 +31,14 @@ function coastFix(h0,N,sea){const h=h0.slice(),oc=new Uint8Array(N*N),q=[];
   {const D=new Float32Array(N*N).fill(1e9),Q=[];for(let k=0;k<N*N;k++)if(h[k]>=sea){D[k]=0;Q.push(k);}for(let qi=0;qi<Q.length;qi++){const k=Q[qi],i=k%N,j=(k/N)|0;for(const[a,b]of[[1,0],[-1,0],[0,1],[0,-1]]){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=N||jj>=N)continue;const n=jj*N+ii;if(D[n]>D[k]+1){D[n]=D[k]+1;Q.push(n);}}}
     for(let k=0;k<N*N;k++){if(h[k]>=sea||D[k]<=3)continue;const i=k%N,j=(k/N)|0,e=Math.min(i,j,N-1-i,N-1-j);const t=Math.min(6,.7+(D[k]-3)*.3),te=e<8?6-(6-t)*e/8:t;h[k]=Math.min(h[k],sea-Math.max(t,te));}}
   return h;}
+/* smooth heights between the grid points (cubic B-spline over 4x4 points): coasts and hills come out as curves, not straight facets
+   (Paul, 14 Nov 2026: straight-edged shallow bands along the beach) */
+function gridH(h,N,fx,fz){const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,W=t=>[(1-t)*(1-t)*(1-t)/6,(3*t*t*t-6*t*t+4)/6,(-3*t*t*t+3*t*t+3*t+1)/6,t*t*t/6],wu=W(u),wv=W(v);let s=0;
+  for(let b=0;b<4;b++){const jj=Math.min(N-1,Math.max(0,j-1+b)),r=jj*N;let row=0;for(let a=0;a<4;a++){const ii=Math.min(N-1,Math.max(0,i-1+a));row+=h[r+ii]*wu[a];}s+=row*wv[b];}return s;}
 function create(o){
   const doc=o.doc,CS=o.cs||2,BS=o.bscale||.75,par=o.parent,HW=60*CS,S=120*CS,gam=!!o.gammaOut,skip=o.skip||{},hm=o.heightMap||(h=>h),sea=doc.sea||0;
   const G={},E={};['terr','road','props','bld','fol','rail','veh'].forEach(k=>{G[k]=new THREE.Group();G[k].name='im_'+k;par.add(G[k]);});
-  const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,h=HH,a=h[j*N+i],b=h[j*N+i+1],c=h[(j+1)*N+i],d=h[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
+  const HH=coastFix(doc.h,N,sea);const raw=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;return gridH(HH,N,fx,fz);};
   const Hfn=(x,z)=>hm(raw(x,z),x,z),SEA=hm(sea,0,0);
   const Hg=(x,z)=>{let h=Hfn(x,z);if(E.road&&E.road.junctions)h=E.road.groundAt(x,z,h);if(E.bike&&E.bike.junctions)h=E.bike.groundAt(x,z,h);return h;};
   const rail=doc.rail||[];
@@ -89,5 +93,5 @@ function create(o){
   const ms=Math.round(performance.now()-t0);
   return{doc,G,E,heightAt:Hg,rawHeight:Hfn,seaLevel:SEA,kindAt,solidAt:(x,z,m)=>inFoot(x,z,m||0)||inStation(x,z,0),onRail,footprints:FP,stations:ST,ms,
     update(t,x,z,op){try{E.fol.update(t,x,z,op);}catch(e){}try{E.road.update&&E.road.update(t,1/60);E.bike.update&&E.bike.update(t,1/60);}catch(e){}try{E.terr.update&&E.terr.update(t);}catch(e){}try{E.veh&&E.veh.update(t,1/60);}catch(e){}}};}
-g.IslandMap={create,lineD,coastFix};
+g.IslandMap={create,lineD,coastFix,gridH};
 })(typeof window!=='undefined'?window:globalThis);

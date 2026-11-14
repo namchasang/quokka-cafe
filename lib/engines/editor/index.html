@@ -1403,6 +1403,10 @@ const ctl=new THREE.OrbitControls(cam,R.domElement);ctl.target.set(0,0,0);ctl.ma
 const hemi=new THREE.HemisphereLight(0xbfe4ff,0x8a7a58,.5),sun=new THREE.DirectionalLight(0xfff2dc,1.05);sun.position.set(-30,45,25);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-70;sc.right=sc.top=70;sc.far=250;scene.add(hemi,sun,sun.target);
 addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
 
+/* smooth heights between the grid points (cubic B-spline over 4x4 points): coasts and hills come out as curves, not straight facets
+   (Paul, 14 Nov 2026: straight-edged shallow bands along the beach) */
+function gridH(h,N,fx,fz){const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,W=t=>[(1-t)*(1-t)*(1-t)/6,(3*t*t*t-6*t*t+4)/6,(-3*t*t*t+3*t*t+3*t+1)/6,t*t*t/6],wu=W(u),wv=W(v);let s=0;
+  for(let b=0;b<4;b++){const jj=Math.min(N-1,Math.max(0,j-1+b)),r=jj*N;let row=0;for(let a=0;a<4;a++){const ii=Math.min(N-1,Math.max(0,i-1+a));row+=h[r+ii]*wu[a];}s+=row*wv[b];}return s;}
 /* ---------- the map document ---------- */
 /* clean shoreline for a height grid (Paul, 14 Nov 2026: pale-green flat facets on the beach when the waves ran up): pools cut off
    from the sea are filled, and cells next to the waterline are kept clearly above or below the sea, so the water never lies in
@@ -1439,7 +1443,7 @@ function starter0(){return{v:1,name:'New island',sea:0,h:islandGrid(),
 const PLAYER=!!window.IB_PLAYER,MASTER=!!window.IB_MASTER/* master builder for the game master (Paul, 14 Nov 2026): the real Rottnest with every tool, fixed pieces movable, free */,UIP=PLAYER&&!MASTER,GRID=UIP?5:0/* player version: roads on a 5-unit block grid (Paul, 14 Nov 2026: city-block layout so buildings line up) */,gs=v=>GRID?Math.round(v/GRID)*GRID:v,BS=window.IB_BSCALE||(PLAYER?.75:1)/* building scale: player version 75% (Paul, 14 Nov 2026: buildings looked too big next to the roads) */,SKEY=MASTER?'ppl-mapedit-master':window.IB_DEMO?'ppl-mapedit-demo-'+(window.IB_DEMO.ver||1):PLAYER?(window.IB_START?'ppl-mapedit-player-rott'+(window.IB_START.ver||''):'ppl-mapedit-player')/* a new start map (ver) starts a fresh island while the game is not out yet */:'ppl-mapedit';/* a demo page (makeeditor.py --demo map.json) opens on its own ready-built island and saves in its own slot */
 let doc;try{doc=JSON.parse(localStorage.getItem(SKEY)||'null');}catch(e){}if(!doc||!doc.h||doc.h.length!==N*N)doc=window.IB_DEMO?Object.assign(starter(),JSON.parse(JSON.stringify(window.IB_DEMO))):starter();else doc=Object.assign(starter(),doc,{life:Object.assign(starter().life,doc.life||{})});
 /* the shoreline cleaned (pools filled, no thin water sheets on the sand), recomputed when the ground or the sea level changes */let HC=null,HCd=null,HCs=null;const hgrid=()=>{if(!HC||HCd!==doc.h||HCs!==doc.sea){HCd=doc.h;HCs=doc.sea;HC=coastFix(doc.h,N,doc.sea);}return HC;};/* rebuild() clears it (ground brush edits doc.h in place) */
-const Hfn=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;const i=Math.floor(fx),j=Math.floor(fz),u=fx-i,v=fz-j,g=hgrid(),a=g[j*N+i],b=g[j*N+i+1],c=g[(j+1)*N+i],d=g[(j+1)*N+i+1];return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;};
+const Hfn=(x,z)=>{const fx=x/CS+60,fz=z/CS+60;if(fx<0||fz<0||fx>=N-1||fz>=N-1)return -6;return gridH(hgrid(),N,fx,fz);};
 /* ground fitted to the roads (smooth, level road beds); everything except the road engine itself stands on this */
 const Hg=(x,z)=>{let h=Hfn(x,z);if(E.road&&E.road.junctions)h=E.road.groundAt(x,z,h);if(E.bike&&E.bike.junctions)h=E.bike.groundAt(x,z,h);return h;};
 const segD=(x,z,a,b)=>{const vx=b[0]-a[0],vz=b[1]-a[1],L=vx*vx+vz*vz||1e-6;let t=((x-a[0])*vx+(z-a[1])*vz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t);};
