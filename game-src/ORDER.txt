@@ -90,6 +90,7 @@
 088-perth-cbd-busy-footpaths-same-look-lab.js
 089-fremantle-opened-up-look-lab-lab-or-fr.js
 090-island-loop-bus-a-19-stop-loop-bus-lik.js
+090-phase2-settlement-to-builder-cafe.js
 091-tidy-island-after-it-grows-nothing-on.js
 092-live-mode-live-1-kip-runs-caf-on-his-o.js
 093-look-lab-landscape-layers-of-each-real.js
