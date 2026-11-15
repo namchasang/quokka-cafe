@@ -9,7 +9,7 @@
 #menuSheet .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}#menuSheet .grid:empty,#menuSheet section:has(.grid:empty){display:none}
 #menuSheet .hudBtn{display:block!important;width:100%;margin:0;font-size:12px;padding:9px 6px;min-height:0;line-height:1.15;white-space:normal}#menuSheet .hudBtn[hidden]{display:none!important}
 /* save slots: solid boxes so the text reads over the live island (Paul, 15 Nov 2026) */
-#slotsOv .wi{background:rgba(20,28,46,.95);border:2px solid rgba(232,195,122,.75);border-radius:10px;padding:12px 14px;box-shadow:0 4px 14px rgba(0,0,0,.35)}#slotsOv .wi .n{color:#ffe6a8;font-size:16px}#slotsOv .wi .d{color:#d8deea;font-size:13px}#slotsOv .wi.empty .n{color:#f5ecd8}
+#slotsOv .wi{background:rgba(20,28,46,.95);border:2px solid rgba(232,195,122,.75);border-radius:10px;padding:12px 14px;box-shadow:0 4px 14px rgba(0,0,0,.35)}#slotsOv .wi .n{color:#ffe6a8;font-size:16px}#slotsOv .wi .d{color:#d8deea;font-size:13px}#slotsOv .wi.empty .n{color:#f5ecd8}#slotsOv #slAdd{background:rgba(20,28,46,.95);color:#ffe6a8;border:2px dashed rgba(232,195,122,.85);border-radius:10px;padding:11px;font-weight:800}
 #slotsOv h1,#slotsOv h2,#slotsOv .eyebrow,#slotsOv #slEyebrow,#slotsOv #slTitle{text-shadow:0 2px 0 rgba(10,16,32,.85),0 0 10px rgba(10,16,32,.7)}#slotsOv details,#slotsOv summary{background:rgba(20,28,46,.92);border-radius:10px;padding:6px 10px}`;document.head.appendChild(css);
   const sh=document.createElement('div');sh.id='menuSheet';sh.setAttribute('role','menu');const G={};
   GROUPS.forEach(([k,t])=>{const s=document.createElement('section');s.innerHTML='<h4>'+t+'</h4><div class="grid"></div>';sh.appendChild(s);G[k]=s.querySelector('.grid');});document.body.appendChild(sh);

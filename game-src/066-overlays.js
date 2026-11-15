@@ -75,13 +75,17 @@ function renderTitle(){const b=$('#titleBtns');b.innerHTML='';let best=0,bt=-1;f
   mkb('newBtn','New game',best?'ghost':'',()=>openSlots('new'));}
 let slotMode='load';
 function openSlots(mode){slotMode=mode;$('#slEyebrow').textContent=mode==='load'?'Load game':'New game';$('#slTitle').textContent=mode==='load'?'Choose a save':'Choose a slot for your new island';renderSlots();overlay='slots';['title','slots'].forEach(k=>$('#'+k+'Ov').hidden=k!=='slots');}
-function renderSlots(){const L=$('#slList');L.innerHTML='';for(let i=1;i<=SLOTS;i++){const v=readSlot(i);const d=document.createElement('div');d.className='wi'+(v?'':' empty');d.innerHTML='<div class="n"></div><div class="d"></div><button class="btn buy" type="button"></button>';
+/* three slots show; "+ Add slot" opens one more, up to SLOTS (Paul, 15 Nov 2026). A slot with a save always shows. */
+let slotsShown=(()=>{try{return Math.max(3,Math.min(SLOTS,+localStorage.getItem('qc-slots-shown')||3));}catch(e){return 3;}})();
+function renderSlots(){const L=$('#slList');L.innerHTML='';let N=slotsShown;for(let i=SLOTS;i>N;i--)if(readSlot(i)){N=i;break;}
+  for(let i=1;i<=N;i++){const v=readSlot(i);const d=document.createElement('div');d.className='wi'+(v?'':' empty');d.innerHTML='<div class="n"></div><div class="d"></div><button class="btn buy" type="button"></button>';
   d.querySelector('.n').textContent='Slot '+i+(v?' · Day '+v.day:'');const when=v&&v.savedAt?new Date(v.savedAt).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}):'';
   d.querySelector('.d').textContent=v?((v.coins||0)+' coins · '+(v.wish&&v.wish.tickets?'Mum & Dad on the island':'Saving for Mum & Dad')+(when?' · saved '+when:'')):'Empty';
   const bt=d.querySelector('.buy');bt.id='slot-'+i;
   if(slotMode==='load'){bt.textContent=v?'Load':'Empty';bt.disabled=!v;bt.onclick=()=>{SLOT=i;startGame(readSlot(i));};}
   else{bt.textContent=v?'Overwrite':'Start here';bt.onclick=()=>{if(v&&bt.dataset.sure!=='1'){bt.dataset.sure='1';bt.textContent='Tap again to overwrite';return;}try{localStorage.removeItem(slotKey(i));}catch(e){}SLOT=i;startGame(null);};}
-  L.appendChild(d);}}
+  L.appendChild(d);}
+  if(N<SLOTS){const a=document.createElement('button');a.type='button';a.className='btn ghost';a.id='slAdd';a.textContent='+ Add slot';a.style.cssText='width:100%;margin-top:4px';a.onclick=()=>{slotsShown=Math.min(SLOTS,N+1);try{localStorage.setItem('qc-slots-shown',slotsShown);}catch(e){}renderSlots();};L.appendChild(a);}}
 $('#slBack').addEventListener('click',()=>{overlay='title';$('#slotsOv').hidden=true;$('#titleOv').hidden=false;renderTitle();});
 $('#wishBtn').addEventListener('click',openWish);
   $('#slExport').addEventListener('click',()=>{const o={};for(let i=1;i<=SLOTS;i++){try{const v=localStorage.getItem(slotKey(i));if(v)o[i]=JSON.parse(v);}catch(e){}}const code='QC1:'+btoa(unescape(encodeURIComponent(JSON.stringify(o))));const ta=$('#slCode');ta.value=code;ta.select();const n=Object.keys(o).length;
