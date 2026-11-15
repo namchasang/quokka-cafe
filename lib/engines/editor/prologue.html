@@ -33,7 +33,7 @@ button{font:inherit;cursor:pointer;border:0}
 #menu .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 8px;font-size:13px;margin-bottom:8px}#menu textarea{width:100%;height:80px;font-size:11px;border-radius:10px;border:2px solid var(--edge)}#menu .row{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}#menu .row button{padding:9px 12px;border-radius:12px;background:var(--ink);color:#fff;font-weight:700}
 #menu input:not([type]){border:2px solid var(--edge);border-radius:8px;padding:5px;font:inherit}.hint{font-size:12px;opacity:.7}
 @media(max-width:640px){.cat{width:54px}.cat .ic{font-size:22px}.card{width:78px}.card img{width:66px;height:66px}.card i{font-size:32px;line-height:66px;height:66px}#tray{bottom:84px}#hud span{padding:5px 9px;font-size:12px}}
-</style></head><body>
+</style><style>/* the prologue never shows the builder tools, not even while it loads */#top,#bar,#hud,#tray,#bubble,#confirm,#toast,#daynight,#menuBtn,#menu{display:none!important}#proCover{position:fixed;inset:0;z-index:50;background:#0a1020;display:grid;place-items:center;color:#f5ecd8;font:700 17px system-ui;letter-spacing:.04em;transition:opacity .8s}body.pro #proCover{opacity:0;pointer-events:none}</style></head><body><div id="proCover">Last summer…</div>
 <div id="view"></div>
 <div id="top"><div id="hud"></div><div class="sp"></div><button class="rb" id="daynight" title="กลางวัน/กลางคืน">☀️</button><button class="rb" id="menuBtn" title="เมนู">⚙️</button></div>
 <div id="tray"></div><div id="bar"></div><div id="bubble"></div><div id="confirm"></div><div id="toast"></div>

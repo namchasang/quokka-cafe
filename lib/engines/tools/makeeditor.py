@@ -60,6 +60,7 @@ if demo:html=html.replace('<title>Island Builder · Map Editor','<title>Island B
 start=sys.argv[sys.argv.index('--start')+1] if '--start' in sys.argv else None
 if start:html=html.replace('@@ENG@@','<script>window.IB_START='+open(start).read().strip()+';</script>\n@@ENG@@',1)
 if pro:html=html.replace('<title>Island Builder · Map Editor','<title>Quokka Cafe · Prologue preview (Last Summer)',1).replace('@@ENG@@','<script>window.IB_PRO={before:'+open(pro[0]).read().strip()+',after:'+open(pro[1]).read().strip()+'};window.IB_DEMO=Object.assign({},window.IB_PRO.before,{ver:"pro"});</script>\n@@ENG@@',1)
+if pro:html=html.replace('</head>','<style>/* the prologue never shows the builder tools, not even while it loads */#top,#bar,#hud,#tray,#bubble,#confirm,#toast,#daynight,#menuBtn,#menu{display:none!important}#proCover{position:fixed;inset:0;z-index:50;background:#0a1020;display:grid;place-items:center;color:#f5ecd8;font:700 17px system-ui;letter-spacing:.04em;transition:opacity .8s}body.pro #proCover{opacity:0;pointer-events:none}</style></head>',1).replace('<body>','<body><div id="proCover">Last summer…</div>',1)
 master='--master' in sys.argv
 if master:
     player=True
