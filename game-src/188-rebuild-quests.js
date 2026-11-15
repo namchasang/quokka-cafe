@@ -30,4 +30,3 @@ const REBUILD=[
   (()=>{const m=location.search.match(/[?&]resume=(\d+)/);if(!m)return;try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}const n=+m[1];
     (function go(){let ok=false;try{ok=ISL.done&&(!IBMAP.on||IBMAP.done);}catch(e){}if(!ok){setTimeout(go,300);return;}const d=readSlot(n);SLOT=n;['title','slots'].forEach(k=>{const o=document.getElementById(k+'Ov');if(o)o.hidden=true;});startGame(d||null);})();})();
 })();
-})();
