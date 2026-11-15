@@ -894,6 +894,21 @@ const TWT={};function towerTex(glass,frame,bands,lit,seed){const k=[glass,frame,
 let LIME=null;function limeTex(){if(LIME)return LIME;const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.fillStyle='#d8d2c4';x.fillRect(0,0,128,128);let s=9;const r=()=>(s=(s*16807)%2147483647)/2147483647;
   for(let row=0;row<6;row++){let X=-r()*20;const h=128/6;while(X<128){const w=14+r()*22,v=.9+r()*.12;x.fillStyle='rgb('+[255*v,255*v*.985,255*v*.95].map(q=>Math.min(255,q|0)).join(',')+')';x.beginPath();x.roundRect?x.roundRect(X+1.5,row*h+1.5,w-3,h-3,4):x.rect(X+1.5,row*h+1.5,w-3,h-3);x.fill();X+=w;}}
   const t=new THREE.CanvasTexture(c);t.encoding=ENC();t.wrapS=t.wrapT=THREE.RepeatWrapping;return LIME=t;}
+/* wall surface detail (Paul, 15 Nov 2026: walls with more depth and detail): grey-white maps the wall colour multiplies,
+   so one texture serves every colour. boards = weatherboards (lapped planks, a shadow line under each), render = rendered
+   masonry (trowel noise, faint rain streaks, joints every storey). 256 px = 2 units. */
+const WTX={};function wallTex(kind){if(WTX[kind])return WTX[kind];const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');let sd=kind==='boards'?7:13;const rnd=()=>{sd=(sd*9301+49297)%233280;return sd/233280;};
+  x.fillStyle='#f4f4f4';x.fillRect(0,0,256,256);
+  if(kind==='boards'){const ph=256/8;for(let r=0;r<8;r++){const y=r*ph;const g=x.createLinearGradient(0,y,0,y+ph);g.addColorStop(0,'#ffffff');g.addColorStop(.8,'#ececec');g.addColorStop(1,'#cfcfcf');x.fillStyle=g;x.fillRect(0,y,256,ph);
+      x.fillStyle='rgba(0,0,0,.28)';x.fillRect(0,y+ph-3,256,3);x.fillStyle='rgba(255,255,255,.6)';x.fillRect(0,y,256,1.5);
+      for(let k=0;k<40;k++){x.fillStyle='rgba(0,0,0,'+(.02+rnd()*.04)+')';x.fillRect(rnd()*256,y+3+rnd()*(ph-8),20+rnd()*60,1);}
+      const j=(r*97)%256;x.fillStyle='rgba(0,0,0,.22)';x.fillRect(j,y,2,ph-2);}}
+  else{for(let k=0;k<2600;k++){const v=200+Math.floor(rnd()*55);x.fillStyle='rgba('+v+','+v+','+v+','+(.25+rnd()*.3)+')';const s=1+rnd()*3;x.fillRect(rnd()*256,rnd()*256,s,s);}
+    for(let k=0;k<18;k++){const X=rnd()*256,g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'rgba(0,0,0,.05)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(X,0,2+rnd()*5,120+rnd()*136);}
+    x.fillStyle='rgba(0,0,0,.12)';x.fillRect(0,0,256,2);}
+  const t=new THREE.CanvasTexture(c);t.encoding=ENC();t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;WTX[kind]=t;return t;}
+const WMC={};function wallMat(col,kind,w,h){const key=col+kind+w.toFixed(1)+h.toFixed(1);if(WMC[key])return WMC[key];const t=wallTex(kind).clone();t.needsUpdate=true;t.repeat.set(Math.max(1,w/2),Math.max(1,h/2));return WMC[key]=new THREE.MeshLambertMaterial({color:lin(col),map:t});}
+const BOARDS={cottage:1,house:1,cabin:1,units:0,bungalow:0};
 let BRICK=null;function brickTex(){if(BRICK)return BRICK;const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#d8d0c4';x.fillRect(0,0,64,64);let s=5;const r=()=>(s=(s*16807)%2147483647)/2147483647;
   for(let row=0;row<8;row++)for(let k=-1;k<4;k++){const v=.82+r()*.3;x.fillStyle='rgb('+[255*v,255*v*.97,255*v*.94].map(q=>Math.min(255,q|0)).join(',')+')';x.fillRect(k*16+(row%2)*8+1,row*8+1,14,6);}
   const t=new THREE.CanvasTexture(c);t.encoding=ENC();t.wrapS=t.wrapT=THREE.RepeatWrapping;return BRICK=t;}
@@ -913,14 +928,22 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
       if(crown==='slant'){const g=new THREE.BoxGeometry(w,6,d),pp=g.attributes.position;for(let i=0;i<pp.count;i++)if(pp.getY(i)>0&&pp.getZ(i)>0)pp.setY(i,-2.4);g.computeVertexNormals();const sl=new THREE.Mesh(g,GLASS);sl.position.y=top+3;sl.castShadow=true;G.add(sl);}
       if(o2.sign){const sg=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(w*.9,6),Math.min(w*.9,6)*28/160),new THREE.MeshLambertMaterial({map:signTex(o2.sign,o2.signBg||'#1d3a6e',o2.signFg||'#f5ecd8')}));sg.position.set(0,o2.podium?H0+.6:3,d/2+(o2.podium?1.25:.06));G.add(sg);}
       o2.__win=null;}
-    else{const wb=box(G,w,hh,d,o2.wall,0,hh/2,0);if(o2.brick||o2.limestone){const t=(o2.limestone?limeTex():brickTex()).clone();t.needsUpdate=true;t.repeat.set(Math.max(w,d)/(o2.limestone?4:2),hh/(o2.limestone?3:2));wb.material=new THREE.MeshLambertMaterial({color:lin(o2.wall),map:t});}box(G,w+.1,.3,d+.1,o2.trim,0,.15,0);/* plinth */
+    else{const wb=box(G,w,hh,d,o2.wall,0,hh/2,0);if(o2.detail!==false&&!o2.brick&&!o2.limestone)wb.material=wallMat(o2.wall,o2.boards||BOARDS[o2.style]?'boards':'render',Math.max(w,d),hh);if(o2.brick||o2.limestone){const t=(o2.limestone?limeTex():brickTex()).clone();t.needsUpdate=true;t.repeat.set(Math.max(w,d)/(o2.limestone?4:2),hh/(o2.limestone?3:2));wb.material=new THREE.MeshLambertMaterial({color:lin(o2.wall),map:t});}box(G,w+.1,.3,d+.1,o2.trim,0,.15,0);/* plinth */
       for(let f=0;f<o2.floors;f++){const y=f*fh+fh*.55,front=d/2+.01;
         if(f===0&&o2.windows==='shop'){windowPart(G,-w*.25,y-.2,front,w*.36,1.7,0,o2);windowPart(G,w*.3,y-.2,front,w*.26,1.7,0,o2);doorPart(G,w*.04,front,0,o2);}
         else{const n=Math.max(1,Math.round(w/2.2));for(let k=0;k<n;k++){const x=-w/2+(k+.5)*w/n;if(f===0&&k===Math.floor(n/2))doorPart(G,x,front,0,o2);else windowPart(G,x,y,front,.8,1.1,0,o2);}}
         const ns=Math.max(1,Math.round(d/2.6));for(let k=0;k<ns;k++){const z=-d/2+(k+.5)*d/ns;[-1,1].forEach(s=>windowPart(G,s*(w/2+.01),y,z,.7,1,s*Math.PI/2,o2));}
         if(f>0)box(G,w+.16,.14,d+.16,o2.trim,0,f*fh,0);}
       if(o2.parapet){const ph=o2.parapetH||.9;box(G,w+.1,ph,.2,o2.trim,0,hh+ph/2,d/2);if(o2.parapetH)box(G,w+.3,.16,.3,o2.trim,0,hh+ph,d/2);}
-      [-1,1].forEach(s=>box(G,.2,hh,.2,o2.trim,s*w/2,hh/2,d/2));/* quoins */box(G,w+.2,.18,d+.2,o2.trim,0,hh-.05,0);/* cornice */
+      [-1,1].forEach(s=>box(G,.2,hh,.2,o2.trim,s*w/2,hh/2,d/2));/* quoins */
+      if(o2.detail!==false){const bd=o2.boards||BOARDS[o2.style];
+        /* corners: stone quoin blocks on masonry, corner boards on timber, at all four corners */
+        [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{if(bd){box(G,.16,hh,.16,o2.trim,sx*(w/2+.02),hh/2,sz*(d/2+.02));return;}for(let y=.35,i=0;y<hh-.2;y+=.42,i++){const L=i%2?.34:.52;box(G,L,.36,.1,o2.trim,sx*(w/2-L/2+.05),y,sz*(d/2+.04));box(G,.1,.36,L,o2.trim,sx*(w/2+.04),y,sz*(d/2-L/2+.05));}});
+        /* gutter and fascia under the eaves, a downpipe at a front corner */
+        if(o2.roof!=='flat'){box(G,w+.5,.14,.14,'#e8e4dc',0,hh-.02,d/2+.12);box(G,w+.5,.14,.14,'#e8e4dc',0,hh-.02,-d/2-.12);const dp=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,hh,6),M('#d8d4cc'));dp.position.set(w/2-.12,hh/2,d/2+.12);dp.castShadow=true;G.add(dp);}
+        /* window heads: a small hood moulding over each wall window */
+        for(let f=0;f<o2.floors;f++){const y=f*fh+fh*.55+.62;if(!(f===0&&o2.windows==='shop')){const n=Math.max(1,Math.round(w/2.2));for(let k=0;k<n;k++){if(f===0&&k===Math.floor(n/2))continue;box(G,1.06,.1,.14,o2.trim,-w/2+(k+.5)*w/n,y,d/2+.08);}}}
+        if(!bd&&o2.floors>1)for(let f=1;f<o2.floors;f++)box(G,w+.24,.08,d+.24,o2.trim,0,f*fh+.14,0);}box(G,w+.2,.18,d+.2,o2.trim,0,hh-.05,0);/* cornice */
       roof(G,w,d,hh,o2);
       if(o2.chimney){box(G,.6,1.6,.6,'#b8806a',w*.3,hh+1,-d*.15);box(G,.7,.12,.7,'#8a5a4a',w*.3,hh+1.8,-d*.15);}
       if(o2.verandah){const vd=1.8,vy=fh*.95;box(G,w+.2,.08,vd,o2.roofColor||'#7a8088',0,vy,d/2+vd/2).rotation.x=.12;for(let k=0;k<=Math.round(w/2);k++){const x=-w/2+k*w/Math.round(w/2);box(G,.1,vy,.1,o2.trim,x,vy/2,d/2+vd-.1);}box(G,w,.08,vd,'#a8744a',0,.12,d/2+vd/2);
