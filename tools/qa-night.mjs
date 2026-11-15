@@ -13,7 +13,10 @@ fs.mkdirSync(out, { recursive: true });
 // name -> query. ?shot=x,z,hour,weather,zoom,yaw is photo mode (no menus, no save).
 const RUNS = [
   ['start', ''],
-  ['rottnest-cafe', '?shot=0,0,10,0,1,0'],
+  ['rottnest-centre', '?shot=0,0,10,0,1,0'],
+  ['rottnest-cafe', '?shot=-122.9,-31,10,0,1,0'],   // Kip's café since Phase 2 (15 Nov 2026)
+  ['rottnest-nev', '?shot=-82.8,45.9,10,0,1.4,0'],  // Henrietta Rocks: Nev + wreck
+  ['rottnest-osprey', '?shot=86.8,38.1,10,0,1.4,0'], // Osprey nest photo spot
   ['rottnest-west', '?shot=-60,0,10,0,1.4,0'],
   ['south-perth', '?shot=150,7,10,0,1,0'],
   ['fremantle', '?shot=295,0,10,0,1,0'],
