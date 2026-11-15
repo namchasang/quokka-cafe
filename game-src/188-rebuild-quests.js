@@ -23,8 +23,11 @@ const REBUILD=[
     if(n){try{save();}catch(e){}try{toast('📬 '+(n>1?n+' letters':'A letter')+' about rebuilding the island. Check the mailbox by the café.',4);}catch(e){}}
     REBUILD.forEach(r=>{const k='rbOk_'+r.q;if(isReady(r)&&!started(r.q)&&!S[k]){S[k]=1;try{toast('🏗️ '+r.from+' is back on the island: new side quest!',4);}catch(e){}}});}
   setInterval(()=>{try{letters();}catch(e){}},5000);
-  // the Island Builder from the game menu; coming back rebuilds the island from the player's map
+  // the Island Builder from the game menu, in the same tab (one 3D page at a time); its "Back to the game" button reopens this save
   (function btn(){const right=document.querySelector('.right');if(!right){setTimeout(btn,800);return;}const b=document.createElement('button');b.id='builderBtn';b.type='button';b.className='panel hudBtn more';b.textContent='🏗️ Island Builder';
-    b.onclick=()=>{let t='';try{t=Object.keys(localStorage).filter(k=>k.indexOf('ppl-mapedit-player-rott')===0).map(k=>localStorage.getItem(k)).join('|').length+'';}catch(e){}b.__t=t;window.open('./lib/engines/editor/player.html','_blank');};right.appendChild(b);
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||b.__t==null)return;let t='';try{t=Object.keys(localStorage).filter(k=>k.indexOf('ppl-mapedit-player-rott')===0).map(k=>localStorage.getItem(k)).join('|').length+'';}catch(e){}if(t!==b.__t){b.__t=null;try{IBMAP.reload&&IBMAP.reload();toast('🏝️ Island updated from the Island Builder',3);}catch(e){console.error('rebuild island',e);}}});})();
+    b.onclick=()=>{try{save();}catch(e){}location.href='./lib/engines/editor/player.html?from=game&slot='+SLOT;};right.appendChild(b);})();
+  // back from a builder page (?resume=<slot>): open that save straight away
+  (()=>{const m=location.search.match(/[?&]resume=(\d+)/);if(!m)return;try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}const n=+m[1];
+    (function go(){let ok=false;try{ok=ISL.done&&(!IBMAP.on||IBMAP.done);}catch(e){}if(!ok){setTimeout(go,300);return;}const d=readSlot(n);SLOT=n;['title','slots'].forEach(k=>{const o=document.getElementById(k+'Ov');if(o)o.hidden=true;});startGame(d||null);})();})();
+})();
 })();

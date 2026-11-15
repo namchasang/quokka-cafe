@@ -19622,10 +19622,13 @@ const REBUILD=[
     if(n){try{save();}catch(e){}try{toast('📬 '+(n>1?n+' letters':'A letter')+' about rebuilding the island. Check the mailbox by the café.',4);}catch(e){}}
     REBUILD.forEach(r=>{const k='rbOk_'+r.q;if(isReady(r)&&!started(r.q)&&!S[k]){S[k]=1;try{toast('🏗️ '+r.from+' is back on the island: new side quest!',4);}catch(e){}}});}
   setInterval(()=>{try{letters();}catch(e){}},5000);
-  // the Island Builder from the game menu; coming back rebuilds the island from the player's map
+  // the Island Builder from the game menu, in the same tab (one 3D page at a time); its "Back to the game" button reopens this save
   (function btn(){const right=document.querySelector('.right');if(!right){setTimeout(btn,800);return;}const b=document.createElement('button');b.id='builderBtn';b.type='button';b.className='panel hudBtn more';b.textContent='🏗️ Island Builder';
-    b.onclick=()=>{let t='';try{t=Object.keys(localStorage).filter(k=>k.indexOf('ppl-mapedit-player-rott')===0).map(k=>localStorage.getItem(k)).join('|').length+'';}catch(e){}b.__t=t;window.open('./lib/engines/editor/player.html','_blank');};right.appendChild(b);
-    document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||b.__t==null)return;let t='';try{t=Object.keys(localStorage).filter(k=>k.indexOf('ppl-mapedit-player-rott')===0).map(k=>localStorage.getItem(k)).join('|').length+'';}catch(e){}if(t!==b.__t){b.__t=null;try{IBMAP.reload&&IBMAP.reload();toast('🏝️ Island updated from the Island Builder',3);}catch(e){console.error('rebuild island',e);}}});})();
+    b.onclick=()=>{try{save();}catch(e){}location.href='./lib/engines/editor/player.html?from=game&slot='+SLOT;};right.appendChild(b);})();
+  // back from a builder page (?resume=<slot>): open that save straight away
+  (()=>{const m=location.search.match(/[?&]resume=(\d+)/);if(!m)return;try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}const n=+m[1];
+    (function go(){let ok=false;try{ok=ISL.done&&(!IBMAP.on||IBMAP.done);}catch(e){}if(!ok){setTimeout(go,300);return;}const d=readSlot(n);SLOT=n;['title','slots'].forEach(k=>{const o=document.getElementById(k+'Ov');if(o)o.hidden=true;});startGame(d||null);})();})();
+})();
 })();
 // ---------- Rottnest paths, bike lanes and rail bed in 3D (Look Lab ?lawn2 until Paul approves) ----------
 // Paul (13 Nov 2026): bring back the paths, bike lanes and railway as real 3D, smooth and natural. Same lines as before (the
@@ -21251,7 +21254,7 @@ window.__IBMAP=IBMAP;
   /* GM only: a button that opens the Master Island Builder on the same island; coming back to the game rebuilds the island with the edits */
   function gmButton(){if(!isGM()||document.getElementById('ibmGM'))return;const b=document.createElement('button');b.id='ibmGM';b.textContent='🛠️ Master Builder';
     b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 8px);z-index:40;padding:8px 14px;border-radius:999px;border:0;background:#1e2a3a;color:#ffd84a;font:700 14px system-ui;box-shadow:0 3px 0 rgba(0,0,0,.3)';
-    b.onclick=()=>{window.open('./lib/engines/editor/master.html','_blank');};document.body.appendChild(b);IBMAP.gmBtn=b;
+    b.onclick=()=>{try{save();}catch(e){}location.href='./lib/engines/editor/master.html?from=game&slot='+SLOT;};document.body.appendChild(b);IBMAP.gmBtn=b;
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;let t=null;try{t=localStorage.getItem('ppl-mapedit-master');}catch(e){}if(t&&t!==IBMAP.mtxt){teardown();try{build();toast('อัปเดตเกาะจาก Master Builder แล้ว');}catch(e){console.error('ibmap rebuild',e);}}});}
   /* speed (Paul, 14 Nov 2026: slow and laggy on the phone): plants only round the camera, as far as the view reaches; fewer on phones */
   const GQ=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),FOLR=GQ.startsWith('l')?16:GQ.startsWith('m')?22:28;
@@ -21410,7 +21413,7 @@ if(FREOMAP.on)(()=>{
       sea.mesh.name='seaFreo';sea.mesh.visible=false;FREOMAP.sea=sea;}}catch(e){console.warn('freomap sea',e);sea=null;}
     // the Sky Engine (draws only: the game keeps its own sun, shade and fog)
     try{if(typeof SkyEngine!=='undefined'){skyG=new THREE.Group();skyG.name='fmSky';scene.add(skyG);SKY=SkyEngine.create({scene:skyG,renderer,sun:null,hemi:null,radius:Math.min(400,camera.far*.9)});try{SKY.setLayer('godrays',false);SKY.setLayer('flare',false);}catch(e){}}}catch(e){console.warn('freomap sky',e);}
-    try{if(typeof isGM==='function'&&isGM()){const b=document.createElement('button');b.textContent='🛠️ Master Builder · Fremantle';b.style.cssText='position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:60;padding:6px 12px;border-radius:12px;border:2px solid #e8c37a;background:#1d2a3a;color:#ffe6a8;font:600 13px system-ui;display:none';b.onclick=()=>window.open('./lib/engines/editor/freo-master.html','_blank');document.body.appendChild(b);FREOMAP.btn=b;
+    try{if(typeof isGM==='function'&&isGM()){const b=document.createElement('button');b.textContent='🛠️ Master Builder · Fremantle';b.style.cssText='position:fixed;left:50%;top:6px;transform:translateX(-50%);z-index:60;padding:6px 12px;border-radius:12px;border:2px solid #e8c37a;background:#1d2a3a;color:#ffe6a8;font:600 13px system-ui;display:none';b.onclick=()=>{try{save();}catch(e){}location.href='./lib/engines/editor/freo-master.html?from=game&slot='+SLOT+'&freomap';};document.body.appendChild(b);FREOMAP.btn=b;
       let st=localStorage.getItem(FMKEY);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const n=localStorage.getItem(FMKEY);if(n&&n!==st)location.reload();}});}}catch(e){}
     FREOMAP.nHid=hideOld();FREOMAP.ms=Math.round(performance.now()-t0);FREOMAP.done=true;
     console.log('FREOMAP built: '+FREOMAP.doc.bld.length+' buildings, '+FREOMAP.doc.roads.length+' roads, '+FREOMAP.doc.paths.length+' paths, hid '+FREOMAP.nHid+' old pieces, '+FREOMAP.ms+' ms');

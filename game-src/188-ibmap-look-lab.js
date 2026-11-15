@@ -80,7 +80,7 @@ window.__IBMAP=IBMAP;
   /* GM only: a button that opens the Master Island Builder on the same island; coming back to the game rebuilds the island with the edits */
   function gmButton(){if(!isGM()||document.getElementById('ibmGM'))return;const b=document.createElement('button');b.id='ibmGM';b.textContent='🛠️ Master Builder';
     b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 8px);z-index:40;padding:8px 14px;border-radius:999px;border:0;background:#1e2a3a;color:#ffd84a;font:700 14px system-ui;box-shadow:0 3px 0 rgba(0,0,0,.3)';
-    b.onclick=()=>{window.open('./lib/engines/editor/master.html','_blank');};document.body.appendChild(b);IBMAP.gmBtn=b;
+    b.onclick=()=>{try{save();}catch(e){}location.href='./lib/engines/editor/master.html?from=game&slot='+SLOT;};document.body.appendChild(b);IBMAP.gmBtn=b;
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;let t=null;try{t=localStorage.getItem('ppl-mapedit-master');}catch(e){}if(t&&t!==IBMAP.mtxt){teardown();try{build();toast('อัปเดตเกาะจาก Master Builder แล้ว');}catch(e){console.error('ibmap rebuild',e);}}});}
   /* speed (Paul, 14 Nov 2026: slow and laggy on the phone): plants only round the camera, as far as the view reaches; fewer on phones */
   const GQ=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),FOLR=GQ.startsWith('l')?16:GQ.startsWith('m')?22:28;
