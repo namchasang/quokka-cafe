@@ -277,7 +277,7 @@ if(FDET.on&&FDET.g){FDET.g.visible=false;}
 
 // last check on the real-shaped island: every action spot and fishing spot must be reachable on foot
 islandLate(()=>{const fix=o=>{if(o&&typeof o.x==='number'&&o.x<99.5&&blocked(o.x,o.z)){const p=freeNear(o.x,o.z);o.x=p[0];o.z=p[1];}};
-  [WB.acts,WC.acts,LK.acts,P8.acts,WA.plaques||[],WA.npcs||[]].forEach(L=>L.forEach(fix));FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});['golf','armyjetty','airport'].forEach(k=>fix(WA[k]));});
+  [WB.acts,WC.acts,LK.acts,P8.acts,WA.plaques||[],WA.npcs||[]].forEach(L=>L.forEach(fix));(WA.npcs||[]).forEach(n=>{/* the person moves with the spot (QA 16 Nov 2026: Nev was left standing in the sea) */if(n.m)n.m.position.set(n.x,n.m.position.y,n.z);if(n.b)n.b.position.set(n.x,n.b.position.y,n.z);});FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});['golf','armyjetty','airport'].forEach(k=>fix(WA[k]));});
 // one repaint at the end, after every wave has changed the ground
 islandLate(()=>{islRepaint();});
 

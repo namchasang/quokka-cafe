@@ -38,7 +38,7 @@ function waCottage(x,z,wall,roof,ry){const g=new THREE.Group();const w=new THREE
   g.position.set(x,0,z);if(ry)g.rotation.y=ry;scene.add(waMark(g));col(x-1.55,z-1.25,x+1.55,z+1.25);return g;}
 function waTree(x,z,v,s){const g=new THREE.PlaneGeometry(v.w*s,v.h*s);g.translate(0,v.h*s/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);m.__wa=1;trees.push({x,z,m,v,fade:false});col(x-.3,z-.15,x+.3,z+.15);return m;}
 function waSign(x,z,lines,bg,fg,w){signPost(x,z,makeSign(lines,Math.max(48,Math.max(...lines.map(l=>l.length))*6+8),lines.length>1?20:12,bg,fg),w||1.3,lines.length>1?.5:.32);}
-function waNPC(id,name,v,x,z,lines){const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(x,0,z);scene.add(m);m.__wa=1;const b=blob(.85);b.position.set(x,.03,z);b.__wa=1;const n={id,name,x,z,m,lines};WA.npcs=WA.npcs||[];WA.npcs.push(n);return n;}
+function waNPC(id,name,v,x,z,lines){const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(x,0,z);scene.add(m);m.__wa=1;const b=blob(.85);b.position.set(x,.03,z);b.__wa=1;const n={id,name,x,z,m,b,lines};WA.npcs=WA.npcs||[];WA.npcs.push(n);return n;}
 // extra things to talk to and read on the new island
 function waTargets(T){if(!WA.ready||zoneOf(player.x)!=='island')return;(WA.npcs||[]).forEach(n=>T.push({x:n.x,z:n.z,r:1.4,label:'Talk to '+n.name,act:()=>say(n.lines())}));(WA.plaques||[]).forEach(p=>T.push({x:p.x,z:p.z,r:1.3,label:p.label,act:()=>say(p.say)}));}
 const WA_SPOT=k=>()=>WA[k]?[[WA[k].x,WA[k].z]]:[];

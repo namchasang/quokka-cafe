@@ -5797,7 +5797,7 @@ function waCottage(x,z,wall,roof,ry){const g=new THREE.Group();const w=new THREE
   g.position.set(x,0,z);if(ry)g.rotation.y=ry;scene.add(waMark(g));col(x-1.55,z-1.25,x+1.55,z+1.25);return g;}
 function waTree(x,z,v,s){const g=new THREE.PlaneGeometry(v.w*s,v.h*s);g.translate(0,v.h*s/2,0);const m=new THREE.Mesh(g,v.m);m.customDepthMaterial=v.d;m.castShadow=true;m.position.set(x,0,z);scene.add(m);BB.push(m);m.__wa=1;trees.push({x,z,m,v,fade:false});col(x-.3,z-.15,x+.3,z+.15);return m;}
 function waSign(x,z,lines,bg,fg,w){signPost(x,z,makeSign(lines,Math.max(48,Math.max(...lines.map(l=>l.length))*6+8),lines.length>1?20:12,bg,fg),w||1.3,lines.length>1?.5:.32);}
-function waNPC(id,name,v,x,z,lines){const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(x,0,z);scene.add(m);m.__wa=1;const b=blob(.85);b.position.set(x,.03,z);b.__wa=1;const n={id,name,x,z,m,lines};WA.npcs=WA.npcs||[];WA.npcs.push(n);return n;}
+function waNPC(id,name,v,x,z,lines){const m=spriteMesh(humanFrames(v),.95,1.58);m.position.set(x,0,z);scene.add(m);m.__wa=1;const b=blob(.85);b.position.set(x,.03,z);b.__wa=1;const n={id,name,x,z,m,b,lines};WA.npcs=WA.npcs||[];WA.npcs.push(n);return n;}
 // extra things to talk to and read on the new island
 function waTargets(T){if(!WA.ready||zoneOf(player.x)!=='island')return;(WA.npcs||[]).forEach(n=>T.push({x:n.x,z:n.z,r:1.4,label:'Talk to '+n.name,act:()=>say(n.lines())}));(WA.plaques||[]).forEach(p=>T.push({x:p.x,z:p.z,r:1.3,label:p.label,act:()=>say(p.say)}));}
 const WA_SPOT=k=>()=>WA[k]?[[WA[k].x,WA[k].z]]:[];
@@ -8231,7 +8231,7 @@ if(FDET.on&&FDET.g){FDET.g.visible=false;}
 
 // last check on the real-shaped island: every action spot and fishing spot must be reachable on foot
 islandLate(()=>{const fix=o=>{if(o&&typeof o.x==='number'&&o.x<99.5&&blocked(o.x,o.z)){const p=freeNear(o.x,o.z);o.x=p[0];o.z=p[1];}};
-  [WB.acts,WC.acts,LK.acts,P8.acts,WA.plaques||[],WA.npcs||[]].forEach(L=>L.forEach(fix));FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});['golf','armyjetty','airport'].forEach(k=>fix(WA[k]));});
+  [WB.acts,WC.acts,LK.acts,P8.acts,WA.plaques||[],WA.npcs||[]].forEach(L=>L.forEach(fix));(WA.npcs||[]).forEach(n=>{/* the person moves with the spot (QA 16 Nov 2026: Nev was left standing in the sea) */if(n.m)n.m.position.set(n.x,n.m.position.y,n.z);if(n.b)n.b.position.set(n.x,n.b.position.y,n.z);});FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});['golf','armyjetty','airport'].forEach(k=>fix(WA[k]));});
 // one repaint at the end, after every wave has changed the ground
 islandLate(()=>{islRepaint();});
 
@@ -21402,7 +21402,7 @@ window.__IBMAP=IBMAP;
       /* phones (Paul, 15 Nov 2026: iPhone 12 lagged): still meshes merged into a few draws, fewer folk, a coarser ground on Medium/Low */merge:true,terrain:GQ.startsWith('l')?{res:2.1}:GQ.startsWith('m')?{res:1.5}:undefined,lifeScale:GQ.startsWith('l')?.1:GQ.startsWith('m')?.18:.45,lifeNear:(GQ.startsWith('h')?60:38)*K,seaBed:(xb,zb)=>{const g=toGame(xb,zb);try{return SEA4.bedL(g[0],g[1])*K;}catch(e){return (L()-2)*K;}},waterLevel:L()*K});
     sinkOldLand(I);
     IBMAP.I=I;try{if(I.E.fol.setQuality)I.E.fol.setQuality(GQ.startsWith('l')?0:GQ.startsWith('m')?1:2);}catch(e){}grp.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;if(o.isMesh){o.receiveShadow=true;}});
-    IBMAP.nHid=hideOld();gmButton();oldWalkersOff();skyMake();mapRefresh();IBMAP.ms=Math.round(performance.now()-t0);IBMAP.done=true;
+    IBMAP.nHid=hideOld();gmButton();oldWalkersOff();skyMake();mapRefresh();IBMAP.ms=Math.round(performance.now()-t0);IBMAP.done=true;spotsReach();
     veilOff();console.log('IBMAP built ('+IBMAP.src+'): '+doc.bld.length+' buildings, '+doc.roads.length+' roads, '+doc.paths.length+' paths, hid '+IBMAP.nHid+' old pieces, '+IBMAP.ms+' ms (engines '+I.ms+' ms)');}
   /* the old ambient walkers followed the old island's paths: on the new island the Life Engine's folk walk the map's own paths */
   function oldWalkersOff(){try{walkers.forEach(w=>{if(w.zone==='island'){w.zone='island-old';w.m.visible=false;w.sh.visible=false;}});}catch(e){}}
@@ -21437,6 +21437,14 @@ window.__IBMAP=IBMAP;
      onto dry land (phase 2) */
   const _iw=IW;IW=function(x,z){const w=_iw(x,z);if(!IBMAP.done||x>=99.5||zoneOf(w.x)!=='island')return w;let d=IBMAP.landD(w.x,w.z);if(d>.6||d<-8)return w;let X=w.x,Z=w.z;
     for(let i=0;i<40&&d<.9;i++){const h=.4,gx=IBMAP.landD(X+h,Z)-IBMAP.landD(X-h,Z),gz=IBMAP.landD(X,Z+h)-IBMAP.landD(X,Z-h),g=Math.hypot(gx,gz)||1;X+=gx/g*.35;Z+=gz/g*.35;d=IBMAP.landD(X,Z);}return{x:X,z:Z};};
+  /* QA 16 Nov 2026: quest, postcard and talk spots written for the old island must be reachable on foot on the new one
+     (Nev stood in the sea, the Osprey nest photo spot was 6 units offshore, Pebble at Geordie Bay sat inside a solid).
+     A blocked spot moves to the nearest free ground (freeNear); the wreck stays out on the reef (it is a snorkel spot). */
+  function spotsReach(){try{const fix=o=>{if(!o||typeof o.x!=='number'||o.x>=99.5||zoneOf(o.x)!=='island'||!blocked(o.x,o.z))return false;const p=freeNear(o.x,o.z);if(p[0]===o.x&&p[1]===o.z)return false;o.x=p[0];o.z=p[1];return true;};
+    (WA.npcs||[]).forEach(n=>{fix(n);if(n.m)n.m.position.set(n.x,n.m.position.y,n.z);if(n.b)n.b.position.set(n.x,n.b.position.y,n.z);});
+    ['nev','osprey','dani','sealdeck','boardwalk','pups'].forEach(k=>fix(WC[k]));[WC.acts,WA.plaques||[]].forEach(L=>(L||[]).forEach(fix));FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});
+    const C=new Map();PCS.forEach(p=>{if(p.zone!=='island'||p.__reach||typeof p.pos!=='function'||p.id==='wreck'||!(p.cat==='place'||p.cat==='people'||p.id==='osprey'))return;/* sea animals and the wreck stay where they are */const f=p.pos;p.__reach=1;
+      p.pos=function(){const l=f.apply(this,arguments);if(!IBMAP.done||!Array.isArray(l))return l;return l.map(q=>{if(!q||typeof q[0]!=='number')return q;const k=p.id+'|'+q[0].toFixed(1)+'|'+q[1].toFixed(1);let r=C.get(k);if(!r){if(C.size>4000)C.clear();r=blocked(q[0],q[1])?freeNear(q[0],q[1]):q;C.set(k,r);}return r;});};});}catch(e){console.warn('ibmap spots',e);}}
   function mapRefresh(){try{MMR=null;mmBase=renderMapBase(mmFW(),mmFH(),1.15,false);bigBase=null;}catch(e){console.warn('ibmap minimap',e);}}
   /* Kip on the new island: ground height and what blocks him (the café area keeps the old rules) */
   const onIsl=(x,z)=>IBMAP.done&&x<99.5&&x>TB.x1-8&&z>TB.z1-8&&z<TB.z2+8&&zoneOf(x)==='island';const onNew=(x,z)=>onIsl(x,z)&&!inCafe(x,z);
