@@ -1,0 +1,1705 @@
+{
+ "res": {
+  "ibDone": true,
+  "secs": 0.045,
+  "said": [],
+  "quests": [
+   "main: Bring Mum & Dad to Rottnest [0/3]",
+   "hq: Start here: Café HQ & Kip’s Journey [0/3]",
+   "story_island: Rottnest · Ch 1/3: Welcome to Rottnest [0/5]",
+   "sq_glasses: 😂 Side · The Cyclist’s Sunglasses [0/3]",
+   "sq_keeper: 💛 Side · Coffee for the Old Painter [0/3]",
+   "sq_gull: 😂 Side · The Great Seagull Heist [0/3]",
+   "sq_bottle: 💛 Side · A Letter from 1962 [0/2]",
+   "sq_armyjetty: 💛 Side · Evening at Army Jetty [0/3]",
+   "sq_flipper: 😂 Side · One Flipper Short [0/4]",
+   "sq_initials: 💛 Side · J.B. 1942 [0/3]",
+   "sq_bell: 💛 Side · The Bell on the Reef [0/3]",
+   "sq_sealhat: 😂 Side · Hat Overboard [0/3]",
+   "shells: Nana Wren’s lost shells [0/5]",
+   "lore: Stories of the Island [0/3]",
+   "biz: Island entrepreneur [0/4]",
+   "freo: The road to Fremantle [0/2]",
+   "festival: Festivals [0/7]",
+   "postcards: Postcards of Perth [0/4]"
+  ],
+  "track": "main",
+  "coins": 0,
+  "day": 1,
+  "bad": [
+   {
+    "kind": "start",
+    "name": "Kip start",
+    "x": -122.9,
+    "z": -31.4,
+    "land": 12.27,
+    "reach": 0.75,
+    "need": 0,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#0 Read the message in the bottle",
+    "x": -298,
+    "z": -19,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#1 Find Bea on the super yacht Silver Gull",
+    "x": 132.1,
+    "z": 107.5,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#2 Find Bluey on the tanker Southern Star",
+    "x": -292.5,
+    "z": 109,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#3 Find Mrs Pemberton on the super yacht Coral Dream",
+    "x": 131.5,
+    "z": -109.2,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#4 Find Tom on the tanker Indian Dawn",
+    "x": -295.5,
+    "z": -111,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   }
+  ],
+  "out": [
+   {
+    "kind": "start",
+    "name": "Kip start",
+    "x": -122.9,
+    "z": -31.4,
+    "land": 12.27,
+    "reach": 0.75,
+    "need": 0,
+    "bad": true
+   },
+   {
+    "kind": "story",
+    "name": "ch1 Photograph Main Jetty [jetty]",
+    "x": -139.3,
+    "z": -28.9,
+    "land": 0.81,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch1 Open the café and serve your first tourist",
+    "x": -122.9,
+    "z": -35.9,
+    "land": 8.32,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch1 Photograph Quokka Cafe [cafe]",
+    "x": -122.9,
+    "z": -32.8,
+    "land": 11.47,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch1 Find and photograph a wild quokka [quokka]",
+    "x": -110.4,
+    "z": -29.8,
+    "land": 13.4,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch1 Take a photo of Gus the ferry master [gus]",
+    "x": -134.4,
+    "z": -30.7,
+    "land": 0.84,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch2 Climb to Rottnest Lighthouse [wadjemup]",
+    "x": -39.8,
+    "z": -2.8,
+    "land": 19.55,
+    "reach": 0,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch2 Photograph the pink salt lake [pinklake]",
+    "x": -45.2,
+    "z": -41.3,
+    "land": 5.73,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch2 Read the Pink lakes stone [lore3]",
+    "x": -47.6,
+    "z": -39.5,
+    "land": 8.53,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch2 Visit Bathurst Lighthouse [bathurst]",
+    "x": -32.7,
+    "z": -33.6,
+    "land": 4.79,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch2 Catch a seagull on camera [gull]",
+    "x": -124.9,
+    "z": -37.5,
+    "land": 6.71,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch3 Swim spot: The Basin [basin]",
+    "x": -101.2,
+    "z": -43.7,
+    "land": 2.68,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch3 Ride or walk to Geordie Bay [geordie]",
+    "x": -7.2,
+    "z": -22.9,
+    "land": 4.92,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch3 Snack stop: Bayside Store [geostore]",
+    "x": 4.8,
+    "z": 8.7,
+    "land": 13.94,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch3 Explore Oliver Hill Battery [oliverhill]",
+    "x": -8.5,
+    "z": 25.5,
+    "land": 6.7,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch3 Photograph the Quokka Express train [qexpress]",
+    "x": -68.3,
+    "z": -15,
+    "land": 33.71,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "story",
+    "name": "ch3 Visit Quokka Village [village]",
+    "x": -89.9,
+    "z": -2.5,
+    "land": 20.21,
+    "reach": 0,
+    "need": 4.5,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat0",
+    "x": -127,
+    "z": -34,
+    "land": 7.76,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat1",
+    "x": -125.2,
+    "z": -34,
+    "land": 9.52,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat2",
+    "x": -123.8,
+    "z": -33.1,
+    "land": 10.93,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat3",
+    "x": -122,
+    "z": -33.1,
+    "land": 11.19,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat4",
+    "x": -120.6,
+    "z": -34,
+    "land": 10.29,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat5",
+    "x": -118.8,
+    "z": -34,
+    "land": 9.93,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat6",
+    "x": -125.8,
+    "z": -31.7,
+    "land": 9.28,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat7",
+    "x": -124,
+    "z": -31.7,
+    "land": 11.04,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat8",
+    "x": -121.8,
+    "z": -31.7,
+    "land": 12.54,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat9",
+    "x": -120,
+    "z": -31.7,
+    "land": 12.54,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat10",
+    "x": -123.8,
+    "z": -29.9,
+    "land": 11.46,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "seat",
+    "name": "seat11",
+    "x": -122,
+    "z": -29.9,
+    "land": 13.22,
+    "reach": 0,
+    "need": 1.2,
+    "bad": false
+   },
+   {
+    "kind": "npc",
+    "name": "Gus",
+    "x": -134.4,
+    "z": -30.7,
+    "land": 0.84,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "npc",
+    "name": "Nana Wren",
+    "x": -42.5,
+    "z": 0.9,
+    "land": 15.85,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "glasses#0 Talk to Dale at Kip’s Pedal Hire",
+    "x": -133.5,
+    "z": -26.9,
+    "land": 3.19,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "glasses#1 Search The Basin for a stylish quokka",
+    "x": -101.2,
+    "z": -43.7,
+    "land": 2.68,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "glasses#2 Return the sunglasses to Dale",
+    "x": -133.5,
+    "z": -26.9,
+    "land": 3.19,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "keeper#0 Talk to Nana Wren",
+    "x": -42.5,
+    "z": 0.9,
+    "land": 15.85,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "keeper#1 Carry a Flat White up to Rottnest Lighthouse",
+    "x": -39.8,
+    "z": -2.8,
+    "land": 19.55,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "keeper#2 Tell Nana Wren how it went",
+    "x": -42.5,
+    "z": 0.9,
+    "land": 15.85,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "joey#0 Talk to Poppy in Quokka Village",
+    "x": -89.9,
+    "z": -2.5,
+    "land": 20.21,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "joey#1 Look for Pebble near the boats at Geordie Bay",
+    "x": -7.2,
+    "z": -22.9,
+    "land": 4.92,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "joey#2 Walk Pebble home to Quokka Village",
+    "x": -89.9,
+    "z": -2.5,
+    "land": 20.21,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "gull#0 Talk to Gus at Main Jetty",
+    "x": -139.3,
+    "z": -28.9,
+    "land": 0.81,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "gull#1 Track down the thief at East Beach",
+    "x": -51.2,
+    "z": 7.4,
+    "land": 9.4,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "gull#2 Bring Gus a Lamington to make up for it",
+    "x": -139.3,
+    "z": -28.9,
+    "land": 0.81,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "bottle#0 Check the bottle by the beach hammock",
+    "x": -120.3,
+    "z": -23.9,
+    "land": 13.1,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "bottle#1 Ask around the Settlement cottages",
+    "x": -125,
+    "z": -42.3,
+    "land": 1.92,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "golfball#0 Talk to Col at the golf clubhouse",
+    "x": -148.8,
+    "z": 11.4,
+    "land": 1.85,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "golfball#1 Search Garden Lake for golf balls",
+    "x": -93,
+    "z": 9.8,
+    "land": 20.13,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "golfball#2 Follow the tracks to the airstrip",
+    "x": -118,
+    "z": 10,
+    "land": 9.25,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "golfball#3 Bring the golf balls back to Col",
+    "x": -148.8,
+    "z": 11.4,
+    "land": 1.85,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "saltjar#0 Talk to Sal at the Salt Store",
+    "x": -94,
+    "z": -34,
+    "land": 12.09,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "saltjar#1 Scoop salt crystals at Government House Lake",
+    "x": -114.5,
+    "z": 3.9,
+    "land": 9.66,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "saltjar#2 Bring the jar back to Sal",
+    "x": -94,
+    "z": -34,
+    "land": 12.09,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "armyjetty#0 Talk to Ranger Ash at Kingstown Barracks",
+    "x": -99.3,
+    "z": -15.9,
+    "land": 7.43,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "armyjetty#1 Stand at the end of Army Jetty after 17:30",
+    "x": -119.7,
+    "z": -15.5,
+    "land": 4.58,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "armyjetty#2 Show Ash the photo",
+    "x": -99.3,
+    "z": -15.9,
+    "land": 7.43,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "windsock#0 Talk to Pilot Jo at the airstrip",
+    "x": -124.8,
+    "z": 3.2,
+    "land": 6.9,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "windsock#1 Look for the windsock around the Settlement Chapel",
+    "x": -94.8,
+    "z": -28,
+    "land": 17.77,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "windsock#2 Bring the windsock back to Jo",
+    "x": -124.8,
+    "z": 3.2,
+    "land": 6.9,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "flipper#0 Talk to Mia at Little Armstrong Bay",
+    "x": 17.6,
+    "z": 14.1,
+    "land": 5.82,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "flipper#1 Look for flipper tracks at Parakeet Bay",
+    "x": 9,
+    "z": 7.2,
+    "land": 9.73,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "flipper#2 Follow the tracks to Oliver Hill Station",
+    "x": -15,
+    "z": 0.5,
+    "land": 25.01,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "flipper#3 Bring the flipper back to Mia",
+    "x": 17.6,
+    "z": 14.1,
+    "land": 5.82,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "initials#0 Talk to Bev at the Oliver Hill tunnels",
+    "x": -1.3,
+    "z": 24.3,
+    "land": 8.66,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "initials#1 Take the tunnel tour and find J.B. 1942",
+    "x": -3,
+    "z": 24.4,
+    "land": 9.45,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "initials#2 Show Bev the photo",
+    "x": -1.3,
+    "z": 24.3,
+    "land": 8.66,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "bell#0 Talk to Nev at Henrietta Rocks",
+    "x": -82.8,
+    "z": 45.9,
+    "land": 1.09,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "bell#1 Snorkel to the wreck and find the bell",
+    "x": -82.6,
+    "z": 47.2,
+    "land": 0.82,
+    "reach": 0.25,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "bell#2 Show Nev the photo",
+    "x": -82.8,
+    "z": 45.9,
+    "land": 1.09,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "sealhat#0 Talk to Ranger Dani at the seal deck",
+    "x": 84.6,
+    "z": 43.3,
+    "land": 7.41,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "sealhat#1 Look for the hat along the West End boardwalk",
+    "x": 78.6,
+    "z": 42.5,
+    "land": 7.95,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "sealhat#2 Bring the hat back to Dani",
+    "x": 84.6,
+    "z": 43.3,
+    "land": 7.41,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "cottagekeys#0 Talk to Tash at the Bickley Bay cottages",
+    "x": -147.5,
+    "z": -4.6,
+    "land": 6.7,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "cottagekeys#1 Look for the keys at the airstrip",
+    "x": -118,
+    "z": 10,
+    "land": 9.25,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "cottagekeys#2 Follow the trail to the East Point beacon",
+    "x": -162.9,
+    "z": -7.9,
+    "land": 4.69,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "cottagekeys#3 Bring the keys back to Tash",
+    "x": -147.5,
+    "z": -4.6,
+    "land": 6.7,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#0 Read the message in the bottle",
+    "x": -298,
+    "z": -19,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#1 Find Bea on the super yacht Silver Gull",
+    "x": 132.1,
+    "z": 107.5,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#2 Find Bluey on the tanker Southern Star",
+    "x": -292.5,
+    "z": 109,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#3 Find Mrs Pemberton on the super yacht Coral Dream",
+    "x": 131.5,
+    "z": -109.2,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "sideq",
+    "name": "ned#4 Find Tom on the tanker Indian Dawn",
+    "x": -295.5,
+    "z": -111,
+    "land": -9,
+    "reach": 99,
+    "need": 2.6,
+    "bad": true
+   },
+   {
+    "kind": "postcard",
+    "name": "cafe",
+    "x": -122.9,
+    "z": -32.8,
+    "land": 11.47,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "jetty",
+    "x": -139.3,
+    "z": -28.9,
+    "land": 0.81,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "garden",
+    "x": -132.2,
+    "z": -34.3,
+    "land": 2.54,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "hammock",
+    "x": -120.3,
+    "z": -23.9,
+    "land": 13.1,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "pedal",
+    "x": -133.5,
+    "z": -26.9,
+    "land": 3.19,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "scoops",
+    "x": -114.1,
+    "z": -28.1,
+    "land": 14.92,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "cottages",
+    "x": -125,
+    "z": -42.3,
+    "land": 1.92,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "wadjemup",
+    "x": -39.8,
+    "z": -2.8,
+    "land": 19.55,
+    "reach": 0,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "bathurst",
+    "x": -32.7,
+    "z": -33.6,
+    "land": 4.79,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "pinklake",
+    "x": -45.2,
+    "z": -41.3,
+    "land": 5.73,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "basin",
+    "x": -101.2,
+    "z": -43.7,
+    "land": 2.68,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "eastbeach",
+    "x": -51.2,
+    "z": 7.4,
+    "land": 9.4,
+    "reach": 0,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lore1",
+    "x": -111.9,
+    "z": -39.9,
+    "land": 2.87,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lore2",
+    "x": -96.5,
+    "z": -8,
+    "land": 11.29,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lore3",
+    "x": -47.6,
+    "z": -39.5,
+    "land": 8.53,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "ferry",
+    "x": -141.3,
+    "z": -27.3,
+    "land": 2.23,
+    "reach": 0,
+    "need": 6,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "quokka",
+    "x": -110.4,
+    "z": -29.8,
+    "land": 13.4,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "gull",
+    "x": -124.9,
+    "z": -37.5,
+    "land": 6.71,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "butterfly",
+    "x": -118.4,
+    "z": -23.4,
+    "land": 12.14,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "wren",
+    "x": -42.5,
+    "z": 0.9,
+    "land": 15.85,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "gus",
+    "x": -134.4,
+    "z": -30.7,
+    "land": 0.84,
+    "reach": 0,
+    "need": 2.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "village",
+    "x": -89.9,
+    "z": -2.5,
+    "land": 20.21,
+    "reach": 0,
+    "need": 4.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "geordie",
+    "x": -7.2,
+    "z": -22.9,
+    "land": 4.92,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "geostore",
+    "x": 4.8,
+    "z": 8.7,
+    "land": 13.94,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "oliverhill",
+    "x": -8.5,
+    "z": 25.5,
+    "land": 6.7,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "qexpress",
+    "x": -68.3,
+    "z": -15,
+    "land": 33.71,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "parker",
+    "x": -94,
+    "z": 49.3,
+    "land": 5.28,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "salmonbay",
+    "x": -85.9,
+    "z": 49.1,
+    "land": 1.65,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "surfers",
+    "x": 55.4,
+    "z": 39.3,
+    "land": 3.45,
+    "reach": 0,
+    "need": 4.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "vlamingh",
+    "x": 86.8,
+    "z": 42.4,
+    "land": 6.48,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "seals",
+    "x": 86.9,
+    "z": 44.3,
+    "land": 6.05,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "coach",
+    "x": -5.6,
+    "z": -21.4,
+    "land": 4.68,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "elder",
+    "x": -82.3,
+    "z": 17,
+    "land": 12.03,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "snork",
+    "x": -99.8,
+    "z": -45.9,
+    "land": 3.15,
+    "reach": 0,
+    "need": 4.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "quod",
+    "x": -101.1,
+    "z": -30.6,
+    "land": 14.29,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "saltstore",
+    "x": -95.6,
+    "z": -33.7,
+    "land": 11.72,
+    "reach": 0,
+    "need": 3.2,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "chapel",
+    "x": -94.8,
+    "z": -28,
+    "land": 17.77,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "heritage",
+    "x": -106.6,
+    "z": -39.4,
+    "land": 3.88,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "kingstown",
+    "x": -101.9,
+    "z": -15.5,
+    "land": 4.67,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "armyjetty",
+    "x": -119.7,
+    "z": -15.5,
+    "land": 4.58,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "airport",
+    "x": -118,
+    "z": 10,
+    "land": 9.25,
+    "reach": 0,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "ghlake",
+    "x": -114.5,
+    "z": 3.9,
+    "land": 9.66,
+    "reach": 0,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "serpentine",
+    "x": -73.2,
+    "z": 15.8,
+    "land": 7.62,
+    "reach": 0,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "baghdad",
+    "x": -60,
+    "z": -33.2,
+    "land": 19.95,
+    "reach": 0,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "gardenlake",
+    "x": -93,
+    "z": 9.8,
+    "land": 20.13,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "col",
+    "x": -148.8,
+    "z": 11.4,
+    "land": 1.85,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "sal",
+    "x": -94,
+    "z": -34,
+    "land": 12.09,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "ash",
+    "x": -99.3,
+    "z": -15.9,
+    "land": 7.43,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "jo",
+    "x": -124.8,
+    "z": 3.2,
+    "land": 6.9,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "parakeet",
+    "x": 9,
+    "z": 7.2,
+    "land": 9.73,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "armstrong",
+    "x": 20,
+    "z": 12.5,
+    "land": 3.22,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "catherine",
+    "x": 27.2,
+    "z": 21,
+    "land": 2.97,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "stark",
+    "x": 52.4,
+    "z": 24.4,
+    "land": 3.67,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "snorkeltrail",
+    "x": 21.3,
+    "z": 17.2,
+    "land": 5.4,
+    "reach": 0,
+    "need": 2.6,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "gun2",
+    "x": -15,
+    "z": 26.4,
+    "land": 7.8,
+    "reach": 0,
+    "need": 3.2,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "tunnels",
+    "x": -3,
+    "z": 24.4,
+    "land": 9.45,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "obspost",
+    "x": -7.5,
+    "z": 20,
+    "land": 12.2,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "ostn",
+    "x": -15,
+    "z": 0.5,
+    "land": 25.01,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "sstn",
+    "x": -108.9,
+    "z": -37.9,
+    "land": 5.3,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "mia",
+    "x": 17.6,
+    "z": 14.1,
+    "land": 5.82,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "bev",
+    "x": -1.3,
+    "z": 24.3,
+    "land": 8.66,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "ray",
+    "x": -108.2,
+    "z": -37.4,
+    "land": 5.87,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "bigsalmon",
+    "x": 40,
+    "z": 28,
+    "land": 1.97,
+    "reach": 0,
+    "need": 4.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "wreck",
+    "x": -82.6,
+    "z": 47.2,
+    "land": 0.82,
+    "reach": 0.25,
+    "need": 5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "sealdeck",
+    "x": 85.6,
+    "z": 42.9,
+    "land": 7.68,
+    "reach": 0,
+    "need": 3.2,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "pups",
+    "x": 87,
+    "z": 43.4,
+    "land": 6.71,
+    "reach": 0,
+    "need": 4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "boardwalk",
+    "x": 78.6,
+    "z": 42.5,
+    "land": 7.95,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "osprey",
+    "x": 86.8,
+    "z": 38.1,
+    "land": 4.3,
+    "reach": 0,
+    "need": 4.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "nev",
+    "x": -82.8,
+    "z": 45.9,
+    "land": 1.09,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "dani",
+    "x": 84.6,
+    "z": 43.3,
+    "land": 7.41,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lk_wadjemup",
+    "x": -34.8,
+    "z": 8.2,
+    "land": 9.25,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lk_oliver",
+    "x": -4.4,
+    "z": 28.5,
+    "land": 4.81,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lk_bathurst",
+    "x": -37.2,
+    "z": -27.8,
+    "land": 12.32,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lk_salmonpt",
+    "x": 58.5,
+    "z": 31.9,
+    "land": 10.43,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lk_herschel",
+    "x": 11.7,
+    "z": 15.7,
+    "land": 10.55,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "lk_cape",
+    "x": 87.2,
+    "z": 42.4,
+    "land": 6.1,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "bickley",
+    "x": -150,
+    "z": -6.4,
+    "land": 5.3,
+    "reach": 0,
+    "need": 4.5,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "bcottages",
+    "x": -154,
+    "z": 0.8,
+    "land": 8.47,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "tash",
+    "x": -147.5,
+    "z": -4.6,
+    "land": 6.7,
+    "reach": 0,
+    "need": 2.4,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "birdhide",
+    "x": -70.2,
+    "z": 19.6,
+    "land": 2.63,
+    "reach": 0,
+    "need": 3,
+    "bad": false
+   },
+   {
+    "kind": "postcard",
+    "name": "eastpoint",
+    "x": -162.9,
+    "z": -7.9,
+    "land": 4.69,
+    "reach": 0,
+    "need": 3.4,
+    "bad": false
+   }
+  ]
+ },
+ "errs": []
+}

@@ -1,0 +1,98 @@
+[
+ {
+  "name": "start",
+  "q": "",
+  "secs": 127,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "rottnest-cafe",
+  "q": "?shot=0,0,10,0,1,0",
+  "secs": 114,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "rottnest-west",
+  "q": "?shot=-60,0,10,0,1.4,0",
+  "secs": 127,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "south-perth",
+  "q": "?shot=150,7,10,0,1,0",
+  "secs": 57,
+  "fps": 1.5,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "fremantle",
+  "q": "?shot=295,0,10,0,1,0",
+  "secs": 56,
+  "fps": 1,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "heirisson",
+  "q": "?shot=420,0,10,0,1,0",
+  "secs": 55,
+  "fps": 2.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "victoria-park",
+  "q": "?shot=525,5,10,0,1,0",
+  "secs": 57,
+  "fps": 0.88,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "outer-world",
+  "q": "?ow2&owgo",
+  "secs": 111,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "oldisland",
+  "q": "?shot=0,0,10,0,1,0&oldisland",
+  "secs": 77,
+  "fps": 0.5,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "owengine",
+  "q": "?ow2&owgo&owengine",
+  "secs": 124,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "freomap",
+  "q": "?shot=312,8,10,0,1,0&freomap",
+  "secs": 142,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "freo-old",
+  "q": "?shot=312,8,10,0,1,0",
+  "secs": 57,
+  "fps": 1.38,
+  "errors": [],
+  "nErrors": 0
+ }
+]
