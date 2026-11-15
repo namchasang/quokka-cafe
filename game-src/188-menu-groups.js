@@ -2,7 +2,7 @@
 // ☰ opens one sheet with six headings instead of a long column of buttons. The buttons are the same elements, moved into the
 // sheet, so every handler keeps working; buttons added later (Graphics, GM tools...) land in their group or in Settings.
 (()=>{const right=document.querySelector('.right'),mb=document.getElementById('menuBtn');if(!right||!mb)return;
-  const GROUPS=[['play','🗺️ Play',['questBtn2','guideBtn','calBtn','wishBtn']],['bag','🎒 Bag & album',['albumBtn']],['cafe','☕ Café & shop',['cafeBtn','passBtn','acctBtn']],
+  const GROUPS=[['play','🗺️ Play',['questBtn2','guideBtn','calBtn','wishBtn','builderBtn']],['bag','🎒 Bag & album',['albumBtn']],['cafe','☕ Café & shop',['cafeBtn','passBtn','acctBtn']],
     ['friends','🏝️ Friends',['visitBtn']],['music','🎵 Music',['radioBtn']],['set','⚙️ Settings',['saveBtn','unstuckBtn','gmBtn']]];
   const css=document.createElement('style');css.textContent=`#menuSheet{position:fixed;right:10px;top:64px;z-index:58;width:min(330px,calc(100vw - 20px));max-height:calc(100vh - 90px);overflow:auto;padding:10px 10px 6px;border-radius:14px;background:rgba(22,30,48,.96);border:2px solid #e8c37a;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
 #menuSheet.on{display:block}#menuSheet h4{margin:6px 2px 5px;font:800 12px "M PLUS Rounded 1c",system-ui,sans-serif;color:#ffd78a;letter-spacing:.04em}

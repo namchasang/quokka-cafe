@@ -77,6 +77,12 @@ const BIZ={
   rent3:{n:'บ้านพักวิวทะเล',ic:'🏡',price:15000,inc:780,rent:1,style:'house',sign:'OCEAN VIEW',wall:'#f6f2e8',roofColor:'#5a6a74',shutters:'#2f6a9a'},
   rent4:{n:'วิลล่าสองชั้น',ic:'🏘️',price:24000,inc:1250,rent:1,style:'house',floors:2,balcony:true,sign:'BAY VILLA',wall:'#fbf8f0',roofColor:'#3a4048',w:8,d:7},
   rent5:{n:'วิลล่าหรูริมหาด',ic:'🏝️',price:40000,inc:2100,rent:1,style:'flats',floors:2,sign:'THE SANDS VILLA',wall:'#fdfbf6',roofColor:'#2f3a44',w:12,d:9,pool:true},
+  /* rebuild quests (Paul, 14-15 Nov 2026): build it and its owner comes back to the island with a quest */
+  saltstore:{n:'Salt Store · เควส Sal',ic:'🧂',price:6000,inc:0,style:'islandcottage',sign:'SALT STORE',wall:'#f1e6c8',q:'saltjar'},
+  qhut:{n:'กระท่อม Quokka Village · เควส Poppy (3 หลัง)',ic:'🛖',price:1500,inc:0,style:'cabin',sign:'QUOKKA VILLAGE',q:'joey'},
+  airstrip:{n:'Island Airstrip · เควส Pilot Jo',ic:'🛩️',price:8000,inc:0,style:'kiosk',sign:'ISLAND AIRSTRIP',awning:'#f08a24',wall:'#f4f1ea',q:'windsock'},
+  golf:{n:'Island Links Golf · เควส Col',ic:'⛳',price:9000,inc:0,style:'cottage',sign:'ISLAND LINKS GOLF',wall:'#e6efd6',roofColor:'#3e6b4a',q:'golfball'},
+  bickley:{n:'บ้านพัก Bickley Bay · เควส Tash (2 หลัง)',ic:'🏡',price:5000,inc:250,rent:1,style:'islandcottage',sign:'BICKLEY BAY',wall:'#f6f0e2',q:'cottagekeys'},
   fishing:{n:'เรือประมง',ic:'🎣',price:6000,inc:330,boat:'fishing'},
   party:{n:'เรือปาร์ตี้',ic:'🎉',price:15000,inc:850,boat:'party'},
   ferry:{n:'เรือเฟอร์รี่เช่าเหมา',ic:'⛴️',price:30000,inc:1600,boat:'ferry'}};

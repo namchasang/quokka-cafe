@@ -84,6 +84,7 @@ window.__IBMAP=IBMAP;
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;let t=null;try{t=localStorage.getItem('ppl-mapedit-master');}catch(e){}if(t&&t!==IBMAP.mtxt){teardown();try{build();toast('อัปเดตเกาะจาก Master Builder แล้ว');}catch(e){console.error('ibmap rebuild',e);}}});}
   /* speed (Paul, 14 Nov 2026: slow and laggy on the phone): plants only round the camera, as far as the view reaches; fewer on phones */
   const GQ=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),FOLR=GQ.startsWith('l')?16:GQ.startsWith('m')?22:28;
+  IBMAP.reload=()=>{teardown();build();};/* after the player edits the island in the Island Builder */
   function build(){const t0=performance.now();cafeZ=cafeZones();
     const grp=new THREE.Group();grp.name='ibmap';grp.position.set(CX,0,CZ);grp.scale.set(-1/K,1/K,1/K);scene.add(grp);IBMAP.grp=grp;grp.updateMatrixWorld(true);
     const doc=startDoc();IBMAP.doc=doc;keep=keepSet();

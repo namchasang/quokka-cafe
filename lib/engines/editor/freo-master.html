@@ -1546,10 +1546,16 @@ const BIZ={
   rent3:{n:'บ้านพักวิวทะเล',ic:'🏡',price:15000,inc:780,rent:1,style:'house',sign:'OCEAN VIEW',wall:'#f6f2e8',roofColor:'#5a6a74',shutters:'#2f6a9a'},
   rent4:{n:'วิลล่าสองชั้น',ic:'🏘️',price:24000,inc:1250,rent:1,style:'house',floors:2,balcony:true,sign:'BAY VILLA',wall:'#fbf8f0',roofColor:'#3a4048',w:8,d:7},
   rent5:{n:'วิลล่าหรูริมหาด',ic:'🏝️',price:40000,inc:2100,rent:1,style:'flats',floors:2,sign:'THE SANDS VILLA',wall:'#fdfbf6',roofColor:'#2f3a44',w:12,d:9,pool:true},
+  /* rebuild quests (Paul, 14-15 Nov 2026): build it and its owner comes back to the island with a quest */
+  saltstore:{n:'Salt Store · เควส Sal',ic:'🧂',price:6000,inc:0,style:'islandcottage',sign:'SALT STORE',wall:'#f1e6c8',q:'saltjar'},
+  qhut:{n:'กระท่อม Quokka Village · เควส Poppy (3 หลัง)',ic:'🛖',price:1500,inc:0,style:'cabin',sign:'QUOKKA VILLAGE',q:'joey'},
+  airstrip:{n:'Island Airstrip · เควส Pilot Jo',ic:'🛩️',price:8000,inc:0,style:'kiosk',sign:'ISLAND AIRSTRIP',awning:'#f08a24',wall:'#f4f1ea',q:'windsock'},
+  golf:{n:'Island Links Golf · เควส Col',ic:'⛳',price:9000,inc:0,style:'cottage',sign:'ISLAND LINKS GOLF',wall:'#e6efd6',roofColor:'#3e6b4a',q:'golfball'},
+  bickley:{n:'บ้านพัก Bickley Bay · เควส Tash (2 หลัง)',ic:'🏡',price:5000,inc:250,rent:1,style:'islandcottage',sign:'BICKLEY BAY',wall:'#f6f0e2',q:'cottagekeys'},
   fishing:{n:'เรือประมง',ic:'🎣',price:6000,inc:330,boat:'fishing'},
   party:{n:'เรือปาร์ตี้',ic:'🎉',price:15000,inc:850,boat:'party'},
   ferry:{n:'เรือเฟอร์รี่เช่าเหมา',ic:'⛴️',price:30000,inc:1600,boat:'ferry'}};
-const BIZ_GROUPS=[['ร้าน',['foodtruck','gelato','cafe','restaurant']],['บ้านให้เช่า',['rent1','rent2','rent3','rent4','rent5']],['เรือ',['fishing','party','ferry']]];
+const BIZ_GROUPS=[['ร้าน',['foodtruck','gelato','cafe','restaurant']],['บ้านให้เช่า',['rent1','rent2','rent3','rent4','rent5']],['เรือ',['fishing','party','ferry']],['สร้างคืน',['saltstore','qhut','airstrip','golf','bickley']]];
 const LVM=[0,1,1.6,2.4],UPF=[0,0,.8,1.5];/* player version (Paul, 14 Nov 2026): Kip already earns from his café in the story, so on the island only holiday rentals and fishing earn (plus fish stalls and vegetable plots) */const earns=t=>!PLAYER||t==='fishing'||!!(BIZ[t]&&BIZ[t].rent);/* shops and the other boats keep their price but earn a quarter (Paul, 14 Nov 2026) */const incF=t=>earns(t)?1:.25;const PLAYER_DINC=['fishstall','gardenplot'];const bizInc=b=>Math.round(BIZ[b.t].inc*incF(b.t)*LVM[b.lv||1]);const bizWorth=b=>{let w=BIZ[b.t].price;for(let l=2;l<=(b.lv||1);l++)w+=BIZ[b.t].price*UPF[l];return w;};
 const LM=c=>new THREE.MeshLambertMaterial({color:new THREE.Color(c).convertSRGBToLinear()});
 function boatMesh(kind){const G=new THREE.Group(),bx=(w,h,d,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),LM(c));m.position.set(x,y,z);m.castShadow=true;G.add(m);return m;};

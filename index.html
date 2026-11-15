@@ -19560,7 +19560,7 @@ const ISLAND_STORE=[];
 // ☰ opens one sheet with six headings instead of a long column of buttons. The buttons are the same elements, moved into the
 // sheet, so every handler keeps working; buttons added later (Graphics, GM tools...) land in their group or in Settings.
 (()=>{const right=document.querySelector('.right'),mb=document.getElementById('menuBtn');if(!right||!mb)return;
-  const GROUPS=[['play','🗺️ Play',['questBtn2','guideBtn','calBtn','wishBtn']],['bag','🎒 Bag & album',['albumBtn']],['cafe','☕ Café & shop',['cafeBtn','passBtn','acctBtn']],
+  const GROUPS=[['play','🗺️ Play',['questBtn2','guideBtn','calBtn','wishBtn','builderBtn']],['bag','🎒 Bag & album',['albumBtn']],['cafe','☕ Café & shop',['cafeBtn','passBtn','acctBtn']],
     ['friends','🏝️ Friends',['visitBtn']],['music','🎵 Music',['radioBtn']],['set','⚙️ Settings',['saveBtn','unstuckBtn','gmBtn']]];
   const css=document.createElement('style');css.textContent=`#menuSheet{position:fixed;right:10px;top:64px;z-index:58;width:min(330px,calc(100vw - 20px));max-height:calc(100vh - 90px);overflow:auto;padding:10px 10px 6px;border-radius:14px;background:rgba(22,30,48,.96);border:2px solid #e8c37a;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
 #menuSheet.on{display:block}#menuSheet h4{margin:6px 2px 5px;font:800 12px "M PLUS Rounded 1c",system-ui,sans-serif;color:#ffd78a;letter-spacing:.04em}
@@ -19596,6 +19596,36 @@ const ISLAND_STORE=[];
   startGame=function(data){if(data)return _sg.apply(this,arguments);
     const v=document.createElement('div');v.style.cssText='position:fixed;inset:0;z-index:80;background:#0a1020;display:grid;place-items:center;color:#f5ecd8;font:700 16px "Pixelify Sans",monospace';v.textContent='Last summer…';document.body.appendChild(v);
     location.href='./lib/engines/editor/prologue.html?ingame=1&slot='+(SLOT||1)+(/th/i.test(navigator.language||'')?'':'&lang=en');};
+})();
+// ---------- Rebuild quests (Paul, 15 Nov 2026: "ทำเควสสร้างคืน") ----------
+// The storm took the island's buildings. Five side quests now come back only when the player builds their building in the
+// Island Builder (business cards "สร้างคืน"): build it and its owner returns to the island with the quest; until then, once the
+// story reaches that point, the owner writes to Kip asking for help. The quest giver stands at the building the player built.
+// A quest already started or finished stays as it is, even if the building is pulled down later.
+const REBUILD=[
+  {q:'saltjar',k:'saltstore',need:1,day:3,pcs:['sal'],from:'Sal',what:'the Salt Store',text:'Dear Kip, my grandfather’s salt store blew away in the storm. If someone rebuilt it by the lakes, I would come home and open it again. Build a Salt Store in the Island Builder (Business → สร้างคืน). Sal'},
+  {q:'joey',k:'qhut',need:3,day:6,pcs:['village'],from:'Poppy',what:'three huts for Quokka Village',text:'Hello Kip! The storm flattened Quokka Village and my little Pebble and I are sleeping under a bush. Three huts among the trees would make it home again. Build them in the Island Builder (Business → สร้างคืน). Poppy'},
+  {q:'windsock',k:'airstrip',need:1,day:6,pcs:['jo'],from:'Pilot Jo',what:'Island Airstrip',text:'G’day Kip, Pilot Jo here. No airstrip, no landing. Put the Island Airstrip back on the map in the Island Builder (Business → สร้างคืน) and I’ll fly straight over. Jo'},
+  {q:'golfball',k:'golf',need:1,day:6,pcs:['col'],from:'Col the greenkeeper',what:'Island Links Golf',text:'Kip, the clubhouse is gone and the greens are all sand. Build Island Links Golf in the Island Builder (Business → สร้างคืน) and I’ll have the course mowed in a week. Col'},
+  {q:'cottagekeys',k:'bickley',need:2,day:9,pcs:['tash'],from:'Tash the cottage keeper',what:'two Bickley Bay cottages',text:'Hi Kip, guests keep asking for Bickley Bay. Two cottages there would get me started again. Build them in the Island Builder (Business → สร้างคืน). Tash'}];
+(()=>{const RB={};REBUILD.forEach(r=>RB[r.q]=r);
+  const built=r=>{try{return((IBMAP.doc&&IBMAP.doc.biz)||[]).filter(b=>b.t===r.k);}catch(e){return[];}};
+  const isReady=r=>built(r).length>=r.need;
+  const started=q=>!!(S.sq&&S.sq[q]);
+  // a rebuild quest opens only when its building stands (or it was already started)
+  const _open=sqOpen;sqOpen=function(q){const r=RB[q.id];if(r&&!started(q.id)&&!isReady(r))return false;return _open(q);};
+  // its owner stands in front of the building the player built
+  const _pos=sqPos;sqPos=function(st){const id=String(st&&st.at||'').replace('pc:','');for(const r of REBUILD){if(r.pcs.indexOf(id)<0)continue;const L=built(r);if(!L.length)break;const b=L[0],a=b.r||0,g=IBMAP.toGame(b.x+Math.sin(a)*4,b.z+Math.cos(a)*4);return{x:g[0],z:g[1]};}return _pos(st);};
+  // a letter from the owner once the story gets there and the building is not there yet
+  function letters(){if(typeof S==='undefined'||!S||VISIT||!IBMAP.done)return;S.rbMail=S.rbMail||{};S.mail=S.mail||[];let n=0;
+    REBUILD.forEach(r=>{if(S.rbMail[r.q]||started(r.q)||isReady(r)||(S.day||1)<r.day)return;S.rbMail[r.q]=S.day;S.mail.unshift({day:S.day,from:r.from,text:r.text,coins:0,read:false,got:false});n++;});
+    if(n){try{save();}catch(e){}try{toast('📬 '+(n>1?n+' letters':'A letter')+' about rebuilding the island. Check the mailbox by the café.',4);}catch(e){}}
+    REBUILD.forEach(r=>{const k='rbOk_'+r.q;if(isReady(r)&&!started(r.q)&&!S[k]){S[k]=1;try{toast('🏗️ '+r.from+' is back on the island: new side quest!',4);}catch(e){}}});}
+  setInterval(()=>{try{letters();}catch(e){}},5000);
+  // the Island Builder from the game menu; coming back rebuilds the island from the player's map
+  (function btn(){const right=document.querySelector('.right');if(!right){setTimeout(btn,800);return;}const b=document.createElement('button');b.id='builderBtn';b.type='button';b.className='panel hudBtn more';b.textContent='🏗️ Island Builder';
+    b.onclick=()=>{let t='';try{t=Object.keys(localStorage).filter(k=>k.indexOf('ppl-mapedit-player-rott')===0).map(k=>localStorage.getItem(k)).join('|').length+'';}catch(e){}b.__t=t;window.open('./lib/engines/editor/player.html','_blank');};right.appendChild(b);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||b.__t==null)return;let t='';try{t=Object.keys(localStorage).filter(k=>k.indexOf('ppl-mapedit-player-rott')===0).map(k=>localStorage.getItem(k)).join('|').length+'';}catch(e){}if(t!==b.__t){b.__t=null;try{IBMAP.reload&&IBMAP.reload();toast('🏝️ Island updated from the Island Builder',3);}catch(e){console.error('rebuild island',e);}}});})();
 })();
 // ---------- Rottnest paths, bike lanes and rail bed in 3D (Look Lab ?lawn2 until Paul approves) ----------
 // Paul (13 Nov 2026): bring back the paths, bike lanes and railway as real 3D, smooth and natural. Same lines as before (the
@@ -20974,6 +21004,12 @@ const BIZ={
   rent3:{n:'บ้านพักวิวทะเล',ic:'🏡',price:15000,inc:780,rent:1,style:'house',sign:'OCEAN VIEW',wall:'#f6f2e8',roofColor:'#5a6a74',shutters:'#2f6a9a'},
   rent4:{n:'วิลล่าสองชั้น',ic:'🏘️',price:24000,inc:1250,rent:1,style:'house',floors:2,balcony:true,sign:'BAY VILLA',wall:'#fbf8f0',roofColor:'#3a4048',w:8,d:7},
   rent5:{n:'วิลล่าหรูริมหาด',ic:'🏝️',price:40000,inc:2100,rent:1,style:'flats',floors:2,sign:'THE SANDS VILLA',wall:'#fdfbf6',roofColor:'#2f3a44',w:12,d:9,pool:true},
+  /* rebuild quests (Paul, 14-15 Nov 2026): build it and its owner comes back to the island with a quest */
+  saltstore:{n:'Salt Store · เควส Sal',ic:'🧂',price:6000,inc:0,style:'islandcottage',sign:'SALT STORE',wall:'#f1e6c8',q:'saltjar'},
+  qhut:{n:'กระท่อม Quokka Village · เควส Poppy (3 หลัง)',ic:'🛖',price:1500,inc:0,style:'cabin',sign:'QUOKKA VILLAGE',q:'joey'},
+  airstrip:{n:'Island Airstrip · เควส Pilot Jo',ic:'🛩️',price:8000,inc:0,style:'kiosk',sign:'ISLAND AIRSTRIP',awning:'#f08a24',wall:'#f4f1ea',q:'windsock'},
+  golf:{n:'Island Links Golf · เควส Col',ic:'⛳',price:9000,inc:0,style:'cottage',sign:'ISLAND LINKS GOLF',wall:'#e6efd6',roofColor:'#3e6b4a',q:'golfball'},
+  bickley:{n:'บ้านพัก Bickley Bay · เควส Tash (2 หลัง)',ic:'🏡',price:5000,inc:250,rent:1,style:'islandcottage',sign:'BICKLEY BAY',wall:'#f6f0e2',q:'cottagekeys'},
   fishing:{n:'เรือประมง',ic:'🎣',price:6000,inc:330,boat:'fishing'},
   party:{n:'เรือปาร์ตี้',ic:'🎉',price:15000,inc:850,boat:'party'},
   ferry:{n:'เรือเฟอร์รี่เช่าเหมา',ic:'⛴️',price:30000,inc:1600,boat:'ferry'}};
@@ -21219,6 +21255,7 @@ window.__IBMAP=IBMAP;
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;let t=null;try{t=localStorage.getItem('ppl-mapedit-master');}catch(e){}if(t&&t!==IBMAP.mtxt){teardown();try{build();toast('อัปเดตเกาะจาก Master Builder แล้ว');}catch(e){console.error('ibmap rebuild',e);}}});}
   /* speed (Paul, 14 Nov 2026: slow and laggy on the phone): plants only round the camera, as far as the view reaches; fewer on phones */
   const GQ=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),FOLR=GQ.startsWith('l')?16:GQ.startsWith('m')?22:28;
+  IBMAP.reload=()=>{teardown();build();};/* after the player edits the island in the Island Builder */
   function build(){const t0=performance.now();cafeZ=cafeZones();
     const grp=new THREE.Group();grp.name='ibmap';grp.position.set(CX,0,CZ);grp.scale.set(-1/K,1/K,1/K);scene.add(grp);IBMAP.grp=grp;grp.updateMatrixWorld(true);
     const doc=startDoc();IBMAP.doc=doc;keep=keepSet();
