@@ -1,0 +1,231 @@
+{
+ "res": {
+  "secs": 0.746,
+  "ib": true,
+  "bizK": "0",
+  "quests": [
+   "main [3/3] DONE",
+   "hq [3/3] DONE",
+   "story_island [1/5] next: Photograph Main Jetty",
+   "sq_glasses [0/3] next: Talk to Dale at Kip’s Pedal Hire",
+   "sq_keeper [0/3] next: Talk to Nana Wren",
+   "sq_gull [0/3] next: Talk to Gus at Main Jetty",
+   "sq_bottle [0/2] next: Check the bottle by the beach hammock",
+   "sq_armyjetty [0/3] next: Talk to Ranger Ash at Kingstown Barracks",
+   "sq_flipper [0/4] next: Talk to Mia at Little Armstrong Bay",
+   "sq_initials [0/3] next: Talk to Bev at the Oliver Hill tunnels",
+   "sq_bell [0/3] next: Talk to Nev at Henrietta Rocks",
+   "sq_sealhat [0/3] next: Talk to Ranger Dani at the seal deck",
+   "shells [2/5] next: Find shell 1 on East Beach",
+   "lore [0/3] next: Read the Island stone stone",
+   "biz [0/4] next: Buy Kip’s Pedal Hire (lot by the jetty · 150 coins)",
+   "freo [1/2] next: Start Kip’s Ferry Co. at the harbour board (1,500 coins)",
+   "rooms [0/2] next: Offer a room to a stranded tourist",
+   "festival [0/7] next: Summer 14: Channel Swim Classic",
+   "friends [0/9] next: Gus 0/10 ♥",
+   "postcards [0/4] next: Collect 10 postcards (0/10)",
+   "garden [2/5] next: Water your crop"
+  ],
+  "unl": [
+   "friends:on",
+   "daily:on",
+   "fishing:on",
+   "dig:on",
+   "bugs:on",
+   "museum:off (Catch a fish, a bug or dig up a fossil)",
+   "rooms:on",
+   "bus:on",
+   "homes:on",
+   "board:on",
+   "stars:on",
+   "coach:on",
+   "train:on",
+   "freo:off (Upgrade Main Jetty to level 3 and start Kip’s Ferry Co.)",
+   "wanderer:off (Visit all six island lookouts)"
+  ],
+  "side": [
+   "😂 Side · The Cyclist’s Sunglasses [0/3]",
+   "💛 Side · Coffee for the Old Painter [0/3]",
+   "💛 Side · The Littlest Quokka [0/3]",
+   "😂 Side · The Great Seagull Heist [0/3]",
+   "💛 Side · A Letter from 1962 [0/2]",
+   "💛 Side · Flowers for the Ferry [0/3]",
+   "😂 Side · Captain Ruth’s Lucky Hat [0/3]",
+   "💛 Side · The Postman’s Last Round [0/4]",
+   "😂 Side · Flour Power [0/3]",
+   "💛 Side · Joy’s Bench [0/3]",
+   "😂 Side · The Swan Census [0/5]",
+   "💛 Side · Skyline at Golden Hour [0/3]",
+   "😂 Side · The Roo Census [0/4]",
+   "😂 Side · The Pelican’s Lunch Order [0/2]",
+   "💛 Side · The Busker’s Lost Song [0/4]",
+   "😂 Side · the Salty Gull Fish Emergency [0/2]",
+   "😂 Side · The Ghost of Fremantle Prison [0/3]",
+   "😂 Side · The Hungry Uni Student [0/3]",
+   "💛 Side · The Unfinished Mural [0/3]",
+   "😂 Side · Fore! The Ball Thief [0/4]",
+   "💛 Side · The Salt Harvest [0/3]",
+   "💛 Side · Evening at Army Jetty [0/3]",
+   "😂 Side · The Runaway Windsock [0/3]",
+   "😂 Side · One Flipper Short [0/4]",
+   "💛 Side · J.B. 1942 [0/3]",
+   "💛 Side · The Bell on the Reef [0/3]",
+   "😂 Side · Hat Overboard [0/3]",
+   "😂 Side · The Key Collector [0/4]",
+   "😂 Side · Twelve Bells [0/3]",
+   "💛 Side · Jack’s Nugget [0/3]",
+   "😂 Side · Lunch Rush [0/3]",
+   "💛 Side · Glass Bridge Brave [0/3]"
+  ],
+  "daily": {},
+  "branches": [
+   "geordie island own:false price:900",
+   "sp sp own:false price:1500",
+   "vp vp own:false price:1800",
+   "freo freo own:false price:2500",
+   "cbd cbd own:false price:4000"
+  ],
+  "boat": {
+   "home": {
+    "x": -145.31488,
+    "z": -29.28306
+   },
+   "homeLandD": -5.42,
+   "dock": {
+    "x": -144.41487999999998,
+    "z": -29.28306
+   },
+   "dockBlocked": false,
+   "shopAt": {
+    "x": 296,
+    "z": -5.8
+   },
+   "shopBlocked": false
+  },
+  "sea": {
+   "spots": 4,
+   "secret": true
+  },
+  "days": [
+   {
+    "day": 31,
+    "coins": 24,
+    "wx": 0,
+    "ev": null,
+    "dtasks": ""
+   },
+   {
+    "day": 32,
+    "coins": 27,
+    "wx": 0,
+    "ev": null,
+    "dtasks": ""
+   },
+   {
+    "day": 33,
+    "coins": 27,
+    "wx": 0,
+    "ev": "heat",
+    "dtasks": ""
+   },
+   {
+    "day": 34,
+    "coins": 36,
+    "wx": 0,
+    "ev": null,
+    "dtasks": ""
+   },
+   {
+    "day": 35,
+    "coins": 57,
+    "wx": 0,
+    "ev": null,
+    "dtasks": ""
+   }
+  ],
+  "walk": [
+   {
+    "n": "island",
+    "zone": "island",
+    "blocked": false,
+    "obj": "Serve tourists until 16:00. Ferries from Fremantle bring a new wave about every hour.",
+    "errors": 0,
+    "targets": [
+     "Ferries · Thomson Bay jetty · pick a town",
+     "Take a boat out (tour boat or your own)"
+    ]
+   },
+   {
+    "n": "sp",
+    "zone": "sp",
+    "blocked": false,
+    "obj": "South Perth · Take the ferry back to Rottnest from the jetty.",
+    "errors": 0,
+    "targets": [
+     "Ferry to Perth CBD (Barrack St)",
+     "Drive to Fremantle",
+     "Drive to Victoria Park",
+     "Ferries · Mends St Jetty · pick a town"
+    ]
+   },
+   {
+    "n": "freo",
+    "zone": "freo",
+    "blocked": false,
+    "obj": "Fremantle · A day out in Freo (0/8). Ferry back from B-Shed.",
+    "errors": 0,
+    "targets": [
+     "Drive to South Perth",
+     "Drive to Perth CBD",
+     "Trains · Fremantle Station · to Platform 1",
+     "Ferries · B-Shed ferry terminal · pick a town",
+     "Freo Boat Sales · buy a boat"
+    ]
+   },
+   {
+    "n": "hi",
+    "zone": "hi",
+    "blocked": false,
+    "obj": "Heirisson Island · Photograph the kangaroos and swans. Bus back from the stop by the Causeway.",
+    "errors": 0,
+    "targets": [
+     "Drive to Perth CBD",
+     "Drive to Victoria Park"
+    ]
+   },
+   {
+    "n": "vp",
+    "zone": "vp",
+    "blocked": false,
+    "obj": "Victoria Park · Eat your way down Albany Highway. Bus stop at the west end.",
+    "errors": 0,
+    "targets": [
+     "Buy Wren City Hatch · 20,000 coins",
+     "Buy Corella Hybrid · 32,000 coins",
+     "Buy Kestrel V8 Ute · 48,000 coins",
+     "Buy Outback Cruiser SUV · 56,000 coins",
+     "Buy Brumby Trail 4x4 · 68,000 coins",
+     "Buy Swagman Camper Van · 80,000 coins",
+     "Talk to Sal",
+     "Trains · Victoria Park Station · to Platform 1"
+    ]
+   }
+  ],
+  "said": [
+   "Gus: G’day, Kip! Every new islander does the welcome walk. Snap the jetty, your café, a quokka and, well, me. Send the postcards home to Mum and Dad!",
+   "New chapter: Rottnest story · Chapter 1: Welcome to Rottnest. Open Quests to track it.",
+   "Captain Ruth: Welcome to Mends Street, love. Best view of the city is from right here on the foreshore. Grab a few snaps before you get busy.",
+   "New chapter: South Perth story · Chapter 1: Up the Swan River. Open Quests to track it.",
+   "Station master Bev: G’day Kip! I’m Bev, I run the trains. Perth is easy once you know the tricks: ferries hop across the river, and trains run between Perth Station, Fremantle, Victoria Park and the airport. Walk onto the platform, step through an open door, pick where you’re going. Give it a go!",
+   "New chapter: Perth transport story · Chapter 1: Ferries and trains. Open Quests to track it.",
+   "Skipper Lou: Welcome to Fremantle! I’ve sailed in here a thousand times. Start with the harbour: the B-Shed, the museum and the Round House on the hill.",
+   "New chapter: Freo story · Chapter 1: The port city. Open Quests to track it.",
+   "Sanctuary sign: Sign: Western grey kangaroos live on this island in the middle of the Swan River. Please walk quietly and keep your distance.",
+   "New chapter: Heirisson story · Chapter 1: Kangaroos in the city. Open Quests to track it.",
+   "Albany Hwy busker: Hey hey, look who’s back! Albany Highway missed you. Food from all over Asia, street art and the train to the city. Have a look around.",
+   "New chapter: Vic Park story · Chapter 1: Welcome to Albany Highway. Open Quests to track it."
+  ],
+  "errs": []
+ },
+ "errs": []
+}
