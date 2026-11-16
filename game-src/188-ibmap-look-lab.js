@@ -139,6 +139,16 @@ window.__IBMAP=IBMAP;
     ['nev','osprey','dani','sealdeck','boardwalk','pups'].forEach(k=>fix(WC[k]));[WC.acts,WA.plaques||[]].forEach(L=>(L||[]).forEach(fix));FISH_SPOTS.forEach(f=>{if(f.zone==='island')fix(f);});
     const C=new Map();PCS.forEach(p=>{if(p.zone!=='island'||p.__reach||typeof p.pos!=='function'||p.id==='wreck'||!(p.cat==='place'||p.cat==='people'||p.id==='osprey'))return;/* sea animals and the wreck stay where they are */const f=p.pos;p.__reach=1;
       p.pos=function(){const l=f.apply(this,arguments);if(!IBMAP.done||!Array.isArray(l))return l;return l.map(q=>{if(!q||typeof q[0]!=='number')return q;const k=p.id+'|'+q[0].toFixed(1)+'|'+q[1].toFixed(1);let r=C.get(k);if(!r){if(C.size>4000)C.clear();r=blocked(q[0],q[1])?freeNear(q[0],q[1]):q;C.set(k,r);}return r;});};});}catch(e){console.warn('ibmap spots',e);}}
+  /* QA 17 Nov 2026 (returning player): some tap points written for the old island now sit inside a building or prop of the
+     new one, so Kip can never stand within their radius (Geordie Bay café lot for sale 3.75 away, needs 1.6; Island Loop bus
+     stop at Green Island; a lore stone). Any island tap point with no free ground within its radius moves to the nearest
+     free ground. Points Kip can already reach (counter, seats, everything else) are left exactly where they are. */
+  targetsReach();
+  function targetsReach(){if(buildTargets.__ib)return;const C=new Map();const _bt=buildTargets;
+    const ok=(x,z,r)=>{if(!blocked(x,z))return true;for(let rr=.25;rr<=r*.9;rr+=.25)for(let a=0;a<16;a++){const t=a/16*6.283;if(!blocked(x+Math.cos(t)*rr,z+Math.sin(t)*rr))return true;}return false;};
+    buildTargets=function(){const T=_bt.apply(this,arguments);try{for(const t of T){if(typeof t.x!=='number'||typeof t.z!=='number'||t.x>=99.5)continue;
+      const k=t.x.toFixed(1)+','+t.z.toFixed(1)+','+(t.r||1.2);let c=C.get(k);const now=performance.now();if(!c||now-c.t>4000){/* re-checked every few seconds: colliders such as a branch café are added after the island is built */if(C.size>4000)C.clear();c={t:now,m:ok(t.x,t.z,t.r||1.2)?null:freeNear(t.x,t.z)};C.set(k,c);}
+      if(c.m){t.x=c.m[0];t.z=c.m[1];}}}catch(e){}return T;};buildTargets.__ib=1;}
   function mapRefresh(){try{MMR=null;mmBase=renderMapBase(mmFW(),mmFH(),1.15,false);bigBase=null;}catch(e){console.warn('ibmap minimap',e);}}
   /* Kip on the new island: ground height and what blocks him (the café area keeps the old rules) */
   const onIsl=(x,z)=>IBMAP.done&&x<99.5&&x>TB.x1-8&&z>TB.z1-8&&z<TB.z2+8&&zoneOf(x)==='island';const onNew=(x,z)=>onIsl(x,z)&&!inCafe(x,z);
