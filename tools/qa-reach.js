@@ -7,7 +7,7 @@ new Promise(res=>{const t0=Date.now();
 const chk=()=>{if((typeof IBMAP!=='undefined'&&IBMAP.done)||Date.now()-t0>300000)go();else setTimeout(chk,1000);};
 const go=()=>{const errs=[];const E=(k,f)=>{try{return f();}catch(e){errs.push(k+': '+e.message);return undefined;}};
  try{localStorage.clear();}catch(e){}
- E('startGame',()=>startGame(null));save=function(){};requestAnimationFrame=()=>0;
+ E('startGame',()=>startGame({}));save=function(){};requestAnimationFrame=()=>0;
  E('state',()=>{Object.assign(S,{day:30,coins:25000,servedTotal:900,metGus:true,metMei:true,quest:3,jetty:3,staff:3,pass:true,time:1000,wx:0,
    wish:Object.assign({},S.wish,{room:true,tickets:true,machine:true}),qg:Object.assign({},S.qg,{planted:1,sold:1,village:1,coach_geordie:1}),boats:{fishing:1}});});
  const reach=(x,z)=>{if(!blocked(x,z))return 0;for(let r=.25;r<=8;r+=.25)for(let a=0;a<24;a++){const X=x+Math.cos(a/24*6.283)*r,Z=z+Math.sin(a/24*6.283)*r;if(!blocked(X,Z))return r;}return 99;};

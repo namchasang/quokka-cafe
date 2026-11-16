@@ -10,7 +10,7 @@ const go=()=>{const errs=[],log=[];const E=(k,f)=>{try{return f();}catch(e){errs
  window.addEventListener('error',e=>errs.push('window: '+e.message));
  const said=[];const _say=say;say=function(l,cb){(Array.isArray(l)?l:[l]).forEach(x=>said.push(typeof x==='string'?x:(x.who+': '+x.text)));try{return _say(l,cb);}catch(e){said.push('ERR '+e.message);}};
  try{localStorage.clear();}catch(e){}
- E('startGame',()=>startGame(null));
+ E('startGame',()=>startGame({}));
  save=function(){};requestAnimationFrame=()=>0;
  const clr=()=>{dlgQ=[];dlgDone=null;ui.dlg.hidden=true;overlay=null;running=true;transit=false;};
  // ---- advanced save ----

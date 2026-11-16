@@ -7,7 +7,7 @@ new Promise(res=>{const t0=Date.now();
 const chk=()=>{if((typeof IBMAP!=='undefined'&&IBMAP.done)||Date.now()-t0>300000)go();else setTimeout(chk,1000);};
 const go=()=>{const said=[];const _say=say;say=function(l,cb){(Array.isArray(l)?l:[l]).forEach(x=>said.push(typeof x==='string'?x:(x.who+': '+x.text)));try{return _say(l,cb);}catch(e){said.push('ERR '+e.message);}};
  try{localStorage.clear();}catch(e){}
- try{startGame(null);}catch(e){said.push('startGame ERR '+e.message);}
+ try{startGame({});}catch(e){said.push('startGame ERR '+e.message);}
  const L=(x,z)=>{try{return +IBMAP.landD(x,z).toFixed(2);}catch(e){return null;}};
  const reach=(x,z)=>{try{if(!blocked(x,z))return 0;for(let r=.25;r<=8;r+=.25)for(let a=0;a<24;a++){const X=x+Math.cos(a/24*6.283)*r,Z=z+Math.sin(a/24*6.283)*r;if(!blocked(X,Z))return r;}return 99;}catch(e){return 'err';}};
  const out=[];const add=(kind,name,x,z,need)=>{if(typeof x!=='number')return;const r=reach(x,z);out.push({kind,name,x:+x.toFixed(1),z:+z.toFixed(1),land:L(x,z),reach:r,need,bad:typeof r==='number'&&r>need});};

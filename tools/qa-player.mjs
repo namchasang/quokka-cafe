@@ -29,7 +29,7 @@ if (mode === 'economy') {
   res = await pg.evaluate(async (nDays) => {
     const T = window.__t, out = [];
     T.ev("requestAnimationFrame=()=>0");             // stop rendering, logic only
-    T.startGame(null); T.ev("save=function(){}");
+    T.startGame({}) /* {} skips the prologue page (new game with an empty save) */; T.ev("save=function(){}");
     const step = async (mins) => { const S = T.S, end = S.time + mins; let n = 0;
       while (T.S.time < end && n < 200000) { T.ev("dlgQ=[];dlgDone=null;ui.dlg.hidden=true;overlay=null;running=true;transit=false");
         T.ev("customers.forEach(c=>{if(c.state==='wait'&&!c.served){}})"); T.update(.05); n++; if (n % 2000 === 0) await new Promise(r => setTimeout(r, 0)); } };
