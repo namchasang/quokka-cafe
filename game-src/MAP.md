@@ -72,7 +72,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 063-caf-pantry.js | 5175-5291 | 20 | STOCK_INFO, RECIPE, addStock, canMake, useStock, missingFor, lowStock, GSTORE, strandRolled, spawnStranded |
 | 064-customers.js | 5292-5336 | 8 | spawnCustomer, STAFF_COL, syncStaff, dadAtTill, staffIcon, updateStaff, removeCustomer, leave, stepWalker, updateCustomers |
 | 065-movement.js | 5337-5396 | 9 | RAWDT, groundY, blocked, updatePlayer, updateWilds, C_MORN, T_MORN, tmpC, KEYS, NIGHT_FOG |
-| 066-overlays.js | 5397-5499 | 29 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
+| 066-overlays.js | 5397-5499 | 30 | showOverlay, hideOverlays, closeOverlays, openWish, hqTpSpot, hqTpTarget, hqTpButton, hqTeleport, jHas, RW_MULT |
 | 067-maps-quest-guidance.js | 5500-5630 | 22 | mmC, MM, mmFW, MAP_LABELS, mapper, SPB, renderSPBase, spMini, renderMapBase, mmBase |
 | 068-island-scale-spread-island-out-runs-on.js | 5631-5673 | 4 | islandWarp, islandData |
 | 069-camera-render.js | 5674-5759 | 13 | camTarget, TITLE_SHOTS, MIR, updateMirror, updateCamera, ambient, last, errShown, reportErr, safeRun |
