@@ -22,9 +22,9 @@ const RUNS = [
   ['fremantle', '?shot=295,0,10,0,1,0'],
   ['heirisson', '?shot=420,0,10,0,1,0'],
   ['victoria-park', '?shot=525,5,10,0,1,0'],
-  ['outer-world', '?ow2&owgo'],
+  ['outer-world', '?pnew=6#ow2&owgo'],   // ?pnew starts a new game in slot 6 (flags in the hash: pnew clears the search)
   ['oldisland', '?shot=0,0,10,0,1,0&oldisland'],
-  ['owengine', '?ow2&owgo&owengine'],
+  ['owengine', '?pnew=6#ow2&owgo&owengine'],
   ['freomap', '?shot=312,8,10,0,1,0&freomap'],
   ['freo-old', '?shot=312,8,10,0,1,0'],
 ].filter(r => !only || only.split(',').includes(r[0]));
