@@ -29,7 +29,10 @@ pg.on('console', m => { if (m.type() === 'error' && !/Failed to load resource|fa
 await pg.route(u => !u.hostname.endsWith("localhost") && u.hostname !== "127.0.0.1", r => r.abort());
 await pg.goto(`http://127.0.0.1:${port}/${file}`, { waitUntil: "commit", timeout: 120000 });
 await pg.waitForTimeout(+secs * 1000);
-await pg.screenshot({ path: shot });
+try { await pg.screenshot({ path: shot, timeout: 20000 }); }
+catch (e) { /* SwiftShader can stall page.screenshot (fonts); CDP capture still works */
+  const cdp = await pg.context().newCDPSession(pg); const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' });
+  fs.writeFileSync(shot, Buffer.from(data, 'base64')); }
 await b.close(); srv.close();
 console.log(errs.length ? errs.slice(0, 20).join('\n') : 'OK: no page errors');
 console.log('screenshot:', shot);

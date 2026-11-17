@@ -27,6 +27,7 @@ const RUNS = [
   ['owengine', '?pnew=6#ow2&owgo&owengine'],
   ['freomap', '?shot=312,8,10,0,1,0&freomap'],
   ['freo-old', '?shot=312,8,10,0,1,0'],
+  ['ibcloud', '?pnew=6#ibcloud'],   // built island in the cloud saves (lab, 18 Nov 2026); deep check: tools/qa-ibcloud.mjs
 ].filter(r => !only || only.split(',').includes(r[0]));
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.mp3': 'audio/mpeg' };
