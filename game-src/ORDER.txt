@@ -233,5 +233,6 @@
 188-rail-clear-look-lab-toon.js
 188-island-only-look-lab-toon.js
 188-auth.js
+188-ibcloud-look-lab.js
 189b-island-builder.js
 189-photo-mode-shot-x-z-hour-weather-zoom.js
