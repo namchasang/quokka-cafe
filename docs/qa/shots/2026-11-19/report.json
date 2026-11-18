@@ -1,0 +1,130 @@
+[
+ {
+  "name": "start",
+  "q": "",
+  "secs": 131,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "rottnest-centre",
+  "q": "?shot=0,0,10,0,1,0",
+  "secs": 97,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "rottnest-cafe",
+  "q": "?shot=-122.9,-31,10,0,1,0",
+  "secs": 93,
+  "fps": 0.5,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "rottnest-nev",
+  "q": "?shot=-82.8,45.9,10,0,1.4,0",
+  "secs": 96,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "rottnest-osprey",
+  "q": "?shot=86.8,38.1,10,0,1.4,0",
+  "secs": 93,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "rottnest-west",
+  "q": "?shot=-60,0,10,0,1.4,0",
+  "secs": 100,
+  "fps": 0.5,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "south-perth",
+  "q": "?shot=150,7,10,0,1,0",
+  "secs": 56,
+  "fps": 1.25,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "fremantle",
+  "q": "?shot=295,0,10,0,1,0",
+  "secs": 56,
+  "fps": 1,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "heirisson",
+  "q": "?shot=420,0,10,0,1,0",
+  "secs": 54,
+  "fps": 3.25,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "victoria-park",
+  "q": "?shot=525,5,10,0,1,0",
+  "secs": 57,
+  "fps": 2.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "outer-world",
+  "q": "?pnew=6#ow2&owgo",
+  "secs": 100,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "oldisland",
+  "q": "?shot=0,0,10,0,1,0&oldisland",
+  "secs": 65,
+  "fps": 0.5,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "owengine",
+  "q": "?pnew=6#ow2&owgo&owengine",
+  "secs": 103,
+  "fps": 0.25,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "freomap",
+  "q": "?shot=312,8,10,0,1,0&freomap",
+  "secs": 115,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "freo-old",
+  "q": "?shot=312,8,10,0,1,0",
+  "secs": 56,
+  "fps": 1.38,
+  "errors": [],
+  "nErrors": 0
+ },
+ {
+  "name": "ibcloud",
+  "q": "?pnew=6#ibcloud",
+  "secs": 126,
+  "fps": 0.38,
+  "errors": [],
+  "nErrors": 0
+ }
+]

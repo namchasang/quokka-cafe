@@ -32,13 +32,13 @@ if (mode === 'economy') {
     T.startGame({}) /* {} skips the prologue page (new game with an empty save) */; T.ev("save=function(){}");
     const step = async (mins) => { const S = T.S, end = S.time + mins; let n = 0;
       while (T.S.time < end && n < 200000) { T.ev("dlgQ=[];dlgDone=null;ui.dlg.hidden=true;overlay=null;running=true;transit=false");
-        T.ev("customers.forEach(c=>{if(c.state==='wait'&&!c.served){}})"); T.update(.05); n++; if (n % 2000 === 0) await new Promise(r => setTimeout(r, 0)); } };
+        T.ev("customers.forEach(c=>{if(c.state==='wait'&&!c.served){}})"); T.update(.05); n++; if (n % 2000 === 0) await new Promise(r => setTimeout(r, 0)); } return { steps: n, endTime: Math.round(T.S.time), dlg: T.ev("typeof dlgQ!=='undefined'?dlgQ.length:0") }; };
     // Kip does not serve here; staff do. Day 1: 1 staff, day 2: 3 staff + espresso machine, day 3+: harbour level 3 (JMULT[2]).
     for (let d = 0; d < nDays; d++) {
       const S = T.S; if (d === 0) { S.staff = 1; T.syncStaff(); } if (d === 1) { S.staff = 3; T.syncStaff(); S.wish.machine = true; } if (d === 2) { S.jetty = 2; T.ev('applyJetty&&applyJetty()'); }
       S.wx = 0; S.time = 419; S.closed = true; S.served = 0; S.earned = 0; const c0 = S.coins;
-      await step(560);
-      out.push({ day: S.day, staff: S.staff || 0, served: S.served, earned: S.earned, coinsDelta: S.coins - c0, wx: S.wx, lv: T.cafeLv() });
+      const st = await step(560);
+      out.push({ ...st /* steps hit 200000 = the clock stopped (19 Nov 2026: one run served 0 on day 3) */, day: S.day, staff: S.staff || 0, served: S.served, earned: S.earned, coinsDelta: S.coins - c0, wx: S.wx, lv: T.cafeLv() });
       T.ev("newDay()");
     }
     return { out, prices: { items: Object.fromEntries(Object.entries(T.ITEMS).map(([k, v]) => [k, v.price])), wish: T.WISH.map(w => [w.id, w.price]), cafeLv: T.CAFE_LV.map(l => l.price) } };
