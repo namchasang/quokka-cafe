@@ -206,6 +206,7 @@
 188-island-tidy-and-gfx.js
 188-menu-groups.js
 188-prologue-newgame.js
+188-ibup-look-lab.js
 188-rebuild-quests.js
 188-island-fun.js
 188-paths3d-look-lab.js

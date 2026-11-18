@@ -213,33 +213,34 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-island-tidy-and-gfx.js | 19523-19558 | 5 | ISLAND_STORE |
 | 188-menu-groups.js | 19559-19585 | 4 |  |
 | 188-prologue-newgame.js | 19586-19599 | 1 |  |
-| 188-rebuild-quests.js | 19600-19631 | 4 | REBUILD |
-| 188-island-fun.js | 19632-19741 | 16 | FUN |
-| 188-paths3d-look-lab.js | 19742-19772 | 3 | PATHS3D |
-| 188-engine-terrain.js | 19773-19873 | 14 | GAMMA, lin, DEF, create |
-| 188-engine-foliage.js | 19874-19999 | 20 | GAMMA, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
-| 188-engine-road.js | 20000-20241 | 38 | GAMMA, TY, lin, asphalt, create |
-| 188-engine-building.js | 20242-20427 | 32 | GAMMA, lin, box, GLASS, tiles, TC, signTex, windowPart, doorPart, roof |
-| 188-engine-props.js | 20428-20530 | 19 | GAMMA, M, box, cyl, sph, signTex, K, o2, create |
-| 188-engine-vehicle.js | 20531-20805 | 40 | GAMMA, lin, MC, GLASS, mesh, box, cyl, prof, tex, decal |
-| 188-engine-life.js | 20806-20942 | 25 | GAMMA, lin, msh, SPH, SKIN, FOLK, FOLK_ON, folkHead, person, quokka |
-| 188-engine-waterlife.js | 20943-20988 | 8 | GAMMA, lin, rnd, create |
-| 188-engine-sky.js | 20989-21062 | 11 | C, WX, create |
-| 188-engine-islandmap.js | 21063-21248 | 28 | N, segD, mergeStatic, weldPaths, RNDC, RNDT, lineD, RW, coastFix, gridH |
-| 188-engmap-look-lab.js | 21249-21306 | 9 | ENGMAP_LIVE, ENGMAP |
-| 188-ibmap-look-lab.js | 21307-21471 | 101 | embedded data, do not open |
-| 188-freomap-look-lab.js | 21472-21591 | 17 | FREOMAP_LIVE, FREOMAP |
-| 188-open-sea-ships-and-captain-ned.js | 21592-21711 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 21712-21792 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 21793-21814 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 21815-21874 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 21875-21924 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 21925-21957 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 21958-22030 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 22031-22061 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 22062-22078 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 22079-22089 | 2 |  |
-| 188-auth.js | 22090-22168 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 22169-22204 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 22205-22248 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22249-22270 | 3 | SHOT |
+| 188-ibup-look-lab.js | 19600-19617 | 1 | IBUP_LIVE, IBUP |
+| 188-rebuild-quests.js | 19618-19649 | 4 | REBUILD |
+| 188-island-fun.js | 19650-19759 | 16 | FUN |
+| 188-paths3d-look-lab.js | 19760-19790 | 3 | PATHS3D |
+| 188-engine-terrain.js | 19791-19891 | 14 | GAMMA, lin, DEF, create |
+| 188-engine-foliage.js | 19892-20017 | 20 | GAMMA, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
+| 188-engine-road.js | 20018-20259 | 38 | GAMMA, TY, lin, asphalt, create |
+| 188-engine-building.js | 20260-20445 | 32 | GAMMA, lin, box, GLASS, tiles, TC, signTex, windowPart, doorPart, roof |
+| 188-engine-props.js | 20446-20548 | 19 | GAMMA, M, box, cyl, sph, signTex, K, o2, create |
+| 188-engine-vehicle.js | 20549-20823 | 40 | GAMMA, lin, MC, GLASS, mesh, box, cyl, prof, tex, decal |
+| 188-engine-life.js | 20824-20960 | 25 | GAMMA, lin, msh, SPH, SKIN, FOLK, FOLK_ON, folkHead, person, quokka |
+| 188-engine-waterlife.js | 20961-21006 | 8 | GAMMA, lin, rnd, create |
+| 188-engine-sky.js | 21007-21080 | 11 | C, WX, create |
+| 188-engine-islandmap.js | 21081-21266 | 28 | N, segD, mergeStatic, weldPaths, RNDC, RNDT, lineD, RW, coastFix, gridH |
+| 188-engmap-look-lab.js | 21267-21324 | 9 | ENGMAP_LIVE, ENGMAP |
+| 188-ibmap-look-lab.js | 21325-21489 | 101 | embedded data, do not open |
+| 188-freomap-look-lab.js | 21490-21609 | 17 | FREOMAP_LIVE, FREOMAP |
+| 188-open-sea-ships-and-captain-ned.js | 21610-21729 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 21730-21810 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 21811-21832 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 21833-21892 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 21893-21942 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 21943-21975 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 21976-22048 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 22049-22079 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 22080-22096 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 22097-22107 | 2 |  |
+| 188-auth.js | 22108-22186 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 22187-22222 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 22223-22266 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22267-22288 | 3 | SHOT |

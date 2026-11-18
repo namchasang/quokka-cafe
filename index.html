@@ -19597,6 +19597,24 @@ const ISLAND_STORE=[];
     const v=document.createElement('div');v.style.cssText='position:fixed;inset:0;z-index:80;background:#0a1020;display:grid;place-items:center;color:#f5ecd8;font:700 16px "Pixelify Sans",monospace';v.textContent='Last summer…';document.body.appendChild(v);
     location.href='./lib/engines/editor/prologue.html?ingame=1&slot='+(SLOT||1)+(/th/i.test(navigator.language||'')?'':'&lang=en');};
 })();
+// ---------- Café and jetty upgrades from the Island Builder (Look Lab ?ibup, nightly feature loop 19 Nov 2026) ----------
+// Brief quokka-cafe-jetty-upgrade: the café and the jetty keep their OWN upgrade system (café levels in Café HQ, harbour
+// upgrades on the jetty board), and the Island Builder is a second way in. With this lab on, the game opens the builder with
+// &up=1; in the builder, tapping Kip's café or the jetty (permanent, cannot be moved or removed) shows '⬆ อัปเกรด', which
+// saves the island and comes back here with ?resume=<slot>&open=cafe|jetty; this part then opens that panel once the save is
+// running. Coins, levels and the models on the island stay the game's own (applyCafe / applyJetty). Off for players:
+// IBUP_LIVE=false, ?ibup (or #ibup) turns it on.
+var IBUP_LIVE=false;
+const IBUP={on:IBUP_LIVE||/[?&#]ibup\b/.test(location.search+location.hash),open:(location.search.match(/[?&]open=(cafe|jetty)\b/)||[])[1]||''};
+if(IBUP.on||IBUP.open){
+  // the builder button in the game menu passes &up=1 (the button is made by part 188-rebuild-quests, which runs next; this part must come before it so it reads ?open= before that part clears the address)
+  if(IBUP.on)(function patch(){const b=document.getElementById('builderBtn');if(!b){setTimeout(patch,800);return;}
+    b.onclick=()=>{try{save();}catch(e){}location.href='./lib/engines/editor/player.html?from=game&slot='+SLOT+'&up=1';};})();
+  // back from the builder with a panel to open: wait for the resumed save to be running with no other panel up
+  if(IBUP.open){const t0=Date.now();(function go(){let ok=false;try{ok=running&&!overlay&&zoneOf(player.x)==='island'&&(typeof IBMAP==='undefined'||!IBMAP.on||IBMAP.done);}catch(e){}
+    if(!ok){if(Date.now()-t0<120000)setTimeout(go,400);return;}
+    setTimeout(()=>{try{if(IBUP.open==='cafe')openCafe();else openShop('jetty');IBUP.opened=IBUP.open;}catch(e){IBUP.err=String(e);}},600);})();}
+}
 // ---------- Rebuild quests (Paul, 15 Nov 2026: "ทำเควสสร้างคืน") ----------
 // The storm took the island's buildings. Five side quests now come back only when the player builds their building in the
 // Island Builder (business cards "สร้างคืน"): build it and its owner returns to the island with the quest; until then, once the
