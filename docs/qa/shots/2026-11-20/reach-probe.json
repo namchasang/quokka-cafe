@@ -1,0 +1,128 @@
+{
+ "res": {
+  "secs": 38.65,
+  "n": 598,
+  "bad": [],
+  "digs": [
+   {
+    "day": 30,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -51.2,
+     "z": 7.4,
+     "land": 8.04,
+     "reach": 0
+    },
+    "dtasks": "sell,photo,chat"
+   },
+   {
+    "day": 31,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": null,
+    "dtasks": "chat,gift,serve"
+   },
+   {
+    "day": 32,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -120.9,
+     "z": -23.7,
+     "land": 5.82,
+     "reach": 0
+    },
+    "dtasks": "photo,dig,bug"
+   },
+   {
+    "day": 33,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -51.2,
+     "z": 7.4,
+     "land": 8.04,
+     "reach": 0
+    },
+    "dtasks": "dig,gift,water"
+   },
+   {
+    "day": 34,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -74.3,
+     "z": 16.7,
+     "land": 7.37,
+     "reach": 0
+    },
+    "dtasks": "bug,gift,photo"
+   },
+   {
+    "day": 35,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -120.9,
+     "z": -23.7,
+     "land": 5.82,
+     "reach": 0
+    },
+    "dtasks": "fish,serve,chat"
+   },
+   {
+    "day": 36,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -39.1,
+     "z": 9.8,
+     "land": 2.25,
+     "reach": 0
+    },
+    "dtasks": "dig,sell,photo"
+   },
+   {
+    "day": 37,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -39.1,
+     "z": 9.8,
+     "land": 2.25,
+     "reach": 0
+    },
+    "dtasks": "serve,dig,bug"
+   },
+   {
+    "day": 38,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": {
+     "x": -39.1,
+     "z": 9.8,
+     "land": 2.25,
+     "reach": 0
+    },
+    "dtasks": "sell,fish,photo"
+   },
+   {
+    "day": 39,
+    "digs": 4,
+    "digBad": 0,
+    "bottle": null,
+    "dtasks": "dig,photo,water"
+   }
+  ],
+  "errs": [],
+  "byZone": {
+   "island": 161,
+   "sp": 111,
+   "freo": 104,
+   "hi": 102,
+   "vp": 120
+  }
+ },
+ "errs": []
+}
