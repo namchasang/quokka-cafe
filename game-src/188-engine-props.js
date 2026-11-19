@@ -14,6 +14,10 @@
 let GAMMA=false;const ENC=()=>GAMMA?THREE.LinearEncoding:THREE.sRGBEncoding;const L2=c=>GAMMA?c:c.convertSRGBToLinear();
 const M={},m=c=>M[c]||(M[c]=new THREE.MeshLambertMaterial({color:L2(new THREE.Color(c))}));
 const box=(G,w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m(c));o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;G.add(o);return o;};
+/* a sun umbrella's pole is too thin for the shadow map, so the canopy's shadow looked like a shape floating on its own (Paul, 19 Nov 2026):
+   an unseen, slightly thicker stick casts the pole's shadow and joins the canopy shadow to the umbrella */
+const SHADOW_ONLY=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:false});
+const poleShadow=(G,x,z,h)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(.16,h,.16),SHADOW_ONLY);o.position.set(x,h/2,z);o.castShadow=true;o.renderOrder=-1;G.add(o);return o;};
 const cyl=(G,r1,r2,h,c,x,y,z,seg)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,seg||10),m(c));o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;G.add(o);return o;};
 const sph=(G,r,c,x,y,z,sx,sy,sz)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,12,8),m(c));o.position.set(x,y,z);o.scale.set(sx||1,sy||1,sz||1);o.castShadow=true;G.add(o);return o;};
 function signTex(lines,bg,fg){const S=4,W=128*S,Hh=Math.max(1,lines.length)*26*S+10*S,c=document.createElement('canvas');c.width=W;c.height=Hh;const x=c.getContext('2d');x.fillStyle=bg;x.fillRect(0,0,W,Hh);
@@ -27,7 +31,7 @@ const K={
     const sw=new THREE.Group();sw.position.set(.9,0,.4);G.add(sw);[-.9,.9].forEach(x=>{const a=cyl(sw,.04,.04,1.8,'#2f6a74',x,.85,-.3,6);a.rotation.x=.3;const b=cyl(sw,.04,.04,1.8,'#2f6a74',x,.85,.3,6);b.rotation.x=-.3;});cyl(sw,.04,.04,1.9,'#2f6a74',0,1.68,0,6).rotation.z=Math.PI/2;
     [-.4,.4].forEach(x=>{cyl(sw,.01,.01,1.1,'#5a5a5a',x-.12,1.12,0,4);cyl(sw,.01,.01,1.1,'#5a5a5a',x+.12,1.12,0,4);box(sw,.34,.04,.16,'#e8443a',x,.56,0);});
     G.userData.foot=[-1.6,-1.3,1.6,1.3];},
-  cafeset(G,o){/* two tables with umbrellas and four chairs each */[[-.9,0],[.9,0]].forEach(([x,z],i)=>{cyl(G,.36,.36,.04,'#f4f2ec',x,.72,z,14);cyl(G,.04,.04,.72,'#2a2e33',x,.36,z,6);cyl(G,.04,.04,2.1,'#d8d8d8',x,1.05,z,6);
+  cafeset(G,o){/* two tables with umbrellas and four chairs each */[[-.9,0],[.9,0]].forEach(([x,z],i)=>{cyl(G,.36,.36,.04,'#f4f2ec',x,.72,z,14);cyl(G,.04,.04,.72,'#2a2e33',x,.36,z,6);cyl(G,.04,.04,2.1,'#d8d8d8',x,1.05,z,6);poleShadow(G,x,z,2.1);
       const u=new THREE.Mesh(new THREE.ConeGeometry(.95,.42,8,1,true),new THREE.MeshLambertMaterial({color:L2(new THREE.Color(i?'#2f8a8a':'#e86a3a')),side:THREE.DoubleSide}));u.position.set(x,2.05,z);u.castShadow=true;G.add(u);
       [[0,.55],[0,-.55],[.55,0],[-.55,0]].forEach(([a,b])=>{const c=new THREE.Group();c.position.set(x+a,0,z+b);c.rotation.y=Math.atan2(a,b);G.add(c);box(c,.36,.04,.36,'#8a5a3a',0,.45,0);box(c,.36,.4,.04,'#8a5a3a',0,.66,.17);[[-.15,-.15],[.15,-.15],[-.15,.15],[.15,.15]].forEach(([p,q])=>cyl(c,.02,.02,.45,'#2a2e33',p,.22,q,4));});});
     G.userData.foot=[-1.6,-.8,1.6,.8];},
@@ -59,7 +63,7 @@ const K={
   bikerack(G){for(let i=0;i<4;i++){const t=new THREE.Mesh(new THREE.TorusGeometry(.32,.025,6,16,Math.PI),m('#9aa4ac'));t.position.set(-.75+i*.5,.0,0);t.rotation.y=Math.PI/2;t.castShadow=true;G.add(t);}G.userData.foot=[-1,-.3,1,.3];},
   bikes(G,o){K.bikerack(G);const cols=['#e0434f','#f2c14e','#3f7ad0','#3f9a6a'];for(let i=0;i<(o.n||3);i++){const B=new THREE.Group();B.position.set(-.75+i*.5,0,0);[-.38,.38].forEach(z=>{const w=new THREE.Mesh(new THREE.TorusGeometry(.26,.03,6,18),m('#26282c'));w.rotation.y=Math.PI/2;w.position.set(0,.29,z);B.add(w);});
     box(B,.04,.04,.74,cols[i%4],0,.55,0);const s=box(B,.04,.32,.04,cols[i%4],0,.45,-.18);s.rotation.x=.3;box(B,.04,.32,.04,cols[i%4],0,.48,.28).rotation.x=-.25;box(B,.08,.04,.2,'#26282c',0,.7,-.22);box(B,.4,.03,.03,'#26282c',0,.75,.34);G.add(B);}},
-  umbrella(G,o){cyl(G,.03,.03,2.2,'#e8e2d0',0,1.1,0,6);const c=new THREE.Mesh(new THREE.ConeGeometry(1.1,.4,12,1,true),new THREE.MeshLambertMaterial({color:L2(new THREE.Color(o.color||'#e85a6a')),side:THREE.DoubleSide}));c.position.y=2.1;c.castShadow=true;G.add(c);G.userData.foot=[-.1,-.1,.1,.1];},
+  umbrella(G,o){cyl(G,.03,.03,2.2,'#e8e2d0',0,1.1,0,6);poleShadow(G,0,0,2.1);const c=new THREE.Mesh(new THREE.ConeGeometry(1.1,.4,12,1,true),new THREE.MeshLambertMaterial({color:L2(new THREE.Color(o.color||'#e85a6a')),side:THREE.DoubleSide}));c.position.y=2.1;c.castShadow=true;G.add(c);G.userData.foot=[-.1,-.1,.1,.1];},
   buoy(G,o){cyl(G,.25,.32,.5,o.color||'#f08a2a',0,.1,0,12);cyl(G,.03,.03,.5,'#e8e2d0',0,.55,0,6);G.userData.bob=1;},
   rock(G,o){const r=new THREE.Mesh(new THREE.IcosahedronGeometry(.5,1),m('#b8a888'));const p=r.geometry.attributes.position;for(let i=0;i<p.count;i++){const v=new THREE.Vector3().fromBufferAttribute(p,i);v.multiplyScalar(.8+Math.sin(i*12.9)*.15);v.y*=.6;p.setXYZ(i,v.x,v.y,v.z);}r.geometry.computeVertexNormals();r.position.y=.12;r.castShadow=true;G.add(r);},
   crate(G){box(G,.6,.5,.6,'#b98a5a',0,.25,0);box(G,.62,.06,.62,'#8a6440',0,.47,0);},

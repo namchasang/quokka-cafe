@@ -17,7 +17,7 @@ const srv = http.createServer((q, r) => {
   r.end(fs.readFileSync(p));
 }).listen(0);
 const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--no-proxy-server', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const pg = await b.newPage({ viewport: { width: 960, height: 540 } });
+const pg = await b.newPage({ viewport: { width: +(process.env.QA_VW || 960), height: +(process.env.QA_VH || 540) } });
 const errs = [];
 pg.on('pageerror', e => errs.push('pageerror: ' + (e.message || '').slice(0, 300)));
 await pg.route(u => !u.hostname.endsWith('localhost') && u.hostname !== '127.0.0.1', r => r.abort());
