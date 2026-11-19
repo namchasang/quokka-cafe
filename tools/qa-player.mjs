@@ -2,6 +2,7 @@
 // the game's own update() in fast steps for whole café days, then prints what a player would have earned.
 //   node tools/qa-player.mjs <outDir> [mode=economy] [days=3]
 // Modes: economy (staff 0 then 3, income per day), probe (runs a JS snippet from env QA_JS inside the game closure).
+// QA_Q adds a query to the page URL (e.g. QA_Q="?vpmap" runs the probe with a Look Lab on).
 import { chromium } from 'playwright';
 import http from 'node:http';
 import fs from 'node:fs';
@@ -21,7 +22,7 @@ const pg = await b.newPage({ viewport: { width: +(process.env.QA_VW || 960), hei
 const errs = [];
 pg.on('pageerror', e => errs.push('pageerror: ' + (e.message || '').slice(0, 300)));
 await pg.route(u => !u.hostname.endsWith('localhost') && u.hostname !== '127.0.0.1', r => r.abort());
-await pg.goto(`http://127.0.0.1:${srv.address().port}/__t.html`, { waitUntil: 'commit', timeout: 120000 });
+await pg.goto(`http://127.0.0.1:${srv.address().port}/__t.html${process.env.QA_Q || ""}`, { waitUntil: 'commit', timeout: 120000 });
 await pg.waitForFunction(() => window.__t && window.__t.S, null, { timeout: 180000, polling: 1000 });
 await pg.waitForTimeout(20000);
 let res;
