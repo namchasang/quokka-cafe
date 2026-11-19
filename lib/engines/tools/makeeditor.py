@@ -66,6 +66,6 @@ if master:
     player=True
     html=html.replace('<title>Island Builder · Map Editor','<title>Master Island Builder · Rottnest (GM)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;window.IB_MASTER=true;</script>\n@@ENG@@',1)
 town=sys.argv[sys.argv.index('--town')+1] if '--town' in sys.argv else None
-if town:html=html.replace('Master Island Builder · Rottnest (GM)','Master Builder · '+{'freo':'Fremantle'}.get(town,town)+' (GM)',1).replace('@@ENG@@','<script>window.IB_TOWN='+repr(town)+';</script>\n@@ENG@@',1)
+if town:html=html.replace('Master Island Builder · Rottnest (GM)','Master Builder · '+{'freo':'Fremantle','vp':'Victoria Park'}.get(town,town)+' (GM)',1).replace('@@ENG@@','<script>window.IB_TOWN='+repr(town)+';</script>\n@@ENG@@',1)
 if player and not master:html=html.replace('<title>Island Builder · Map Editor','<title>Island Builder · Rottnest (player)',1).replace('@@ENG@@','<script>window.IB_PLAYER=true;</script>\n@@ENG@@',1)
 open([a for i,a in enumerate(sys.argv[1:],1) if not a.startswith('--') and sys.argv[i-1] not in('--demo','--start','--prologue','--town') and (not pro or a not in pro)][0],'w').write(html.replace('@@ENG@@',eng,1).replace('@@ED@@',open('editor/editor.js').read()+('\n'+open('editor/prologue.js').read() if pro else '')))

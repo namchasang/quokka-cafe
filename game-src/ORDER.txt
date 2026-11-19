@@ -224,6 +224,7 @@
 188-engmap-look-lab.js
 188-ibmap-look-lab.js
 188-freomap-look-lab.js
+188-vpmap-look-lab.js
 188-open-sea-ships-and-captain-ned.js
 188-boat-shop-and-wandering-boats.js
 188-bay-boats-look-lab-toon.js

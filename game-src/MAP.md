@@ -231,17 +231,18 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-engmap-look-lab.js | 21299-21356 | 9 | ENGMAP_LIVE, ENGMAP |
 | 188-ibmap-look-lab.js | 21357-21537 | 103 | embedded data, do not open |
 | 188-freomap-look-lab.js | 21538-21659 | 17 | FREOMAP_LIVE, FREOMAP_GM, FREOMAP |
-| 188-open-sea-ships-and-captain-ned.js | 21660-21779 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 21780-21860 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 21861-21882 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 21883-21942 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 21943-21992 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 21993-22025 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 22026-22098 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 22099-22129 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 22130-22146 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 22147-22157 | 2 |  |
-| 188-auth.js | 22158-22236 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 22237-22272 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 22273-22316 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22317-22338 | 3 | SHOT |
+| 188-vpmap-look-lab.js | 21660-21764 | 12 | VPMAP_LIVE, VPMAP |
+| 188-open-sea-ships-and-captain-ned.js | 21765-21884 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 21885-21965 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 21966-21987 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 21988-22047 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 22048-22097 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 22098-22130 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 22131-22203 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 22204-22234 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 22235-22251 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 22252-22262 | 2 |  |
+| 188-auth.js | 22263-22341 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 22342-22377 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 22378-22421 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22422-22443 | 3 | SHOT |
