@@ -109,8 +109,17 @@ window.__IBMAP=IBMAP;
   /* the old island never shows (Paul, 15 Nov 2026): a sea-coloured veil covers the game, under the home screen and dialogs,
      until the new island is built, then fades away */
   const veil=document.createElement('div');veil.id='ibVeil';veil.style.cssText='position:fixed;inset:0;z-index:9;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#8fd6d8,#3f9fb8 75%);display:grid;place-items:center;transition:opacity .8s;font:700 15px "Pixelify Sans",monospace;color:#f5ecd8;text-shadow:0 2px 0 rgba(15,20,38,.6)';
-  veil.innerHTML='<div style="text-align:center"><div style="font-size:34px;margin-bottom:8px">🏝️</div>Rottnest Island…</div>';document.body.appendChild(veil);
-  function veilOff(){veil.style.opacity='0';setTimeout(()=>veil.remove(),900);}setTimeout(()=>{if(document.body.contains(veil))veilOff();},30000);
+  veil.innerHTML='<div style="text-align:center;width:min(280px,70vw)"><div style="font-size:34px;margin-bottom:8px">🏝️</div>Rottnest Island…'+
+    '<div style="margin:14px auto 6px;height:12px;border-radius:999px;background:rgba(15,20,38,.35);box-shadow:inset 0 2px 0 rgba(0,0,0,.25);overflow:hidden"><div id="ibVeilBar" style="height:100%;width:100%;border-radius:999px;background:linear-gradient(#ffe6a8,#f2b632);transform-origin:0 50%;transform:scaleX(0);transition:transform .4s ease-out"></div></div>'+
+    '<div id="ibVeilPct" style="font-size:13px;opacity:.95">0%</div></div>';document.body.appendChild(veil);
+  /* loading bar 0-100% (Paul, 19 Nov 2026): real steps (game ready, sea, ground, old island data) and then the island build itself.
+     The build runs in one go and holds the page, so the bar's last stretch is a compositor animation timed from how long the build
+     took last time on this device (kept as qc-ibmap-ms): it keeps moving while the page is busy */
+  const vBar=veil.querySelector('#ibVeilBar'),vPct=veil.querySelector('#ibVeilPct');let vP=0;
+  const veilP=(p,ms)=>{p=Math.max(vP,Math.min(100,p));vP=p;vBar.style.transition='transform '+((ms||400)/1000)+'s '+(ms>1000?'linear':'ease-out');vBar.style.transform='scaleX('+(p/100)+')';};
+  const pctTick=setInterval(()=>{try{const m=getComputedStyle(vBar).transform.match(/matrix\(([-\d.e]+)/);const v=m?Math.round(parseFloat(m[1])*100):0;vPct.textContent=Math.min(100,Math.max(0,v))+'%';if(!document.body.contains(veil))clearInterval(pctTick);}catch(e){}},120);
+  IBMAP.veilP=veilP;veilP(5);
+  function veilOff(){veilP(100,250);vPct.textContent='100%';setTimeout(()=>{veil.style.opacity='0';setTimeout(()=>veil.remove(),900);},300);}setTimeout(()=>{if(document.body.contains(veil))veilOff();},30000);
   /* the minimap and the big map draw the new island (Paul, 15 Nov 2026, phase 2): land, beaches and the sea from the island's
      shore field, the map's roads, paths, rail and buildings, then the usual place names */
   let MMR=null;function mmRaster(){if(MMR)return MMR;const S=2,W=Math.ceil((TB.x2-TB.x1)*S),H=Math.ceil((TB.z2-TB.z1)*S),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),im=x.createImageData(W,H),A=im.data;
@@ -161,5 +170,12 @@ window.__IBMAP=IBMAP;
     const t=(performance.now()-tStart)/1000,c=toMap(camTarget.x,camTarget.z),p=toMap(player.x,player.z);IBMAP.player=player;
     const nt=typeof NIGHT!=='undefined'?NIGHT:0;IBMAP.I.update(t,c[0],c[1],{push:p,reveal:[p[0],p[1],2.6*K],night:nt});skyTick(t,nt);
     if((IBMAP.k=(IBMAP.k||0)+1)%180===0){IBMAP.hidden.forEach(o=>{o.visible=false;});keep=keepSet();/* 3D models made after the island */hideOld();}})();
-  (function wait(){if(typeof SEA4!=='undefined'&&SEA4.built&&typeof GROUND3D!=='undefined'&&GROUND3D.done&&ISL.done){/* as soon as the sea and ground are ready (Paul, 15 Nov 2026: New Game still showed the old island for the first seconds) */try{build();}catch(e){console.error('ibmap',e);}return;}setTimeout(wait,200);})();
+  (function wait(){const a=typeof SEA4!=='undefined'&&SEA4.built,b=typeof GROUND3D!=='undefined'&&GROUND3D.done,c=typeof ISL!=='undefined'&&ISL.done;
+    try{IBMAP.veilP&&IBMAP.veilP(12+(a?18:0)+(b?15:0)+(c?15:0));}catch(e){}
+    if(a&&b&&c){/* as soon as the sea and ground are ready (Paul, 15 Nov 2026: New Game still showed the old island for the first seconds) */
+      let est=6000;try{est=Math.max(1500,Math.min(60000,+localStorage.getItem('qc-ibmap-ms')||6000));}catch(e){}
+      try{IBMAP.veilP&&IBMAP.veilP(96,est);}catch(e){}
+      /* let the bar paint and its animation start before the build holds the page */
+      requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>{const t0=performance.now();try{build();}catch(e){console.error('ibmap',e);}try{localStorage.setItem('qc-ibmap-ms',String(Math.round(performance.now()-t0)));}catch(e){}},30)));return;}
+    setTimeout(wait,200);})();
 })();

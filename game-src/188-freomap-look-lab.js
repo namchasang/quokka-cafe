@@ -7,7 +7,9 @@
 // Map units = game units (K=1, not mirrored: the scene is only mirrored on Rottnest). The old Fremantle scenery is hidden while
 // the lab is on (never deleted). Off by default: ?freomap turns it on.
 var FREOMAP_LIVE=false;
-const FREOMAP={on:(FREOMAP_LIVE||/[?&#]freomap\b/.test(location.search+location.hash))&&typeof IslandMap!=='undefined',done:false,CX:312,CZ:8,WL:-.1,hidden:[]};
+/* live for Game Master accounts only (Paul, 19 Nov 2026: 'อนุมัติ fremantle map ใน map builder เฉพาะ GM master account'); players keep the old Fremantle; ?nofreomap turns it off */
+const FREOMAP_GM=(()=>{try{return localStorage.getItem('qc-gm')==='1';}catch(e){return false;}})()&&!/[?&#]nofreomap\b/.test(location.search+location.hash);
+const FREOMAP={on:(FREOMAP_LIVE||FREOMAP_GM||/[?&#]freomap\b/.test(location.search+location.hash))&&typeof IslandMap!=='undefined',done:false,CX:312,CZ:8,WL:-.1,hidden:[]};
 if(FREOMAP.on)(()=>{
   const CX=FREOMAP.CX,CZ=FREOMAP.CZ,N=121,WL=FREOMAP.WL,toMap=(x,z)=>[x-CX,z-CZ];FREOMAP.toMap=toMap;
   const inFreo=(x,z)=>x>250&&x<380&&z>-60&&z<70;

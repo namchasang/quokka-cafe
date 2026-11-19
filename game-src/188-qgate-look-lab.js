@@ -8,7 +8,7 @@
 //  - Island entrepreneur (Kip's own next goal): from day 2
 //  - quests that already had their own unlock rule (stars, rooms, daily tasks, garden, Victoria Park food, Freo day) keep it
 // A quest Kip is tracking always stays. Progress is never changed, only what the log shows. Off for players: QGATE_LIVE=false.
-var QGATE_LIVE=false;
+var QGATE_LIVE=true;/* live: Paul, 19 Nov 2026 "ขึ้นเกมได้" */
 const QGATE={on:QGATE_LIVE||/[?&#]qgate\b/.test(location.search+location.hash)};
 if(QGATE.on){
   const MAIN=id=>id==='main'||id==='hq'||/^story_/.test(id);
