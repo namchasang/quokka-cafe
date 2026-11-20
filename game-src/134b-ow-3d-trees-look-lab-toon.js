@@ -9,7 +9,7 @@ function owTree3dScan(){const now=performance.now();if(OW3T.scanT&&now-OW3T.scan
   scene.traverse(o=>{if(!o.isMesh||o.__ow3||!o.geometry||!o.geometry.attributes.corner)return;const L=o.userData&&o.userData.L;if(L&&L!=='plants')return;o.__ow3=1;
     const g=o.geometry,p=g.attributes.position,c=g.attributes.corner,n=Math.min(p.count,(g.drawRange&&isFinite(g.drawRange.count)?g.drawRange.count/6*4:p.count));o.updateMatrixWorld(true);const v=new THREE.Vector3();
     for(let k=0;k+3<n;k+=4){const h=Math.max(c.getY(k+2),c.getY(k+3)),w=Math.abs(c.getX(k+1)-c.getX(k));if(h<1.4)continue;v.set(p.getX(k),p.getY(k),p.getZ(k)).applyMatrix4(o.matrixWorld);const x=v.x,z=v.z;
-      const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);const t=[x,v.y,z,kind===4?Math.min(h,1.4):Math.min(3.3,h*.6),kind,((x*12.9898+z*78.233)%6.283)];
+      const a=w/h,kind=h<2.3?4:(a<.62&&h>3.6)?2:((x*7.3+z*3.1)%3+3)%3<1?1:(((x*1.7+z*5.3)%2+2)%2<1?0:3);const t=[x,v.y,z,OW3T.tgt?OW3T.tgt(kind,h):kind===4?Math.min(h,1.4):Math.min(3.3,h*.6),kind,((x*12.9898+z*78.233)%6.283),h];/* t[6]=picture height; OW3T.tgt set by ?owengine (trees 1.5x a house) */
       const kk=Math.floor(x/16)*100003+Math.floor(z/16);let G=OW3T.grid.get(kk);if(!G)OW3T.grid.set(kk,G=[]);G.push(t);add++;}
     o.visible=false;});if(add){OW3T.lx=undefined;}return add>0;}
 function owTree3dTick(px,pz){if(!OWTOON)return;try{owToonCar();if(!OW3T.ready)owTree3dInit();if(!OW3T.ready)return;OW3T.uCam.value.set(px,pz);if(OW3T.grid)owTree3dScan();
