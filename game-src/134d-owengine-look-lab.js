@@ -8,7 +8,7 @@
 // Kip and the car stand on the engine ground and roads (OWG_HOOK in the part with groundAt). Includes the CBD, Perth Water and
 // South Perth (Paul allowed it, 14 Nov 2026): nothing there moves, the engines only redraw ground and roads in place.
 // OWENGINE_LIVE turns it on for everyone once Paul has tested it on his phone.
-const OWENGINE_LIVE=false,OWENG=(OWENGINE_LIVE||/[?&#]owengine\b/.test(location.search+location.hash))&&typeof RoadEngine!=='undefined'&&typeof TerrainEngine!=='undefined';
+const OWENGINE_LIVE=false,OWENGINE_GM=(()=>{try{return localStorage.getItem('qc-gm')==='1';}catch(e){return false;}})()&&!/[?&#]noowengine\b/.test(location.search+location.hash)/* Game Master accounts see it in the game (Paul, 20 Nov 2026: 'ทำไมไป world map ยังเข้า map เก่า'); ?noowengine = old map */,OWENG=(OWENGINE_LIVE||OWENGINE_GM||/[?&#]owengine\b/.test(location.search+location.hash))&&typeof RoadEngine!=='undefined'&&typeof TerrainEngine!=='undefined';
 /* built on the first frame the outer world is open, after every town, station and house of the map exists */
 if(OWENG){const owengRun=()=>{try{(()=>{const t0=performance.now(),E={tiles:[],todo:[],done:0};window.__OWE=E;
   const q=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),LOW=q.startsWith('l'),MED=q.startsWith('m');

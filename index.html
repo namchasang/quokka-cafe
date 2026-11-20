@@ -12072,7 +12072,7 @@ if(/[?&#]owedit\b/.test(location.search+location.hash))try{(()=>{const KEY='qc-o
 // Kip and the car stand on the engine ground and roads (OWG_HOOK in the part with groundAt). Includes the CBD, Perth Water and
 // South Perth (Paul allowed it, 14 Nov 2026): nothing there moves, the engines only redraw ground and roads in place.
 // OWENGINE_LIVE turns it on for everyone once Paul has tested it on his phone.
-const OWENGINE_LIVE=false,OWENG=(OWENGINE_LIVE||/[?&#]owengine\b/.test(location.search+location.hash))&&typeof RoadEngine!=='undefined'&&typeof TerrainEngine!=='undefined';
+const OWENGINE_LIVE=false,OWENGINE_GM=(()=>{try{return localStorage.getItem('qc-gm')==='1';}catch(e){return false;}})()&&!/[?&#]noowengine\b/.test(location.search+location.hash)/* Game Master accounts see it in the game (Paul, 20 Nov 2026: 'ทำไมไป world map ยังเข้า map เก่า'); ?noowengine = old map */,OWENG=(OWENGINE_LIVE||OWENGINE_GM||/[?&#]owengine\b/.test(location.search+location.hash))&&typeof RoadEngine!=='undefined'&&typeof TerrainEngine!=='undefined';
 /* built on the first frame the outer world is open, after every town, station and house of the map exists */
 if(OWENG){const owengRun=()=>{try{(()=>{const t0=performance.now(),E={tiles:[],todo:[],done:0};window.__OWE=E;
   const q=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),LOW=q.startsWith('l'),MED=q.startsWith('m');
@@ -19842,7 +19842,7 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const P=Object.assign({},DEF,o.palett
   const wet=new Float32Array(FW*FD);for(let j=0;j<FD;j++)for(let i=0;i<FW;i++){const x=x0+(i+.5)/FW*W,z=z0+(j+.5)/FD*D,h=H(x,z);fd[(j*FW+i)*4]=h;wet[j*FW+i]=h<SEA?0:1e6;}
   {const s=W/FW,S2=Math.SQRT2;for(let j=0;j<FD;j++)for(let i=0;i<FW;i++){const k=j*FW+i;let d=wet[k];if(!d)continue;if(i)d=Math.min(d,wet[k-1]+1);if(j){d=Math.min(d,wet[k-FW]+1);if(i)d=Math.min(d,wet[k-FW-1]+S2);if(i<FW-1)d=Math.min(d,wet[k-FW+1]+S2);}wet[k]=d;}
     for(let j=FD-1;j>=0;j--)for(let i=FW-1;i>=0;i--){const k=j*FW+i;let d=wet[k];if(!d)continue;if(i<FW-1)d=Math.min(d,wet[k+1]+1);if(j<FD-1){d=Math.min(d,wet[k+FW]+1);if(i<FW-1)d=Math.min(d,wet[k+FW+1]+S2);if(i)d=Math.min(d,wet[k+FW-1]+S2);}wet[k]=d;}
-    for(let k=0;k<wet.length;k++)fd[k*4+1]=Math.min(1,wet[k]*s/6);}
+    for(let k=0;k<wet.length;k++)fd[k*4+1]=o.noBeach?(wet[k]>0?1:0):Math.min(1,wet[k]*s/6);}/* noBeach: river and lake banks are grass to the water */
   /* sandAt (0..1): dunes and deserts away from the water show as dry sand (Paul, 20 Nov 2026: Lancelin, the Pinnacles) */const SM=o.sandAt?new Uint8Array(FW*FD):null;if(SM)for(let j=0;j<FD;j++)for(let i=0;i<FW;i++){const k=j*FW+i,v=o.sandAt(x0+(i+.5)/FW*W,z0+(j+.5)/FD*D);if(v>.5&&fd[k*4]>=SEA){fd[k*4+1]=Math.min(fd[k*4+1],.36+(1-v)*.4);fd[k*4+2]=1;SM[k]=1;}}
   const KIND={path:0,lane:1,gravel:2};const MW=Math.min(4096,Math.ceil(W*8)),MD=Math.min(4096,Math.ceil(D*8)),mk=new Float32Array(MW*MD*4);
   (o.paths||[]).forEach(p=>{const kv=KIND[p.kind||'path']||0,hw=(p.w||1)/2,pts=p.pts;for(let n=1;n<pts.length;n++){const a=pts[n-1],b=pts[n],mnx=Math.min(a[0],b[0])-hw-1,mxx=Math.max(a[0],b[0])+hw+1,mnz=Math.min(a[1],b[1])-hw-1,mxz=Math.max(a[1],b[1])+hw+1;
@@ -21260,7 +21260,7 @@ function create(o){
   doc.roads.forEach(r=>{if(r.pts.length<2)return;if(r.type==='bridge')E.road.bridge(r.pts,{type:'highway',height:4});else if(r.type==='bikepath')E.bike.road(rpts(r,5*CS),{type:r.type});else E.road.road(rpts(r,5*CS),r.type==='lane'?{type:'lane',color:'#a08c6a'}:{type:r.type});});
   E.road.build();E.bike.build();GB.traverse(m=>{if(m.isMesh&&m.material&&!Array.isArray(m.material)){const q=m.material.clone();q.polygonOffset=true;q.polygonOffsetFactor=(q.polygonOffsetFactor||0)+2;q.polygonOffsetUnits=(q.polygonOffsetUnits||0)+2;m.material=q;}});
   /* ground */
-  E.terr=TerrainEngine.create(Object.assign({sandAt:sandOf(doc),sandTint:doc.sandTint,size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:SEA,paths:doc.paths.map(p=>({pts:rndP(p.pts,5*CS),w:p.w,kind:p.kind})).concat(rail.length>1?[{pts:rail,w:2.2,kind:'gravel'}]:[])},o.terrain||{},G0));
+  E.terr=TerrainEngine.create(Object.assign({sandAt:sandOf(doc),sandTint:doc.sandTint,noBeach:!!doc.calm,size:[S,S],center:[0,0],res:.5*CS,heightAt:Hg,seaLevel:SEA,paths:doc.paths.map(p=>({pts:rndP(p.pts,5*CS),w:p.w,kind:p.kind})).concat(rail.length>1?[{pts:rail,w:2.2,kind:'gravel'}]:[])},o.terrain||{},G0));
   if(o.landOnly){/* the host keeps its own sea and seabed: drop the ground's underwater triangles */const gm=E.terr.mesh.geometry,P=gm.attributes.position,I=gm.index.array,keep=[];const up=v=>P.getY(v)>SEA-.25;
     for(let i=0;i<I.length;i+=3)if(up(I[i])||up(I[i+1])||up(I[i+2]))keep.push(I[i],I[i+1],I[i+2]);gm.setIndex(keep);}
   G.terr.add(E.terr.mesh);

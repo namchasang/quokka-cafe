@@ -24,7 +24,7 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const P=Object.assign({},DEF,o.palett
   const wet=new Float32Array(FW*FD);for(let j=0;j<FD;j++)for(let i=0;i<FW;i++){const x=x0+(i+.5)/FW*W,z=z0+(j+.5)/FD*D,h=H(x,z);fd[(j*FW+i)*4]=h;wet[j*FW+i]=h<SEA?0:1e6;}
   {const s=W/FW,S2=Math.SQRT2;for(let j=0;j<FD;j++)for(let i=0;i<FW;i++){const k=j*FW+i;let d=wet[k];if(!d)continue;if(i)d=Math.min(d,wet[k-1]+1);if(j){d=Math.min(d,wet[k-FW]+1);if(i)d=Math.min(d,wet[k-FW-1]+S2);if(i<FW-1)d=Math.min(d,wet[k-FW+1]+S2);}wet[k]=d;}
     for(let j=FD-1;j>=0;j--)for(let i=FW-1;i>=0;i--){const k=j*FW+i;let d=wet[k];if(!d)continue;if(i<FW-1)d=Math.min(d,wet[k+1]+1);if(j<FD-1){d=Math.min(d,wet[k+FW]+1);if(i<FW-1)d=Math.min(d,wet[k+FW+1]+S2);if(i)d=Math.min(d,wet[k+FW-1]+S2);}wet[k]=d;}
-    for(let k=0;k<wet.length;k++)fd[k*4+1]=Math.min(1,wet[k]*s/6);}
+    for(let k=0;k<wet.length;k++)fd[k*4+1]=o.noBeach?(wet[k]>0?1:0):Math.min(1,wet[k]*s/6);}/* noBeach: river and lake banks are grass to the water */
   /* sandAt (0..1): dunes and deserts away from the water show as dry sand (Paul, 20 Nov 2026: Lancelin, the Pinnacles) */const SM=o.sandAt?new Uint8Array(FW*FD):null;if(SM)for(let j=0;j<FD;j++)for(let i=0;i<FW;i++){const k=j*FW+i,v=o.sandAt(x0+(i+.5)/FW*W,z0+(j+.5)/FD*D);if(v>.5&&fd[k*4]>=SEA){fd[k*4+1]=Math.min(fd[k*4+1],.36+(1-v)*.4);fd[k*4+2]=1;SM[k]=1;}}
   const KIND={path:0,lane:1,gravel:2};const MW=Math.min(4096,Math.ceil(W*8)),MD=Math.min(4096,Math.ceil(D*8)),mk=new Float32Array(MW*MD*4);
   (o.paths||[]).forEach(p=>{const kv=KIND[p.kind||'path']||0,hw=(p.w||1)/2,pts=p.pts;for(let n=1;n<pts.length;n++){const a=pts[n-1],b=pts[n],mnx=Math.min(a[0],b[0])-hw-1,mxx=Math.max(a[0],b[0])+hw+1,mnz=Math.min(a[1],b[1])-hw-1,mxz=Math.max(a[1],b[1])+hw+1;
