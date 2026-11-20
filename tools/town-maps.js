@@ -63,16 +63,34 @@ map('hi','Heirisson Island',{keepPools:1,life:{kangaroo:14,pelican:4,gull:8,dolp
     homes(A,-110,110,108,Math.PI,['house','cottage','bungalow']);for(let x=-100;x<=100;x+=40)A.B('flats',x,-112,0,{floors:3});
     A.V('sedan',-90,-6,Math.PI/2,1);A.V('hatch',80,-6,-Math.PI/2,1);A.V('citybus',-40,-100,Math.PI/2,1);}});
 
-// ---- Perth Airport: runway, taxiway, terminal with gates and planes, control tower, hangars, car park ----
-map('airport','Perth Airport',{life:{walker:30,gull:2,pelican:0,dolphin:0,boat:0,kayak:0,swimmer:0,sunbather:0,fisher:0,picnic:0,kangaroo:4},fol:{tuft:.5,flower:.1,bush:.01,tree:.001},
-  h:(x,z)=>.5+nz(x,z)*.05,
-  build(A){A.road([[-112,-70],[112,-70]],'highway');/* runway */A.road([[-100,-50],[100,-50]],'arterial');/* taxiway */[-80,-20,40,90].forEach(x=>A.road([[x,-70],[x,-50]],'arterial'));
-    [-60,-30,0,30,60].forEach(x=>A.road([[x,-50],[x,-26]],'arterial'));A.B('bigbox',0,-14,0,{w:84,d:16,fh:6,wall:'#e8eef2',awning:'#2f6fb0'},'PERTH AIRPORT · DEPARTURES');
-    [-60,-30,0,30,60].forEach((x,i)=>A.P('plane',x,-36,Math.PI,{color:['#2f6fb0','#d8343a','#2fa86a','#e8a33a','#6a3ad0'][i],s:.9}));A.P('plane',-40,-70,Math.PI/2,{color:'#d8343a',s:.9});
-    A.B('lighthouse',96,-24,0,{w:4,d:4,floors:7,wall:'#e8eef2',trim:'#2f3a48'});[-100,-80].forEach(x=>A.B('bigbox',x,-24,0,{w:16,d:14,fh:7,wall:'#c8d0d8'},'HANGAR'));
-    A.road([[-112,6],[112,6]],'arterial');A.road([[0,6],[0,112]],'arterial');A.path([[-60,24],[60,24],[60,58],[-60,58],[-60,24]],30,'lane');/* the car park */
-    for(let x=-54;x<=54;x+=4.6)[30,38,46,52].forEach((z,j)=>{if(rnd()<.75)A.V(['sedan','hatch','suv','ute','van'][(x|0+j)%5&3],x,z,Math.PI/2,0);});
-    A.V('taxi',-20,6,0,1);A.V('citybus',20,6,Math.PI,1);A.V('taxi',0,40,Math.PI/2,1);for(let x=-104;x<=104;x+=16){A.T('gum',x,16,.5);A.T('gum',x,66,.5);}A.P('flagpole',-6,0);A.P('flagpole',6,0);}});
+// ---- Perth Airport (Paul, 20 Nov 2026: layout from the old airport map, more detail): north to south — the hills, the runway, the taxiway,
+//      the apron with six gates (jet bridges, a plane at each), ONE long terminal covering every gate, the kerbside drop-off bays and
+//      the kerb road; across the road to the south the open car park (right) and the multi-storey car park (left), with the airport
+//      railway station below it and the line running west to the Perth CBD. Control tower and hangars at the ends. ----
+map('airport','Perth Airport',{life:{walker:36,gull:2,pelican:0,dolphin:0,boat:0,kayak:0,swimmer:0,sunbather:0,fisher:0,picnic:0,kangaroo:3,flock:2},fol:{tuft:.5,flower:.12,bush:.015,tree:.001},
+  h:(x,z)=>.5+nz(x,z)*.04+(z<-104?(-104-z)*.35*(1+.4*Math.sin(x*.05)):0),
+  build(A){/* airside */A.road([[-116,-90],[116,-90]],'highway');/* the runway */A.road([[-104,-72],[104,-72]],'arterial');/* the taxiway */[-104,-40,40,104].forEach(x=>A.road([[x,-90],[x,-72]],'arterial'));
+    A.path([[-100,-52],[100,-52]],26,'lane');/* the apron */[-82,-49,-16,16,49,82].forEach(x=>A.road([[x,-72],[x,-62]],'arterial'));
+    const GX=[-82,-49,-16,16,49,82],COL=['#2f6fb0','#d8343a','#2fa86a','#e8a33a','#6a3ad0','#1d3a6e'];
+    GX.forEach((x,i)=>{A.P('plane',x,-55,0,{color:COL[i],s:.95});A.P('jetbridge',x-4.5,-37,Math.PI,{len:7});A.V(['van','ute','hatch'][i%3],x+8,-48,0,0);});
+    A.P('plane',-60,-90,Math.PI/2,{color:'#d8343a',s:.95});/* one on the runway */A.P('plane',70,-72,-Math.PI/2,{color:'#2fa86a',s:.95});/* one taxiing */
+    /* the terminal: one long hall over every gate */A.B('bigbox',0,-28,0,{w:190,d:16,fh:7,wall:'#e8eef2',awning:'#2f6fb0',trim:'#c8d4dc'},'PERTH AIRPORT · DEPARTURES · ARRIVALS');
+    A.B('lighthouse',108,-30,0,{w:4,d:4,floors:8,wall:'#e8eef2',trim:'#2f3a48'});[-108,-108].forEach((x,i)=>A.B('bigbox',x,i?-58:-46,0,{w:12,d:10,fh:7,wall:'#c8d0d8',awning:'#5a6a7a'},'HANGAR'));
+    /* landside: kerbside bays in front of the terminal, then the kerb road */A.path([[-96,-16.5],[96,-16.5]],3,'lane');
+    for(let x=-92;x<=92;x+=5.2){if(Math.abs(x)<6)continue;if(rnd()<.7)A.V(['taxi','sedan','hatch','suv','van','taxi'][((x+92)/5.2|0)%6],x,-16.5,Math.PI/2,0);}
+    [-70,-35,0,35,70].forEach(x=>{A.P('busstop',x,-19.2,0);A.P('bench',x+3,-19.2,0);});for(let x=-96;x<=96;x+=12)A.P('lamp',x,-19.6);
+    A.road([[-116,-11],[116,-11]],'arterial');/* the kerb road */A.road([[-116,-11],[-116,60]],'arterial');A.road([[116,-11],[116,60]],'arterial');A.road([[-116,60],[116,60]],'arterial');
+    /* across the road: the multi-storey car park on the left, the open car park on the right */
+    A.B('slab',-66,13,0,{w:56,d:26,floors:4,wall:'#c8ccd0',trim:'#8a9096'},'MULTI-STOREY CAR PARK');
+    A.path([[-20,25],[100,25]],42,'lane');/* the open car park */
+    for(let x=-16;x<=96;x+=3.4)[10,18,32,40].forEach((z,j)=>{if(rnd()<.72)A.V(['sedan','hatch','suv','ute','van','sedan'][((x+16)/3.4+j|0)%6],+x.toFixed(1),z,j%2?-Math.PI/2:Math.PI/2,0);});
+    A.road([[40,-11],[40,4]],'street');A.road([[-66,-11],[-66,-4]],'street');/* entries */
+    /* the airport station below the car park, the line west to the Perth CBD */
+    const D=A.d;D.rail=[];for(let x=-118;x<=-30;x+=2)D.rail.push([x,34]);
+    A.B('bigbox',-60,46,Math.PI,{w:24,d:8,fh:5,wall:'#e8eaec',awning:'#2e8a52',trim:'#1d3a6e'},'AIRPORT STATION · TRAINS TO PERTH CBD');
+    A.path([[-60,41],[-60,24]],2.4);A.path([[-38,10],[-38,-20]],2.4);/* walkways: station - car park - terminal */A.P('sign',-56,40,0);
+    /* gardens: gums and grass along the kerb road and round the car parks */for(let x=-110;x<=110;x+=14){A.T('gum',x,-6,.5);A.T('gum',x+7,56,.5);}forest(A,0,80,30,24,['gum','gum','pepper']);
+    A.V('citybus',-40,-11,Math.PI/2,1);A.V('taxi',20,-11,-Math.PI/2,1);A.V('taxi',-90,-11,Math.PI/2,1);A.V('van',60,60,Math.PI/2,1);A.P('flagpole',-4,-20);A.P('flagpole',4,-20);}});
 
 // ---- Regional town (shared map for the regional towns): coast to the west, main street shopping strip, homes, campsite,
 //      car park, beach and jetty; a forest walk up the hill to a waterfall ----

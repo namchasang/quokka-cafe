@@ -79,6 +79,9 @@ const K={
     [0,1.1,2.2].forEach(a=>{const l=cyl(G,.06,.06,.8,'#6a4a2a',0,.12,0,6);l.rotation.z=Math.PI/2;l.rotation.y=a;});const fl=new THREE.Mesh(new THREE.ConeGeometry(.22,.6,8),new THREE.MeshBasicMaterial({color:'#ffb040'}));fl.position.y=.4;G.add(fl);G.userData.fire=fl;
     [-1,1].forEach(s=>{const b=box(G,1.2,.3,.3,'#8a6a48',s*1.3,.15,0);b.rotation.y=Math.PI/2;});},
   /* a parked airliner for the airport map (fictional livery) */
+  jetbridge(G,o){/* airport jet bridge: a rotunda at the terminal, a tube out on a wheeled leg, a cab that meets the plane door; runs along +z */const L=o.len||7,y=2.6;
+    cyl(G,.8,.8,y+.9,'#b8bcc2',0,(y+.9)/2,0,12);box(G,1.3,1.4,L,'#d4d8dc',0,y+.4,L/2+.6);box(G,1.32,.32,L,'#5a7a92',0,y+.6,L/2+.6);box(G,1.8,1.6,1.4,'#c8ccd0',0,y+.4,L+1.2);box(G,1.82,.4,1.42,'#3a4a58',0,y+.7,L+1.2);
+    cyl(G,.12,.12,y-.4,'#7a7e84',0,(y-.4)/2,L*.72);box(G,1.4,.3,.6,'#3a3e44',0,.15,L*.72);},
   plane(G,o){const s=o.s||1,c=o.color||'#2f6fb0';const b=cyl(G,.9*s,.9*s,12*s,'#f2f2ee',0,1.8*s,0,14);b.rotation.x=Math.PI/2;const n=new THREE.Mesh(new THREE.SphereGeometry(.9*s,14,10),m('#f2f2ee'));n.scale.z=1.8;n.position.set(0,1.8*s,6*s);G.add(n);
     const tc=new THREE.Mesh(new THREE.ConeGeometry(.9*s,3*s,14),m('#f2f2ee'));tc.rotation.x=-Math.PI/2;tc.position.set(0,1.9*s,-7.4*s);G.add(tc);box(G,14*s,.2*s,2.4*s,'#e8e8e4',0,1.5*s,.4*s);box(G,5*s,.16*s,1.4*s,'#e8e8e4',0,2.2*s,-7.6*s);
     box(G,.2*s,2.6*s,2.2*s,c,0,3.3*s,-7.4*s);box(G,.06,.5*s,9*s,c,.9*s,2.1*s,0);box(G,.06,.5*s,9*s,c,-.9*s,2.1*s,0);[-3.2,3.2].forEach(x=>cyl(G,.45*s,.45*s,1.6*s,'#c8ccd0',x*s,1.05*s,1*s,10).rotation.x=Math.PI/2);

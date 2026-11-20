@@ -52,7 +52,7 @@ const ROAD={
 };
 /* every vehicle kind, by category, with its nice name */
 const KINDS={};for(const k in ROAD)KINDS[k]={cat:'road',name:ROAD[k].name};
-Object.assign(KINDS,{islandtrain:{cat:'rail',name:'Island train'},suburban:{cat:'rail',name:'Suburban train'},
+Object.assign(KINDS,{islandtrain:{cat:'rail',name:'Island train'},suburban:{cat:'rail',name:'Suburban train'},perthtrain:{cat:'rail',name:'Metro train'},
   ferry:{cat:'water',name:'Passenger ferry'},catamaran:{cat:'water',name:'Fast catamaran'},fishingboat:{cat:'water',name:'Fishing boat'},speedboat:{cat:'water',name:'Speed boat'},houseboat:{cat:'water',name:'Houseboat'},
   yacht:{cat:'water',name:'Sailing yacht'},superyacht:{cat:'water',name:'Super yacht'},partyboat:{cat:'water',name:'Party boat'},fishbuyer:{cat:'water',name:'Fish-buyer boat'},tanker:{cat:'water',name:'Tanker'},cruiseship:{cat:'water',name:'Cruise ship'},kayak:{cat:'water',name:'Kayak'},
   lightplane:{cat:'air',name:'Light plane'},seaplane:{cat:'air',name:'Seaplane'},airliner:{cat:'air',name:'Airliner'},bike:{cat:'bike',name:'Bike'}});
@@ -150,12 +150,27 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
     const gr=x.createLinearGradient(256,0,0,0);gr.addColorStop(0,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gr;x.fillRect(0,56,256,16);
     const t=new THREE.CanvasTexture(c);WM=new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,opacity:.9});return WM;}
   function train(kind,op){const G=new THREE.Group();const v={g:G,body:G,kind,cat:'rail',cars:[],lamps:{head:[],tail:[],indL:[],indR:[]},wheels:[],front:[],roofItems:[],plates:[],people:[],L:4};
-    const n=op.cars||(kind==='islandtrain'?3:4);for(let i=0;i<n;i++){const C=new THREE.Group();root.add(C);const isLoco=kind==='islandtrain'&&i===0,cab=kind==='suburban'&&(i===0||i===n-1);
+    const n=op.cars||(kind==='islandtrain'||kind==='perthtrain'?3:4);for(let i=0;i<n;i++){const C=new THREE.Group();root.add(C);const isLoco=kind==='islandtrain'&&i===0,cab=kind==='suburban'&&(i===0||i===n-1);
       if(kind==='islandtrain'){const L=isLoco?2.6:3.0,col=isLoco?'#2f6a74':'#c8344a';box(C,L,.12,1.25,'#2a2e33',0,.38,0);
         if(isLoco){box(C,1.4,.7,1.0,col,-.4,.8,0);box(C,1.0,1.0,1.1,col,.75,.95,0);box(C,.9,.4,1.12,GLASS(),.75,1.15,0);cyl(C,.12,.15,.5,'#2a2e33',-.9,1.4,0);v.lamps.head.push(lamp(C,LM.head,.04,.14,.3,1.3,.85,0));}
         else{box(C,L,.12,1.2,'#f4f2ec',0,.5,0);[-1,1].forEach(s=>box(C,L,.5,.05,col,0,.75,s*.58));for(let k=0;k<4;k++)cyl(C,.035,.035,.9,'#e8e4d8',-L/2+.2+k*(L-.4)/3,.95,.55*1,6),cyl(C,.035,.035,.9,'#e8e4d8',-L/2+.2+k*(L-.4)/3,.95,-.55,6);
           prof(C,[[-L/2-.1,1.4],[L/2+.1,1.4],[L/2+.1,1.48],[0,1.62],[-L/2-.1,1.48]],1.35,'#f4f2ec',0,.02);for(let k=0;k<4;k++){const p=box(C,.22,.3,.22,['#e8b088','#8a5a3a','#f0c8a0'][k%3],-L/2+.5+k*.65,.75,(k%2?.25:-.25));v.people.push(p);}}
         [-L/2+.45,L/2-.45].forEach(x=>[-1,1].forEach(s=>wheel(C,x,s*.5,.18,.1,v.wheels)));C.userData.L=L;}
+      else if(kind==='perthtrain'){/* Perth metro electric train look (Paul, 20 Nov 2026): three-car set, ribbed stainless sides, a black window
+           band, sliding plug doors with dark frames, grey roof with air-con pods and a pantograph on the middle car, black cab masks with a
+           wide windscreen and a yellow nose, headlights low on the nose */
+        const L=4.6,cabE=(i===0||i===n-1),SS='#c9cdd2',SD='#9ea4ab';box(C,L,1.42,1.32,SS,0,1.08,0);box(C,L,.2,1.28,'#3a3e44',0,.3,0);/* body, underframe */
+        [.6,.72,.84].forEach(y=>[-1,1].forEach(sd=>box(C,L*.98,.03,.02,SD,0,y,sd*.665)));/* fluting on the lower sides */
+        box(C,L*.98,.46,1.335,GLASS(),0,1.36,0);box(C,L*.98,.05,1.34,'#16191c',0,1.12,0);box(C,L*.98,.05,1.34,'#16191c',0,1.6,0);/* window band */
+        box(C,L,.1,1.3,'#2f8a5a',0,.48,0);/* a green stripe low on the side */
+        [-L*.3,L*.18].forEach(dx=>[-1,1].forEach(sd=>{box(C,.62,1.2,.03,'#16191c',dx,1.03,sd*.67);box(C,.54,1.12,.03,SS,dx,1.03,sd*.678);box(C,.4,.5,.02,GLASS(),dx,1.3,sd*.69);box(C,.02,1.1,.02,'#16191c',dx,1.03,sd*.692);}));
+        box(C,L,.14,1.18,'#a8adb3',0,1.86,0);[-L*.28,L*.28].forEach(dx=>box(C,.9,.16,.7,'#8a9096',dx,2.0,0));
+        if(i===1||n<3&&i===0){const P=new THREE.Group();P.position.set(0,2.0,0);C.add(P);box(P,.6,.05,.5,'#3a3e44',0,.04,0);const a1=box(P,.05,.05,.7,'#3a3e44',0,.3,0);a1.rotation.x=0;const s1=box(P,.04,.62,.04,'#3a3e44',-.12,.3,0);s1.rotation.z=.6;const s2=box(P,.04,.62,.04,'#3a3e44',.12,.3,0);s2.rotation.z=-.6;box(P,.08,.04,.9,'#2a2e33',0,.58,0);}
+        if(cabE){const f=i===0?1:-1;const nose=prof(C,[[0,.22],[.55,.22],[.62,.9],[.48,1.55],[.22,1.86],[0,1.88]],1.3,'#16191c',0,.05);nose.position.x=f*L/2;if(f<0)nose.scale.x=-1;
+          const ws=box(C,.06,.55,1.1,GLASS(),f*(L/2+.52),1.3,0);ws.rotation.z=f*.22;box(C,.04,.36,1.24,'#f2c14e',f*(L/2+.6),.6,0);
+          v.lamps.head.push(lamp(C,LM.head,.03,.1,.18,f*(L/2+.63),.78,.42),lamp(C,LM.head,.03,.1,.18,f*(L/2+.63),.78,-.42));}
+        v.lamps.head.push(lamp(C,LM.cabin,L*.94,.34,1.33,0,1.36,0));
+        [-L/2+.7,L/2-.7].forEach(x=>[-1,1].forEach(sd=>wheel(C,x,sd*.52,.2,.1,v.wheels)));C.userData.L=L+(cabE?.62:0);}
       else{const L=4.4;box(C,L,1.35,1.3,'#e8e6e0',0,1.05,0);box(C,L*.96,.42,1.32,GLASS(),0,1.28,0);box(C,L,.14,1.32,'#c8344a',0,.62,0);box(C,L,.1,1.32,'#1d4f9c',0,1.62,0);
         for(let k=0;k<2;k++)box(C,.5,.95,.02,'#3a4048',-L/4+k*L/2,.95,.66);v.lamps.head.push(lamp(C,LM.cabin,L*.94,.36,1.33,0,1.28,0));
         if(cab){const f=i===0?1:-1;const nose=prof(C,[[0,.4],[.5,.4],[.5,1.0],[.25,1.7],[0,1.72]],1.28,'#e8e6e0',0,.04);nose.position.x=f*L/2;if(f<0)nose.scale.x=-1;v.lamps.head.push(lamp(C,LM.head,.03,.12,.25,f*(L/2+.5),.75,.4),lamp(C,LM.head,.03,.12,.25,f*(L/2+.5),.75,-.4));}

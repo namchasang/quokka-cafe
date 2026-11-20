@@ -558,6 +558,9 @@ const K={
     [0,1.1,2.2].forEach(a=>{const l=cyl(G,.06,.06,.8,'#6a4a2a',0,.12,0,6);l.rotation.z=Math.PI/2;l.rotation.y=a;});const fl=new THREE.Mesh(new THREE.ConeGeometry(.22,.6,8),new THREE.MeshBasicMaterial({color:'#ffb040'}));fl.position.y=.4;G.add(fl);G.userData.fire=fl;
     [-1,1].forEach(s=>{const b=box(G,1.2,.3,.3,'#8a6a48',s*1.3,.15,0);b.rotation.y=Math.PI/2;});},
   /* a parked airliner for the airport map (fictional livery) */
+  jetbridge(G,o){/* airport jet bridge: a rotunda at the terminal, a tube out on a wheeled leg, a cab that meets the plane door; runs along +z */const L=o.len||7,y=2.6;
+    cyl(G,.8,.8,y+.9,'#b8bcc2',0,(y+.9)/2,0,12);box(G,1.3,1.4,L,'#d4d8dc',0,y+.4,L/2+.6);box(G,1.32,.32,L,'#5a7a92',0,y+.6,L/2+.6);box(G,1.8,1.6,1.4,'#c8ccd0',0,y+.4,L+1.2);box(G,1.82,.4,1.42,'#3a4a58',0,y+.7,L+1.2);
+    cyl(G,.12,.12,y-.4,'#7a7e84',0,(y-.4)/2,L*.72);box(G,1.4,.3,.6,'#3a3e44',0,.15,L*.72);},
   plane(G,o){const s=o.s||1,c=o.color||'#2f6fb0';const b=cyl(G,.9*s,.9*s,12*s,'#f2f2ee',0,1.8*s,0,14);b.rotation.x=Math.PI/2;const n=new THREE.Mesh(new THREE.SphereGeometry(.9*s,14,10),m('#f2f2ee'));n.scale.z=1.8;n.position.set(0,1.8*s,6*s);G.add(n);
     const tc=new THREE.Mesh(new THREE.ConeGeometry(.9*s,3*s,14),m('#f2f2ee'));tc.rotation.x=-Math.PI/2;tc.position.set(0,1.9*s,-7.4*s);G.add(tc);box(G,14*s,.2*s,2.4*s,'#e8e8e4',0,1.5*s,.4*s);box(G,5*s,.16*s,1.4*s,'#e8e8e4',0,2.2*s,-7.6*s);
     box(G,.2*s,2.6*s,2.2*s,c,0,3.3*s,-7.4*s);box(G,.06,.5*s,9*s,c,.9*s,2.1*s,0);box(G,.06,.5*s,9*s,c,-.9*s,2.1*s,0);[-3.2,3.2].forEach(x=>cyl(G,.45*s,.45*s,1.6*s,'#c8ccd0',x*s,1.05*s,1*s,10).rotation.x=Math.PI/2);
@@ -1221,7 +1224,7 @@ const ROAD={
 };
 /* every vehicle kind, by category, with its nice name */
 const KINDS={};for(const k in ROAD)KINDS[k]={cat:'road',name:ROAD[k].name};
-Object.assign(KINDS,{islandtrain:{cat:'rail',name:'Island train'},suburban:{cat:'rail',name:'Suburban train'},
+Object.assign(KINDS,{islandtrain:{cat:'rail',name:'Island train'},suburban:{cat:'rail',name:'Suburban train'},perthtrain:{cat:'rail',name:'Metro train'},
   ferry:{cat:'water',name:'Passenger ferry'},catamaran:{cat:'water',name:'Fast catamaran'},fishingboat:{cat:'water',name:'Fishing boat'},speedboat:{cat:'water',name:'Speed boat'},houseboat:{cat:'water',name:'Houseboat'},
   yacht:{cat:'water',name:'Sailing yacht'},superyacht:{cat:'water',name:'Super yacht'},partyboat:{cat:'water',name:'Party boat'},fishbuyer:{cat:'water',name:'Fish-buyer boat'},tanker:{cat:'water',name:'Tanker'},cruiseship:{cat:'water',name:'Cruise ship'},kayak:{cat:'water',name:'Kayak'},
   lightplane:{cat:'air',name:'Light plane'},seaplane:{cat:'air',name:'Seaplane'},airliner:{cat:'air',name:'Airliner'},bike:{cat:'bike',name:'Bike'}});
@@ -1319,12 +1322,27 @@ function create(o){GAMMA=!!(o&&o.gammaOut);const scene=o.scene,H=o.heightAt||(()
     const gr=x.createLinearGradient(256,0,0,0);gr.addColorStop(0,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gr;x.fillRect(0,56,256,16);
     const t=new THREE.CanvasTexture(c);WM=new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,opacity:.9});return WM;}
   function train(kind,op){const G=new THREE.Group();const v={g:G,body:G,kind,cat:'rail',cars:[],lamps:{head:[],tail:[],indL:[],indR:[]},wheels:[],front:[],roofItems:[],plates:[],people:[],L:4};
-    const n=op.cars||(kind==='islandtrain'?3:4);for(let i=0;i<n;i++){const C=new THREE.Group();root.add(C);const isLoco=kind==='islandtrain'&&i===0,cab=kind==='suburban'&&(i===0||i===n-1);
+    const n=op.cars||(kind==='islandtrain'||kind==='perthtrain'?3:4);for(let i=0;i<n;i++){const C=new THREE.Group();root.add(C);const isLoco=kind==='islandtrain'&&i===0,cab=kind==='suburban'&&(i===0||i===n-1);
       if(kind==='islandtrain'){const L=isLoco?2.6:3.0,col=isLoco?'#2f6a74':'#c8344a';box(C,L,.12,1.25,'#2a2e33',0,.38,0);
         if(isLoco){box(C,1.4,.7,1.0,col,-.4,.8,0);box(C,1.0,1.0,1.1,col,.75,.95,0);box(C,.9,.4,1.12,GLASS(),.75,1.15,0);cyl(C,.12,.15,.5,'#2a2e33',-.9,1.4,0);v.lamps.head.push(lamp(C,LM.head,.04,.14,.3,1.3,.85,0));}
         else{box(C,L,.12,1.2,'#f4f2ec',0,.5,0);[-1,1].forEach(s=>box(C,L,.5,.05,col,0,.75,s*.58));for(let k=0;k<4;k++)cyl(C,.035,.035,.9,'#e8e4d8',-L/2+.2+k*(L-.4)/3,.95,.55*1,6),cyl(C,.035,.035,.9,'#e8e4d8',-L/2+.2+k*(L-.4)/3,.95,-.55,6);
           prof(C,[[-L/2-.1,1.4],[L/2+.1,1.4],[L/2+.1,1.48],[0,1.62],[-L/2-.1,1.48]],1.35,'#f4f2ec',0,.02);for(let k=0;k<4;k++){const p=box(C,.22,.3,.22,['#e8b088','#8a5a3a','#f0c8a0'][k%3],-L/2+.5+k*.65,.75,(k%2?.25:-.25));v.people.push(p);}}
         [-L/2+.45,L/2-.45].forEach(x=>[-1,1].forEach(s=>wheel(C,x,s*.5,.18,.1,v.wheels)));C.userData.L=L;}
+      else if(kind==='perthtrain'){/* Perth metro electric train look (Paul, 20 Nov 2026): three-car set, ribbed stainless sides, a black window
+           band, sliding plug doors with dark frames, grey roof with air-con pods and a pantograph on the middle car, black cab masks with a
+           wide windscreen and a yellow nose, headlights low on the nose */
+        const L=4.6,cabE=(i===0||i===n-1),SS='#c9cdd2',SD='#9ea4ab';box(C,L,1.42,1.32,SS,0,1.08,0);box(C,L,.2,1.28,'#3a3e44',0,.3,0);/* body, underframe */
+        [.6,.72,.84].forEach(y=>[-1,1].forEach(sd=>box(C,L*.98,.03,.02,SD,0,y,sd*.665)));/* fluting on the lower sides */
+        box(C,L*.98,.46,1.335,GLASS(),0,1.36,0);box(C,L*.98,.05,1.34,'#16191c',0,1.12,0);box(C,L*.98,.05,1.34,'#16191c',0,1.6,0);/* window band */
+        box(C,L,.1,1.3,'#2f8a5a',0,.48,0);/* a green stripe low on the side */
+        [-L*.3,L*.18].forEach(dx=>[-1,1].forEach(sd=>{box(C,.62,1.2,.03,'#16191c',dx,1.03,sd*.67);box(C,.54,1.12,.03,SS,dx,1.03,sd*.678);box(C,.4,.5,.02,GLASS(),dx,1.3,sd*.69);box(C,.02,1.1,.02,'#16191c',dx,1.03,sd*.692);}));
+        box(C,L,.14,1.18,'#a8adb3',0,1.86,0);[-L*.28,L*.28].forEach(dx=>box(C,.9,.16,.7,'#8a9096',dx,2.0,0));
+        if(i===1||n<3&&i===0){const P=new THREE.Group();P.position.set(0,2.0,0);C.add(P);box(P,.6,.05,.5,'#3a3e44',0,.04,0);const a1=box(P,.05,.05,.7,'#3a3e44',0,.3,0);a1.rotation.x=0;const s1=box(P,.04,.62,.04,'#3a3e44',-.12,.3,0);s1.rotation.z=.6;const s2=box(P,.04,.62,.04,'#3a3e44',.12,.3,0);s2.rotation.z=-.6;box(P,.08,.04,.9,'#2a2e33',0,.58,0);}
+        if(cabE){const f=i===0?1:-1;const nose=prof(C,[[0,.22],[.55,.22],[.62,.9],[.48,1.55],[.22,1.86],[0,1.88]],1.3,'#16191c',0,.05);nose.position.x=f*L/2;if(f<0)nose.scale.x=-1;
+          const ws=box(C,.06,.55,1.1,GLASS(),f*(L/2+.52),1.3,0);ws.rotation.z=f*.22;box(C,.04,.36,1.24,'#f2c14e',f*(L/2+.6),.6,0);
+          v.lamps.head.push(lamp(C,LM.head,.03,.1,.18,f*(L/2+.63),.78,.42),lamp(C,LM.head,.03,.1,.18,f*(L/2+.63),.78,-.42));}
+        v.lamps.head.push(lamp(C,LM.cabin,L*.94,.34,1.33,0,1.36,0));
+        [-L/2+.7,L/2-.7].forEach(x=>[-1,1].forEach(sd=>wheel(C,x,sd*.52,.2,.1,v.wheels)));C.userData.L=L+(cabE?.62:0);}
       else{const L=4.4;box(C,L,1.35,1.3,'#e8e6e0',0,1.05,0);box(C,L*.96,.42,1.32,GLASS(),0,1.28,0);box(C,L,.14,1.32,'#c8344a',0,.62,0);box(C,L,.1,1.32,'#1d4f9c',0,1.62,0);
         for(let k=0;k<2;k++)box(C,.5,.95,.02,'#3a4048',-L/4+k*L/2,.95,.66);v.lamps.head.push(lamp(C,LM.cabin,L*.94,.36,1.33,0,1.28,0));
         if(cab){const f=i===0?1:-1;const nose=prof(C,[[0,.4],[.5,.4],[.5,1.0],[.25,1.7],[0,1.72]],1.28,'#e8e6e0',0,.04);nose.position.x=f*L/2;if(f<0)nose.scale.x=-1;v.lamps.head.push(lamp(C,LM.head,.03,.12,.25,f*(L/2+.5),.75,.4),lamp(C,LM.head,.03,.12,.25,f*(L/2+.5),.75,-.4));}
@@ -1576,7 +1594,7 @@ const mk={
       const SB=BuildingKit.create({scene:G.rail,heightAt:Hg}),SO=(doc.stHut||[])[i],hx=SO?SO.x:S.x+S.px*3.4,hz=SO?SO.z:S.z+S.pz*3.4,hut=SB.build({style:'kiosk',x:hx,z:hz,rot:SO&&SO.r!=null?SO.r:Math.atan2(-S.px,-S.pz),sign:i?'NORTH STATION':'SOUTH STATION'});if(hut&&BS!==1)hut.scale.setScalar(BS);
       [-3,0,3].forEach(o=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.6,6),new THREE.MeshLambertMaterial({color:0x3a4048}));c.position.set(S.x+S.ux*o+S.px*.6,pf.position.y+.95,S.z+S.uz*o+S.pz*.6);G.rail.add(c);});
       const roof=new THREE.Mesh(new THREE.BoxGeometry(7,.1,1.6),new THREE.MeshLambertMaterial({color:new THREE.Color('#2f6a74').convertSRGBToLinear()}));roof.position.set(S.x+S.px*.3,pf.position.y+1.8,S.z+S.pz*.3);roof.rotation.y=S.ang;roof.castShadow=true;G.rail.add(roof);});
-    /* the island train runs the line back and forth and stops at each end (by the platforms) */E.train=VehicleEngine.create({scene:G.rail,heightAt:(x,z)=>Math.max(Hg(x,z),doc.sea)+.1,waterLevel:doc.sea});const t=E.train.add('islandtrain',R[0][0],R[0][1],{cars:3});{const cv2=new THREE.CatmullRomCurve3(R.map(p=>new THREE.Vector3(p[0],0,p[1]))),L2=cv2.getLength(),f=Math.min(.45,6/L2);E.train.rail(t,R,{speed:3,stops:[f,1-f]});}},
+    /* the island train runs the line back and forth and stops at each end (by the platforms) */E.train=VehicleEngine.create({scene:G.rail,heightAt:(x,z)=>Math.max(Hg(x,z),doc.sea)+.1,waterLevel:doc.sea});const t=E.train.add(doc.town&&doc.town!=='rott'?'perthtrain':'islandtrain',R[0][0],R[0][1],{cars:3});/* city maps run the Perth metro train */{const cv2=new THREE.CatmullRomCurve3(R.map(p=>new THREE.Vector3(p[0],0,p[1]))),L2=cv2.getLength(),f=Math.min(.45,6/L2);E.train.rail(t,R,{speed:3,stops:[f,1-f]});}},
   veh(){clear(G.veh);E.veh=VehicleEngine.create({scene:G.veh,heightAt:Hg,waterLevel:doc.sea});if(PLAYER)doc.veh=(doc.veh||[]).filter(o=>vehOK(o.k));E.veh.list=(doc.veh||[]).map(addVeh);},
   life(){clear(G.life);E.life=LifeEngine.create({scene:G.life,heightAt:Hg,kindAt,paths:doc.paths.map(p=>rndP(p.pts,5*CS)),water:(x,z)=>Hg(x,z)<doc.sea,bounds:[-55*CS,-55*CS,55*CS,55*CS]});
     KINDS_LIFE.forEach(k=>{const n=doc.life[k]|0;if(!n)return;if(!doc.paths.length&&(k==='walker'||k==='jogger'||k==='cyclist'))return;try{E.life.spawn(k,n);}catch(e){console.warn(k,e);}});}};
@@ -1632,7 +1650,7 @@ const VCAT=k=>(VehicleEngine.KINDS[k]||{}).cat;
 /* player version (Paul, 14 Nov 2026): on the island only bikes, the Island Loop bus and the food truck; boats stay on the sea */
 const WATERV=['fishingboat','speedboat','yacht','kayak','houseboat'];
 /* boats: only the small ones a player would own (QA: no tankers or cruise ships at the island) */
-const vehOK=k=>!PLAYER||k==='bike'||k==='islandbus'||k==='foodtruck'||WATERV.includes(k);
+const vehOK=k=>!PLAYER||(MASTER&&doc.town&&doc.town!=='rott')/* town maps in the master builder: every car, taxi, bus and truck */||k==='bike'||k==='islandbus'||k==='foodtruck'||WATERV.includes(k);
 function addVeh(o){const V=E.veh;let v;try{v=V.add(o.k,o.x,o.z,{rot:o.r||0,color:o.c||undefined});}catch(e){return null;}if(!o.go)return v;const c=VCAT(o.k),a=o.r||0,ca=Math.cos(a),sa=Math.sin(a);
   if((c==='road'||c==='bike')&&E.road&&E.road.roads){let best=0,bd=1e9,net=E.road;[E.road].concat(c==='bike'&&E.bike?[E.bike]:[]).forEach(N=>N.roads.forEach((r,i)=>{const d=lineD(o.x,o.z,r.pts.map(p=>Array.isArray(p)?p:[p.x,p.z]));if(d<bd){bd=d;best=i;net=N;}}));if(bd<8)V.drive(v,net,{road:best,t:.5});}
   else if(c==='water'){/* the loop must stay in deep water (Paul, 15 Nov 2026: a boat sailed across the island); the widest one that fits, or stay moored */let P=null;for(const R of[Math.max(4,v.L*1.6),Math.max(3,v.L*1.1),2.5]){const Q=[];for(let i=0;i<16;i++){const q=i/16*Math.PI*2;Q.push([o.x+Math.cos(q)*R-ca*R,o.z+Math.sin(q)*R+sa*R]);}if(Q.every(p=>Hg(p[0],p[1])<doc.sea-.5)){P=Q;break;}}if(P)V.sail(v,P,{});}
@@ -1666,7 +1684,7 @@ function yard(G,b,par){if(!G||!b||b.s==='cafe')return;/* no paving slab in front
   const w=(F[2]-F[0])*.92,dep=bd+.15,m=new THREE.Mesh(new THREE.PlaneGeometry(w,dep),YARDM);m.rotation.set(-Math.PI/2,0,r,'YXZ');m.rotation.order='YXZ';m.rotation.y=r;m.rotation.x=-Math.PI/2;
   G.userData.yd=+dep.toFixed(2);const cx=fx+dx*dep/2,cz=fz+dz*dep/2;m.position.set(cx+Math.cos(r)*(F[0]+F[2])/2,Math.max(Hg(cx,cz),doc.sea)+.05,cz-Math.sin(r)*(F[0]+F[2])/2);m.receiveShadow=true;m.userData.yard=1;par.add(m);}
 /* once per map: shops whose real footprint (terrace and all) sits on a road are moved back to the road's edge plus the front yard */
-function islandVehicles(){if(!PLAYER||doc.vehdef)return;doc.vehdef=1;if((doc.veh||[]).length)return;const r=doc.roads.find(q=>q.type!=='bridge'&&q.pts.length>1);if(!r)return;
+function islandVehicles(){if(!PLAYER||(MASTER&&doc.town&&doc.town!=='rott')||doc.vehdef)return;doc.vehdef=1;if((doc.veh||[]).length)return;const r=doc.roads.find(q=>q.type!=='bridge'&&q.pts.length>1);if(!r)return;
   const a=r.pts[0],b=r.pts[r.pts.length-1],at=t=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],ang=-Math.atan2(b[1]-a[1],b[0]-a[0]);
   const p1=at(.25),p2=at(.6),p3=at(.8);doc.veh=[{k:'islandbus',x:p1[0],z:p1[1],r:ang,go:true},{k:'bike',x:p2[0],z:p2[1],r:ang,go:true},{k:'bike',x:p3[0],z:p3[1],r:ang+Math.PI,go:true}];
   /* the food truck parks on the grass beside the road, a little away from the shops */const p4=at(.45);let fx=p4[0],fz=p4[1]+5.2;if(doc.bld.some(o=>Math.hypot(o.x-fx,o.z-fz)<6))fz=p4[1]-5.2;doc.veh.push({k:'foodtruck',x:+fx.toFixed(2),z:+fz.toFixed(2),r:ang,go:false});rebuild(['veh']);save();}
@@ -1725,7 +1743,7 @@ function setMode(){/* how the camera answers the left button / one finger */cons
 function openCat(k){if(pend)cancelPend();if(GOV)GOV.visible=false;st.cat=k;st.hold=false;st.pick=null;st.draw=null;drawLine();clearGhost();deselect();[...bar.children].forEach(b=>b.classList.toggle('on',b.dataset.k===k));tray.classList.toggle('open',!!k&&k!=='bulldoze');fillTray();setMode();
   if(k==='bulldoze')toast('แตะของที่อยากรื้อ (ย้อนได้ด้วย ↶)');}
 /* decor: Thai names; the bigger sets and a few park things earn a little every day (QA idea 1) */
-const DNAME={pinnacle:'หินยอดแหลม',waterfall:'น้ำตก',tent:'เต็นท์',campfire:'กองไฟแคมป์',plane:'เครื่องบิน',lamp:'โคมไฟ',bench:'ม้านั่ง',bin:'ถังขยะ',sign:'ป้าย',busstop:'ป้ายรถเมล์',fence:'รั้ว',bollard:'เสากั้น',planter:'กระถางดอกไม้',picnic:'โต๊ะปิกนิก',bikerack:'ที่จอดจักรยาน',bikes:'จักรยานให้เช่า',umbrella:'ร่มชายหาด',jetty:'ท่าเทียบเรือ',buoy:'ทุ่น',rock:'ก้อนหิน',crate:'ลังไม้',tap:'ก๊อกน้ำ',playground:'สนามเด็กเล่น',cafeset:'โต๊ะคาเฟ่ริมทาง',fishstall:'แผงปลาสด',gardenplot:'แปลงผัก',bikerepair:'จุดซ่อมจักรยาน'};
+const DNAME={pinnacle:'หินยอดแหลม',waterfall:'น้ำตก',tent:'เต็นท์',campfire:'กองไฟแคมป์',plane:'เครื่องบิน',jetbridge:'ทางเชื่อมเครื่องบิน',lamp:'โคมไฟ',bench:'ม้านั่ง',bin:'ถังขยะ',sign:'ป้าย',busstop:'ป้ายรถเมล์',fence:'รั้ว',bollard:'เสากั้น',planter:'กระถางดอกไม้',picnic:'โต๊ะปิกนิก',bikerack:'ที่จอดจักรยาน',bikes:'จักรยานให้เช่า',umbrella:'ร่มชายหาด',jetty:'ท่าเทียบเรือ',buoy:'ทุ่น',rock:'ก้อนหิน',crate:'ลังไม้',tap:'ก๊อกน้ำ',playground:'สนามเด็กเล่น',cafeset:'โต๊ะคาเฟ่ริมทาง',fishstall:'แผงปลาสด',gardenplot:'แปลงผัก',bikerepair:'จุดซ่อมจักรยาน'};
 const DINC={picnic:20,umbrella:10,bikes:25,busstop:15,playground:40,cafeset:35,fishstall:60,gardenplot:25,bikerepair:45};
 const DPRICE={picnic:200,umbrella:150,bikes:400,busstop:300,playground:800,cafeset:700,fishstall:1200,gardenplot:500,bikerepair:900};
 /* plain shop buildings with a sign also trade a little */
