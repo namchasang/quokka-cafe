@@ -222,27 +222,27 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-engine-foliage.js | 19942-20067 | 20 | GAMMA, rnd, canvas, tuftTex, leafTex, WIND, swayMat, cards, crown, merge |
 | 188-engine-road.js | 20068-20309 | 38 | GAMMA, TY, lin, asphalt, create |
 | 188-engine-building.js | 20310-20495 | 32 | GAMMA, lin, box, GLASS, tiles, TC, signTex, windowPart, doorPart, roof |
-| 188-engine-props.js | 20496-20623 | 24 | GAMMA, M, box, SHADOW_ONLY, poleShadow, cyl, sph, signTex, K, o2 |
-| 188-engine-vehicle.js | 20624-20913 | 42 | GAMMA, lin, MC, GLASS, mesh, box, cyl, prof, tex, decal |
-| 188-engine-life.js | 20914-21050 | 25 | GAMMA, lin, msh, SPH, SKIN, FOLK, FOLK_ON, folkHead, person, quokka |
-| 188-engine-waterlife.js | 21051-21096 | 8 | GAMMA, lin, rnd, create |
-| 188-engine-sky.js | 21097-21170 | 11 | C, WX, create |
-| 188-engine-islandmap.js | 21171-21358 | 28 | N, segD, mergeStatic, sandOf, weldPaths, RNDC, RNDT, lineD, RW, coastFix |
-| 188-engmap-look-lab.js | 21359-21416 | 9 | ENGMAP_LIVE, ENGMAP |
-| 188-ibmap-look-lab.js | 21417-21597 | 103 | embedded data, do not open |
-| 188-freomap-look-lab.js | 21598-21719 | 17 | FREOMAP_LIVE, FREOMAP_GM, FREOMAP |
-| 188-vpmap-look-lab.js | 21720-21824 | 12 | VPMAP_LIVE, VPMAP |
-| 188-open-sea-ships-and-captain-ned.js | 21825-21944 | 21 | SHIPS, OPENSEA |
-| 188-boat-shop-and-wandering-boats.js | 21945-22025 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 22026-22047 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 22048-22107 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 22108-22157 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 22158-22190 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 22191-22263 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 22264-22294 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 22295-22311 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 22312-22322 | 2 |  |
-| 188-auth.js | 22323-22401 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 22402-22437 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 22438-22481 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22482-22503 | 3 | SHOT |
+| 188-engine-props.js | 20496-20645 | 28 | GAMMA, M, box, SHADOW_ONLY, poleShadow, cyl, sph, signTex, K, o2 |
+| 188-engine-vehicle.js | 20646-20935 | 42 | GAMMA, lin, MC, GLASS, mesh, box, cyl, prof, tex, decal |
+| 188-engine-life.js | 20936-21072 | 25 | GAMMA, lin, msh, SPH, SKIN, FOLK, FOLK_ON, folkHead, person, quokka |
+| 188-engine-waterlife.js | 21073-21118 | 8 | GAMMA, lin, rnd, create |
+| 188-engine-sky.js | 21119-21192 | 11 | C, WX, create |
+| 188-engine-islandmap.js | 21193-21380 | 28 | N, segD, mergeStatic, sandOf, weldPaths, RNDC, RNDT, lineD, RW, coastFix |
+| 188-engmap-look-lab.js | 21381-21438 | 9 | ENGMAP_LIVE, ENGMAP |
+| 188-ibmap-look-lab.js | 21439-21619 | 103 | embedded data, do not open |
+| 188-freomap-look-lab.js | 21620-21741 | 17 | FREOMAP_LIVE, FREOMAP_GM, FREOMAP |
+| 188-vpmap-look-lab.js | 21742-21846 | 12 | VPMAP_LIVE, VPMAP |
+| 188-open-sea-ships-and-captain-ned.js | 21847-21966 | 21 | SHIPS, OPENSEA |
+| 188-boat-shop-and-wandering-boats.js | 21967-22047 | 14 | BOATS |
+| 188-bay-boats-look-lab-toon.js | 22048-22069 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 22070-22129 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 22130-22179 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 22180-22212 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 22213-22285 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 22286-22316 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 22317-22333 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 22334-22344 | 2 |  |
+| 188-auth.js | 22345-22423 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 22424-22459 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 22460-22503 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22504-22525 | 3 | SHOT |

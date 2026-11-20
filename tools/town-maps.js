@@ -17,7 +17,7 @@ function tidy(d){const box=b=>{const o=b.o||{};let w=o.w||(FOOT[b.s]||[8,8])[0],
 function map(id,name,o){
   const d={v:1,ver:1,town:id,name,sea:0,h:[],paths:[],roads:[],props:[],bld:[],trees:[],culs:[],biz:[],veh:[],rail:[],fol:o.fol||{tuft:.6,flower:.3,bush:.03,tree:.003},
     life:Object.assign({walker:20,jogger:3,cyclist:4,gull:6,pelican:1,dolphin:2,boat:2,kayak:1,sitter:6,picnic:3,dogfetch:2,fisher:2,flock:2,butterfly:3,swimmer:2,sunbather:4,kangaroo:0,quokka:0},o.life||{})};
-  if(o.desert)d.desert=1;if(o.sand)d.sand=o.sand;if(o.keepPools)d.keepPools=1;if(o.sandTint)d.sandTint=o.sandTint;
+  if(o.desert)d.desert=1;if(o.sand)d.sand=o.sand;if(o.keepPools)d.keepPools=1;if(o.sandTint)d.sandTint=o.sandTint;if(o.calm)d.calm=1;
   for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=(i-60)*2,z=(j-60)*2;d.h.push(+o.h(x,z).toFixed(2));}
   const A={d,
     road:(pts,type)=>d.roads.push({pts,type:type||'street'}),path:(pts,w,kind)=>d.paths.push({pts,w:w||1.6,kind:kind||'path'}),
@@ -150,3 +150,66 @@ map('esperance','Esperance',{keepPools:1,life:{walker:16,kangaroo:8,swimmer:4,su
     strip(A,'x',-6,-27,17,1,['BAYVIEW HOTEL','SOUTHERN SANDS CAFE','ESPERANCE GENERAL','SURF SHACK','FORESHORE FISH & CHIPS','GALLERY BY THE BAY','BOOKS & MAPS','CHEMIST'],17);strip(A,'z',-30,4,26,-1,['HARDWARE','PIZZA','NEWSAGENCY','BUTCHER'],19);strip(A,'z',20,4,26,1,['OP SHOP','BIKE HIRE','HAIR SALON','TAKEAWAY'],23);
     homes(A,-24,56,40,Math.PI,['house','cottage','bungalow']);homes(A,-24,56,22,0,['cottage','house']);A.P('jetty',0,-20,0,{lines:[[0,-14],[0,-70]],w:2.6});A.biz('fishing',12,-50,0);
     A.path([[-110,-16],[110,-16]],1.6);for(let x=-90;x<=90;x+=30){A.P('bench',x,-14,Math.PI);A.T('datepalm',x+6,-12);}A.P('sign',-60,40,0);A.path([[-38,40],[-60,46]],1.2,'gravel');}});
+
+// ======== East-coast cities and the road trip (Paul, 21 Nov 2026) ========
+const grid=(A,xs,zs,type)=>{xs.forEach(x=>A.road([[x,zs[0]],[x,zs[zs.length-1]]],type||'street'));zs.forEach(z=>A.road([[xs[0],z],[xs[xs.length-1],z]],type||'street'));};
+const towers=(A,x1,x2,z1,z2,step,fl,names,seed)=>{const r=(s=>()=>{s=(s*9301+49297)%233280;return s/233280;})(seed||3);let k=0;
+  for(let x=x1;x<=x2;x+=step)for(let z=z1;z<=z2;z+=step){if(r()<.18)continue;const f=fl[0]+Math.floor(r()*(fl[1]-fl[0]));A.B(f>6?'tower':'flats',x+(r()-.5)*2,z+(r()-.5)*2,(r()*4|0)*Math.PI/2,{w:9+r()*5,d:9+r()*5,floors:f,wall:['#c8d4dc','#d8dce0','#b8c8d4','#e0d8c8','#a8b8c8','#d4c8b8'][k%6]},r()<.4?names[k%names.length]:undefined);k++;}};
+
+// ---- Sydney: the harbour across the middle opening to the sea in the east, the steel arch bridge, the ferry wharves at the quay,
+//      the white-shelled concert hall on its point, the CBD towers behind the quay, the botanic gardens, the north shore on its hills ----
+map('sydney','Sydney',{life:{walker:40,jogger:6,cyclist:6,gull:12,pelican:2,dolphin:2,boat:6,kayak:3,sitter:10,picnic:6,dogfetch:3,fisher:3,swimmer:0,sunbather:2,flock:3,butterfly:2},
+  h:(x,z)=>{const n=-30+Math.sin(x*.035)*5,s=10+Math.sin(x*.05+1)*3;const point=x>16&&x<38&&z<14&&z>-8;/* the concert hall point */
+    if(z>n&&z<s&&!point&&!(x>70&&z<s+40&&z>n-30&&x>90))return -2.2;if(x>96&&(z<n+10||z>s-8))return -2.2;
+    return z<=n?.6+Math.max(0,n-z)*.08+nz(x,z)*.3:.5+Math.max(0,z-s)*.03+nz(x,z)*.1;},
+  build(A){A.P('archbridge',-34,-10,Math.PI/2,{len:60,h:5,rise:14});A.road([[-34,-60],[-34,-40],[-34,20],[-34,110]],'highway');
+    grid(A,[-70,-50,-10,10,30],[24,44,64,84,104],'street');A.road([[-118,24],[-70,24]],'arterial');A.road([[30,24],[60,24]],'street');
+    towers(A,-66,26,32,100,20,[8,30],['HARBOUR TOWER','QUAYSIDE','ONE BRIDGE ST','THE EXCHANGE','MARKET HOUSE'],5);
+    A.path([[-26,14],[40,14]],4);/* the quay promenade */[-20,-8,4].forEach((x,i)=>{A.P('jetty',x,8,0,{lines:[[x,12],[x,-2]],w:2.4});A.V('ferry',x+3,1,Math.PI/2,i===1);});A.V('ferry',0,-14,0,1);A.V('ferry',60,-10,Math.PI,1);
+    A.P('concerthall',27,2,0,{s:.9});A.path([[16,14],[27,10]],3);[[-12,16],[0,16],[12,16]].forEach(([x,z])=>{A.P('bench',x,z,Math.PI);A.P('lamp',x+3,z);});A.P('cafeset',-4,17,0);A.P('cafeset',8,17,0);A.P('busstop',-24,22,0);
+    forest(A,70,50,32,60,['fig','palm','fig','pepper']);A.path([[44,30],[70,40],[96,60]],2,'gravel');A.P('sign',44,28,0);
+    homes(A,-110,90,-60,0,['house','cottage','bungalow','units']);homes(A,-110,90,-84,Math.PI,['house','bungalow','units']);towers(A,-22,10,-58,-48,14,[6,14],['NORTH SHORE PLAZA'],9);
+    forest(A,-80,-100,18,20,['gum','fig']);forest(A,60,-100,18,20,['gum','fig']);A.V('yacht',50,-18,.3,1);A.V('yacht',-60,-6,2,1);A.V('speedboat',20,-20,1,1);A.V('kayak',-50,4,0,1);
+    A.V('citybus',-70,40,0,1);A.V('taxi',-10,60,Math.PI/2,1);A.V('sedan',10,44,0,1);A.V('ute',-34,60,Math.PI/2,1);}});
+
+// ---- Melbourne: the river through the middle, the CBD grid north of it with trams, laneways of cafés, the big domed station by the river,
+//      Southbank towers and the promenade south of it, gardens to the east ----
+map('melbourne','Melbourne',{keepPools:1,calm:1,life:{walker:44,jogger:6,cyclist:10,gull:6,pelican:1,dolphin:0,boat:3,kayak:4,sitter:10,picnic:6,dogfetch:3,fisher:2,swimmer:0,sunbather:0,flock:3,butterfly:2},
+  h:(x,z)=>{const c=22+Math.sin(x*.03)*6;if(Math.abs(z-c)<6)return -1.6;return .5+nz(x,z)*.08;},
+  build(A){grid(A,[-90,-60,-30,0,30,60],[-90,-60,-30,0],'arterial');towers(A,-75,45,-75,-15,30,[8,30],['COLLINS HOUSE','FLINDERS LANE','BOURKE PLACE','THE GALLERIA','MARKET TOWER','ELIZABETH COURT'],7);
+    [[-75,-45],[-15,-45],[45,-15]].forEach(([x,z])=>{A.path([[x-12,z],[x+12,z]],2.4);strip(A,'x',z-2.4,x-12,x+12,-1,['ESPRESSO LANE','THE LITTLE DUMPLING','DEGRAVES-STYLE CAFE'.replace('DEGRAVES-STYLE ','LANEWAY '),'RECORD BAR','BAGEL CORNER','NOODLE HOUSE'],x&7|1);});
+    [[-90,-75,0],[0,-30,Math.PI/2],[-60,-90,0],[30,-60,Math.PI/2]].forEach(([x,z,r],i)=>A.P('tram',x,z,r,{color:i%2?'#2f8a5a':'#e8a33a'}));
+    A.B('heritage',-14,10,Math.PI,{w:30,d:10,floors:2,fh:4,wall:'#f2c14e',parapetH:2,windows:'round'},'CENTRAL STATION');A.P('flagpole',-14,4);A.P('busstop',-4,4,0);
+    [-30,0,30].forEach(x=>A.road([[x,0],[x,44]],'bridge'));A.road([[-118,44],[118,44]],'arterial');towers(A,-80,80,60,92,20,[8,24],['SOUTHBANK TOWER','RIVERSIDE','ARTS CENTRE','CROWN-LESS PLAZA'.replace('CROWN-LESS ','RIVER ')],11);
+    A.path([[-110,32],[110,32]],3);for(let x=-100;x<=100;x+=16){A.P('bench',x,31,0);A.P('lamp',x+6,33);A.T('pepper',x+10,34,.5);}
+    forest(A,95,-50,22,40,['fig','gum','pepper']);A.path([[78,-70],[96,-48],[112,-30]],2,'gravel');A.V('kayak',-40,22,0,1);A.V('kayak',20,20,0,1);A.V('partyboat',60,22,0,1);
+    A.V('citybus',-60,-60,Math.PI/2,1);A.V('taxi',0,-60,0,1);A.V('sedan',30,-30,Math.PI/2,1);}});
+
+// ---- Katoomba (Blue Mountains): the town on the plateau with its main street and railway, the cliff edge with a lookout, three tall
+//      rock pillars below it, a waterfall off the cliff, the cable car over the valley, the bush walk down into the forest ----
+map('katoomba','Katoomba (Blue Mountains)',{calm:1,life:{walker:24,jogger:2,cyclist:2,gull:0,pelican:0,dolphin:0,boat:0,kayak:0,sitter:6,picnic:4,dogfetch:2,fisher:0,swimmer:0,sunbather:0,flock:4,butterfly:4,kangaroo:3},
+  h:(x,z)=>{const edge=-2+Math.sin(x*.06)*3+Math.sin(x*.023)*3;const top=14+nz(x,z)*.6,valley=1.2+nz(x,z)*1.2+Math.max(0,z-90)*.1;return z<edge?top:valley+(top-valley)*(1-sm(edge,edge+7,z));},
+  build(A){A.rail=1;const D=A.d;D.rail=[];for(let x=-118;x<=118;x+=2)D.rail.push([x,-92]);A.road([[-118,-78],[118,-78]],'arterial');A.road([[0,-78],[0,-20]],'street');A.road([[-60,-78],[-60,-20]],'street');A.road([[-60,-20],[60,-20]],'street');
+    strip(A,'z',0,-74,-26,-1,['MOUNTAIN BAKERY','THE MIST CAFE','ANTIQUES','BUSHWALK GEAR','OLD THEATRE','CHOCOLATERIE','GALLERY ON THE HILL','BOOK BARN'],41);strip(A,'z',0,-74,-26,1,['GUESTHOUSE','POST OFFICE','PIE SHOP','CRYSTALS & GIFTS','HARDWARE','THE CARRINGTON-STYLE HOTEL'.replace('CARRINGTON-STYLE ','GRAND ')],43);
+    A.B('heritage',-30,-86,0,{w:16,d:6,floors:1,fh:3.6,wall:'#c8a878'},'KATOOMBA STATION');homes(A,-110,-70,-60,0,['cottage','house','bungalow']);homes(A,30,110,-60,0,['cottage','house','bungalow']);homes(A,30,110,-40,Math.PI,['house','cottage']);
+    A.path([[-40,-20],[-40,-12]],3);A.P('sign',-40,-14,0);[-46,-40,-34].forEach(x=>A.P('bench',x,-11,Math.PI));A.P('flagpole',-50,-12);/* the lookout */
+    [[-46,12,9],[-39,13,11],[-32,12,8]].forEach(([x,z,h])=>A.P('rockpillar',x,z,0,{h:h*1.4,w:2.8}));/* three rock pillars below the lookout */
+    A.P('waterfall',30,6,0,{h:12,w:2.6});A.P('cablecar',10,40,Math.PI/2,{len:70,h0:14,h1:2,top:4});
+    A.path([[-10,-18],[-14,-4],[-4,6],[-16,18],[-6,32],[-20,50]],1.2,'gravel');A.path([[-6,32],[20,40],[30,8]],1.2,'gravel');A.P('sign',-10,-18,0);
+    forest(A,0,70,110,320,['gum','gum','gum','pepper','fig']);forest(A,80,-10,20,24,['gum']);forest(A,-90,-10,20,24,['gum']);
+    A.V('citybus',-30,-78,Math.PI/2,1);A.V('sedan',0,-50,0,1);A.V('suv',40,-78,-Math.PI/2,1);}});
+
+// ---- The Great Ocean Road: a seaside town with a surf beach in the east, the road winding west along the cliffs past a lighthouse on
+//      its headland, forest on the hills, to the lookout and visitor centre over the Twelve Apostles sea stacks in the west ----
+const GOR=x=>28+Math.sin(x*.035)*14+Math.sin(x*.09)*4;/* the coastline: land north (z<), the ocean south */
+map('gor','Great Ocean Road · Twelve Apostles',{sand:[{x:90,z:42,r:26}],life:{walker:18,jogger:2,cyclist:4,gull:14,pelican:2,dolphin:4,boat:3,kayak:1,sitter:6,picnic:4,dogfetch:2,fisher:3,swimmer:4,sunbather:6,flock:3,butterfly:2,kangaroo:4,seal:4},
+  h:(x,z)=>{const c=GOR(x);if(z>c){const st=[[-96,62],[-84,54],[-76,66],[-66,58],[-58,70],[-50,60],[-104,72],[-40,66]].some(([a,b])=>Math.hypot(x-a,z-b)<3.2);return st?10:-Math.min(3,.5+(z-c)*.06);}
+    const cliff=x<60?9-Math.max(0,x)*.04:sm(110,60,x)*6+.6;return .6+cliff*sm(c,c-6,z)+Math.max(0,c-6-z)*.05*(x<60?1:.4)+nz(x,z)*.4;},
+  build(A){const pts=[];for(let x=118;x>=-108;x-=6)pts.push([x,+(GOR(x)-10-(x<60?2:0)).toFixed(1)]);A.road(pts,'arterial');
+    strip(A,'x',GOR(90)-10,74,112,-1,['SURF CLUB CAFE','BOARD HIRE','FISH & CHIPS','THE OCEAN HOTEL','GENERAL STORE','ICE CREAMS'],51);homes(A,72,112,GOR(90)-32,0,['cottage','house','bungalow']);
+    A.P('jetty',100,GOR(100)+2,0,{lines:[[100,GOR(100)],[100,GOR(100)+16]],w:2.2});A.V('fishingboat',104,GOR(104)+12,0,0);for(let x=80;x<=108;x+=7){A.P('umbrella',x,GOR(x)+3);A.P('towel',x+2,GOR(x)+4);}
+    A.B('lighthouse',10,GOR(10)-4,0,{w:3.6,d:3.6,floors:5,wall:'#f4f2ea',trim:'#d8343a'},'CAPE LIGHTHOUSE');A.B('cottage',18,GOR(18)-10,0,{wall:'#f4f2ea'},'KEEPERS COTTAGE');A.road([[10,GOR(10)-10],[10,GOR(10)-5]],'island');
+    A.B('bigbox',-70,GOR(-70)-26,0,{w:16,d:8,fh:4,wall:'#d8c8a8',awning:'#3e6d5c'},'TWELVE APOSTLES VISITOR CENTRE');A.path([[-80,GOR(-80)-20],[-56,GOR(-56)-20]],12,'lane');for(let x=-78;x<=-58;x+=4.2)A.V(['campervan','suv','sedan','hatch','ute'][((x+80)/4.2|0)%5],x,GOR(x)-20,Math.PI/2,0);
+    A.path([[-70,GOR(-70)-20],[-74,GOR(-74)-4],[-80,GOR(-80)-2],[-66,GOR(-66)-2]],1.6,'path');[-80,-73,-66].forEach(x=>{A.P('bench',x,GOR(x)-3,0);A.P('fence',x+2,GOR(x)-1.5,0);});A.P('sign',-70,GOR(-70)-14,0);
+    forest(A,0,-70,110,180,['gum','gum','pepper','gum']);A.P('sign',112,GOR(112)-14,0);A.P('waterfall',-20,-60,0,{h:4,w:2});A.path([[-20,GOR(-20)-12],[-24,-30],[-20,-56]],1.2,'gravel');
+    A.V('campervan',40,GOR(40)-12,-Math.PI/2,1);A.V('sedan',-20,GOR(-20)-12,Math.PI/2,1);A.V('caravan',80,GOR(80)-12,-Math.PI/2,1);A.V('ute',-60,GOR(-60)-12,Math.PI/2,1);}});
