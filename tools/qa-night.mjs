@@ -22,9 +22,9 @@ const RUNS = [
   ['fremantle', '?shot=295,0,10,0,1,0'],
   ['heirisson', '?shot=420,0,10,0,1,0'],
   ['victoria-park', '?shot=525,5,10,0,1,0'],
-  ['outer-world', '?pnew=6#ow2&owgo'],   // ?pnew starts a new game in slot 6 (flags in the hash: pnew clears the search)
+  ['outer-world', '?pnew=6#ow2&owgo', 70],   // needs ~70 s: a new game first plays its intro at the café   // ?pnew starts a new game in slot 6 (flags in the hash: pnew clears the search)
   ['oldisland', '?shot=0,0,10,0,1,0&oldisland'],
-  ['owengine', '?pnew=6#ow2&owgo&owengine'],
+  ['owengine', '?pnew=6#ow2&owgo&owengine', 80],
   ['freomap', '?shot=312,8,10,0,1,0&freomap'],
   ['freo-old', '?shot=312,8,10,0,1,0'],
   ['ibcloud', '?pnew=6#ibcloud'],   // built island in the cloud saves (lab, 18 Nov 2026); deep check: tools/qa-ibcloud.mjs
@@ -44,7 +44,7 @@ const port = srv.address().port;
 const exe = ['/opt/pw-browsers/chromium', process.env.CHROME].find(x => x && fs.existsSync(x));
 const b = await chromium.launch({ ...(exe ? { executablePath: exe } : {}), args: ['--no-proxy-server', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const report = [];
-for (const [name, q] of RUNS) {
+for (const [name, q, own] of RUNS) {
   const pg = await b.newPage({ viewport: { width: 1280, height: 720 } });
   const errs = [];
   pg.on('pageerror', e => errs.push('pageerror: ' + (e.message || '').slice(0, 300)));
@@ -54,7 +54,7 @@ for (const [name, q] of RUNS) {
   let fps = null;
   try {
     await pg.goto(`http://127.0.0.1:${port}/${file}${q}`, { waitUntil: 'commit', timeout: 120000 });
-    await pg.waitForTimeout(+secs * 1000);
+    await pg.waitForTimeout(Math.max(+secs, own || 0) * 1000);
     fps = await pg.evaluate(() => new Promise(res => { let n = 0; const t = performance.now(); const f = () => { n++; if (performance.now() - t < 8000) requestAnimationFrame(f); else res(+(n / 8).toFixed(2)); }; requestAnimationFrame(f); setTimeout(() => res(+(n / 8).toFixed(2)), 20000); }));
     const cdp = await pg.context().newCDPSession(pg);
     const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' });
