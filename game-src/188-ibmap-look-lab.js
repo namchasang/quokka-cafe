@@ -31,7 +31,7 @@ window.__IBMAP=IBMAP;
   let PLD=null;const pathLines=()=>{const D=IBMAP.doc||PLD;if(PL&&PL.d===D)return PL;PL=D?[].concat((D.paths||[]).map(p=>[p.pts,(p.w||1.2)/2]),(D.roads||[]).filter(r=>r.type!=='bridge').map(r=>[r.pts,(PW[r.type]||2)/2])):[];PL.d=D;return PL;};
   const onPathMap=(xb,zb,e)=>pathLines().some(([P,hw])=>IslandMap.lineD(xb,zb,P)<hw+e);
   IBMAP.onPathMap=onPathMap;
-  const wetCut=(h,x,z,xb,zb)=>{const dx=Math.max(WET.x1-x,0,x-WET.x2),dz=Math.max(WET.z1-z,0,z-WET.z2),d=Math.hypot(dx,dz);if(d>=4)return h;if(xb!=null){const m=pathLines().reduce((a,[P,hw])=>Math.min(a,IslandMap.lineD(xb,zb,P)-hw),1e9);if(m<2.4*K)return m<1.2*K?Math.max(h,.05):h;/* a land strip under the path */}const t=d/4,w=-1.4*(1-t)+h*t;return Math.min(h,w);};
+  const wetCut=(h,x,z,xb,zb)=>{const dx=Math.max(WET.x1-x,0,x-WET.x2),dz=Math.max(WET.z1-z,0,z-WET.z2),d=Math.hypot(dx,dz);if(d>=4)return h;if(xb!=null&&!(d===0&&x<WET.x2-1)){/* the jetty bay stays sea even under a path stub (Paul, 20 Nov 2026: jetty and ferry sat on sand) */const m=pathLines().reduce((a,[P,hw])=>Math.min(a,IslandMap.lineD(xb,zb,P)-hw),1e9);if(m<2.4*K)return m<1.2*K?Math.max(h,.05):h;/* a land strip under the path */}const t=d/4,w=-1.4*(1-t)+h*t;return Math.min(h,w);};
   const L=()=>SEA4.L;const yOf=h=>h<=0?L()+Math.max(h,-6):L()+(0-L())*Math.min(1,h/1.0)+Math.max(0,h-1.3)*.35;
   /* phase 4 (Paul, 14 Nov 2026): the sea follows the new island's coast. A signed distance to the new shore (+ on land, - in the
      water, game units, -9 off the grid like the old landD) is ready before the sea is built; the sea part (SEA4) reads it */
