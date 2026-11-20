@@ -110,7 +110,7 @@ map('regional','Regional Town',{life:{walker:22,kangaroo:6,cyclist:4,dolphin:2,b
 map('cervantes','Cervantes',{keepPools:1,sand:[{x:-40,z:-60,r:30},{x:-46,z:60,r:28}],life:{walker:14,boat:4,pelican:4,gull:10,swimmer:2,sunbather:5,kangaroo:3},
   h:(x,z)=>{const coast=-58+nz(0,z)*6;if(x<coast)return -Math.min(2.6,.4+(coast-x)*.07);const lake=((x-60)/20)**2+((z+40)/12)**2;if(lake<1)return -.4;return .3+sm(coast,coast+12,x)*.5+nz(x,z)*.2;},
   build(A){A.road([[-40,0],[110,0]],'street');[0,40].forEach(x=>A.road([[x,-60],[x,60]],'street'));A.road([[0,30],[90,30]],'street');
-    strip(A,'x',0,3,38,-1,['SEAVIEW TAVERN','CRAYPOT CAFE','LOBSTER SHACK','CERVANTES STORE','TACKLE & BAIT','BAKERY','NEWS & POST'],3);strip(A,'x',0,3,38,1,['COAST GALLERY','PIZZA BAR','CHEMIST','DIVE SHOP','ICE CREAMS'],5);A.B('bigbox',60,-12,0,{w:14,d:10,fh:4,wall:'#e8dcc4',awning:'#d8343a'},'ROCK LOBSTER FACTORY');
+    strip(A,'x',0,3,38,-1,['SEAVIEW TAVERN','CRAYPOT CAFE','SALTY CRAY KITCHEN','CERVANTES STORE','TACKLE & BAIT','BAKERY','NEWS & POST'],3);strip(A,'x',0,3,38,1,['COAST GALLERY','PIZZA BAR','CHEMIST','DIVE SHOP','ICE CREAMS'],5);A.B('bigbox',60,-12,0,{w:14,d:10,fh:4,wall:'#e8dcc4',awning:'#d8343a'},'ROCK LOBSTER FACTORY');
     homes(A,6,36,12,Math.PI,['cottage','house']);homes(A,6,80,40,Math.PI,['house','cottage','bungalow']);homes(A,48,96,-64,0,['cottage','house']);
     A.P('jetty',-64,0,0,{lines:[[-56,0],[-90,0]],w:2.4});A.biz('fishing',-80,8,0);A.biz('fishing',-82,-8,0);A.path([[-50,-40],[-50,40]],1.4,'gravel');
     A.path([[60,10],[86,10],[86,24],[60,24],[60,10]],12,'gravel');for(let i=0;i<6;i++)A.V(i%2?'caravan':'campervan',62+(i%3)*9,13+Math.floor(i/3)*8,0,0);A.path([[50,-40],[70,-40]],1.2,'path');A.P('bench',70,-40,0);}});
@@ -128,14 +128,14 @@ map('pinnacles','The Pinnacles',{desert:1,sandTint:'#f0b860',life:{walker:16,kan
   h:(x,z)=>1.1+nz(x,z)*.4+Math.max(0,Math.sin(x*.04)*Math.cos(z*.05))*1.2,
   build(A){const loop=[];for(let i=0;i<=28;i++){const a=i/28*6.283;loop.push([+(Math.cos(a)*62+Math.sin(a*3)*8).toFixed(1),+(Math.sin(a)*48).toFixed(1)]);}A.path(loop,4,'gravel');A.road([[-110,-90],[-60,-60],[-62,0]],'island');
     for(let i=0;i<420;i++){const x=-108+rnd()*216,z=-108+rnd()*216;if(Math.abs(Math.hypot(x/62,z/48)-1)<.08)continue;if(x<-50&&z<-40)continue;A.P('pinnacle',+x.toFixed(1),+z.toFixed(1),rnd()*6,{h:.8+rnd()*2.4,s:1});}
-    A.B('bigbox',-92,-96,.6,{w:18,d:10,fh:4,wall:'#d8b880',awning:'#7a5a3a'},'PINNACLES DISCOVERY CENTRE');A.path([[-80,-84],[-70,-76]],10,'lane');for(let i=0;i<5;i++)A.V(['campervan','suv','sedan','ute','caravan'][i],-84+i*4,-80,.6,0);
+    A.B('bigbox',-92,-96,.6,{w:18,d:10,fh:4,wall:'#d8b880',awning:'#7a5a3a'},'DISCOVERY CENTRE');A.path([[-80,-84],[-70,-76]],10,'lane');for(let i=0;i<5;i++)A.V(['campervan','suv','sedan','ute','caravan'][i],-84+i*4,-80,.6,0);
     A.P('sign',-60,-58,0);A.P('bench',0,0,0);A.P('flagpole',-96,-86);}});
 
 // ---- Albany: a harbour town under a granite hill, heritage main street, the harbour jetty, granite boulders, karri forest ----
 map('albany','Albany',{life:{walker:22,boat:4,pelican:3,gull:8,dolphin:3,swimmer:1,sunbather:2,kangaroo:3},
   h:(x,z)=>{const coast=-40+nz(x,0)*6;if(z<coast)return -Math.min(2.6,.4+(coast-z)*.06);const hill=4.5*Math.exp(-((x-60)**2+(z-40)**2)/900)+3*Math.exp(-((x+70)**2+(z-70)**2)/700);return .4+sm(coast,coast+8,z)*.5+hill+nz(x,z)*.2;},
   build(A){A.road([[-110,-28],[110,-28]],'street');A.road([[-10,-28],[-10,100]],'street');[-50,30].forEach(x=>A.road([[x,-28],[x,60]],'street'));A.road([[-50,20],[30,20]],'street');
-    strip(A,"z",-10,-24,15,-1,["TOWN HALL","HARBOUR BANK","ANZAC CAFE","GRANITE BOOKS","WHALERS ARMS","SADDLERY","SWEET SHOP"],29);strip(A,"z",-10,-24,15,1,["KING GEORGE STORE","SOUTHERN OCEAN GALLERY","PRINCESS ROYAL CAFE","KARRI CRAFTS","POST OFFICE","DRAPERY","WOOL STORE"],31);strip(A,"x",-28,-46,-14,1,["HARBOUR VIEW HOTEL","FISH MARKET","CHANDLERY","BAKERY"],37);
+    strip(A,"z",-10,-24,15,-1,["TOWN HALL","HARBOUR BANK","GRANITE & GULL CAFE","GRANITE BOOKS","WHALERS ARMS","SADDLERY","SWEET SHOP"],29);strip(A,"z",-10,-24,15,1,["KING GEORGE STORE","SOUTHERN OCEAN GALLERY","PRINCESS ROYAL CAFE","KARRI CRAFTS","POST OFFICE","DRAPERY","WOOL STORE"],31);strip(A,"x",-28,-46,-14,1,["HARBOUR VIEW HOTEL","FISH MARKET","CHANDLERY","BAKERY"],37);
     homes(A,-46,26,30,Math.PI,['cottage','house','bungalow']);homes(A,-46,26,50,0,['house','cottage']);homes(A,36,96,-14,0,['cottage','house','bungalow']);
     A.P('jetty',0,-40,0,{lines:[[0,-36],[0,-70]],w:3});A.biz('fishing',8,-56,0);A.biz('party',-10,-62,0);A.B('bigbox',40,-36,0,{w:16,d:10,fh:5,wall:'#c8ccd0'},'WHARF SHED');
     for(let i=0;i<40;i++){const a=rnd()*6.283,r=rnd()*24;A.P('rock',60+Math.cos(a)*r,40+Math.sin(a)*r,rnd()*6);}forest(A,-70,70,28,70,['gum','gum','pepper']);forest(A,90,80,20,30,['gum']);
