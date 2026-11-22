@@ -82,15 +82,21 @@ ST.forEach(S=>{for(let i=0;i<S.length;i++){const a=S[Math.max(0,i-2)],b=S[Math.m
       for(let k=i;k<Math.min(S.length,i+5);k++){S[k].cls='pool';S[k].lvl=S[i].y+.55;}}}}});
 ST.forEach(S=>S.forEach(p=>{if(p.cls==='pool'&&p.lvl==null)p.lvl=p.y+depthOf(p.acc)+(p.pit||0)*.0;}));
 nP=plunge.length;
-// carve the ground: channel floor at the bed, banks rising ~0.8 per unit; a bowl under each plunge pool
-const G=new Float32Array(H);
-(()=>{const B=new Map(),key=(x,z)=>Math.floor(x/6)+','+Math.floor(z/6);ST.forEach(S=>S.forEach(p=>{const kk=key(p.x,p.z);(B.get(kk)||B.set(kk,[]).get(kk)).push(p);}));
-  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=X0+i,z=X0+j;let h=G[idx(i,j)];
-    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=B.get((Math.floor(x/6)+a)+','+(Math.floor(z/6)+b));if(!L)continue;for(const p of L){const d=Math.hypot(x-p.x,z-p.z);const t=p.y+Math.max(0,d-p.w*.5)*.8;if(t<h)h=t;}}
+// carve the ground on a finer grid (0.5): channel floor at the bed, banks rising ~0.8 per unit; a bowl under each plunge pool.
+// The same pass keeps, for every fine vertex, its nearest stream point (the water surface is built from that, see section 5)
+const FN=321,FC=.5,fidx=(i,j)=>j*FN+i;
+const hAt=(x,z)=>{const fi=(x-X0),fj=(z-X0),i=Math.max(0,Math.min(N-2,Math.floor(fi))),j=Math.max(0,Math.min(N-2,Math.floor(fj))),u=fi-i,v=fj-j;
+  return H[idx(i,j)]*(1-u)*(1-v)+H[idx(i+1,j)]*u*(1-v)+H[idx(i,j+1)]*(1-u)*v+H[idx(i+1,j+1)]*u*v;};
+const PTS=[];ST.forEach(S=>S.forEach((p,i)=>{const a=S[Math.max(0,i-1)],b=S[Math.min(S.length-1,i+1)];let tx=b.x-a.x,tz=b.z-a.z;const l=Math.hypot(tx,tz)||1;p.tx=tx/l;p.tz=tz/l;p.id=PTS.length;PTS.push(p);}));
+const G=new Float32Array(FN*FN),NP=new Int32Array(FN*FN).fill(-1),ND=new Float32Array(FN*FN).fill(1e9);
+(()=>{const B=new Map(),key=(x,z)=>Math.floor(x/6)+','+Math.floor(z/6);PTS.forEach(p=>{const kk=key(p.x,p.z);(B.get(kk)||B.set(kk,[]).get(kk)).push(p);});
+  for(let j=0;j<FN;j++)for(let i=0;i<FN;i++){const x=X0+i*FC,z=X0+j*FC,k=fidx(i,j);let h=hAt(x,z);
+    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=B.get((Math.floor(x/6)+a)+','+(Math.floor(z/6)+b));if(!L)continue;for(const p of L){const d=Math.hypot(x-p.x,z-p.z);
+      if(d<ND[k]){ND[k]=d;NP[k]=p.id;}const t=p.y+Math.max(0,d-p.w*.5)*.8;if(t<h)h=t;}}
     plunge.forEach(q=>{const d=Math.hypot(x-q.x,z-q.z);if(d<q.r+3){const t=q.y-1.1*Math.max(0,1-(d/q.r)**2)+Math.max(0,d-q.r)*.6;if(t<h)h=t;}});
-    G[idx(i,j)]=h;}})();
-const gAt=(x,z)=>{const fi=(x-X0)/CELL,fj=(z-X0)/CELL,i=Math.max(0,Math.min(N-2,Math.floor(fi))),j=Math.max(0,Math.min(N-2,Math.floor(fj))),u=fi-i,v=fj-j;
-  return G[idx(i,j)]*(1-u)*(1-v)+G[idx(i+1,j)]*u*(1-v)+G[idx(i,j+1)]*(1-u)*v+G[idx(i+1,j+1)]*u*v;};
+    G[k]=h;}})();
+const gAt=(x,z)=>{const fi=(x-X0)/FC,fj=(z-X0)/FC,i=Math.max(0,Math.min(FN-2,Math.floor(fi))),j=Math.max(0,Math.min(FN-2,Math.floor(fj))),u=fi-i,v=fj-j;
+  return G[fidx(i,j)]*(1-u)*(1-v)+G[fidx(i+1,j)]*u*(1-v)+G[fidx(i,j+1)]*(1-u)*v+G[fidx(i+1,j+1)]*u*v;};
 const slopeAt=(x,z)=>Math.hypot(gAt(x+1,z)-gAt(x-1,z),gAt(x,z+1)-gAt(x,z-1))/2;
 // nearest stream info (for moisture, granite, planting)
 const NB=new Map();ST.forEach(S=>S.forEach(p=>{const kk=Math.floor(p.x/8)+','+Math.floor(p.z/8);(NB.get(kk)||NB.set(kk,[]).get(kk)).push(p);}));
@@ -109,14 +115,17 @@ function cnv(w,h,f){const c=document.createElement('canvas');c.width=w;c.height=
 const LAY={};const layer=(k,n)=>{const g=new THREE.Group();g.name=n;scene.add(g);LAY[k]=g;return g;};
 
 // ---------- 4. ground: soil, leaf litter, laterite on the plateau, sand on the plain, bare granite where steep or polished by water ----------
-(()=>{const g=new THREE.PlaneGeometry(160,160,N-1,N-1);g.rotateX(-Math.PI/2);const p=g.attributes.position,col=[];const c=new THREE.Color(),t=new THREE.Color();
+(()=>{const g=new THREE.PlaneGeometry(160,160,FN-1,FN-1);g.rotateX(-Math.PI/2);const p=g.attributes.position,col=[];const c=new THREE.Color(),t=new THREE.Color();
   for(let k=0;k<p.count;k++){const x=p.getX(k),z=p.getZ(k);const h=gAt(x,z);p.setY(k,h);const sl=slopeAt(x,z),ns=nearS(x,z),wet=ns.p?Math.max(0,1-ns.d/(ns.p.w*2+5)):0;
     const plat=1/(1+Math.exp((z-scarpZ(x))/6));
     c.set(0x8d6b47).lerp(t.set(0xa07a4c),plat*.6).lerp(t.set(0xc8b27e),(1-plat)*.7);/* laterite gravel up top, pale sand below */
     c.lerp(t.set(0x6f6a3a),fbm(x*.15,z*.15,3)*.5);/* leaf litter */
     c.lerp(t.set(0x5f7f3e),wet*.65);/* damp green by the water */
     const gran=Math.min(1,Math.max(0,(sl-.75)*1.6));const polish=ns.p&&ns.p.cls==='casc'&&ns.d<ns.p.w*.9+1.4?1:0;
-    c.lerp(t.set(0x857f74),gran*.85).lerp(t.set(0x9c968b),polish*.85);c.convertSRGBToLinear();col.push(c.r,c.g,c.b);}
+    c.lerp(t.set(0x857f74),gran*.85).lerp(t.set(0x9c968b),polish*.85);
+    {const np=NP[k],q=np>=0?PTS[np]:null;if(q&&q.cls!=='casc'){const hw=q.w*.5,d=ND[k];/* the stream bed: sand and pebbles under the water, dark wet soil along the waterline */
+      if(d<hw){c.lerp(t.set(fbm(x*1.7,z*1.7,2)>.55?0x8a7a62:0x6e604c),.85);}else if(d<hw+.9){c.lerp(t.set(0x4b3f30),.7*(1-(d-hw)/.9));}}}
+    c.convertSRGBToLinear();col.push(c.r,c.g,c.b);}
   g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));g.computeVertexNormals();
   const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({vertexColors:true}));m.receiveShadow=true;layer('ground','พื้น').add(m);})();
 
@@ -124,28 +133,44 @@ const LAY={};const layer=(k,n)=>{const g=new THREE.Group();g.name=n;scene.add(g)
 const streak=cnv(64,256,(g,w,h)=>{g.fillStyle='#000';g.fillRect(0,0,w,h);for(let i=0;i<140;i++){g.fillStyle='rgba(255,255,255,'+(.2+Math.random()*.8)+')';g.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*3,8+Math.random()*40);}});
 streak.encoding=THREE.LinearEncoding;streak.wrapS=streak.wrapT=THREE.RepeatWrapping;
 const WU={uT:{value:0},uMap:{value:streak},uSum:{value:0}};
-const waterMat=new THREE.ShaderMaterial({uniforms:WU,transparent:true,depthWrite:false,side:THREE.DoubleSide,
-  vertexShader:'attribute float foam;attribute float spd;varying vec2 vUv;varying float vF;varying float vS;void main(){vUv=uv;vF=foam;vS=spd;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`uniform float uT;uniform sampler2D uMap;uniform float uSum;varying vec2 vUv;varying float vF;varying float vS;
-  void main(){float s=texture2D(uMap,vec2(vUv.x*.9,vUv.y*.35+uT*vS)).r;float s2=texture2D(uMap,vec2(vUv.x*.6+.3,vUv.y*.2+uT*vS*.7)).r;
-    vec3 deep=vec3(.24,.16,.08),tea=vec3(.42,.29,.15),sky=vec3(.55,.72,.82);float edge=smoothstep(0.,.18,vUv.x)*smoothstep(1.,.82,vUv.x);
-    vec3 c=mix(tea,deep,edge*.6);c=mix(c,sky,.22);/* tannin brown with a little sky */
-    float f=clamp(vF*(.55+.6*s)+(1.-vF)*s2*.12,0.,1.);c=mix(c,vec3(.96,.98,1.),f);
-    c=pow(c,vec3(2.2));float a=mix(.8,.96,vF)*mix(1.,smoothstep(0.,.3,vUv.x)*smoothstep(1.,.7,vUv.x),.6+.4*vF);gl_FragColor=vec4(c,a);
+const waterMat=new THREE.ShaderMaterial({uniforms:WU,transparent:true,depthWrite:false,
+  vertexShader:'attribute float depth;attribute float foam;attribute vec2 flow;varying float vD;varying float vF;varying vec2 vFl;varying vec3 vW;void main(){vD=depth;vF=foam;vFl=flow;vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}',
+  fragmentShader:`uniform float uT;varying float vD;varying float vF;varying vec2 vFl;varying vec3 vW;
+  float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+  float N2(vec2 p){return n2(p*1.1)*.6+n2(p*2.3+7.)*.4;}
+  void main(){float d=max(vD,0.);vec2 fl=vFl;float sp=mix(.6,2.8,vF);vec2 p=vW.xz;
+    /* flow map: the pattern is pushed downstream for a short while, then a second copy half a cycle later takes over, so places with
+       different flow directions never tear apart over time */
+    float t0=fract(uT*.22),t1=fract(uT*.22+.5),wb=abs(t0*2.-1.);
+    float rip=mix(N2(p*1.2-fl*t0*sp*2.),N2(p*1.2-fl*t1*sp*2.+3.7),wb);
+    float st=mix(N2(p*2.4-fl*t0*sp*4.),N2(p*2.4-fl*t1*sp*4.+5.1),wb);
+    vec3 bed=vec3(.16,.10,.045),deep=vec3(.03,.018,.008),sky=vec3(.36,.5,.62);
+    vec3 c=mix(bed,deep,smoothstep(.04,.6,d));float fr=pow(1.-clamp(normalize(cameraPosition-vW).y,0.,1.),3.);/* more sky reflected at a low angle */
+    c=mix(c,sky,.06+.5*fr+.12*smoothstep(.55,.85,rip));c+=vec3(.6)*pow(rip,12.)*.8;
+    float f=vF*smoothstep(.55,.8,st)*.8+vF*vF*vF*.3;/* white water only where it is steep */
+    f+=(1.-smoothstep(.0,.07,vD))*.25*smoothstep(.35,.7,vF+rip*.2);/* a little foam where fast water meets the bank */
+    c=mix(c,vec3(.9,.93,.95),clamp(f,0.,1.));
+    float al=smoothstep(0.,.16,vD)*mix(.82,.97,clamp(f,0.,1.));if(al<.01)discard;gl_FragColor=vec4(c,al);
     #include <encodings_fragment>
   }`});
 const waterL=layer('water','น้ำ');let SEASON=1;/* 1 winter flow, 0 summer trickle */
-function buildWater(){waterL.clear();ST.forEach(S=>{if(S.length<2)return;const pos=[],uv=[],fo=[],sp=[],ix=[];let v=0;
-    for(let i=0;i<S.length;i++){const p=S[i],a=S[Math.max(0,i-1)],b=S[Math.min(S.length-1,i+1)];let dx=b.x-a.x,dz=b.z-a.z;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;
-      if(i)v-=Math.hypot(p.x-S[i-1].x,p.z-S[i-1].z)/3;
-      const casc=p.cls==='casc',rap=p.cls==='rap',pool=p.cls==='pool';
-      const w=(pool?p.w*1.5:p.w)*(SEASON?1:pool?.85:casc?.28:.4);
-      let y=pool?p.lvl:casc?null:p.y+depthOf(p.acc)*(SEASON?.75:.3);
-      for(const s of [-1,1]){const x=p.x-dz*w*.5*s,z=p.z+dx*w*.5*s;const yy=y==null?gAt(x,z)+.06:Math.max(y,gAt(x,z)+.03);pos.push(x,yy,z);uv.push(s<0?0:1,v);
-        fo.push(casc?1:rap?(SEASON?.55:.3):pool?.05:.0);sp.push(casc?1.1:rap?.55:pool?.04:.22);}
-      if(i){const q=(i-1)*2;ix.push(q,q+1,q+2,q+1,q+3,q+2);}}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-    g.setAttribute('foam',new THREE.Float32BufferAttribute(fo,1));g.setAttribute('spd',new THREE.Float32BufferAttribute(sp,1));g.setIndex(ix);const m=new THREE.Mesh(g,waterMat);m.renderOrder=2;waterL.add(m);});
+const inPool=(x,z)=>plunge.some(q=>Math.hypot(x-q.x,z-q.z)<q.r*.92);
+function buildWater(){waterL.clear();
+  // the water level at each fine vertex comes from its nearest stream point; vertices a little past the bank get the same level, so the
+  // surface meets the bank where the ground rises through it (no ribbon edges, junctions merge into one surface)
+  const lv=new Float32Array(FN*FN).fill(NaN),fo=new Float32Array(FN*FN),fx=new Float32Array(FN*FN),fz=new Float32Array(FN*FN);
+  for(let j=0;j<FN;j++)for(let i=0;i<FN;i++){const k=fidx(i,j),np=NP[k];if(np<0)continue;const q=PTS[np],d=ND[k],x=X0+i*FC,z=X0+j*FC;if(inPool(x,z))continue;
+    const casc=q.cls==='casc',rap=q.cls==='rap';const hw=q.w*.5*(casc&&!SEASON?.35:1);if(d>hw+1.2)continue;const g=G[k];
+    let L;if(casc)L=d<hw?g+(SEASON?.2:.12):g-.2;else if(q.cls==='pool')L=q.lvl;else L=q.y+depthOf(q.acc)*(SEASON?.75:.28);
+    lv[k]=L;fo[k]=casc?1:rap?(SEASON?.6:.3):Math.min(.25,Math.max(0,q.sl||0)*1.5);fx[k]=q.tx;fz[k]=q.tz;}
+  const pos=[],dep=[],foa=[],flo=[],ix=[],map=new Int32Array(FN*FN).fill(-1);
+  for(let k=0;k<FN*FN;k++){if(isNaN(lv[k]))continue;const i=k%FN,j=(k/FN)|0;map[k]=pos.length/3;pos.push(X0+i*FC,lv[k],X0+j*FC);dep.push(lv[k]-G[k]);foa.push(fo[k]);flo.push(fx[k],fz[k]);}
+  for(let j=0;j<FN-1;j++)for(let i=0;i<FN-1;i++){const a=map[fidx(i,j)],b=map[fidx(i+1,j)],c=map[fidx(i,j+1)],d=map[fidx(i+1,j+1)];if(a<0||b<0||c<0||d<0)continue;
+    const la=pos[a*3+1],lb=pos[b*3+1],lc=pos[c*3+1],ld=pos[d*3+1];if(Math.max(la,lb,lc,ld)-Math.min(la,lb,lc,ld)>1.6)continue;/* no sheet across a step between two streams */
+    if(Math.max(dep[a],dep[b],dep[c],dep[d])<0)continue;ix.push(a,c,b,b,c,d);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('depth',new THREE.Float32BufferAttribute(dep,1));
+  g.setAttribute('foam',new THREE.Float32BufferAttribute(foa,1));g.setAttribute('flow',new THREE.Float32BufferAttribute(flo,2));g.setIndex(ix);const m=new THREE.Mesh(g,waterMat);m.renderOrder=2;waterL.add(m);
   // plunge pools: a dark tannin pool with a ragged edge into the rocks, ripples running out from where the water lands, and a patch of
   // churning white water there (no flat discs): one shader per pool
   plunge.forEach((q,qi)=>{const R0=q.r*(SEASON?1:.8),k=Math.min(.45,(q.r*.45)/(Math.hypot(q.top.x-q.x,q.top.z-q.z)||1));const cx=(q.top.x-q.x)*k,cz=(q.top.z-q.z)*k;
@@ -157,8 +182,8 @@ function buildWater(){waterL.clear();ST.forEach(S=>{if(S.length<2)return;const p
       void main(){float a=atan(vP.y,vP.x),d=length(vP)/uR;
         float edge=1.-smoothstep(.72,.98,d+.07*sin(a*5.+uS)+.05*sin(a*11.+uS*2.)+.04*(n2(vP*1.3)-.5));if(edge<.01)discard;
         vec2 q=vP-uC;float rd=length(q);
-        vec3 deep=vec3(.035,.022,.012),shal=vec3(.16,.11,.06),sky=vec3(.30,.42,.52);
-        vec3 c=mix(deep,shal,smoothstep(.45,.95,d));c=mix(c,sky,.18+.1*n2(vP*.6+uT*.05));
+        vec3 deep=vec3(.03,.018,.008),shal=vec3(.14,.09,.04),sky=vec3(.36,.5,.62);
+        vec3 c=mix(deep,shal,smoothstep(.45,.95,d));c=mix(c,sky,.06+.08*n2(vP*.6+uT*.05));
         float rip=sin(rd*5.5-uT*4.)*exp(-rd*.35);c+=vec3(.05,.06,.07)*rip;
         float fa=atan(q.y,q.x);float churn=n2(vec2(fa*3.5+uS,rd*2.6-uT*2.2))*.6+n2(vec2(fa*7.,rd*5.-uT*3.4))*.4;
         float foam=uF*exp(-rd/(uR*.32))*smoothstep(.32,.7,churn);
@@ -236,6 +261,7 @@ const bS=B('❄️ หน้าหนาว (น้ำแรง)',b=>{SEASON=1-S
 const big=plunge.slice().sort((a,b)=>(b.top.y-b.y)-(a.top.y-a.y))[0];
 function view(v){if(v==='falls'&&big){const dx=big.x-big.top.x,dz=big.z-big.top.z,l=Math.hypot(dx,dz)||1;ctl.target.set((big.x+big.top.x)/2,(big.y+big.top.y)/2,(big.z+big.top.z)/2);cam.position.set(big.x+dx/l*16+6,big.y+9,big.z+dz/l*16+4);}
   else if(v==='stream'&&big){ctl.target.set(big.x,big.y+1,big.z);cam.position.set(big.x+10,big.y+5,big.z+14);}
+  else if(v==='top'&&big){ctl.target.set(big.x,big.y,big.z+8);cam.position.set(big.x+2,big.y+24,big.z+26);}
   else{ctl.target.set(0,8,0);cam.position.set(70,70,110);}ctl.update();}
 B('🗺️ ภาพรวม',()=>view('all'));B('💦 น้ำตกใหญ่สุด',()=>view('falls'));B('🏞️ แอ่งน้ำ',()=>view('stream'));
 const q=new URLSearchParams(location.search);if(q.has('summer'))bS.onclick(bS);view(q.get('view')||'all');
