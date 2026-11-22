@@ -229,6 +229,7 @@
 188-boat-shop-and-wandering-boats.js
 188-boat-race.js
 188-island-transport-fix.js
+188-cafe2-look-lab.js
 188-bay-boats-look-lab-toon.js
 188-build-smooth-look-lab-toon.js
 188-meadow-tufts-look-lab-toon.js

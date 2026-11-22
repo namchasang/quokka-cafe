@@ -236,15 +236,16 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-boat-shop-and-wandering-boats.js | 21997-22077 | 14 | BOATS |
 | 188-boat-race.js | 22078-22184 | 13 | RACE_LIVE, RACE |
 | 188-island-transport-fix.js | 22185-22207 | 2 |  |
-| 188-bay-boats-look-lab-toon.js | 22208-22229 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 22230-22289 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 22290-22339 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 22340-22372 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 22373-22445 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 22446-22476 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 22477-22493 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 22494-22504 | 2 |  |
-| 188-auth.js | 22505-22583 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 22584-22619 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 22620-22663 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22664-22685 | 3 | SHOT |
+| 188-cafe2-look-lab.js | 22208-22274 | 8 | CAFE2_LIVE, CAFE2 |
+| 188-bay-boats-look-lab-toon.js | 22275-22296 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 22297-22356 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 22357-22406 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 22407-22439 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 22440-22512 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 22513-22543 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 22544-22560 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 22561-22571 | 2 |  |
+| 188-auth.js | 22572-22650 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 22651-22686 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 22687-22730 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22731-22752 | 3 | SHOT |
