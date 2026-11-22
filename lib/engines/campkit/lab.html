@@ -36,7 +36,7 @@ button.on{background:#f2b632;color:#2a1d08;border-color:#ffd84a}
   <button id="bRain">🌧️ ฝน</button><button id="bFog">🌫️ หมอกทะเล</button><button id="bWind">💨 ลมแรง</button><button id="bStar">🌠 ดาวตก</button><button id="bPts">📍 จุดโต้ตอบ</button>
  </div>
  <div class="row">
-  <button id="bFire">🔥 กองไฟ: ติด</button><button id="bTent">⛺ กางเต็นท์</button><button id="bBlow">🌬️ เต็นท์ปลิว</button><button id="bDoor">🚐 ประตูรถ</button><button id="bLights">💡 ไฟหน้า</button><button id="bHorn">📯 แตร</button><button id="bCol">🎨 สีรถ</button><button id="bPat">🌼 ลายรถ</button><button id="bBox">📦 กล่องอาหาร</button><button id="bChick">🐥 ลูกนก</button><button id="bTorch">🔦 ไฟฉาย</button><button id="bSign">🪧 ป้าย</button>
+  <button id="bFire">🔥 กองไฟ: ติด</button><button id="bTent">⛺ กางเต็นท์</button><button id="bBlow">🌬️ เต็นท์ปลิว</button><button id="bDoor">🚐 ประตูรถ</button><button id="bAwn">⛱️ กันสาด</button><button id="bLights">💡 ไฟหน้า</button><button id="bHorn">📯 แตร</button><button id="bCol">🎨 สีรถ</button><button id="bPat">🌼 ลายรถ</button><button id="bBox">📦 กล่องอาหาร</button><button id="bChick">🐥 ลูกนก</button><button id="bTorch">🔦 ไฟฉาย</button><button id="bSign">🪧 ป้าย</button>
  </div>
 </div>
 <script>
@@ -120,39 +120,87 @@ function tree(x,z,h){const t=mesh(new THREE.CylinderGeometry(.16*h/5,.3*h/5,h*.7
 const bushes=[];function bush(x,z,r){const b=crown(x,r*.7,z,r,60,r*.7);bushes.push(new THREE.Vector3(x,r*.7,z));return b;}
 bush(-11.5,3.5,1.1);bush(9.5,-8,1);bush(-4,-11.5,1.2);bush(11,5.5,.9);
 
-// ---------- 1. Kip's camper van (a plain 70s-style van, no real make) ----------
-const VAN={col:0,pat:0,door:false,lights:false};
-const VANCOL=[0xf3e6c4,0x9fd0c8,0xf2b46a,0xe98f8f,0xb7c98a];
-const van=new THREE.Group();van.position.set(-6.2,0,-3.4);van.rotation.y=.5;scene.add(van);
-function vanSkin(){return cnv(512,256,(g,w,h)=>{const c='#'+new THREE.Color(VANCOL[VAN.col]).getHexString();g.fillStyle=c;g.fillRect(0,0,w,h);
-  g.fillStyle='#fffaf0';g.fillRect(0,0,w,h*.42);g.fillStyle='rgba(0,0,0,.08)';g.fillRect(0,h*.42,w,4);
-  if(VAN.pat===1){g.fillStyle='#d9783e';g.fillRect(0,h*.5,w,h*.07);g.fillStyle='#f2b632';g.fillRect(0,h*.6,w,h*.07);g.fillStyle='#8a5a8a';g.fillRect(0,h*.7,w,h*.07);}
-  if(VAN.pat===2){for(let i=0;i<12;i++){const x=20+i*42+(i%2)*10,y=h*.62+(i%3)*22;g.fillStyle=['#fff','#ffd84a','#f4a6c8'][i%3];for(let p=0;p<5;p++){g.beginPath();g.arc(x+Math.cos(p*1.26)*9,y+Math.sin(p*1.26)*9,7,0,7);g.fill();}g.fillStyle='#e8a020';g.beginPath();g.arc(x,y,5,0,7);g.fill();}}
-  if(VAN.pat===3){g.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<9;i++){g.beginPath();g.moveTo(i*60,h);g.quadraticCurveTo(i*60+30,h*.55,i*60+60,h);g.fill();}}});}
+// ---------- 1. Kip's camper van: an Australian-style motorhome (white box body, bed over the cab, side swoosh), no real make or logo ----------
+// Paul, 22 Nov 2026: "camper van ที่ออสเตรเลียจะทรงประมาณนี้" (two photos of a rental motorhome). Entry door and awning on the kerb (left) side.
+const VAN={col:0,pat:0,door:false,lights:false,awn:false};
+const VANCOL=[0x4a4f58,0x2f9e98,0xe07f34,0xd45d68,0x6f9a4e];
+const van=new THREE.Group();van.position.set(-6.4,0,-3.6);van.rotation.y=.5;scene.add(van);
+const vb=new THREE.Group();vb.rotation.y=Math.PI;van.add(vb);/* built with the front at +x; turned so the kerb side faces the camp */
+function ext(pts,depth,mat,bev,par){const sh=new THREE.Shape(pts.map(p=>new THREE.Vector2(p[0],p[1])));
+  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:!!bev,bevelSize:bev||0,bevelThickness:bev||0,bevelSegments:2,curveSegments:6});
+  g.translate(0,0,-depth/2);g.computeBoundingBox();const c=new THREE.Vector3();g.boundingBox.getCenter(c);g.translate(-c.x,-c.y,-c.z);
+  const m=mesh(g,mat,c.x,c.y,c.z,par||vb);return m;}
+const WHITE=M(0xf7f6f1),DARK=M(0x2c2f36),TRIM=M(0x8d939c),glass=M(0x22344a);
+const BX0=-3.3,BX1=1.55,BY0=.6,BY1=3.0;
+function vanSkin(){const t=cnv(1024,512,(g,w,h)=>{const c='#'+new THREE.Color(VANCOL[VAN.col]).getHexString(),X=x=>(x-BX0)/(BX1-BX0)*w,Y=y=>(BY1-y)/(BY1-BY0)*h;
+  g.fillStyle='#f7f6f1';g.fillRect(0,0,w,h);g.fillStyle='#e3e2dc';g.fillRect(0,Y(.78),w,h);/* lower skirt */
+  g.strokeStyle='#d2d1cb';g.lineWidth=3;[[-3.0,.82,.7,.55],[-1.55,.82,.55,.45],[.55,1.0,.35,.4]].forEach(([x,y,ww,hh])=>{g.strokeRect(X(x),Y(y+hh),X(x+ww)-X(x),Y(y)-Y(y+hh));});/* locker hatches */
+  if(VAN.pat===0){/* two-tone swoosh from the rear, tapering forward */
+    const sw=(y0,th,col,len)=>{g.fillStyle=col;g.beginPath();g.moveTo(X(BX0),Y(y0+th));g.bezierCurveTo(X(-2.2),Y(y0+th*1.1),X(-1.2),Y(y0+th*.2),X(BX0+len),Y(y0-.05));g.bezierCurveTo(X(-1.4),Y(y0-th*.3),X(-2.4),Y(y0),X(BX0),Y(y0));g.fill();};
+    sw(1.3,.32,'#b9bdc4',3.6);sw(1.18,.18,c,2.9);sw(1.02,.1,'#2c2f36',2.2);}
+  if(VAN.pat===1){[c,'#f2b632','#d9783e'].forEach((k,i)=>{g.fillStyle=k;g.fillRect(0,Y(1.45-i*.16),w,Y(0)-Y(.1));});}
+  if(VAN.pat===2){for(let i=0;i<14;i++){const x=30+i*70+(i%2)*14,y=Y(1.15)+(i%3)*26;g.fillStyle=[c,'#ffd84a','#f4a6c8'][i%3];for(let p=0;p<5;p++){g.beginPath();g.arc(x+Math.cos(p*1.26)*13,y+Math.sin(p*1.26)*13,10,0,7);g.fill();}g.fillStyle='#e8a020';g.beginPath();g.arc(x,y,7,0,7);g.fill();}}
+  if(VAN.pat===3){g.fillStyle=c;for(let i=0;i<16;i++){g.beginPath();g.moveTo(i*70,Y(.78));g.quadraticCurveTo(i*70+35,Y(1.35),i*70+70,Y(.78));g.fill();}}});
+  t.repeat.set(1/(BX1-BX0),1/(BY1-BY0));t.offset.set(-BX0/(BX1-BX0),-BY0/(BY1-BY0));return t;}
 let vanMat=M(0xffffff,{map:vanSkin()});
-const body=mesh(new THREE.BoxGeometry(4.4,1.75,2),vanMat,0,1.25,0,van);
-const roof=mesh(new THREE.BoxGeometry(4.2,.18,1.9),M(0xfffaf0),0,2.2,0,van);
-const nose=mesh(new THREE.BoxGeometry(.5,1.4,2),vanMat,2.35,1.1,0,van);nose.rotation.z=-.12;
-const glass=M(0x2d4560);
-mesh(new THREE.BoxGeometry(.06,.6,1.7),glass,2.64,1.75,0,van).rotation.z=-.12;
-[-1.2,.1].forEach(x=>{mesh(new THREE.BoxGeometry(.9,.5,.04),glass,x,1.75,1.01,van);mesh(new THREE.BoxGeometry(.9,.5,.04),glass,x,1.75,-1.01,van);});
-mesh(new THREE.BoxGeometry(.7,.5,.04),glass,1.55,1.75,-1.01,van);
-const bump=M(0xc9ccd2);mesh(new THREE.BoxGeometry(.2,.18,2.1),bump,2.65,.5,0,van);mesh(new THREE.BoxGeometry(.2,.18,2.1),bump,-2.25,.5,0,van);
-const WH=M(0x22232a),HUB=M(0xe8e8ea);
-[[1.45,1],[1.45,-1],[-1.4,1],[-1.4,-1]].forEach(([x,z])=>{const w=mesh(new THREE.CylinderGeometry(.42,.42,.3,16),WH,x,.42,z,van);w.rotation.x=Math.PI/2;const hb=mesh(new THREE.CylinderGeometry(.2,.2,.32,10),HUB,x,.42,z,van);hb.rotation.x=Math.PI/2;});
+function vanRepaint(){vanMat.map=vanSkin();vanMat.needsUpdate=true;}
+// box body with a rounded rear roof edge; the sides carry the skin
+ext([[BX0,BY0],[BX1,BY0],[BX1,BY1],[BX0+.3,BY1],[BX0,BY1-.3]],2.2,[vanMat,WHITE],.05);
+// bed over the cab (the "peak"), rounded nose
+ext([[1.5,2.18],[2.55,2.18],[2.95,2.33],[3.12,2.62],[3.02,2.92],[2.7,3.0],[1.5,3.0]],2.2,WHITE,.05);
+// cab: hood, sloped windscreen, roof under the peak
+ext([[1.55,.5],[3.3,.5],[3.3,1.12],[3.18,1.3],[2.82,1.36],[2.36,2.16],[1.55,2.16]],1.95,WHITE,.06);
+const ws=mesh(new THREE.BoxGeometry(.95,.04,1.8),glass,2.6,1.77,0,vb);ws.rotation.z=Math.PI/2+.5;ws.position.x+=.03;ws.position.y+=.02;ws.rotation.z=-(Math.PI/2-.5)+Math.PI;
+[-1,1].forEach(s=>{const sw=ext([[1.65,1.38],[2.64,1.38],[2.28,2.04],[1.65,2.04]],.02,glass,0);sw.position.z=s*1.045;/* cab side windows */
+  mesh(new THREE.BoxGeometry(1.75,.22,.04),DARK,2.42,.62,s*1.055,vb);/* dark lower trim */
+  const arm=mesh(new THREE.BoxGeometry(.06,.06,.22),DARK,2.7,1.62,s*1.13,vb);mesh(new THREE.BoxGeometry(.08,.32,.16),DARK,2.7,1.62,s*1.26,vb);/* mirrors */
+  mesh(new THREE.BoxGeometry(.5,.34,.04),glass,2.15,2.62,s*1.16,vb);/* small window on the peak */
+  mesh(new THREE.BoxGeometry(.02,.02,.02),DARK,2.05,1.5,s*1.0,vb);});
+mesh(new THREE.BoxGeometry(.16,.36,2.02),DARK,3.39,.66,0,vb);/* front bumper */
+mesh(new THREE.BoxGeometry(.06,.3,1.0),DARK,3.38,1.0,0,vb);[.93,1.03].forEach(y=>mesh(new THREE.BoxGeometry(.065,.025,.9),TRIM,3.39,y,0,vb));/* grille, no badge */
+const plate=(x,r)=>{const p=mesh(new THREE.PlaneGeometry(.52,.13),new THREE.MeshBasicMaterial({map:cnv(256,64,(g,w,h)=>{g.fillStyle='#fff';g.fillRect(0,0,w,h);g.strokeStyle='#223';g.lineWidth=5;g.strokeRect(3,3,w-6,h-6);g.fillStyle='#223';g.font='700 40px monospace';g.textAlign='center';g.fillText('KIP·CAFE',w/2,h*.72);})}),x,.62,0,vb);p.rotation.y=r;p.castShadow=false;p.userData.noInk=1;};
+plate(3.48,Math.PI/2);plate(BX0-.07,-Math.PI/2);
 const hlMat=new THREE.MeshToonMaterial({color:0xfff6d0,gradientMap:grad,emissive:0x000000});
-[.62,-.62].forEach(z=>{const l=mesh(new THREE.SphereGeometry(.16,12,8),hlMat,2.62,1.02,z,van);l.scale.x=.4;});
-const beams=[.62,-.62].map(z=>{const s=new THREE.SpotLight(0xfff2c8,0,40,.42,.5,1.2);s.position.set(2.7,1.02,z);const tg=new THREE.Object3D();tg.position.set(14,.2,z*2);van.add(s,tg);s.target=tg;return s;});
-// sliding side door (opens toward the back) and the inside: Dad's wooden shelves, the fold bed, the carved sign from chapter 12
-const door=new THREE.Group();door.position.set(.75,0,1.02);van.add(door);
-mesh(new THREE.BoxGeometry(1.1,1.6,.06),vanMat,0,1.2,0,door);mesh(new THREE.BoxGeometry(.8,.45,.03),glass,0,1.72,.03,door);
-mesh(new THREE.BoxGeometry(4.1,.04,1.85),M(0x5b4636),0,.43,0,van);
+[.72,-.72].forEach(z=>{mesh(new THREE.BoxGeometry(.06,.16,.34),hlMat,3.38,1.13,z,vb);mesh(new THREE.BoxGeometry(.06,.07,.1),M(0xf0a030),3.38,1.13,z*1.36,vb);});
+const beams=[.72,-.72].map(z=>{const s=new THREE.SpotLight(0xfff2c8,0,40,.42,.5,1.2);s.position.set(3.4,1.13,z);const tg=new THREE.Object3D();tg.position.set(15,.2,z*2);vb.add(s,tg);s.target=tg;return s;});
+[.9,-.9].forEach(z=>{mesh(new THREE.BoxGeometry(.06,.5,.16),M(0xc8342c),BX0-.06,1.15,z,vb);mesh(new THREE.BoxGeometry(.06,.14,.16),M(0xf0a030),BX0-.06,.82,z,vb);});
+mesh(new THREE.BoxGeometry(.9,.26,.8),M(0xe6e6e2),-.6,3.16,0,vb);mesh(new THREE.BoxGeometry(.55,.1,.55),M(0xcfd2d6),-2.3,3.08,0,vb);/* roof cooler + hatch */
+mesh(new THREE.BoxGeometry(BX1-BX0-.1,.12,2.12),DARK,(BX0+BX1)/2,.56,0,vb);/* chassis under the body */
+// wheels: single at the front, twin at the back
+const WH=M(0x22232a),HUB=M(0xd8d8da);
+[[2.55,1.0,.3],[2.55,-1.0,.3],[-1.55,.98,.42],[-1.55,-.98,.42]].forEach(([x,z,wd])=>{const w=mesh(new THREE.CylinderGeometry(.43,.43,wd,18),WH,x,.43,z,vb);w.rotation.x=Math.PI/2;const hb=mesh(new THREE.CylinderGeometry(.2,.2,wd+.02,10),HUB,x,.43,z,vb);hb.rotation.x=Math.PI/2;});
+// side windows: dark tinted with a frame (left = kerb side at -z, right at +z)
+const win=(x0,x1,y0,y1,z)=>{mesh(new THREE.BoxGeometry(x1-x0+.08,y1-y0+.08,.03),DARK,(x0+x1)/2,(y0+y1)/2,z,vb);mesh(new THREE.BoxGeometry(x1-x0,y1-y0,.04),glass,(x0+x1)/2,(y0+y1)/2,z*1.002,vb);};
+win(-.95,.35,1.65,2.3,-1.16);win(-2.85,-1.95,1.7,2.3,-1.16);win(-1.2,.55,1.6,2.3,1.16);win(-2.85,-2.25,1.75,2.25,1.16);
+// the doorway (seen when the door opens): Dad's wooden shelves, the fold bed, the carved sign from chapter 12
+const DX0=.65,DX1=1.38,DY0=.72,DY1=2.58;
+mesh(new THREE.BoxGeometry(DX1-DX0,DY1-DY0,.02),M(0x3a2c24),(DX0+DX1)/2,(DY0+DY1)/2,-1.165,vb);
 const WOOD=M(0xc89a62),WOOD2=M(0xa97a48);
-mesh(new THREE.BoxGeometry(1.4,.08,.45),WOOD,-1.2,1.55,-.7,van);mesh(new THREE.BoxGeometry(1.4,.08,.45),WOOD,-1.2,1.05,-.7,van);
-mesh(new THREE.BoxGeometry(1.8,.18,1),WOOD2,-1,.7,.1,van);mesh(new THREE.BoxGeometry(1.7,.12,.95),M(0x6f8fc0),-1,.85,.1,van);
-const carved=mesh(new THREE.PlaneGeometry(.9,.3),new THREE.MeshLambertMaterial({map:cnv(256,86,(g,w,h)=>{g.fillStyle='#b8834e';g.fillRect(0,0,w,h);g.strokeStyle='#7a5230';g.lineWidth=6;g.strokeRect(4,4,w-8,h-8);g.fillStyle='#5a3a20';g.font='700 34px Georgia,serif';g.textAlign='center';g.fillText("Kip's Café",w/2,h*.66);})}),.2,1.55,-.95,van);
-carved.castShadow=false;
-hot(van,'camp_van',()=>toggleDoor());ink(van,.025);
+[1.55,1.95].forEach(y=>mesh(new THREE.BoxGeometry(.6,.05,.06),WOOD,1.02,y,-1.18,vb));
+[[.82,1.62,0xe8d9b0],[.95,1.62,0x6fa8c8],[1.12,2.02,0xd8b070]].forEach(([x,y,c])=>mesh(new THREE.BoxGeometry(.09,.14,.04),M(c),x,y,-1.185,vb));
+mesh(new THREE.BoxGeometry(.6,.16,.05),WOOD2,1.02,.95,-1.18,vb);mesh(new THREE.BoxGeometry(.58,.08,.06),M(0x6f8fc0),1.02,1.06,-1.185,vb);/* fold bed edge + blanket */
+const carved=mesh(new THREE.PlaneGeometry(.56,.19),new THREE.MeshLambertMaterial({map:cnv(256,86,(g,w,h)=>{g.fillStyle='#b8834e';g.fillRect(0,0,w,h);g.strokeStyle='#7a5230';g.lineWidth=6;g.strokeRect(4,4,w-8,h-8);g.fillStyle='#5a3a20';g.font='700 34px Georgia,serif';g.textAlign='center';g.fillText("Kip's Café",w/2,h*.66);})}),1.02,2.3,-1.19,vb);
+carved.rotation.y=Math.PI;carved.castShadow=false;carved.userData.noInk=1;
+// entry door, hinged at its front edge, opens outward; a step slides out
+const door=new THREE.Group();door.position.set(DX1+.02,0,-1.205);vb.add(door);
+mesh(new THREE.BoxGeometry(DX1-DX0+.04,DY1-DY0+.04,.05),WHITE,-(DX1-DX0)/2-.02,(DY0+DY1)/2,0,door);
+mesh(new THREE.BoxGeometry(.4,.55,.03),glass,-(DX1-DX0)/2-.02,2.15,-.03,door);mesh(new THREE.BoxGeometry(.05,.14,.04),TRIM,-(DX1-DX0)+.1,1.5,-.04,door);
+const step=mesh(new THREE.BoxGeometry(.6,.05,.3),TRIM,(DX0+DX1)/2,.42,-1.0,vb);
+// roll-out awning with string lights (photo 2)
+const awnCase=mesh(new THREE.BoxGeometry(4.2,.12,.14),DARK,-.95,2.88,-1.2,vb);
+const awn=new THREE.Group();awn.position.set(-.95,2.86,-1.2);vb.add(awn);
+const canvasAwn=mesh(new THREE.BoxGeometry(4.1,.03,1),M(0xffffff,{map:cnv(256,64,(g,w,h)=>{for(let i=0;i<8;i++){g.fillStyle=i%2?'#e9e6dd':'#5a5f68';g.fillRect(0,i*h/8,w,h/8);}})}),0,0,-.5,awn);
+const legs=[-1.95,1.95].map(x=>mesh(new THREE.CylinderGeometry(.025,.025,1,6),TRIM,x,0,-1,awn));
+const bulbs=[];for(let i=0;i<14;i++){const b=mesh(new THREE.SphereGeometry(.045,8,6),new THREE.MeshBasicMaterial({color:0x8a7a50}),-1.95+i*3.9/13,-.12-Math.sin(i/13*Math.PI*3)*.06,-1,awn);b.castShadow=false;b.userData.noInk=1;bulbs.push(b);}
+const awnGlow=new THREE.PointLight(0xffc77a,0,7,2);awnGlow.position.set(0,-.3,-1.3);awn.add(awnGlow);
+let awnK=0;
+function vanTick(dt,night){awnK+=((VAN.awn?1:0)-awnK)*Math.min(1,dt*3);const d=.02+awnK*2.3;
+  canvasAwn.scale.z=d;canvasAwn.position.z=-d/2;canvasAwn.position.y=-awnK*.2;canvasAwn.rotation.x=-awnK*.17;
+  legs.forEach(l=>{l.visible=awnK>.6;l.position.z=-d;const hh=2.86-awnK*.42;l.scale.y=hh;l.position.y=-hh/2-awnK*.4;});
+  const on=awnK>.6&&night;bulbs.forEach((b,i)=>{b.visible=awnK>.6;b.position.z=-d+.02;b.position.y=-awnK*.42-.06-Math.sin(i/13*Math.PI*3)*.06;b.material.color.setHex(on?[0xffe08a,0xffb870,0xfff3c0][i%3]:0x8a7a50);});
+  awnGlow.intensity=on?1.3:0;awnGlow.position.z=-d*.6;
+  door.rotation.y+=((VAN.door?-1.75:0)-door.rotation.y)*Math.min(1,dt*4);step.position.z=-1.0-(VAN.door?.3:0);}
+hot(van,'camp_van',()=>toggleDoor());ink(vb,.02);
 
 // ---------- 2. dome tent for two: pitch animation, blown away by the wind, 4 pegs ----------
 const TENT={up:1,goal:1,blown:0};
@@ -295,6 +343,7 @@ function btn(s,on){const b=$(s);if(b)b.classList.toggle('on',!!on);}
 function say(t){$('#tod').textContent=t;}
 function setFire(s){FIRE.state=s;$('#bFire').textContent='🔥 กองไฟ: '+['ดับ','ติด','ถ่านแดง'][s];btn('#bFire',s===1);}
 function toggleDoor(v){VAN.door=v==null?!VAN.door:v;btn('#bDoor',VAN.door);}
+function setAwn(v){VAN.awn=v==null?!VAN.awn:!!v;btn('#bAwn',VAN.awn);}
 function setLights(v){VAN.lights=v==null?!VAN.lights:v;btn('#bLights',VAN.lights);}
 function pitch(v){TENT.blown=0;blowT=0;tent.position.set(4.4,0,-3.2);tent.rotation.set(0,-.4,0);TENT.goal=v==null?(TENT.goal?0:1):v;btn('#bTent',TENT.goal);if(TENT.goal)TENT.up=Math.min(TENT.up,.02);}
 function blow(){if(!TENT.up)pitch(1);TENT.blown=1;blowT=0;btn('#bBlow',1);if(!W.wind)setWind(true);}
@@ -308,8 +357,8 @@ $('#bAuto').onclick=()=>{auto=!auto;btn('#bAuto',auto);};
 $('#bRain').onclick=()=>setRain();$('#bFog').onclick=()=>setFog();$('#bWind').onclick=()=>setWind();$('#bStar').onclick=()=>shootingStar();
 $('#bFire').onclick=()=>setFire((FIRE.state+1)%3);$('#bTent').onclick=()=>pitch();$('#bBlow').onclick=()=>blow();
 $('#bDoor').onclick=()=>toggleDoor();$('#bLights').onclick=()=>setLights();$('#bHorn').onclick=()=>horn();
-$('#bCol').onclick=()=>{VAN.col=(VAN.col+1)%VANCOL.length;vanMat.map=vanSkin();vanMat.needsUpdate=true;};
-$('#bPat').onclick=()=>{VAN.pat=(VAN.pat+1)%4;vanMat.map=vanSkin();vanMat.needsUpdate=true;btn('#bPat',VAN.pat);};
+$('#bCol').onclick=()=>{VAN.col=(VAN.col+1)%VANCOL.length;vanRepaint();};$('#bAwn').onclick=()=>setAwn();
+$('#bPat').onclick=()=>{VAN.pat=(VAN.pat+1)%4;vanRepaint();btn('#bPat',VAN.pat);};
 $('#bBox').onclick=()=>{BOX.open=!BOX.open;btn('#bBox',BOX.open);};$('#bChick').onclick=()=>{chick.visible=!chick.visible;btn('#bChick',chick.visible);};
 const TORCH={on:false};$('#bTorch').onclick=()=>{TORCH.on=!TORCH.on;btn('#bTorch',TORCH.on);};$('#bSign').onclick=()=>editSign();
 btn('#bFire',1);btn('#bTent',1);
@@ -323,7 +372,7 @@ const ray=new THREE.Raycaster(),mv=new THREE.Vector2();let downAt=null;
 R.domElement.addEventListener('pointerdown',e=>{downAt=[e.clientX,e.clientY];audio();});
 R.domElement.addEventListener('pointerup',e=>{if(!downAt||Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])>8)return;mv.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);ray.setFromCamera(mv,cam);
   const h=ray.intersectObjects(pick,true).find(x=>x.object.userData.hot);if(h){h.object.userData.hot.act();say(h.object.userData.hot.id);}});
-window.CAMPKIT={_scene:scene,_ground:ground,setTime,setRain,setFog,setWind,shootingStar,setFire,pitch,blow,toggleDoor,setLights,horn,points:()=>Object.keys(POINTS),
+window.CAMPKIT={_scene:scene,_ground:ground,setTime,setRain,setFog,setWind,shootingStar,setFire,pitch,blow,toggleDoor,setAwn,setLights,horn,points:()=>Object.keys(POINTS),
   sign:t=>{signText=t;drawSign();},foodBox:v=>{BOX.open=v==null?!BOX.open:!!v;},chick:v=>{chick.visible=!!v;},torch:v=>{TORCH.on=!!v;},state:()=>({tod,FIRE,TENT,VAN,W,BOX})};
 
 // ---------- loop ----------
@@ -342,7 +391,7 @@ function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta
     s.material.opacity=(fs===0?0:fs===2?.5:.32)*Math.sin(l*Math.PI)*(1-W.rainA*.5);});
   if(gains.fire)gains.fire.gain.value=(fs===1?.025+Math.random()*.03:0);
   // van
-  door.position.x+=((VAN.door?-.45:.75)-door.position.x)*Math.min(1,dt*5);door.position.z=1.02+(VAN.door?.12:0);
+  vanTick(dt,dark>.3);
   beams.forEach(b=>b.intensity=VAN.lights?2.6:0);hlMat.emissive.setHex(VAN.lights?0xfff0b0:0x000000);
   lgl.emissive.setHex(dark>.3?0xffc860:0x000000);lLight.intensity=dark>.3?1.3*dark:0;tBeam.intensity=TORCH.on?3:0;
   lid.rotation.x+=((BOX.open?-1.9:0)-lid.rotation.x)*Math.min(1,dt*6);
@@ -366,11 +415,11 @@ function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta
   ctl.update();R.render(scene,cam);}
 applyTime(0);loop();
 addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();sizeDrops();});
-// ?t=2&rain&fog&wind&fire=0&tent=0&blow&door&lights&pts : start states for screenshots
+// ?t=2&rain&fog&wind&fire=0&tent=0&blow&door&awn&lights&pts : start states for screenshots
 const q=location.search;const qt=/[?&]t=(\d)/.exec(q);if(qt){tod=todGoal=+qt[1];setTime(tod);}
 if(/[?&]rain\b/.test(q))setRain(true);if(/[?&]fog\b/.test(q))setFog(true);if(/[?&]wind\b/.test(q))setWind(true);
 const qf=/[?&]fire=(\d)/.exec(q);if(qf)setFire(+qf[1]);if(/[?&]tent=0/.test(q)){TENT.goal=0;TENT.up=0;btn('#bTent',0);}if(/[?&]blow\b/.test(q))blow();
-if(/[?&]door\b/.test(q))toggleDoor(true);if(/[?&]lights\b/.test(q))setLights(true);if(/[?&]pts\b/.test(q)){showPts=true;btn('#bPts',1);}
+if(/[?&]door\b/.test(q))toggleDoor(true);if(/[?&]awn\b/.test(q))setAwn(true);const qc=/[?&]cam=(\w+)/.exec(q);if(qc&&qc[1]==='van'){cam.position.set(-1.2,3.2,4.2);ctl.target.set(-6.4,1.5,-3.6);}if(qc&&qc[1]==='front'){cam.position.set(-12.5,2.6,1.2);ctl.target.set(-6.4,1.5,-3.6);}if(/[?&]lights\b/.test(q))setLights(true);if(/[?&]pts\b/.test(q)){showPts=true;btn('#bPts',1);}
 })();
 </script>
 </body></html>
