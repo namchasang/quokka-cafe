@@ -20,6 +20,11 @@ canvas{display:block}
 button{padding:7px 10px;border-radius:999px;border:2px solid var(--line);background:#1d2a3a;color:var(--ink);font:700 12px system-ui;cursor:pointer}
 button.on{background:#f2b632;color:#2a1d08;border-color:#ffd84a}
 .tag{position:fixed;transform:translate(-50%,-120%);padding:2px 7px;border-radius:8px;background:rgba(0,0,0,.6);color:#ffe6a8;font:700 11px ui-monospace,monospace;pointer-events:none;white-space:nowrap}
+#joy{position:fixed;left:14px;bottom:calc(150px + env(safe-area-inset-bottom));width:110px;height:110px;border-radius:50%;background:rgba(20,28,43,.45);border:2px solid var(--line);touch-action:none;z-index:3}
+#joyK{position:absolute;left:33px;top:33px;width:44px;height:44px;border-radius:50%;background:#f2b632;pointer-events:none}
+#bUse{position:fixed;right:14px;bottom:calc(170px + env(safe-area-inset-bottom));display:none;font-size:15px;padding:12px 16px;z-index:3;background:#f2b632;color:#2a1d08}
+#layers{position:fixed;top:calc(84px + env(safe-area-inset-top));left:8px;display:none;flex-direction:column;gap:4px;padding:8px 10px;border-radius:10px;background:var(--pan);color:var(--ink)}#layers.open{display:flex}
+body.nowalk #joy{display:none}
 #drops{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .6s}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -28,7 +33,9 @@ button.on{background:#f2b632;color:#2a1d08;border-color:#ffd84a}
 </head><body>
 <div id="hud"><b>Camp Kit Lab</b> · ชุดของกลางทุกแคมป์<br><span id="fps">fps –</span> · <span id="tod">บ่าย</span><br><small>แตะของในฉากเพื่อลอง (ประตูรถ เต็นท์ กองไฟ กล่องอาหาร ป้าย)</small></div>
 <canvas id="drops"></canvas>
+<div id="joy"><div id="joyK"></div></div><button id="bUse"></button><div id="layers"></div>
 <div id="ui">
+ <div class="row"><button id="bSite">🗺️ Camp Kit (ทั่วไป)</button><button id="bLay">🧩 Layers</button><button id="bWalk" class="on">🐾 เดิน</button></div>
  <div class="row">
   <button data-t="0" class="on">☀️ บ่าย</button><button data-t="1">🌇 พลบค่ำ</button><button data-t="2">🌙 กลางคืน</button><button data-t="3">🌅 รุ่งสาง</button><button id="bAuto">⏩ เวลาเดิน</button>
  </div>
@@ -91,7 +98,7 @@ function cards(tex,n,size,minR,maxR){const g=new THREE.PlaneGeometry(size,size);
   for(let i=0;i<n*4&&k<n;i++){const a=Math.random()*7,r=minR+Math.sqrt(Math.random())*(maxR-minR),x=Math.cos(a)*r,z=Math.sin(a)*r;if(inClearing(x,z))continue;
     d.position.set(x,0,z);d.rotation.y=Math.random()*3;d.scale.setScalar(.7+Math.random()*.7);d.updateMatrix();im.setMatrixAt(k++,d.matrix);}
   im.count=k;im.receiveShadow=true;scene.add(im);return im;}
-cards(tuftTex,2600,.7,6,45);cards(flowTex,260,.55,9,32);
+const baseKeep=[cards(tuftTex,2600,.7,6,45),cards(flowTex,260,.55,9,32)];
 
 // ---------- leaf-card trees and bushes (crown cards with normals out of the crown centre) ----------
 const leafTex=cnv(256,256,(g,w,h)=>{for(let q=0;q<4;q++){const ox=(q%2)*w/2,oy=(q>>1)*h/2;for(let i=0;i<34;i++){const a=Math.random()*7,r=Math.random()*w*.19;
@@ -116,7 +123,7 @@ function crown(cx,cy,cz,rad,n,cardS){const P=[],N=[],U=[],S=[],I=[];
 function tree(x,z,h){const t=mesh(new THREE.CylinderGeometry(.16*h/5,.3*h/5,h*.7,7),BARK,x,h*.35,z);
   [[.9,.5],[-.7,.6],[.2,-.8]].forEach(([a,b])=>{const l=mesh(new THREE.CylinderGeometry(.06,.1,h*.35,5),BARK,x+a*h*.09,h*.62,z+b*h*.09);l.rotation.set(b*.6,0,-a*.6);});
   crown(x,h*.78,z,h*.32,150,h*.2);}
-[[-14,-9,7],[-17,4,8],[-9,-16,6.5],[6,-17,7.5],[17,-8,6],[-20,-18,9],[22,8,7],[-6,17,6],[14,17,8],[-24,12,7]].forEach(a=>tree(...a));
+{const n0=scene.children.length;[[-14,-9,7],[-17,4,8],[-9,-16,6.5],[6,-17,7.5],[17,-8,6],[-20,-18,9],[22,8,7],[-6,17,6],[14,17,8],[-24,12,7]].forEach(a=>tree(...a));scene.children.slice(n0).forEach(o=>baseKeep.push(o));}
 const bushes=[];function bush(x,z,r){const b=crown(x,r*.7,z,r,60,r*.7);bushes.push(new THREE.Vector3(x,r*.7,z));return b;}
 bush(-11.5,3.5,1.1);bush(9.5,-8,1);bush(-4,-11.5,1.2);bush(11,5.5,.9);
 
@@ -338,6 +345,153 @@ function applyTime(t){const i=Math.floor(t)%4,j=(i+1)%4,k=t-Math.floor(t),A=KEYS
   let az=A.az+(((B.az-A.az+540)%360)-180)*k;const el=L(A.el,B.el)*Math.PI/180,a=az*Math.PI/180;sun.position.set(Math.cos(a)*Math.cos(el)*50,Math.sin(el)*50,Math.sin(a)*Math.cos(el)*50);
   starDome.material.opacity=L(A.st,B.st)*(1-fogOn)*(1-rainOn);$('#tod').textContent=(k<.5?A:B).n;}
 
+// ---------- 10. campsite landscapes (Paul, 22 Nov 2026: "landscape ของแต่ละ campsite แตกต่างกันตามสถานที่จริง") ----------
+// One preset per camp in the campsite script, built as layers (ground, landform, water, plants, far view, animals) that can be
+// switched one by one to compare. Look preview only: the camp maps in the game will be built with the engines (brief step 3+).
+const into=(g,f)=>{const n=scene.children.length;f();scene.children.slice(n).forEach(o=>g.add(o));};
+const LAYERS=['ground','land','water','plants','far','animals'],LNAME={ground:'พื้น',land:'ภูมิประเทศ',water:'น้ำ',plants:'ต้นไม้',far:'ฉากไกล',animals:'สัตว์'};
+const LON={};LAYERS.forEach(k=>LON[k]=true);
+const baseMap=ground.material.map;
+function groundTex(base,dots,clear){return cnv(1024,1024,(g,w,h)=>{g.fillStyle=base;g.fillRect(0,0,w,h);for(let i=0;i<9000;i++){g.fillStyle=dots[i%dots.length];const s=2+(i%3);g.fillRect(Math.random()*w,Math.random()*h,s,s);}
+  if(clear){const c=w/2,r=w*.06;const gr=g.createRadialGradient(c,c,r*.5,c,c,r*1.15);gr.addColorStop(0,clear);gr.addColorStop(.8,clear);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.arc(c,c,r*1.15,0,7);g.fill();}});}
+// moving water: a strip whose +v points upstream, so a growing offset.y moves the pattern downstream (and down a fall)
+const flows=[];
+function waterTex(c1,c2,streak){const t=cnv(128,256,(g,w,h)=>{g.fillStyle=c1;g.fillRect(0,0,w,h);for(let i=0;i<90;i++){g.fillStyle=streak?'rgba(255,255,255,'+(.25+Math.random()*.5)+')':c2;const x=Math.random()*w,y=Math.random()*h;g.fillRect(x,y,streak?2+Math.random()*3:6+Math.random()*10,streak?14+Math.random()*40:3);}});t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;}
+function flowStrip(par,w,l,tex,spd,rep,op){const m=new THREE.MeshBasicMaterial({map:tex.clone(),transparent:op<1,opacity:op==null?1:op,depthWrite:op==null||op>=1,side:THREE.DoubleSide});m.map.needsUpdate=true;m.map.repeat.set(rep[0],rep[1]);
+  const p=new THREE.Mesh(new THREE.PlaneGeometry(w,l),m);p.userData.noInk=1;par.add(p);flows.push({m,spd});return p;}
+function pond(par,x,z,r,col,y){const m=new THREE.Mesh(new THREE.CircleGeometry(r,40),new THREE.MeshPhongMaterial({color:col,shininess:80,specular:0x667788,transparent:true,opacity:.92}));m.rotation.x=-Math.PI/2;m.position.set(x,y||.03,z);m.userData.noInk=1;par.add(m);return m;}
+function rock(par,x,y,z,s,col,sq){const g=new THREE.DodecahedronGeometry(1,1);const p=g.attributes.position;for(let i=0;i<p.count;i++){const k=.82+Math.random()*.3;p.setXYZ(i,p.getX(i)*k,p.getY(i)*k*(sq||.7),p.getZ(i)*k);}g.computeVertexNormals();
+  const m=mesh(g,M(col||0x9a958c),x,y,z,par);m.scale.setScalar(s);m.rotation.y=Math.random()*6;return m;}
+function roo(par,x,z,r){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=r;par.add(g);const fur=M(0x9b7a5c),pale=M(0xd8c2a4);
+  const b=mesh(new THREE.SphereGeometry(.42,12,10),fur,0,.62,0,g);b.scale.set(1.25,1,.9);b.rotation.z=.5;mesh(new THREE.SphereGeometry(.26,10,8),pale,.18,.55,0,g).scale.set(1,1.2,.8);
+  const hd=new THREE.Group();hd.position.set(.42,.98,0);g.add(hd);mesh(new THREE.SphereGeometry(.17,10,8),fur,0,0,0,hd).scale.set(1.4,1,1);[-.07,.07].forEach(z=>mesh(new THREE.ConeGeometry(.06,.2,6),fur,-.05,.17,z,hd));
+  mesh(new THREE.SphereGeometry(.03,6,5),M(0x111111),.16,.05,.08,hd);mesh(new THREE.SphereGeometry(.03,6,5),M(0x111111),.16,.05,-.08,hd);
+  const t=mesh(new THREE.CylinderGeometry(.03,.11,1,6),fur,-.75,.3,0,g);t.rotation.z=1.25;[-.16,.16].forEach(z=>mesh(new THREE.BoxGeometry(.5,.1,.1),fur,.05,.06,z,g));ink(g,.04);g.userData.head=hd;return g;}
+function koala(par,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);par.add(g);const f=M(0x8e9298);mesh(new THREE.SphereGeometry(.3,10,8),f,0,0,0,g).scale.set(1,1.2,.9);mesh(new THREE.SphereGeometry(.22,10,8),f,0,.38,.05,g);
+  [-.2,.2].forEach(x=>mesh(new THREE.SphereGeometry(.11,8,6),M(0xc9ccd2),x,.5,.02,g));mesh(new THREE.SphereGeometry(.06,6,5),M(0x222222),0,.36,.25,g).scale.set(.8,1.3,.8);ink(g,.04);return g;}
+function boat(par,x,z,r,c){const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=r;par.add(g);const h=mesh(new THREE.BoxGeometry(2.6,.45,1),M(c),0,.12,0,g);mesh(new THREE.BoxGeometry(.9,.5,.8),M(0xf4f2ea),-.2,.55,0,g);mesh(new THREE.ConeGeometry(.5,.9,4),M(c),1.6,.12,0,g).rotation.z=-Math.PI/2;ink(g,.03);return g;}
+function dune(par,x,z,sx,sy,sz,col){const m=mesh(new THREE.SphereGeometry(1,40,20,0,Math.PI*2,0,Math.PI/2),new THREE.MeshPhongMaterial({color:col,shininess:6,specular:0x000000,flatShading:false}),x,0,z,par);m.scale.set(sx,sy,sz);return m;}
+const SITE={};
+function siteGroup(id){const s={id,L:{}};LAYERS.forEach(k=>{const g=new THREE.Group();g.visible=false;scene.add(g);s.L[k]=g;});return s;}
+const cardsIn=(g,tex,n,size,a,b)=>{into(g,()=>cards(tex,n,size,a,b));};
+const marramTex=cnv(128,128,(g,w,h)=>{for(let i=0;i<30;i++){const x=w*.2+Math.random()*w*.6;g.strokeStyle=['#b9b77a','#a3a866','#cfc890'][i%3];g.lineWidth=4;g.beginPath();g.moveTo(w/2,h);g.quadraticCurveTo(x,h*.5,x+(Math.random()-.5)*40,h*.05+Math.random()*h*.3);g.stroke();}});
+const fernTex=cnv(128,128,(g,w,h)=>{for(let f=0;f<7;f++){const a=-1.2+f*.4;g.strokeStyle=['#4f7f3a','#3f6e33','#5f9442'][f%3];g.lineWidth=4;g.beginPath();g.moveTo(w/2,h);const ex=w/2+Math.sin(a)*60,ey=h-Math.cos(a)*100;g.quadraticCurveTo(w/2+Math.sin(a)*20,h-60,ex,ey);g.stroke();
+  for(let k=1;k<8;k++){const t=k/8,px=w/2+(ex-w/2)*t,py=h+(ey-h)*t;g.lineWidth=2;g.beginPath();g.moveTo(px,py);g.lineTo(px+12,py-6);g.moveTo(px,py);g.lineTo(px-12,py-6);g.stroke();}}});
+const reedTex=cnv(64,128,(g,w,h)=>{for(let i=0;i<14;i++){const x=6+Math.random()*52;g.strokeStyle=i%2?'#6f8a3c':'#8aa14a';g.lineWidth=3;g.beginPath();g.moveTo(x,h);g.lineTo(x+(Math.random()-.5)*10,10+Math.random()*30);g.stroke();if(i%4===0){g.fillStyle='#6b4a2a';g.fillRect(x-3,20,6,18);}}});
+function gum(g,x,z,h,bark){into(g,()=>tree(x,z,h));if(bark)g.children.slice(-4).forEach(o=>{if(o.material===BARK)o.material=bark;});}
+
+// Lancelin: white dunes taller than the camp, the sea beyond, low coastal scrub and dune grass
+SITE.lancelin=(()=>{const s=siteGroup('lancelin');s.name='Lancelin · เนินทรายขาว';s.map=groundTex('#efe9da',['#e6dfcc','#f6f2e6','#ddd5bf'],'#e4dcc6');s.fog=[50,170];s.hideBase=true;
+  const W=0xf3efe4;[[-26,-20,16,7,11],[-8,-34,20,10,13],[18,-30,15,8,12],[34,-8,12,6,16],[-34,6,12,5,14],[26,24,14,5,10],[-20,30,16,6,10]].forEach(a=>dune(s.L.land,a[0],a[1],a[2],a[3],a[4],W));
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(400,120),new THREE.MeshPhongMaterial({color:0x2f9fc0,shininess:90,specular:0x88aacc}));sea.rotation.x=-Math.PI/2;sea.position.set(0,.05,-110);s.L.water.add(sea);
+  const surf=flowStrip(s.L.water,400,3,waterTex('#e9f6f8','#fff',false),.05,[20,1],.8);surf.rotation.x=-Math.PI/2;surf.position.set(0,.07,-50.5);
+  cardsIn(s.L.plants,marramTex,500,.9,13,40);[[12,-12,1],[-14,12,1.2],[15,10,.9],[-12,-13,1]].forEach(([x,z,r])=>into(s.L.plants,()=>crown(x,r*.6,z,r,50,r*.6)));
+  return s;})();
+// Yanchep: lake with reeds, tall gums, lawn with kangaroos, a raised boardwalk through the treetops (koala spotting)
+SITE.yanchep=(()=>{const s=siteGroup('yanchep');s.name='Yanchep · ทะเลสาบ ป่ายูคาลิปตัส';s.map=groundTex('#86b356',['#7ba84c','#93bf62','#6f9c43'],'#d8c79a');s.fog=[40,140];s.hideBase=true;
+  pond(s.L.water,24,-6,11,0x4e8fa8);pond(s.L.water,30,10,8,0x4e8fa8);cardsIn(s.L.plants,tuftTex,1400,.7,13,40);
+  const reeds=new THREE.Group();s.L.water.add(reeds);for(let i=0;i<60;i++){const a=Math.random()*7,r=10.5+Math.random()*1.4;const p=new THREE.Mesh(new THREE.PlaneGeometry(.6,1.2),new THREE.MeshLambertMaterial({map:reedTex,alphaTest:.5,side:THREE.DoubleSide}));p.position.set(24+Math.cos(a)*r,.6,-6+Math.sin(a)*r);p.rotation.y=Math.random()*3;p.userData.noInk=1;reeds.add(p);}
+  const pale=M(0xd9d2c4);[[-16,-12,13],[-22,4,15],[-12,16,12],[14,-18,14],[16,18,13],[-28,-6,16],[4,-22,12],[-4,22,13]].forEach(a=>gum(s.L.plants,a[0],a[1],a[2],pale));
+  const wood=M(0xa57c52),post=M(0x7a5a3e);const bw=new THREE.Group();s.L.land.add(bw);for(let i=0;i<22;i++){const x=-30+i*1.6,z=-17+Math.sin(i*.35)*1.5,y=2.6+Math.sin(i*.2)*.4;mesh(new THREE.BoxGeometry(1.62,.12,1.3),wood,x,y,z,bw);if(i%3===0)[-.6,.6].forEach(d=>{mesh(new THREE.CylinderGeometry(.08,.08,y,6),post,x,y/2,z+d,bw);mesh(new THREE.BoxGeometry(1.62,.08,.06),wood,x,y+.55,z+d,bw);});}
+  [[-21,7.2,-16.5],[-12.8,9.6,15.6],[14.2,8.6,-17.6]].forEach(a=>koala(s.L.animals,...a));
+  s.roos=[roo(s.L.animals,16,-14,2.4),roo(s.L.animals,18.5,-11,3.4),roo(s.L.animals,13,14,1.2),roo(s.L.animals,-15,-4,-.4)];return s;})();
+// Dwellingup: tall dark-barked forest, ferns and leaf litter, a slow tea-coloured river with a canoe on the bank
+SITE.dwellingup=(()=>{const s=siteGroup('dwellingup');s.name='Dwellingup · แม่น้ำในป่าสูง';s.map=groundTex('#7a6a48',['#6b5a3c','#8a7752','#5e7a3a','#9a8458'],'#bfa878');s.fog=[25,95];s.hideBase=true;
+  const dk=M(0x4a3a30);for(let i=0;i<34;i++){const a=i*2.4+Math.random(),r=15+Math.random()*26;gum(s.L.plants,Math.cos(a)*r,Math.sin(a)*r,15+Math.random()*7,dk);}
+  cardsIn(s.L.plants,fernTex,420,1.2,12.5,36);
+  const riv=new THREE.Group();s.L.water.add(riv);const tex=waterTex('#7a5a2c','rgba(220,190,130,.5)',false);for(let i=0;i<12;i++){const x=-44+i*8,z=17+Math.sin(i*.6)*3;const st=flowStrip(riv,6,8.6,tex,.08,[1,1]);st.rotation.x=-Math.PI/2;st.rotation.z=Math.PI/2-.2*Math.cos(i*.6);st.position.set(x,.04,z);}
+  const cn=new THREE.Group();cn.position.set(4,0,13.8);cn.rotation.y=.25;s.L.land.add(cn);const hull=mesh(new THREE.SphereGeometry(1,16,8,0,Math.PI*2,Math.PI/2,Math.PI/2),M(0xd8682e),0,.35,0,cn);hull.scale.set(2.2,.35,.42);mesh(new THREE.BoxGeometry(1.4,.04,.1),M(0xc89a62),.6,.4,.3,cn).rotation.y=.5;ink(cn,.03);
+  return s;})();
+// Serpentine Falls: granite valley; stream on the high side -> lip -> two drops over granite steps -> plunge pool -> stream out to the low side
+SITE.serpentine=(()=>{const s=siteGroup('serpentine');s.name='Serpentine Falls · น้ำตกในหุบหินแกรนิต';s.map=groundTex('#8fa55e',['#829a52','#9cb06a','#a39b88'],'#cdbf9c');s.fog=[40,140];s.hideBase=true;
+  const GR=0x9b968c,GR2=0x857f76,L=s.L.land;
+  // the high ground behind the falls: a granite shelf 9 high, then the valley wall rising further back
+  const shelf=mesh(new THREE.BoxGeometry(60,9,20),M(GR),0,4.5,-34,L);
+  for(let i=0;i<26;i++){rock(L,-30+i*2.4+Math.random(),8.6+Math.random()*1.2,-25.5+Math.random()*1.5,1.6+Math.random()*1.2,i%2?GR:GR2,.55);}/* rounded granite lip */
+  for(let i=0;i<14;i++)rock(L,-28+i*4.3,13+Math.random()*3,-44-Math.random()*4,5+Math.random()*3,GR2,.8);/* valley wall */
+  // the steps of the fall: two ledges cut into the shelf face
+  mesh(new THREE.BoxGeometry(5,4.2,3),M(GR2),0,2.1,-23.2,L);rock(L,-2.6,3,-23.4,1.5,GR);rock(L,2.6,3.4,-23.6,1.6,GR);rock(L,-3.6,.9,-21.6,1.3,GR2);rock(L,3.4,1,-21.4,1.2,GR2);
+  const Wt=s.L.water,fall=waterTex('#cfe7ef','#fff',true),run=waterTex('#5f9fb2','rgba(255,255,255,.55)',false);
+  // stream on the top of the shelf, flowing to the lip (toward +z)
+  const top=flowStrip(Wt,2.6,18,run,.25,[1,4]);top.rotation.x=-Math.PI/2;top.rotation.z=Math.PI;top.position.set(0,9.05,-33);
+  // upper drop: lip (y 9) down to the ledge (y 4.2); lower drop: ledge down to the pool
+  const f1=flowStrip(Wt,2.4,4.9,fall,1.2,[1,1.5],.92);f1.position.set(0,6.7,-24.05);f1.rotation.x=-.08;
+  const lip=flowStrip(Wt,2.4,1.6,fall,.9,[1,.5],.9);lip.rotation.x=-Math.PI/2+.35;lip.rotation.z=Math.PI;lip.position.set(0,4.25,-22.9);
+  const f2=flowStrip(Wt,2.8,4.1,fall,1.3,[1,1.2],.92);f2.position.set(0,2.1,-21.6);f2.rotation.x=-.12;
+  pond(Wt,0,-17.5,5.2,0x3f8fa6,.04);
+  const foam=new THREE.Mesh(new THREE.RingGeometry(.4,2.4,32),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.55}));foam.rotation.x=-Math.PI/2;foam.position.set(0,.07,-20.3);foam.userData.noInk=1;Wt.add(foam);s.foam=foam;
+  // stream out of the pool toward the low side (+x, away from the camp), down past the clearing
+  for(let i=0;i<8;i++){const x=6+i*5,z=-15+i*.9+Math.sin(i)*.8;const st=flowStrip(Wt,1.8,5.4,run,.3,[1,1.2]);st.rotation.x=-Math.PI/2;st.rotation.z=Math.PI/2+.17;st.position.set(x,.05,z);}
+  for(let i=0;i<22;i++){const a=Math.random()*7,r=6+Math.random()*1.5;rock(L,Math.cos(a)*r*.9,.2,-17.5+Math.sin(a)*r*.75,.5+Math.random()*.6,i%2?GR:GR2);}/* boulders round the pool */
+  [[-18,-12,11],[18,-12,10],[-26,8,12],[24,16,11],[-10,20,10],[30,-4,12]].forEach(a=>gum(s.L.plants,...a));cardsIn(s.L.plants,fernTex,160,1,13,30);cardsIn(s.L.plants,tuftTex,900,.7,13,40);
+  return s;})();
+// Rockingham: calm bay and pale beach in front of the camp, a small island offshore, moored boats, dune grass
+SITE.rockingham=(()=>{const s=siteGroup('rockingham');s.name='Rockingham · อ่าวสงบ';s.map=groundTex('#e9ddb9',['#e0d3ad','#f1e6c6','#d6c79c'],'#e2d5ae');s.fog=[50,170];s.hideBase=true;
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(400,200),new THREE.MeshPhongMaterial({color:0x48b5c8,shininess:110,specular:0x99bbcc,transparent:true,opacity:.9}));sea.rotation.x=-Math.PI/2;sea.position.set(0,.06,-118);s.L.water.add(sea);
+  const sh=flowStrip(s.L.water,400,2.2,waterTex('#bfe8ee','#fff',false),.03,[30,1],.7);sh.rotation.x=-Math.PI/2;sh.position.set(0,.08,-18.6);
+  const isl=new THREE.Group();s.L.far.add(isl);dune(isl,22,-70,14,4,7,0xd9cfa8);into(isl,()=>{crown(20,4,-70,4,60,2.4);crown(26,3.4,-69,3,50,2);});
+  [[-10,-30,.3,0xf4f2ea],[6,-34,-.4,0x2f6a9a],[-22,-40,.8,0xd9603a]].forEach(a=>boat(s.L.water,...a));
+  const jt=new THREE.Group();s.L.land.add(jt);for(let i=0;i<10;i++){mesh(new THREE.BoxGeometry(1.4,.12,1.3),M(0xa57c52),-14,.5,-16-i*1.3,jt);if(i%2===0)[-.6,.6].forEach(d=>mesh(new THREE.CylinderGeometry(.08,.08,1.2,6),M(0x7a5a3e),-14+d,0,-16-i*1.3,jt));}
+  cardsIn(s.L.plants,marramTex,380,.8,12,30);[[-16,8,1.3],[14,12,1.1],[18,-6,1]].forEach(([x,z,r])=>into(s.L.plants,()=>crown(x,r*.6,z,r,50,r*.6)));return s;})();
+// Perth Hills: granite boulders and gums on a hilltop, the plain falling away to a far city and the sea (lights at night)
+SITE.hills=(()=>{const s=siteGroup('hills');s.name='Perth Hills · ยอดเนิน ดาว ไฟเมือง';s.map=groundTex('#9a9a5c',['#8c8c50','#a8a66a','#b0a27c'],'#c9b88e');s.fog=[60,260];s.hideBase=true;
+  for(let i=0;i<16;i++){const a=Math.random()*7,r=13+Math.random()*20;if(Math.sin(a)>.55)continue;rock(s.L.land,Math.cos(a)*r,.3,Math.sin(a)*r,1.4+Math.random()*2.2,i%2?0xa39d92:0x8d877d);}
+  [[-16,-14,12],[-24,2,13],[-14,18,11],[16,-18,12],[22,4,11],[8,20,10],[-30,-20,13]].forEach(a=>gum(s.L.plants,...a));cardsIn(s.L.plants,tuftTex,1100,.7,13,40);
+  // far view to the south: the plain below, a small generic city and the sea line
+  const F=s.L.far;const plain=new THREE.Mesh(new THREE.PlaneGeometry(500,160),M(0x6f7f56));plain.rotation.x=-Math.PI/2;plain.position.set(0,-14,140);F.add(plain);
+  const edge=mesh(new THREE.BoxGeometry(120,16,8),M(0x7f7a58),0,-8,46,F);
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(500,80),M(0x3f7fa0));sea.rotation.x=-Math.PI/2;sea.position.set(0,-13.9,240);F.add(sea);
+  const city=new THREE.Group();city.position.set(-30,-14,170);F.add(city);s.win=[];
+  for(let i=0;i<16;i++){const h=4+Math.random()*(i%5===0?22:10),w=2+Math.random()*2.5;const b=mesh(new THREE.BoxGeometry(w,h,w),M(0x8a96a6),i*3.2-24+Math.random(),h/2,Math.random()*8,city);
+    const wm=new THREE.MeshBasicMaterial({color:0x222a35});for(let k=0;k<Math.floor(h/2.5);k++){const q=mesh(new THREE.PlaneGeometry(w*.7,.5),wm,0,-h/2+1.4+k*2.4,-w/2-.02,b);q.rotation.y=Math.PI;q.userData.noInk=1;}s.win.push(wm);}
+  const lights=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(Array.from({length:900},(_,i)=>i%3===0?-120+Math.random()*240:i%3===1?-13.6:120+Math.random()*90),3)),new THREE.PointsMaterial({color:0xffd890,size:.9,transparent:true,opacity:0}));F.add(lights);s.lights=lights;return s;})();
+SITE.camp={id:'camp',name:'Camp Kit (ทั่วไป)',map:baseMap,fog:[40,140],L:{}};
+const SITES=['camp','lancelin','yanchep','dwellingup','serpentine','rockingham','hills'];let siteId='camp';
+function setSite(id){if(!SITE[id])id='camp';siteId=id;const s=SITE[id];
+  SITES.forEach(k=>{const o=SITE[k];LAYERS.forEach(L=>{if(o.L[L])o.L[L].visible=k===id&&LON[L];});});
+  ground.material.map=LON.ground?s.map:baseMap;ground.material.needsUpdate=true;
+  baseKeep.forEach(o=>o.visible=!s.hideBase||!LON.plants);
+  scene.fog.near=s.fog[0];scene.fog.far=s.fog[1];$('#bSite').textContent='🗺️ '+s.name;renderLayers();}
+function renderLayers(){const p=$('#layers');if(!p)return;p.innerHTML=LAYERS.map(k=>`<label><input type=checkbox data-l=${k} ${LON[k]?'checked':''}> ${LNAME[k]}</label>`).join('');
+  p.querySelectorAll('input').forEach(i=>i.onchange=()=>{LON[i.dataset.l]=i.checked;setSite(siteId);});}
+function siteTick(dt,night){flows.forEach(f=>{f.m.map.offset.y+=dt*f.spd;});const s=SITE[siteId];
+  if(s.foam)s.foam.scale.setScalar(1+Math.sin(T*4)*.06);
+  if(s.roos)s.roos.forEach((r,i)=>{r.userData.head.rotation.z=-.5-Math.max(0,Math.sin(T*.8+i*2))*.6;});
+  if(s.lights){s.lights.material.opacity=night?1:0;s.win.forEach(w=>w.color.setHex(night?0xffd27a:0x222a35));}}
+
+// ---------- 11. walk Kip round the camp (Paul, 22 Nov 2026): joystick or arrow keys/WASD, tap the ground to walk there, tap near a thing to use it ----------
+const kip=new THREE.Group();kip.position.set(1.8,0,3.2);scene.add(kip);
+(()=>{const fur=M(0x9a6a44),pale=M(0xe0c29a),shirt=M(0x3f9a5a),blk=M(0x1a1a1a);
+  const b=mesh(new THREE.SphereGeometry(.34,14,12),fur,0,.48,0,kip);b.scale.set(1,1.15,.9);mesh(new THREE.CylinderGeometry(.33,.36,.34,14),shirt,0,.46,0,kip);
+  mesh(new THREE.SphereGeometry(.2,10,8),pale,0,.45,.24,kip).scale.set(1,1.2,.5);
+  const hd=new THREE.Group();hd.position.set(0,.95,.04);hd.rotation.x=-.35;kip.add(hd);kip.userData.head=hd;mesh(new THREE.SphereGeometry(.27,14,12),fur,0,0,0,hd).scale.set(1.05,.95,1);
+  [-.17,.17].forEach(x=>{mesh(new THREE.SphereGeometry(.1,8,6),fur,x,.21,-.02,hd);mesh(new THREE.SphereGeometry(.06,8,6),pale,x,.21,.03,hd);mesh(new THREE.SphereGeometry(.05,8,6),blk,x*.6,.04,.24,hd);});
+  mesh(new THREE.SphereGeometry(.05,8,6),blk,0,-.07,.27,hd);mesh(new THREE.SphereGeometry(.1,8,6),pale,0,-.1,.2,hd).scale.set(1.2,.8,1);
+  kip.userData.feet=[-.15,.15].map(x=>mesh(new THREE.SphereGeometry(.1,8,6),fur,x,.08,.08,kip));kip.userData.feet.forEach(f=>f.scale.set(.8,.6,1.5));
+  const t=mesh(new THREE.CylinderGeometry(.04,.09,.4,6),fur,0,.3,-.36,kip);t.rotation.x=-1.1;ink(kip,.04);})();
+const WALK={on:true,x:0,z:0,goal:null,keys:{}};
+const OBST=[[-8.9,-5.6,1.4],[-7.6,-4.8,1.4],[-6.3,-4.1,1.4],[-5.0,-3.4,1.4],[-3.8,-2.7,1.3],[4.4,-3.2,1.5],[0,0,1.2],[6.8,3.6,1.3],[10.5,-3,1.6],[-9,-8.2,1.2],[9.6,6.2,.5],[-2.9,-.4,.6]];
+function walkTick(dt){if(!WALK.on)return;let ix=WALK.x,iz=WALK.z;const k=WALK.keys;if(k.ArrowLeft||k.a)ix-=1;if(k.ArrowRight||k.d)ix+=1;if(k.ArrowUp||k.w)iz-=1;if(k.ArrowDown||k.s)iz+=1;
+  let vx=0,vz=0;if(ix||iz){WALK.goal=null;const f=new THREE.Vector3();cam.getWorldDirection(f);f.y=0;f.normalize();const r=new THREE.Vector3(-f.z,0,f.x);vx=r.x*ix-f.x*iz;vz=r.z*ix-f.z*iz;}
+  else if(WALK.goal){const dx=WALK.goal.x-kip.position.x,dz=WALK.goal.z-kip.position.z,d=Math.hypot(dx,dz);if(d<.15)WALK.goal=null;else{vx=dx/d;vz=dz/d;}}
+  const m=Math.hypot(vx,vz),sp=3.2;if(m>.01){vx/=Math.max(1,m);vz/=Math.max(1,m);let nx=kip.position.x+vx*sp*dt,nz=kip.position.z+vz*sp*dt;
+    OBST.forEach(([ox,oz,r])=>{const dx=nx-ox,dz=nz-oz,d=Math.hypot(dx,dz);if(d<r+.3){nx=ox+dx/d*(r+.3);nz=oz+dz/d*(r+.3);}});
+    const rr=Math.hypot(nx,nz);if(rr>15){nx*=15/rr;nz*=15/rr;}kip.position.x=nx;kip.position.z=nz;
+    const a=Math.atan2(vx,vz);let da=a-kip.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));kip.rotation.y+=da*Math.min(1,dt*10);
+    kip.userData.feet.forEach((f,i)=>f.position.z=.08+Math.sin(T*14+i*Math.PI)*.12);kip.position.y=Math.abs(Math.sin(T*14))*.06;}else{kip.position.y=0;kip.userData.feet.forEach(f=>f.position.z=.08);}
+  // camera follows
+  const want=new THREE.Vector3(kip.position.x,.9,kip.position.z),d=want.clone().sub(ctl.target);ctl.target.add(d.multiplyScalar(Math.min(1,dt*3)));cam.position.add(d);
+  // nearest thing to use
+  let best=null,bd=2.4;Object.entries(POINTS).forEach(([id,o])=>{if(id.startsWith('peg'))return;o.getWorldPosition(tmp);const dd=Math.hypot(tmp.x-kip.position.x,tmp.z-kip.position.z)-(id==='camp_van'?2:0);if(dd<bd){bd=dd;best=id;}});
+  const ub=$('#bUse');ub.style.display=best?'block':'none';if(best){ub.textContent='👆 '+({camp_van:'ประตูรถ',camp_tent:'เต็นท์',camp_fire:'กองไฟ',camp_cook:'ทำอาหาร',camp_food_box:'กล่องอาหาร',camp_sign:'ป้าย'}[best]||best);ub.dataset.id=best;}}
+function useNear(){const id=$('#bUse').dataset.id;const o=POINTS[id];if(!o)return;let h=null;o.traverse(c=>{if(!h&&c.userData.hot)h=c.userData.hot;});if(h){h.act();say(h.id);}}
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;WALK.keys[e.key.length===1?e.key.toLowerCase():e.key]=true;if(e.key==='e'||e.key===' ')useNear();});
+addEventListener('keyup',e=>{WALK.keys[e.key.length===1?e.key.toLowerCase():e.key]=false;});
+(()=>{const j=$('#joy'),k=$('#joyK');let id=null,c=null;const R0=46;
+  j.addEventListener('pointerdown',e=>{id=e.pointerId;j.setPointerCapture(id);const r=j.getBoundingClientRect();c=[r.left+r.width/2,r.top+r.height/2];mv2(e);e.stopPropagation();});
+  const mv2=e=>{let dx=e.clientX-c[0],dy=e.clientY-c[1];const d=Math.hypot(dx,dy);if(d>R0){dx*=R0/d;dy*=R0/d;}k.style.transform=`translate(${dx}px,${dy}px)`;WALK.x=dx/R0;WALK.z=dy/R0;};
+  j.addEventListener('pointermove',e=>{if(e.pointerId===id)mv2(e);});const up=e=>{if(e.pointerId!==id)return;id=null;WALK.x=WALK.z=0;k.style.transform='';};j.addEventListener('pointerup',up);j.addEventListener('pointercancel',up);})();
+
 // ---------- actions (also on window.CAMPKIT for the story team) ----------
 function btn(s,on){const b=$(s);if(b)b.classList.toggle('on',!!on);}
 function say(t){$('#tod').textContent=t;}
@@ -362,6 +516,8 @@ $('#bPat').onclick=()=>{VAN.pat=(VAN.pat+1)%4;vanRepaint();btn('#bPat',VAN.pat);
 $('#bBox').onclick=()=>{BOX.open=!BOX.open;btn('#bBox',BOX.open);};$('#bChick').onclick=()=>{chick.visible=!chick.visible;btn('#bChick',chick.visible);};
 const TORCH={on:false};$('#bTorch').onclick=()=>{TORCH.on=!TORCH.on;btn('#bTorch',TORCH.on);};$('#bSign').onclick=()=>editSign();
 btn('#bFire',1);btn('#bTent',1);
+$('#bSite').onclick=()=>setSite(SITES[(SITES.indexOf(siteId)+1)%SITES.length]);$('#bLay').onclick=()=>{$('#layers').classList.toggle('open');btn('#bLay',$('#layers').classList.contains('open'));};
+$('#bWalk').onclick=()=>{WALK.on=!WALK.on;btn('#bWalk',WALK.on);document.body.classList.toggle('nowalk',!WALK.on);if(!WALK.on)$('#bUse').style.display='none';};$('#bUse').onclick=()=>useNear();
 
 // ---------- 9. standard interaction points (names match the tags in the campsite script) ----------
 const POINTS={camp_van:van,camp_tent:tent,camp_fire:fire,camp_cook:cook,camp_food_box:box,camp_sign:sign};
@@ -371,8 +527,9 @@ let showPts=false;$('#bPts').onclick=()=>{showPts=!showPts;btn('#bPts',showPts);
 const ray=new THREE.Raycaster(),mv=new THREE.Vector2();let downAt=null;
 R.domElement.addEventListener('pointerdown',e=>{downAt=[e.clientX,e.clientY];audio();});
 R.domElement.addEventListener('pointerup',e=>{if(!downAt||Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])>8)return;mv.set(e.clientX/innerWidth*2-1,-e.clientY/innerHeight*2+1);ray.setFromCamera(mv,cam);
-  const h=ray.intersectObjects(pick,true).find(x=>x.object.userData.hot);if(h){h.object.userData.hot.act();say(h.object.userData.hot.id);}});
-window.CAMPKIT={_scene:scene,_ground:ground,setTime,setRain,setFog,setWind,shootingStar,setFire,pitch,blow,toggleDoor,setAwn,setLights,horn,points:()=>Object.keys(POINTS),
+  const h=ray.intersectObjects(pick,true).find(x=>x.object.userData.hot);if(h){h.object.userData.hot.act();say(h.object.userData.hot.id);return;}
+  if(WALK.on){const g=ray.intersectObject(ground)[0];if(g)WALK.goal={x:g.point.x,z:g.point.z};}});
+window.CAMPKIT={_scene:scene,setSite,sites:()=>SITES.slice(),layer:(k,v)=>{LON[k]=!!v;setSite(siteId);},kip,_ground:ground,setTime,setRain,setFog,setWind,shootingStar,setFire,pitch,blow,toggleDoor,setAwn,setLights,horn,points:()=>Object.keys(POINTS),
   sign:t=>{signText=t;drawSign();},foodBox:v=>{BOX.open=v==null?!BOX.open:!!v;},chick:v=>{chick.visible=!!v;},torch:v=>{TORCH.on=!!v;},state:()=>({tod,FIRE,TENT,VAN,W,BOX})};
 
 // ---------- loop ----------
@@ -391,7 +548,7 @@ function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta
     s.material.opacity=(fs===0?0:fs===2?.5:.32)*Math.sin(l*Math.PI)*(1-W.rainA*.5);});
   if(gains.fire)gains.fire.gain.value=(fs===1?.025+Math.random()*.03:0);
   // van
-  vanTick(dt,dark>.3);
+  vanTick(dt,dark>.3);siteTick(dt,dark>.3);walkTick(dt);
   beams.forEach(b=>b.intensity=VAN.lights?2.6:0);hlMat.emissive.setHex(VAN.lights?0xfff0b0:0x000000);
   lgl.emissive.setHex(dark>.3?0xffc860:0x000000);lLight.intensity=dark>.3?1.3*dark:0;tBeam.intensity=TORCH.on?3:0;
   lid.rotation.x+=((BOX.open?-1.9:0)-lid.rotation.x)*Math.min(1,dt*6);
@@ -419,7 +576,7 @@ addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=inne
 const q=location.search;const qt=/[?&]t=(\d)/.exec(q);if(qt){tod=todGoal=+qt[1];setTime(tod);}
 if(/[?&]rain\b/.test(q))setRain(true);if(/[?&]fog\b/.test(q))setFog(true);if(/[?&]wind\b/.test(q))setWind(true);
 const qf=/[?&]fire=(\d)/.exec(q);if(qf)setFire(+qf[1]);if(/[?&]tent=0/.test(q)){TENT.goal=0;TENT.up=0;btn('#bTent',0);}if(/[?&]blow\b/.test(q))blow();
-if(/[?&]door\b/.test(q))toggleDoor(true);if(/[?&]awn\b/.test(q))setAwn(true);const qc=/[?&]cam=(\w+)/.exec(q);if(qc&&qc[1]==='van'){cam.position.set(-1.2,3.2,4.2);ctl.target.set(-6.4,1.5,-3.6);}if(qc&&qc[1]==='front'){cam.position.set(-12.5,2.6,1.2);ctl.target.set(-6.4,1.5,-3.6);}if(/[?&]lights\b/.test(q))setLights(true);if(/[?&]pts\b/.test(q)){showPts=true;btn('#bPts',1);}
+if(/[?&]door\b/.test(q))toggleDoor(true);if(/[?&]awn\b/.test(q))setAwn(true);const qs=/[?&]site=(\w+)/.exec(q);setSite(qs?qs[1]:'camp');if(/[?&]nowalk\b/.test(q))$('#bWalk').onclick();const qc=/[?&]cam=(\w+)/.exec(q);if(qc&&WALK.on)$('#bWalk').onclick();if(qc&&qc[1]==='van'){cam.position.set(-1.2,3.2,4.2);ctl.target.set(-6.4,1.5,-3.6);}if(qc&&qc[1]==='front'){cam.position.set(-12.5,2.6,1.2);ctl.target.set(-6.4,1.5,-3.6);}if(/[?&]lights\b/.test(q))setLights(true);if(/[?&]pts\b/.test(q)){showPts=true;btn('#bPts',1);}
 })();
 </script>
 </body></html>
