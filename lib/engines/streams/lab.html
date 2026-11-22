@@ -146,16 +146,35 @@ function buildWater(){waterL.clear();ST.forEach(S=>{if(S.length<2)return;const p
       if(i){const q=(i-1)*2;ix.push(q,q+1,q+2,q+1,q+3,q+2);}}
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     g.setAttribute('foam',new THREE.Float32BufferAttribute(fo,1));g.setAttribute('spd',new THREE.Float32BufferAttribute(sp,1));g.setIndex(ix);const m=new THREE.Mesh(g,waterMat);m.renderOrder=2;waterL.add(m);});
-  // plunge pools: a flat disc at the pool level, foam where the cascade lands
-  plunge.forEach(q=>{const d=new THREE.Mesh(new THREE.CircleGeometry(q.r*(SEASON?1:.8),36),new THREE.MeshPhongMaterial({color:new THREE.Color(0x4a3822).convertSRGBToLinear(),emissive:0x020406,shininess:60,specular:0x26323a,transparent:true,opacity:.88,depthWrite:false}));
-    d.rotation.x=-Math.PI/2;d.position.set(q.x,q.y+(SEASON?.55:.35),q.z);d.renderOrder=1;waterL.add(d);
-    if(SEASON){const f=new THREE.Mesh(new THREE.RingGeometry(.2,q.r*.4,28),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.45,depthWrite:false}));f.rotation.x=-Math.PI/2;
-      const k=.35;f.position.set(q.x+(q.top.x-q.x)*k*.4,q.y+.6,q.z+(q.top.z-q.z)*k*.4);f.renderOrder=3;f.userData.foam=1;waterL.add(f);}});}
+  // plunge pools: a dark tannin pool with a ragged edge into the rocks, ripples running out from where the water lands, and a patch of
+  // churning white water there (no flat discs): one shader per pool
+  plunge.forEach((q,qi)=>{const R0=q.r*(SEASON?1:.8),k=Math.min(.45,(q.r*.45)/(Math.hypot(q.top.x-q.x,q.top.z-q.z)||1));const cx=(q.top.x-q.x)*k,cz=(q.top.z-q.z)*k;
+    const m=new THREE.ShaderMaterial({uniforms:{uT:WU.uT,uR:{value:R0},uC:{value:new THREE.Vector2(cx,-cz)},uS:{value:qi*1.7+.3},uF:{value:SEASON?1:.35}},transparent:true,depthWrite:false,
+      vertexShader:'varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader:`uniform float uT,uR,uS,uF;uniform vec2 uC;varying vec2 vP;
+      float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+      float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+      void main(){float a=atan(vP.y,vP.x),d=length(vP)/uR;
+        float edge=1.-smoothstep(.72,.98,d+.07*sin(a*5.+uS)+.05*sin(a*11.+uS*2.)+.04*(n2(vP*1.3)-.5));if(edge<.01)discard;
+        vec2 q=vP-uC;float rd=length(q);
+        vec3 deep=vec3(.035,.022,.012),shal=vec3(.16,.11,.06),sky=vec3(.30,.42,.52);
+        vec3 c=mix(deep,shal,smoothstep(.45,.95,d));c=mix(c,sky,.18+.1*n2(vP*.6+uT*.05));
+        float rip=sin(rd*5.5-uT*4.)*exp(-rd*.35);c+=vec3(.05,.06,.07)*rip;
+        float fa=atan(q.y,q.x);float churn=n2(vec2(fa*3.5+uS,rd*2.6-uT*2.2))*.6+n2(vec2(fa*7.,rd*5.-uT*3.4))*.4;
+        float foam=uF*exp(-rd/(uR*.32))*smoothstep(.32,.7,churn);
+        float fleck=uF*smoothstep(.78,.92,n2(vP*2.2+vec2(uT*.25,-uT*.15)))*exp(-rd/(uR*.8))*.7;
+        c=mix(c,vec3(.92,.95,.97),clamp(foam+fleck,0.,1.));
+        gl_FragColor=vec4(c,edge*mix(.9,.97,foam));
+        #include <encodings_fragment>
+      }`});
+    const d=new THREE.Mesh(new THREE.CircleGeometry(R0*1.12,64),m);d.rotation.x=-Math.PI/2;d.position.set(q.x,q.y+(SEASON?.55:.35),q.z);d.renderOrder=1;waterL.add(d);q.land={x:q.x+cx,z:q.z+cz};});}
 buildWater();
-// spray where each cascade lands
+// mist where each cascade lands: soft round puffs that rise, spread and fade (additive, no squares)
 const sprayL=layer('spray','ละอองน้ำ');const spray=[];
-plunge.forEach(q=>{const n=60,g=new THREE.BufferGeometry(),a=new Float32Array(n*3);g.setAttribute('position',new THREE.BufferAttribute(a,3));
-  const pts=new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.35,transparent:true,opacity:.55,depthWrite:false}));sprayL.add(pts);spray.push({q,a,g,l:[...Array(n)].map(()=>Math.random())});});
+const puff=cnv(64,64,(g,w,h)=>{const r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.5,'rgba(255,255,255,.35)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,w,h);});
+plunge.forEach(q=>{const n=46,g=new THREE.BufferGeometry(),a=new Float32Array(n*3),c=new Float32Array(n*3);g.setAttribute('position',new THREE.BufferAttribute(a,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  const pts=new THREE.Points(g,new THREE.PointsMaterial({map:puff,size:2.6,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));pts.renderOrder=4;sprayL.add(pts);
+  spray.push({q,a,c,g,l:[...Array(n)].map(()=>Math.random()),ang:[...Array(n)].map(()=>Math.random()*6.28),sp:[...Array(n)].map(()=>.5+Math.random())});});
 
 // ---------- 6. forest: jarrah and marri, grass trees, ferns and sedges by the water, dry shrubs, granite boulders ----------
 const leafTex=cnv(256,256,(g,w,h)=>{for(let q=0;q<4;q++){const ox=(q%2)*w/2,oy=(q>>1)*h/2;for(let i=0;i<40;i++){const a=Math.random()*7,r=Math.random()*w*.19;
@@ -223,8 +242,9 @@ const q=new URLSearchParams(location.search);if(q.has('summer'))bS.onclick(bS);v
 $('#info').textContent=`ลำธาร ${ST.length} สาย · น้ำตก/ช่วงไหลลงหินแกรนิต ${nC} แห่ง (สูงสุด ${maxDrop.toFixed(1)} ม.) · แอ่งน้ำใต้น้ำตก ${nP} แอ่ง`;
 const clock=new THREE.Clock();let T=0,fN=0,fT=0;
 function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta());T+=dt;WU.uT.value=T;fN++;fT+=dt;if(fT>1){$('#fps').textContent='fps '+Math.round(fN/fT);fN=0;fT=0;}
-  waterL.children.forEach(o=>{if(o.userData.foam)o.scale.setScalar(1+Math.sin(T*5)*.08);});
-  if(sprayL.visible)spray.forEach(s=>{for(let i=0;i<s.l.length;i++){s.l[i]+=dt*.7;if(s.l[i]>1)s.l[i]=0;const l=s.l[i],a=i*2.4;s.a[i*3]=s.q.x+Math.cos(a)*l*1.8;s.a[i*3+1]=s.q.y+.6+Math.sin(l*Math.PI)*1.6;s.a[i*3+2]=s.q.z+Math.sin(a)*l*1.8;}s.g.attributes.position.needsUpdate=true;});
+  if(sprayL.visible)spray.forEach(s=>{const L=s.q.land||s.q;for(let i=0;i<s.l.length;i++){s.l[i]+=dt*.35*s.sp[i];if(s.l[i]>1){s.l[i]=0;s.ang[i]=Math.random()*6.28;}const l=s.l[i],a=s.ang[i],r=.3+l*2.2;
+    s.a[i*3]=L.x+Math.cos(a)*r+l*.6;s.a[i*3+1]=s.q.y+.7+l*2.4;s.a[i*3+2]=L.z+Math.sin(a)*r;const f=Math.sin(l*Math.PI)*.09;s.c[i*3]=s.c[i*3+1]=s.c[i*3+2]=f;}
+    s.g.attributes.position.needsUpdate=true;s.g.attributes.color.needsUpdate=true;});
   ctl.update();R.render(scene,cam);}
 loop();addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();R.setSize(innerWidth,innerHeight);});
 window.STREAMS={scene,streams:ST,plunge,gAt,view,stats:()=>({streams:ST.length,cascades:nC,pools:nP,maxDrop})};
