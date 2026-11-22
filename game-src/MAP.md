@@ -235,15 +235,16 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-open-sea-ships-and-captain-ned.js | 21877-21996 | 21 | SHIPS, OPENSEA |
 | 188-boat-shop-and-wandering-boats.js | 21997-22077 | 14 | BOATS |
 | 188-boat-race.js | 22078-22184 | 13 | RACE_LIVE, RACE |
-| 188-bay-boats-look-lab-toon.js | 22185-22206 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 22207-22266 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 22267-22316 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 22317-22349 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 22350-22422 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 22423-22453 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 22454-22470 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 22471-22481 | 2 |  |
-| 188-auth.js | 22482-22560 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 22561-22596 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 22597-22640 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22641-22662 | 3 | SHOT |
+| 188-island-transport-fix.js | 22185-22207 | 2 |  |
+| 188-bay-boats-look-lab-toon.js | 22208-22229 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 22230-22289 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 22290-22339 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 22340-22372 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 22373-22445 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 22446-22476 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 22477-22493 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 22494-22504 | 2 |  |
+| 188-auth.js | 22505-22583 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 22584-22619 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 22620-22663 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22664-22685 | 3 | SHOT |
