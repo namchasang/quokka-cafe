@@ -22081,7 +22081,7 @@ const BOATS={shop:{fishing:{deck:.4,name:'Fishing boat',price:1500,vmax:6,turn:2
 // would cross land gets an extra checkpoint pushed further out). Buoy gates mark each checkpoint, a light beam and an arrow show
 // the next one; the HUD shows place, checkpoint and time. 1st and 2nd win a few coins (the first three paid races each day).
 // Look Lab first: RACE_LIVE=false; ?race (or #race) turns it on.
-const RACE_LIVE=false;
+const RACE_LIVE=true;
 const RACE={on:false,cps:[],path:[],cum:[],ai:[],k:0,t:0,count:0,done:false,g:null};window.__RACE=RACE;
 (function(){
   const q=(location.search||'')+(location.hash||'');if(!(RACE_LIVE||/[?&#]race\b/.test(q)))return;
