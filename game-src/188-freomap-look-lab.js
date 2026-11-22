@@ -90,7 +90,7 @@ if(FREOMAP.on)(()=>{
       fol:{mix:null,radius:gq.startsWith('l')?16:gq.startsWith('m')?22:28},lifeScale:gq.startsWith('l')?.1:gq.startsWith('m')?.18:.45,waterLevel:WL,searocks:false});
     FREOMAP.I=I;grp.traverse(o=>{o.__pxSkip=1;o.__islKeep=1;if(o.isMesh)o.receiveShadow=true;});
     // the Water Sea Engine over the harbour and the bay (the copy the Rottnest sea uses), drawn by the game's own pre-pass
-    try{if(typeof WaterSea!=='undefined'){sea=WaterSea.create({renderer,scene,camera,heightAt:(x,z)=>I.heightAt(x-CX,z-CZ),bounds:{x0:CX-60,z0:CZ-60,w:120,h:120},heightRes:[512,512],ground:null,level:WL,run:.2,wetScale:.3,size:120,meshSize:160});
+    try{if(typeof WaterSea!=='undefined'){sea=WaterSea.create({renderer,scene,camera,heightAt:(x,z)=>I.heightAt(x-CX,z-CZ),bounds:{x0:CX-60,z0:CZ-60,w:120,h:120},heightRes:[512,512],ground:null,level:WL,run:0,wetScale:.3,/* Paul 22 Nov 2026: no wave run-up, the water stops at the shore and never washes onto the town */size:120,meshSize:160});
       sea.mesh.name='seaFreo';sea.mesh.visible=false;FREOMAP.sea=sea;}}catch(e){console.warn('freomap sea',e);sea=null;}
     // the Sky Engine (draws only: the game keeps its own sun, shade and fog)
     try{if(typeof SkyEngine!=='undefined'){skyG=new THREE.Group();skyG.name='fmSky';scene.add(skyG);SKY=SkyEngine.create({scene:skyG,renderer,sun:null,hemi:null,radius:Math.min(400,camera.far*.9)});try{SKY.setLayer('godrays',false);SKY.setLayer('flare',false);}catch(e){}}}catch(e){console.warn('freomap sky',e);}
