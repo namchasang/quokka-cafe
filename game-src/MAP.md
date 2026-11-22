@@ -234,15 +234,16 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-vpmap-look-lab.js | 21772-21876 | 12 | VPMAP_LIVE, VPMAP |
 | 188-open-sea-ships-and-captain-ned.js | 21877-21996 | 21 | SHIPS, OPENSEA |
 | 188-boat-shop-and-wandering-boats.js | 21997-22077 | 14 | BOATS |
-| 188-bay-boats-look-lab-toon.js | 22078-22099 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 22100-22159 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 22160-22209 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 22210-22242 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 22243-22315 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 22316-22346 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 22347-22363 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 22364-22374 | 2 |  |
-| 188-auth.js | 22375-22453 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 22454-22489 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 22490-22533 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22534-22555 | 3 | SHOT |
+| 188-boat-race.js | 22078-22184 | 13 | RACE_LIVE, RACE |
+| 188-bay-boats-look-lab-toon.js | 22185-22206 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 22207-22266 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 22267-22316 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 22317-22349 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 22350-22422 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 22423-22453 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 22454-22470 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 22471-22481 | 2 |  |
+| 188-auth.js | 22482-22560 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 22561-22596 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 22597-22640 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 22641-22662 | 3 | SHOT |
