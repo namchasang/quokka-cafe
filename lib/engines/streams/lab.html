@@ -210,11 +210,12 @@ function crownGeo(cx,cy,cz,rx,ry,n,s,P,Nn,U,I){for(let i=0;i<n;i++){const v=new 
     const ax=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize(),ay=new THREE.Vector3().crossVectors(nr,ax).normalize();ax.crossVectors(ay,nr);
     const q=(Math.random()*4|0),u0=(q%2)*.5,v0=(q>>1)*.5,b=P.length/3,ss=s*(.8+Math.random()*.5);
     [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([a,c])=>{const w=p.clone().addScaledVector(ax,a*ss/2).addScaledVector(ay,c*ss/2);P.push(cx+w.x,cy+w.y,cz+w.z);Nn.push(nr.x,nr.y,nr.z);U.push(u0+(a+1)/4,v0+(c+1)/4);});I.push(b,b+1,b+2,b,b+2,b+3);}}
+const TREES=[];/* [x,h,z,ht,marri] for the ground layers under the crowns */
 const treeL=layer('trees','ต้นไม้สูง'),gtL=layer('grasstrees','ต้นหญ้าดำ'),underL=layer('under','ไม้พุ่ม เฟิร์น กก'),rockL=layer('rocks','หินแกรนิต');
 (()=>{const P=[],Nn=[],U=[],I=[];const trunks=[];let n=0;
   for(let t=0;t<2600&&n<240;t++){const x=-78+rnd()*156,z=-78+rnd()*156,sl=slopeAt(x,z),ns=nearS(x,z);if(sl>.75||(ns.p&&ns.d<ns.p.w+2.5))continue;
     const plat=1/(1+Math.exp((z-scarpZ(x))/6));if(rnd()>.35+plat*.55)continue;/* open woodland on the plain, denser forest up top */
-    const h=gAt(x,z),ht=12+rnd()*10,marri=rnd()<.35;trunks.push([x,h,z,ht,marri]);crownGeo(x,h+ht*.78,z,ht*.28,ht*.2,110,ht*.16,P,Nn,U,I);n++;}
+    const h=gAt(x,z),ht=12+rnd()*10,marri=rnd()<.35;trunks.push([x,h,z,ht,marri]);TREES.push([x,h,z,ht,marri]);crownGeo(x,h+ht*.78,z,ht*.28,ht*.2,110,ht*.16,P,Nn,U,I);n++;}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);
   const cm=new THREE.Mesh(g,leafMat);cm.customDepthMaterial=leafDepth;cm.castShadow=cm.receiveShadow=true;treeL.add(cm);
   const tg=new THREE.CylinderGeometry(.22,.4,1,7);tg.translate(0,.5,0);const jar=new THREE.InstancedMesh(tg,M(0x5a3f2c),trunks.length),d=new THREE.Object3D();
@@ -254,9 +255,94 @@ function cards(tex,list,size){const g=new THREE.PlaneGeometry(size,size).transla
   const im=new THREE.InstancedMesh(geo,M(0xa39e93),L.length),d=new THREE.Object3D();L.forEach(([x,z,s],i)=>{d.position.set(x,gAt(x,z)+s*.15,z);d.rotation.set(rnd(),rnd()*6,rnd());d.scale.set(s*(1+rnd()*.5),s*.6,s);d.updateMatrix();im.setMatrixAt(i,d.matrix);});
   im.castShadow=im.receiveShadow=true;rockL.add(im);})();
 
+
+// ---------- 7. ground detail (Paul, 23 Nov 2026: the ground needs more real detail) ----------
+// a close-up texture on the ground, grass tufts, leaf litter / twigs / bark under the trees, laterite gravel on the plateau,
+// river pebbles along the banks, moss by the falls and mossy wet granite near the spray. Each is its own layer.
+const LITE=new URLSearchParams(location.search).has('lite'),DN=LITE?.45:1;
+const platAt=(x,z)=>1/(1+Math.exp((z-scarpZ(x))/6));
+const wetAt=(x,z)=>{const ns=nearS(x,z);return{ns,w:ns.p?Math.max(0,1-(ns.d-ns.p.w*.5)/7):0,inWater:!!(ns.p&&ns.d<ns.p.w*.55+.25)};};
+const nearFalls=(x,z)=>{let b=1e9;plunge.forEach(q=>{const d=Math.min(Math.hypot(x-q.x,z-q.z),Math.hypot(x-q.top.x,z-q.top.z))-q.r;if(d<b)b=d;});return b;};
+const UP=new THREE.Vector3(0,1,0),_n=new THREE.Vector3(),_q=new THREE.Quaternion(),_qy=new THREE.Quaternion();
+function onGround(d,x,z,lift,yaw,sc){const hx=gAt(x+.4,z)-gAt(x-.4,z),hz=gAt(x,z+.4)-gAt(x,z-.4);_n.set(-hx/.8,1,-hz/.8).normalize();_q.setFromUnitVectors(UP,_n);_qy.setFromAxisAngle(UP,yaw);
+  d.quaternion.copy(_q).multiply(_qy);d.position.set(x,gAt(x,z)+lift,z);if(sc.isVector3)d.scale.copy(sc);else d.scale.setScalar(sc);d.updateMatrix();}
+// 7a. close-up ground texture: neutral speckles, tiny pebbles, crumbs of leaf and soil; the vertex colours still decide the colour
+const detailTex=cnv(256,256,(g,w,h)=>{g.fillStyle='#dedede';g.fillRect(0,0,w,h);const r=()=>Math.random();
+  for(let i=0;i<900;i++){const v=185+r()*70|0;g.fillStyle=`rgba(${v},${v},${v},.5)`;g.beginPath();g.arc(r()*w,r()*h,3+r()*7,0,7);g.fill();}
+  for(let i=0;i<3200;i++){const v=110+r()*145|0;g.fillStyle=`rgb(${v},${v},${v})`;g.fillRect(r()*w,r()*h,1+r()*2,1+r()*2);}
+  for(let i=0;i<140;i++){const v=200+r()*55|0;g.fillStyle=`rgb(${v},${v-6},${v-14})`;g.beginPath();g.ellipse(r()*w,r()*h,1.5+r()*3,1+r()*2,r()*3,0,7);g.fill();g.fillStyle='rgba(0,0,0,.18)';g.fillRect(r()*w,r()*h,2,1);}
+  for(let i=0;i<90;i++){g.save();g.translate(r()*w,r()*h);g.rotate(r()*7);g.fillStyle=`rgba(${120+r()*60|0},${100+r()*40|0},${70+r()*30|0},.35)`;g.beginPath();g.ellipse(0,0,6+r()*5,1.6,0,0,7);g.fill();g.restore();}
+  for(let i=0;i<40;i++){g.strokeStyle='rgba(60,50,40,.25)';g.lineWidth=1;g.beginPath();const x=r()*w,y=r()*h;g.moveTo(x,y);g.lineTo(x+(r()-.5)*14,y+(r()-.5)*14);g.stroke();}});
+detailTex.wrapS=detailTex.wrapT=THREE.RepeatWrapping;detailTex.repeat.set(64,64);detailTex.anisotropy=4;
+const groundMat=LAY.ground.children[0].material;
+/* second colour pass on the ground: dark leaf litter under each crown, patchy dry grass on the plain, damp moss round the falls */
+(()=>{const g=LAY.ground.children[0].geometry,P=g.attributes.position,C=g.attributes.color,TB=new Map();TREES.forEach(t=>{const k=Math.floor(t[0]/10)+','+Math.floor(t[2]/10);(TB.get(k)||TB.set(k,[]).get(k)).push(t);});
+  const c=new THREE.Color(),lit=new THREE.Color(0x4e3b26).convertSRGBToLinear(),dry=new THREE.Color(0x9a9050).convertSRGBToLinear(),moss=new THREE.Color(0x46662c).convertSRGBToLinear(),dark=new THREE.Color(0x3a3428).convertSRGBToLinear();
+  for(let k=0;k<P.count;k++){const x=P.getX(k),z=P.getZ(k);c.fromBufferAttribute(C,k);let under=0;
+    for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=TB.get((Math.floor(x/10)+a)+','+(Math.floor(z/10)+b));if(!L)continue;for(const t of L){const d=Math.hypot(x-t[0],z-t[2])/(t[3]*.34);if(d<1)under=Math.max(under,1-d*d);}}
+    const n1=fbm(x*.35+3,z*.35,3),n2=fbm(x*.9,z*.9+7,2);
+    c.lerp(lit,under*.45*(.6+n2*.8));/* leaf litter under crowns */
+    c.lerp(dry,(1-platAt(x,z))*Math.max(0,n1-.42)*1.4);/* patchy grass on the plain */
+    c.lerp(dark,Math.max(0,n2-.62)*.6);/* little dark hollows */
+    const f=nearFalls(x,z);if(f<7)c.lerp(moss,.55*(1-f/7)*(.6+n2*.6));/* moss in the spray */
+    C.setXYZ(k,c.r,c.g,c.b);}C.needsUpdate=true;})();groundMat.map=detailTex;groundMat.color.setScalar(1.12);groundMat.needsUpdate=true;
+// 7b. grass tufts: green and thick by the water, olive under the forest, straw-coloured on the dry plain
+const tuftL=layer('tufts','กอหญ้า');
+(()=>{const T=cnv(128,128,(g,w,h)=>{for(let i=0;i<42;i++){const bx=w/2+(Math.random()-.5)*30,tx=bx+(Math.random()-.5)*90,ty=6+Math.random()*60;const v=150+Math.random()*105|0;
+    const gr=g.createLinearGradient(0,h,0,ty);gr.addColorStop(0,'rgb(70,70,70)');gr.addColorStop(1,`rgb(${v},${v},${v})`);g.strokeStyle=gr;g.lineWidth=1.5+Math.random()*2;g.beginPath();g.moveTo(bx,h);g.quadraticCurveTo(bx+(tx-bx)*.2,h-40,tx,ty);g.stroke();}
+    for(let i=0;i<6;i++){g.fillStyle='rgba(230,220,180,.9)';const x=30+Math.random()*68,y=8+Math.random()*30;g.fillRect(x,y,2,6);}});
+  const L=[];for(let t=0;t<26000*DN;t++){const x=-79+Math.random()*158,z=-79+Math.random()*158;if(slopeAt(x,z)>.8)continue;const W=wetAt(x,z);if(W.inWater)continue;
+    const pl=platAt(x,z),pr=W.w>.2?.5+W.w*.5:pl>.5?.18:.42;if(Math.random()>pr)continue;
+    const c=new THREE.Color(0xc8b46c).lerp(new THREE.Color(0x8a9448),pl*.7).lerp(new THREE.Color(0x5f8a38),Math.min(1,W.w*1.3));c.offsetHSL((Math.random()-.5)*.03,0,(Math.random()-.5)*.08);
+    L.push([x,z,(.35+Math.random()*.5)*(1+W.w*.6),c]);}
+  const g0=new THREE.PlaneGeometry(1,1).translate(0,.5,0),parts=[0,1,2].map(i=>g0.clone().rotateY(i*Math.PI/3));
+  let n=0;parts.forEach(q=>n+=q.attributes.position.count);const P=new Float32Array(n*3),U=new Float32Array(n*2),I=[];let o=0;
+  parts.forEach(q=>{P.set(q.attributes.position.array,o*3);U.set(q.attributes.uv.array,o*2);const ix=q.index.array;for(let t=0;t<ix.length;t+=3){I.push(ix[t]+o,ix[t+1]+o,ix[t+2]+o,ix[t]+o,ix[t+2]+o,ix[t+1]+o);}o+=q.attributes.position.count;});/* both windings, front side only: the up normals light both faces like the ground */
+  const gg=new THREE.BufferGeometry();gg.setAttribute('position',new THREE.BufferAttribute(P,3));gg.setAttribute('uv',new THREE.BufferAttribute(U,2));gg.setIndex(I);
+  const nn=new Float32Array(n*3);for(let i=0;i<n;i++)nn[i*3+1]=1;gg.setAttribute('normal',new THREE.BufferAttribute(nn,3));/* lit like the ground, no dark backs */
+  const im=new THREE.InstancedMesh(gg,new THREE.MeshLambertMaterial({map:T,alphaTest:.45}),L.length),d=new THREE.Object3D();
+  L.forEach(([x,z,s,c],i)=>{d.position.set(x,gAt(x,z)-.04,z);d.rotation.set((Math.random()-.5)*.15,Math.random()*3,(Math.random()-.5)*.15);d.scale.set(s*(1+Math.random()*.4),s,s);d.updateMatrix();im.setMatrixAt(i,d.matrix);im.setColorAt(i,c);});
+  im.receiveShadow=true;tuftL.add(im);})();
+// 7c. leaf litter under the jarrah and marri: sickle leaves, twigs, curls of bark; mossy patches by the falls
+const litL=layer('litter','ใบไม้ร่วง กิ่ง เปลือกไม้ มอส');
+function decals(tex,list,lift,mat){const g=new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2);const im=new THREE.InstancedMesh(g,mat||new THREE.MeshLambertMaterial({map:tex,alphaTest:.4,transparent:false,polygonOffset:true,polygonOffsetFactor:-2}),list.length),d=new THREE.Object3D();
+  list.forEach(([x,z,s,c],i)=>{onGround(d,x,z,lift,Math.random()*6.28,s);im.setMatrixAt(i,d.matrix);if(c)im.setColorAt(i,c);});im.receiveShadow=true;litL.add(im);return im;}
+(()=>{const leafT=cnv(256,256,(g,w,h)=>{const r=()=>Math.random();const C=['#8a5a32','#a2703c','#6e5a34','#b8925a','#9c4a2e','#7a6a3a','#c2a46e','#5f4a2e'];
+    for(let i=0;i<220;i++){const x=w/2+(r()-.5)*w*.85*Math.sqrt(r()),y=h/2+(r()-.5)*h*.85*Math.sqrt(r());g.save();g.translate(x,y);g.rotate(r()*7);g.fillStyle=C[i%C.length];
+      g.beginPath();g.moveTo(-14,0);g.quadraticCurveTo(0,-7,14,1);g.quadraticCurveTo(0,-1,-14,0);g.fill();g.strokeStyle='rgba(40,30,20,.35)';g.lineWidth=.7;g.beginPath();g.moveTo(-13,0);g.lineTo(13,0);g.stroke();g.restore();}
+    for(let i=0;i<10;i++){g.save();g.translate(w*.15+r()*w*.7,h*.15+r()*h*.7);g.rotate(r()*7);g.strokeStyle='#4a3826';g.lineWidth=2+r()*2;g.beginPath();g.moveTo(-30,0);g.lineTo(30,(r()-.5)*6);g.stroke();
+      g.lineWidth=1.2;g.beginPath();g.moveTo(5,0);g.lineTo(16,-9);g.stroke();g.restore();}
+    for(let i=0;i<6;i++){g.save();g.translate(w*.2+r()*w*.6,h*.2+r()*h*.6);g.rotate(r()*7);g.fillStyle=['#c9a88a','#b08a6a','#d8c2a8'][i%3];g.fillRect(-18,-3,36,6);g.fillStyle='rgba(80,50,30,.4)';g.fillRect(-18,1,36,2);g.restore();}
+    const im=g.getImageData(0,0,w,h);for(let k=3;k<im.data.length;k+=4){const px=(k>>2)%w,py=(k>>2)/w|0,d=Math.hypot(px-w/2,py-h/2)/(w/2);if(d>.92)im.data[k]=0;}g.putImageData(im,0,0);});
+  const mossT=cnv(128,128,(g,w,h)=>{const r=()=>Math.random();for(let i=0;i<500;i++){const a=r()*7,d=Math.sqrt(r())*50;g.fillStyle=['#4f7a2e','#5f8f36','#3f6626','#7aa046'][i%4];g.beginPath();g.arc(w/2+Math.cos(a)*d,h/2+Math.sin(a)*d,2+r()*3,0,7);g.fill();}});
+  const lit=[],moss=[];
+  TREES.forEach(([tx,,tz,ht])=>{const R0=ht*.32;for(let k=0;k<(LITE?10:24);k++){const a=Math.random()*6.28,d=Math.sqrt(Math.random())*R0,x=tx+Math.cos(a)*d,z=tz+Math.sin(a)*d;const W=wetAt(x,z);if(W.inWater||slopeAt(x,z)>.7)continue;
+    lit.push([x,z,1.4+Math.random()*1.4,new THREE.Color().setHSL(.08+Math.random()*.03,.2,.82+Math.random()*.25)]);}});
+  for(let t=0;t<2200*DN;t++){const x=-79+Math.random()*158,z=-79+Math.random()*158;if(platAt(x,z)<.4&&Math.random()<.7)continue;const W=wetAt(x,z);if(W.inWater||slopeAt(x,z)>.9)continue;lit.push([x,z,.8+Math.random(),new THREE.Color(1,1,1).multiplyScalar(.85+Math.random()*.25)]);}
+  for(let t=0;t<9000*DN;t++){const x=-79+Math.random()*158,z=-79+Math.random()*158,f=nearFalls(x,z);if(f>6)continue;const W=wetAt(x,z);if(W.inWater)continue;if(Math.random()>1-f/7)continue;moss.push([x,z,.6+Math.random()*1.2]);}
+  ST.forEach(S=>S.forEach(p=>{if(p.cls!=='casc'&&p.cls!=='rap')return;if(Math.random()>.5)return;const s=Math.random()<.5?-1:1,o=p.w*.55+.35+Math.random()*.8;moss.push([p.x-p.tz*s*o,p.z+p.tx*s*o,.5+Math.random()*.8]);}));
+  decals(leafT,lit,.025);/* moss is painted into the ground colour (decals looked like floating discs on the steep banks) */})();
+// 7d. gravel: red-brown laterite pebbles up on the plateau, grey and fawn river pebbles along the banks and in the shallow bed
+const gravL=layer('gravel','กรวด หินก้อนเล็ก');
+(()=>{const geo=new THREE.DodecahedronGeometry(1,0);const lat=[],riv=[];
+  for(let t=0;t<16000*DN&&lat.length<4200*DN;t++){const x=-79+Math.random()*158,z=-79+Math.random()*158;const pl=platAt(x,z);if(pl<.5||Math.random()>pl)continue;if(slopeAt(x,z)>.7)continue;const W=wetAt(x,z);if(W.inWater)continue;
+    lat.push([x,z,.03+Math.random()*.09,new THREE.Color().setHSL(.04+Math.random()*.04,.45,.28+Math.random()*.14)]);}
+  for(let t=0;t<(LITE?2200:5200);t++){const p=PTS[Math.random()*PTS.length|0];if(!p||p.cls==='casc'||p.cls==='pool')continue;const s=Math.random()<.5?-1:1,inBed=Math.random()<.35,o=inBed?Math.random()*p.w*.45:p.w*.5+Math.random()*1.3;
+    riv.push([p.x-p.tz*s*o+(Math.random()-.5)*.8,p.z+p.tx*s*o+(Math.random()-.5)*.8,.04+Math.random()*.14,new THREE.Color().setHSL(.08+Math.random()*.05,.1+Math.random()*.12,.3+Math.random()*.18)]);}
+  [lat,riv].forEach(L=>{const im=new THREE.InstancedMesh(geo,M(0xffffff),L.length),d=new THREE.Object3D();
+    L.forEach(([x,z,s,c],i)=>{d.position.set(x,gAt(x,z)+s*.25,z);d.rotation.set(Math.random()*3,Math.random()*6,Math.random()*3);d.scale.set(s*(1+Math.random()*.5),s*.55,s);d.updateMatrix();im.setMatrixAt(i,d.matrix);im.setColorAt(i,c);});
+    im.receiveShadow=true;gravL.add(im);});})();
+// 7e. granite near the falls is dark and wet with moss; elsewhere a little lichen and weathering on each boulder
+(()=>{const im=rockL.children[0];if(!im||!im.isInstancedMesh)return;const m=new THREE.Matrix4(),p=new THREE.Vector3(),c=new THREE.Color();
+  for(let i=0;i<im.count;i++){im.getMatrixAt(i,m);p.setFromMatrixPosition(m);const f=nearFalls(p.x,p.z),W=wetAt(p.x,p.z);
+    c.set(0xffffff).offsetHSL(0,0,(Math.random()-.5)*.12);if(Math.random()<.25)c.lerp(new THREE.Color(0xd8d0a8),.35);/* pale lichen */
+    if(f<6)c.lerp(new THREE.Color(0x6f8a52),.55*(1-f/6)).multiplyScalar(.8);else if(W.w>.5)c.multiplyScalar(.85);/* wet, mossy by the spray; darker by the water */
+    im.setColorAt(i,c);}if(im.instanceColor)im.instanceColor.needsUpdate=true;})();
+
 // ---------- UI, cameras, loop ----------
 const ui=$('#ui');const B=(t,f,on)=>{const b=document.createElement('button');b.textContent=t;if(on)b.classList.add('on');b.onclick=()=>f(b);ui.appendChild(b);return b;};
 Object.entries(LAY).forEach(([k,g])=>B(g.name,b=>{g.visible=!g.visible;b.classList.toggle('on',g.visible);},true));
+B('🔍 ลายพื้นใกล้ตา',b=>{groundMat.map=groundMat.map?null:detailTex;groundMat.color.setScalar(groundMat.map?1.12:1);groundMat.needsUpdate=true;b.classList.toggle('on',!!groundMat.map);},true);
 const bS=B('❄️ หน้าหนาว (น้ำแรง)',b=>{SEASON=1-SEASON;b.textContent=SEASON?'❄️ หน้าหนาว (น้ำแรง)':'☀️ หน้าร้อน (น้ำน้อย)';buildWater();sprayL.visible=!!SEASON;});
 const big=plunge.slice().sort((a,b)=>(b.top.y-b.y)-(a.top.y-a.y))[0];
 function view(v){if(v==='falls'&&big){const dx=big.x-big.top.x,dz=big.z-big.top.z,l=Math.hypot(dx,dz)||1;ctl.target.set((big.x+big.top.x)/2,(big.y+big.top.y)/2,(big.z+big.top.z)/2);cam.position.set(big.x+dx/l*16+6,big.y+9,big.z+dz/l*16+4);}
