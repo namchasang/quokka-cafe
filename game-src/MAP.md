@@ -244,15 +244,16 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-campfish-quest.js | 22936-22986 | 6 |  |
 | 188-campfun-look-lab.js | 22987-23081 | 14 | CAMPFUN_LIVE, CAMPFUN |
 | 188-cafe-area-settle.js | 23082-23100 | 2 |  |
-| 188-bay-boats-look-lab-toon.js | 23101-23122 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 23123-23182 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 23183-23232 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 23233-23265 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 23266-23338 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 23339-23369 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 23370-23386 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 23387-23397 | 2 |  |
-| 188-auth.js | 23398-23476 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 23477-23512 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 23513-23556 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23557-23578 | 3 | SHOT |
+| 188-camp-atv.js | 23101-23129 | 3 |  |
+| 188-bay-boats-look-lab-toon.js | 23130-23151 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 23152-23211 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 23212-23261 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 23262-23294 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 23295-23367 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 23368-23398 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 23399-23415 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 23416-23426 | 2 |  |
+| 188-auth.js | 23427-23505 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 23506-23541 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 23542-23585 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23586-23607 | 3 | SHOT |
