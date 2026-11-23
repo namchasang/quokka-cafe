@@ -32,7 +32,7 @@ if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='un
       for(const c of solid)if(Math.hypot(x-c[0],z-c[1])<c[2])return false;return true;};
     const [ax,az]=P(-2.6,1.6);K.arrive=[ax,az];const [vx,vz]=P(-4.6,-2.2);K.van=[vx,vz];
     K.zone.labels=[[T.title,kx,kz-5,1]];SAFE_SPOTS[k]=[K.arrive];
-    const _pa=new THREE.Vector3();K.tick=(dt,t)=>{E.update(dt);_pa.set(player.x,groundY(player.x,player.z)+.8,player.z);E.setCut(_pa,camera.position,4.2);CK.tick(dt,typeof NIGHT!=='undefined'?NIGHT:0,camera);};
+    const _pa=new THREE.Vector3();K.tick=(dt,t)=>{E.update(dt);_pa.set(player.x,groundY(player.x,player.z)+.8,player.z);E.setCut(_pa,camera.position,.8);CK.tick(dt,typeof NIGHT!=='undefined'?NIGHT:0,camera);};
     K.targets=TT=>{for(let i=TT.length-1;i>=0;i--)if(/^Tour van|^Ask the guide/.test(TT[i].label||''))TT.splice(i,1);/* no tour van here: Kip drove */
       TT.push({x:vx,z:vz,r:1.8,label:'Drive home · back to the café',act:()=>campHome()});
       {const [fx,fz]=P(0,0);TT.push({x:fx,z:fz,r:1.6,label:'Campfire',act:()=>{const st=CK.fireState=((CK.fireState==null?1:CK.fireState)+1)%3;CK.setFire(st);toast(['\u{1F525} Fire out','\u{1F525} The fire is burning','\u{1F525} Glowing embers'][st],2);}});}
