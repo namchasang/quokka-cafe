@@ -4,7 +4,7 @@
    wider where more water joins; each stretch classed by slope into calm tea-coloured runs, rapids, cascades down polished granite and
    rock-rimmed plunge pools; jarrah/marri forest, grass trees, ferns and sedges; the ground with leaf litter, grass tufts, laterite gravel,
    river pebbles and moss by the falls (23 Nov 2026). The lab (lab.html) and the game (Serpentine Falls camp) both call create().
-   STREAMS_ENGINE.create({seed, lite, gammaOut}) -> {root, LAY, trees, gAt, slopeAt, nearS, wetAt, inWater, plunge, streams, big, update(dt), setSeason(s), stats}
+   STREAMS_ENGINE.create({seed, lite, gammaOut, camp:{r}}) -> {root, LAY, camp, deepAt, trees, gAt, slopeAt, nearS, wetAt, inWater, plunge, streams, big, update(dt), setSeason(s), stats}
    Units are metres in the engine's own space (x,z in -80..80); a host places and scales root.
    gammaOut: the host renders with no sRGB output step (the game); colours, textures and shaders then match the lab. */
 (function(){'use strict';
@@ -76,8 +76,21 @@ const gAt=(x,z)=>{const fi=(x-X0)/FC,fj=(z-X0)/FC,i=Math.max(0,Math.min(FN-2,Mat
   return G[fidx(i,j)]*(1-u)*(1-v)+G[fidx(i+1,j)]*u*(1-v)+G[fidx(i,j+1)]*(1-u)*v+G[fidx(i+1,j+1)]*u*v;};
 const slopeAt=(x,z)=>Math.hypot(gAt(x+1,z)-gAt(x-1,z),gAt(x,z+1)-gAt(x,z-1))/2;
 // nearest stream info (for moisture, granite, planting)
+/* a camp clearing (o.camp={r}): the flattest dry spot well away from every stream, not far from the biggest falls; the ground there is
+   levelled into a gentle pad (edges blend back over 5 m) and no trees, grass trees, shrubs or boulders grow on it */
+let CAMP=null;
 const NB=new Map();ST.forEach(S=>S.forEach(p=>{const kk=Math.floor(p.x/8)+','+Math.floor(p.z/8);(NB.get(kk)||NB.set(kk,[]).get(kk)).push(p);}));
 function nearS(x,z){let best=null,bd=1e9;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const L=NB.get((Math.floor(x/8)+a)+','+(Math.floor(z/8)+b));if(!L)continue;for(const p of L){const d=Math.hypot(x-p.x,z-p.z);if(d<bd){bd=d;best=p;}}}return{p:best,d:bd};}
+
+if(o.camp){const r=o.camp.r||12,bigQ=plunge.slice().sort((a,b)=>(b.top.y-b.y)-(a.top.y-a.y))[0];let best=null,bs=1e9;
+  for(let z=-62;z<=62;z+=3)for(let x=-62;x<=62;x+=3){const ns=nearS(x,z);if(ns.p&&ns.d<r+4)continue;if(plunge.some(q=>Math.hypot(x-q.x,z-q.z)<r+q.r+3))continue;
+    let lo=1e9,hi=-1e9;for(let a=0;a<12;a++)for(const rr of [0,r*.5,r]){const h=gAt(x+Math.cos(a*.52)*rr,z+Math.sin(a*.52)*rr);lo=Math.min(lo,h);hi=Math.max(hi,h);}
+    const d=bigQ?Math.hypot(x-bigQ.x,z-bigQ.z):0;const sc=(hi-lo)*3+Math.max(0,d-25)*.25+(ns.p?Math.max(0,30-ns.d)*.05:0);if(sc<bs){bs=sc;best=[x,z];}}
+  if(best){let sum=0,n=0;for(let a=0;a<16;a++)for(const rr of [0,r*.4,r*.8]){sum+=gAt(best[0]+Math.cos(a*.39)*rr,best[1]+Math.sin(a*.39)*rr);n++;}const y=sum/n;
+    for(let j=0;j<FN;j++)for(let i=0;i<FN;i++){const x=X0+i*FC,z=X0+j*FC,d=Math.hypot(x-best[0],z-best[1]);if(d>r+5)continue;const k=fidx(i,j),t=d<r?1:1-(d-r)/5,tt=t*t*(3-2*t);
+      G[k]=G[k]*(1-tt)+(y+(fbm(x*.3,z*.3,2)-.5)*.12)*tt;}
+    CAMP={x:best[0],z:best[1],y,r};}}
+const inCamp=(x,z,m)=>CAMP&&Math.hypot(x-CAMP.x,z-CAMP.z)<CAMP.r+(m||0);
 
 const grad=(()=>{const t=new THREE.DataTexture(new Uint8Array([95,95,95,255,175,175,175,255,255,255,255,255]),3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.needsUpdate=true;return t;})();
 const M=(c,o)=>new THREE.MeshToonMaterial(Object.assign({color:L2(new THREE.Color(c)),gradientMap:grad},o||{}));
@@ -173,7 +186,15 @@ plunge.forEach(q=>{const n=46,g=new THREE.BufferGeometry(),a=new Float32Array(n*
 // ---------- 6. forest: jarrah and marri, grass trees, ferns and sedges by the water, dry shrubs, granite boulders ----------
 const leafTex=cnv(256,256,(g,w,h)=>{for(let q=0;q<4;q++){const ox=(q%2)*w/2,oy=(q>>1)*h/2;for(let i=0;i<40;i++){const a=Math.random()*7,r=Math.random()*w*.19;
   g.fillStyle=['#4d6b35','#5c7c3e','#6b8a44','#7f9a52'][(i+q)%4];g.save();g.translate(ox+w/4+Math.cos(a)*r,oy+h/4+Math.sin(a)*r);g.rotate(a);g.beginPath();g.ellipse(0,0,14,4.5,0,0,7);g.fill();g.restore();}}});
-const leafMat=new THREE.MeshLambertMaterial({map:leafTex,alphaTest:.5,side:THREE.DoubleSide});const leafDepth=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:leafTex,alphaTest:.5});
+const leafMat=new THREE.MeshLambertMaterial({map:leafTex,alphaTest:.5,side:THREE.DoubleSide});
+/* see-through canopy for a host with a high follow camera (the game): leaves inside a tube round the line from the walker to the camera
+   are cut away, so Kip is never hidden under the forest roof (setCut(walkerPos, cameraPos, radius); radius 0 = off, as in the lab) */
+const CUT={uA:{value:new THREE.Vector3()},uB:{value:new THREE.Vector3()},uCutR:{value:0}};
+const cutify=(m,key)=>{m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,CUT);sh.vertexShader='varying vec3 vCW;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvec4 cw=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\ncw=instanceMatrix*cw;\n#endif\nvCW=(modelMatrix*cw).xyz;');
+  sh.fragmentShader='uniform vec3 uA;uniform vec3 uB;uniform float uCutR;varying vec3 vCW;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(uCutR>0.){vec3 ab=uB-uA;float t=clamp(dot(vCW-uA,ab)/dot(ab,ab),0.,1.);float d=length(vCW-(uA+ab*t));if(d<uCutR*(.35+.65*t))discard;}');};m.customProgramCacheKey=()=>key;return m;};
+leafMat.onBeforeCompile=sh=>{Object.assign(sh.uniforms,CUT);sh.vertexShader='varying vec3 vCW;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvec4 cw=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\ncw=instanceMatrix*cw;\n#endif\nvCW=(modelMatrix*cw).xyz;');
+  sh.fragmentShader='uniform vec3 uA;uniform vec3 uB;uniform float uCutR;varying vec3 vCW;\n'+sh.fragmentShader.replace('void main() {','void main() {\nif(uCutR>0.){vec3 ab=uB-uA;float t=clamp(dot(vCW-uA,ab)/dot(ab,ab),0.,1.);float d=length(vCW-(uA+ab*t));if(d<uCutR*(.35+.65*t))discard;}');};
+leafMat.customProgramCacheKey=()=>'streamsLeafCut';const leafDepth=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:leafTex,alphaTest:.5});
 function crownGeo(cx,cy,cz,rx,ry,n,s,P,Nn,U,I){for(let i=0;i<n;i++){const v=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize();v.y=Math.abs(v.y)*.7+v.y*.3;
     const p=new THREE.Vector3(v.x*rx,v.y*ry,v.z*rx).multiplyScalar(.55+Math.random()*.45);const nr=v.clone().add(new THREE.Vector3(0,.4,0)).normalize();
     const ax=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize(),ay=new THREE.Vector3().crossVectors(nr,ax).normalize();ax.crossVectors(ay,nr);
@@ -182,21 +203,21 @@ function crownGeo(cx,cy,cz,rx,ry,n,s,P,Nn,U,I){for(let i=0;i<n;i++){const v=new 
 const TREES=[];/* [x,h,z,ht,marri] for the ground layers under the crowns */
 const treeL=layer('trees','ต้นไม้สูง'),gtL=layer('grasstrees','ต้นหญ้าดำ'),underL=layer('under','ไม้พุ่ม เฟิร์น กก'),rockL=layer('rocks','หินแกรนิต');
 (()=>{const P=[],Nn=[],U=[],I=[];const trunks=[];let n=0;
-  for(let t=0;t<2600&&n<240;t++){const x=-78+rnd()*156,z=-78+rnd()*156,sl=slopeAt(x,z),ns=nearS(x,z);if(sl>.75||(ns.p&&ns.d<ns.p.w+2.5))continue;
+  for(let t=0;t<2600&&n<240;t++){const x=-78+rnd()*156,z=-78+rnd()*156,sl=slopeAt(x,z),ns=nearS(x,z);if(inCamp(x,z,3))continue;if(sl>.75||(ns.p&&ns.d<ns.p.w+2.5))continue;
     const plat=1/(1+Math.exp((z-scarpZ(x))/6));if(rnd()>.35+plat*.55)continue;/* open woodland on the plain, denser forest up top */
     const h=gAt(x,z),ht=12+rnd()*10,marri=rnd()<.35;trunks.push([x,h,z,ht,marri]);TREES.push([x,h,z,ht,marri]);crownGeo(x,h+ht*.78,z,ht*.28,ht*.2,110,ht*.16,P,Nn,U,I);n++;}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(Nn,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);
   const cm=new THREE.Mesh(g,leafMat);cm.customDepthMaterial=leafDepth;cm.castShadow=cm.receiveShadow=true;treeL.add(cm);
   const tg=new THREE.CylinderGeometry(.22,.4,1,7);tg.translate(0,.5,0);const jar=new THREE.InstancedMesh(tg,M(0x5a3f2c),trunks.length),d=new THREE.Object3D();
   trunks.forEach(([x,h,z,ht,mar],i)=>{d.position.set(x,h-.2,z);d.scale.set(ht/14,ht*.82,ht/14);d.rotation.set((rnd()-.5)*.08,rnd()*6,(rnd()-.5)*.08);d.updateMatrix();jar.setMatrixAt(i,d.matrix);jar.setColorAt(i,new THREE.Color(mar?0xb8a890:0xffffff));});
-  jar.castShadow=true;treeL.add(jar);
+  jar.castShadow=true;cutify(jar.material,'streamsTrunkCut');treeL.add(jar);
   // branches into the crown (three per tree)
   const bg=new THREE.CylinderGeometry(.07,.14,1,5);bg.translate(0,.5,0);const br=new THREE.InstancedMesh(bg,M(0x5e4632),trunks.length*3);let k=0;
-  trunks.forEach(([x,h,z,ht])=>{for(let b=0;b<3;b++){const a=b*2.1+rnd();d.position.set(x,h+ht*.55,z);d.scale.set(ht/12,ht*.32,ht/12);d.rotation.set(Math.cos(a)*.6,0,Math.sin(a)*.6);d.updateMatrix();br.setMatrixAt(k++,d.matrix);}});br.castShadow=true;treeL.add(br);})();
+  trunks.forEach(([x,h,z,ht])=>{for(let b=0;b<3;b++){const a=b*2.1+rnd();d.position.set(x,h+ht*.55,z);d.scale.set(ht/12,ht*.32,ht/12);d.rotation.set(Math.cos(a)*.6,0,Math.sin(a)*.6);d.updateMatrix();br.setMatrixAt(k++,d.matrix);}});br.castShadow=true;cutify(br.material,'streamsBranchCut');treeL.add(br);})();
 // grass trees: black trunk, a burst of fine green leaves, some with a flower spike; on drier, well-drained ground
 (()=>{const leaves=[];for(let i=0;i<46;i++){const a=i*2.4,e=.2+(i%7)/7*1.25;const g=new THREE.PlaneGeometry(.05,1.1);g.translate(0,.55,0);g.rotateX(-(Math.PI/2-e));g.rotateY(a);leaves.push(g);}
   const merge=gs=>{let n=0;gs.forEach(g=>n+=g.attributes.position.count);const P=new Float32Array(n*3),I=[];let o=0;gs.forEach(g=>{P.set(g.attributes.position.array,o*3);g.index.array.forEach(v=>I.push(v+o));o+=g.attributes.position.count;});const r=new THREE.BufferGeometry();r.setAttribute('position',new THREE.BufferAttribute(P,3));r.setIndex(I);r.computeVertexNormals();return r;};
-  const lg=merge(leaves);const L=[];for(let t=0;t<3000&&L.length<200;t++){const x=-78+rnd()*156,z=-78+rnd()*156,ns=nearS(x,z);if(slopeAt(x,z)>.6||(ns.p&&ns.d<ns.p.w+5))continue;L.push([x,gAt(x,z),z,.4+rnd()*1.4,rnd()<.3]);}
+  const lg=merge(leaves);const L=[];for(let t=0;t<3000&&L.length<200;t++){const x=-78+rnd()*156,z=-78+rnd()*156,ns=nearS(x,z);if(inCamp(x,z,1))continue;if(slopeAt(x,z)>.6||(ns.p&&ns.d<ns.p.w+5))continue;L.push([x,gAt(x,z),z,.4+rnd()*1.4,rnd()<.3]);}
   const lm=new THREE.InstancedMesh(lg,new THREE.MeshLambertMaterial({color:L2(new THREE.Color(0x6f8a34)),side:THREE.DoubleSide}),L.length),tm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.16,.2,1,7).translate(0,.5,0),M(0x1f1a16),L.length);
   const sm=new THREE.InstancedMesh(new THREE.CylinderGeometry(.03,.05,1,5).translate(0,.5,0),M(0x6b5636),L.length);const d=new THREE.Object3D();
   L.forEach(([x,h,z,ht,sp],i)=>{d.position.set(x,h,z);d.rotation.set(0,rnd()*6,0);d.scale.set(1,ht,1);d.updateMatrix();tm.setMatrixAt(i,d.matrix);d.position.y=h+ht;d.scale.setScalar(.9+rnd()*.4);d.updateMatrix();lm.setMatrixAt(i,d.matrix);
@@ -212,7 +233,7 @@ function cards(tex,list,size){const g=new THREE.PlaneGeometry(size,size).transla
   const gg=new THREE.BufferGeometry();gg.setAttribute('position',new THREE.BufferAttribute(P,3));gg.setAttribute('uv',new THREE.BufferAttribute(U,2));gg.setIndex([0,2,1,2,3,1,4,6,5,6,7,5]);gg.computeVertexNormals();
   const im=new THREE.InstancedMesh(gg,new THREE.MeshLambertMaterial({map:tex,alphaTest:.5,side:THREE.DoubleSide}),list.length),d=new THREE.Object3D();
   list.forEach(([x,z,s],i)=>{d.position.set(x,gAt(x,z)-.05,z);d.rotation.y=rnd()*3;d.scale.setScalar(s);d.updateMatrix();im.setMatrixAt(i,d.matrix);});underL.add(im);}
-(()=>{const wet=[],dry=[],sed=[];for(let t=0;t<14000;t++){const x=-79+rnd()*158,z=-79+rnd()*158,ns=nearS(x,z);if(slopeAt(x,z)>.9)continue;
+(()=>{const wet=[],dry=[],sed=[];for(let t=0;t<14000;t++){const x=-79+rnd()*158,z=-79+rnd()*158,ns=nearS(x,z);if(inCamp(x,z))continue;if(slopeAt(x,z)>.9)continue;
     if(ns.p&&ns.d<ns.p.w*.55+.3)continue;/* not in the water */
     const wv=ns.p?Math.max(0,1-(ns.d-ns.p.w*.5)/7):0;if(wv>.25&&rnd()<wv){(rnd()<.5?wet:sed).push([x,z,.8+rnd()*.8]);}else if(rnd()<.35)dry.push([x,z,.6+rnd()*.7]);}
   cards(fernT,wet,1.4);cards(sedgeT,sed,1.1);cards(shrubT,dry,1.2);})();
@@ -220,7 +241,7 @@ function cards(tex,list,size){const g=new THREE.PlaneGeometry(size,size).transla
 (()=>{const geo=new THREE.DodecahedronGeometry(1,1);const L=[];
   ST.forEach(S=>S.forEach((p,i)=>{if(i%2)return;if(p.cls==='rap'&&rnd()<.6){const s=rnd()<.5?-1:1;L.push([p.x+s*p.w*(.2+rnd()*.5),p.z+(rnd()-.5),.3+rnd()*.5]);}if(p.cls==='casc'&&rnd()<.35){const s=rnd()<.5?-1:1;L.push([p.x+s*(p.w*.6+.6+rnd()),p.z,.6+rnd()*.9]);}}));
   plunge.forEach(q=>{for(let k=0;k<12;k++){const a=k/12*Math.PI*2+rnd()*.3;L.push([q.x+Math.cos(a)*q.r*1.05,q.z+Math.sin(a)*q.r*1.05,.5+rnd()*.7]);}});
-  for(let t=0;t<900&&L.length<420;t++){const x=-78+rnd()*156,z=-78+rnd()*156;if(slopeAt(x,z)>.55&&rnd()<.5)L.push([x,z,.5+rnd()*1.6]);}
+  for(let t=0;t<900&&L.length<420;t++){const x=-78+rnd()*156,z=-78+rnd()*156;if(inCamp(x,z,1))continue;if(slopeAt(x,z)>.55&&rnd()<.5)L.push([x,z,.5+rnd()*1.6]);}
   const im=new THREE.InstancedMesh(geo,M(0xa39e93),L.length),d=new THREE.Object3D();L.forEach(([x,z,s],i)=>{d.position.set(x,gAt(x,z)+s*.15,z);d.rotation.set(rnd(),rnd()*6,rnd());d.scale.set(s*(1+rnd()*.5),s*.6,s);d.updateMatrix();im.setMatrixAt(i,d.matrix);});
   im.castShadow=im.receiveShadow=true;rockL.add(im);})();
 
@@ -313,6 +334,7 @@ function update(dt){WU.uT.value+=dt;if(sprayL.visible)spray.forEach(s=>{const L=
     s.a[i*3]=L.x+Math.cos(a)*r+l*.6;s.a[i*3+1]=s.q.y+.7+l*2.4;s.a[i*3+2]=L.z+Math.sin(a)*r;const f=Math.sin(l*Math.PI)*.09;s.c[i*3]=s.c[i*3+1]=s.c[i*3+2]=f;}
     s.g.attributes.position.needsUpdate=true;s.g.attributes.color.needsUpdate=true;});}
 const big=plunge.slice().sort((a,b)=>(b.top.y-b.y)-(a.top.y-a.y))[0];
-return {root,LAY,trees:TREES,gAt,slopeAt,nearS,wetAt,inWater:wetIn,plunge,streams:ST,big,update,detailTex,groundMat,sprayL,WU,
+const deepAt=(x,z)=>plunge.some(q=>Math.hypot(x-q.x,z-q.z)<q.r*.95);
+return {root,LAY,camp:CAMP,deepAt,setCut:(a,b,r)=>{CUT.uA.value.copy(a);CUT.uB.value.copy(b);CUT.uCutR.value=r||0;},trees:TREES,gAt,slopeAt,nearS,wetAt,inWater:wetIn,plunge,streams:ST,big,update,detailTex,groundMat,sprayL,WU,
   season:()=>SEASON,setSeason:s=>{SEASON=s?1:0;buildWater();sprayL.visible=!!SEASON;},stats:()=>({streams:ST.length,cascades:nC,pools:nP,maxDrop})};}
 window.STREAMS_ENGINE={create};})();
