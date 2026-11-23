@@ -22230,7 +22230,8 @@ window.__IBMAP=IBMAP;
   const onIsl=(x,z)=>IBMAP.done&&x<99.5&&x>TB.x1-8&&z>TB.z1-8&&z<TB.z2+8&&zoneOf(x)==='island';const onNew=(x,z)=>onIsl(x,z)&&!inCafe(x,z);
   /* a map path through the café area follows the new island too (Paul's bike lane runs past the café) */const cafePath=(x,z)=>onIsl(x,z)&&inCafe(x,z)&&(()=>{const m=toMap(x,z);return onPathMap(m[0],m[1],.3*K);})();
   IBMAP.groundAt=(x,z)=>{const m=toMap(x,z);return IBMAP.I.heightAt(m[0],m[1])/K;};
-  const _gy=groundY;groundY=function(x,z){if(onNew(x,z))return Math.max(0,IBMAP.groundAt(x,z));if(cafePath(x,z))return Math.max(_gy(x,z),IBMAP.groundAt(x,z),0);return _gy(x,z);};
+  const _gy=groundY;groundY=function(x,z){if(onNew(x,z))return Math.max(0,IBMAP.groundAt(x,z));if(cafePath(x,z))return Math.max(_gy(x,z),IBMAP.groundAt(x,z),0);
+    /* QA 23 Nov 2026 (Paul: people and bikes sunk into the road by the café): the café area off the deck follows the visible ground too */if(onIsl(x,z)&&inCafe(x,z)&&!(x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2))return Math.max(_gy(x,z),IBMAP.groundAt(x,z),0);return _gy(x,z);};
   const _bl=blocked;blocked=function(x,z){if(!onNew(x,z)&&!cafePath(x,z))return _bl(x,z);const m=toMap(x,z),I=IBMAP.I;const onP=onPathMap(m[0],m[1],.3*K);if(I.heightAt(m[0],m[1])/K<L()+(onP?-.25:.02))return true/* the new island's sea (a path through the shallows is fine) */;return I.solidAt(m[0],m[1],.25*K);};
   let tStart=performance.now();
   (function loop(){requestAnimationFrame(loop);if(!IBMAP.done||!IBMAP.grp)return;const on=typeof zoneOf==='function'&&zoneOf(camTarget.x)==='island';IBMAP.grp.visible=on;if(skyG)skyG.visible=on;if(IBMAP.gmBtn)IBMAP.gmBtn.style.display=on&&!document.body.classList.contains('studio')?'':'none';if(!on)return;
@@ -22811,13 +22812,13 @@ const RACE={on:false,cps:[],path:[],cum:[],ai:[],k:0,t:0,count:0,done:false,g:nu
 // are more patient. Reading of "enough seats": when a customer sits down and at least one more seat is still free, the café is
 // not crowded and they wait 20% longer; under a bought umbrella they wait another 10% (shade). Still to do: the Island Builder
 // draws the same café model as the game.
-var CAFE2_LIVE=false;
+var CAFE2_LIVE=true;/* live: Paul, 23 Nov 2026 'ขึ้นเกมได้: ร้านคาเฟ่ชุดร่ม' */
 const CAFE2={on:CAFE2_LIVE||/[?&#]cafe2\b/.test(location.search+location.hash),max:6,price:{yellow:150,blue:150},
   col:{yellow:['#f2c230','#fff6dc'],blue:['#2f78c8','#f4f8ff']},slots:[],sets:[],done:false};
 if(CAFE2.on){
   const FLOOR_Z=-1.0;/* local z where the roofed floor ends (counter at -2.55, Kip serves at about -1.65) */
   const inFront=(x,z)=>x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2&&z>IWz(0,FLOOR_Z);
-  const _gy=groundY;groundY=function(x,z){if(CAFE2.done&&inFront(x,z))return .02;return _gy(x,z);};
+  const _gy=groundY;groundY=function(x,z){if(CAFE2.done&&inFront(x,z)){let g=.02;try{if(IBMAP.done)g=Math.max(g,IBMAP.groundAt(x,z));}catch(e){}return g;}return _gy(x,z);};
   function umbrellaTex(c){const k=mk(32,8),x=k.getContext('2d');for(let i=0;i<8;i++){x.fillStyle=i%2?c[1]:c[0];x.fillRect(i*4,0,4,8);}x.fillStyle='rgba(0,0,0,.15)';x.fillRect(0,7,32,1);return k;}
   const MAT={};const mat=(k,c)=>MAT[k]||(MAT[k]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
   function makeSet(slot,colour){const g=new THREE.Group(),C=CAFE2.col[colour];const add=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o;};
@@ -22891,6 +22892,13 @@ if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='un
     const lite=typeof GFX!=='undefined'&&GFX&&GFX.level==='low';
     /* the land: Stream & Falls Engine with a levelled camp clearing (Paul 23 Nov 2026: the Camp Kit goes on this map) */
     const E=CAMPPARK.E=STREAMS_ENGINE.create({gammaOut:true,lite,camp:{r:12}});E.root.scale.setScalar(S);E.root.position.set(CX,0,CZ);E.root.traverse(o=>{o.__pxSkip=1;});G.add(E.root);G.__pxSkip=1;
+    /* mist round the map (Paul 23 Nov 2026: "พื้นที่นอก map เปลี่ยนจากฉากสีฟ้า เป็นหมอกเทาๆ ขาวๆ ให้ทึบมองไม่เห็น"): an opaque grey-white
+       wall of mist just past the edge Kip can reach and mist ground outside (thin veils inside it looked like glass panels, so none) */
+    {const H0=-20,H1=140,half=79*S,mk2=(hw,op)=>{const g=new THREE.PlaneGeometry(hw*2,H1-H0,1,8);const c=[],P=g.attributes.position;for(let i=0;i<P.count;i++){const t=(P.getY(i)+(H1-H0)/2)/(H1-H0);const v=new THREE.Color(0xc9ced2).lerp(new THREE.Color(0xf1f3f4),Math.min(1,t*1.6));c.push(v.r,v.g,v.b);}
+        g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));return new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,fog:false,side:THREE.DoubleSide,transparent:op<1,opacity:op,depthWrite:op>=1}));};
+      const mist=new THREE.Group();mist.name='campMist';mist.__pxSkip=1;G.add(mist);
+      [[half+.6,1]].forEach(([r,op])=>{[[0,-1],[0,1],[1,0],[-1,0]].forEach(([dx,dz])=>{const m=mk2(r,op);m.position.set(CX+dx*r,(H0+H1)/2,CZ+dz*r);m.rotation.y=dx?Math.PI/2:0;m.renderOrder=op<1?5:0;m.__pxSkip=1;mist.add(m);});});
+      const fl=new THREE.Mesh(new THREE.RingGeometry(half,half*6,4,1,Math.PI/4),new THREE.MeshBasicMaterial({color:0xd3d7da,fog:false,side:THREE.DoubleSide}));fl.rotation.x=-Math.PI/2;fl.position.set(CX,-.5,CZ);fl.scale.set(1.414,1.414,1);fl.__pxSkip=1;mist.add(fl);}
     const L=(x,z)=>[(x-CX)/S,(z-CZ)/S],W=(lx,lz)=>[CX+lx*S,CZ+lz*S];
     const TB=new Map();E.trees.forEach(t=>{const kk=Math.floor(t[0]/6)+','+Math.floor(t[2]/6);(TB.get(kk)||TB.set(kk,[]).get(kk)).push(t);});
     const trunk=(lx,lz)=>{for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const A=TB.get((Math.floor(lx/6)+a)+','+(Math.floor(lz/6)+b));if(A)for(const t of A)if(Math.hypot(lx-t[0],lz-t[2])<.75)return true;}return false;};
@@ -22977,7 +22985,7 @@ if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='un
 //  3. roast a marshmallow at the burning campfire: hold to toast, let go when it is golden
 //  4. fish the creek: 3 creek spots with their own freshwater catch (the normal fishing game)
 //  5. after dark, lie back by the fire and watch the stars: tap shooting stars to make wishes
-var CAMPFUN_LIVE=false;
+var CAMPFUN_LIVE=true;/* live: Paul, 23 Nov 2026 'ขึ้นเกมได้: กิจกรรมแคมป์' */
 const CAMPFUN={on:CAMPFUN_LIVE||/[?&#]campfun\b/.test(location.search+location.hash)};
 if(CAMPFUN.on&&typeof CAMPPARK!=='undefined'&&CAMPPARK.on)(()=>{
   const SC=()=>CAMPPARK.S,G=(lx,lz)=>[CAMPPARK.CX+lx*SC(),CAMPPARK.CZ+lz*SC()];
@@ -23064,6 +23072,25 @@ if(CAMPFUN.on&&typeof CAMPPARK!=='undefined'&&CAMPPARK.on)(()=>{
   (function tick(){requestAnimationFrame(tick);if(!raid)return;const t=performance.now()/1000;raid.items.forEach((it,i)=>{if(it.got)return;const s=it.g.userData.sp;s.position.y=.7+Math.sin(t*3+i)*.12;s.scale.setScalar(.8+Math.abs(Math.sin(t*5+i))*.6);});})();
   window.__CAMPFUN={swim,foodBox,roast,stars,get raid(){return raid;},get creek(){return creekSpots;},startRaid};
 })();
+// ---------- Café area settle (QA 23 Nov 2026, Paul: "จักรยานจมพื้น กับมีจักรยานอยู่บนถนน" / "มีคนจมบนถนน") ----------
+// The builder island's road and lawn round Kip's café sit up to ~0.35 above the old ground (y 0) that the café's own props were placed on.
+// Once the island is built: every small static thing in the café area that stands on y 0 is lifted onto the visible ground, and small
+// groups (bike stands, bins, signs) that now sit on the road are pushed sideways off it. Walkers follow groundY (fixed in part ibmap).
+(()=>{const done=new WeakSet();
+  const roads=()=>{const D=IBMAP.doc||{},K=IBMAP.K||.855,L=[];const g=(xb,zb)=>[-38-xb/K,-.5+zb/K];(D.roads||[]).forEach(r=>L.push({w:(r.type==='lane'?1.8:2.6)/K/2,pts:r.pts.map(p=>g(p[0],p[1]))}));(D.paths||[]).forEach(r=>L.push({w:(r.w||1.2)*1.2/K/2,pts:r.pts.map(p=>g(p[0],p[1]))}));return L;};
+  const near=(L,x,z)=>{let best=null;for(const r of L)for(let i=1;i<r.pts.length;i++){const [ax,az]=r.pts[i-1],[bx,bz]=r.pts[i],dx=bx-ax,dz=bz-az,l2=dx*dx+dz*dz||1,t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/l2)),px=ax+dx*t,pz=az+dz*t,d=Math.hypot(x-px,z-pz);
+      if(!best||d-r.w<best.e)best={e:d-r.w,px,pz,w:r.w,nx:-dz/Math.sqrt(l2),nz:dx/Math.sqrt(l2)};}return best;};
+  function settle(){if(!IBMAP.done||!IBMAP.groundAt)return;const C=IW(0,0),L=roads();let lifted=0,moved=0;const box=new THREE.Box3(),sz=new THREE.Vector3();
+    scene.children.slice().forEach(o=>{if(done.has(o)||!o.visible||o.isLight||o.isCamera)return;const p=o.position;if(Math.hypot(p.x-C.x,p.z-C.z)>26)return;if(Math.abs(p.y)>.06&&p.y>-.35)return;
+      if(p.x>DECK.x1-.2&&p.x<DECK.x2+.2&&p.z>DECK.z1-.2&&p.z<DECK.z2+.2)return;if(p.x>JETTY.x1-1&&p.x<JETTY.x2+1&&p.z>JETTY.z1-1&&p.z<JETTY.z2+1)return;
+      if(o===player.mesh||o===player.bikeMesh||(typeof customers!=='undefined'&&customers.some(c=>c.mesh===o))||BB.includes(o))return;/* moving characters set their own height */
+      box.setFromObject(o);box.getSize(sz);if(sz.x>4||sz.z>4||!isFinite(sz.x))return;done.add(o);
+      if(o.isGroup&&o.children.length>=3){const n=near(L,p.x,p.z);if(n&&n.e<.6){const s=Math.sign((p.x-n.px)*n.nx+(p.z-n.pz)*n.nz)||1;const k=n.w+Math.max(sz.x,sz.z)/2+.5;p.x=n.px+n.nx*s*k;p.z=n.pz+n.nz*s*k;moved++;}}
+      const g=IBMAP.groundAt(p.x,p.z);if(g>0&&g>p.y+.04){p.y+=g-Math.max(p.y,0);lifted++;}});
+    if(lifted||moved)console.log('café area settle: lifted',lifted,'moved off the road',moved);}
+  (function wait(){let ok=false;try{ok=IBMAP.on&&IBMAP.done&&ISL.done;}catch(e){}if(!ok){setTimeout(wait,800);return;}setTimeout(settle,1500);
+    if(IBMAP.reload&&!IBMAP.reload.__st){const r=IBMAP.reload;IBMAP.reload=function(){const v=r.apply(this,arguments);setTimeout(settle,4000);return v;};IBMAP.reload.__st=1;}})();
+  window.__SETTLE=()=>settle();})();
 // ---------- Boats at anchor in Thomson Bay (Paul, 13 Nov 2026, from the Water Sea Engine lab and his bay photo) ----------
 // Motor yachts with pointed hulls, stepped white decks, dark window strips, some with a flybridge and a navy or black band, plus
 // tenders and jet skis; they bob on the clear water and cast their shadows on the sand under it. Kept away from the jetty and ferry.

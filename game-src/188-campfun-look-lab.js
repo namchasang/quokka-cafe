@@ -6,7 +6,7 @@
 //  3. roast a marshmallow at the burning campfire: hold to toast, let go when it is golden
 //  4. fish the creek: 3 creek spots with their own freshwater catch (the normal fishing game)
 //  5. after dark, lie back by the fire and watch the stars: tap shooting stars to make wishes
-var CAMPFUN_LIVE=false;
+var CAMPFUN_LIVE=true;/* live: Paul, 23 Nov 2026 'ขึ้นเกมได้: กิจกรรมแคมป์' */
 const CAMPFUN={on:CAMPFUN_LIVE||/[?&#]campfun\b/.test(location.search+location.hash)};
 if(CAMPFUN.on&&typeof CAMPPARK!=='undefined'&&CAMPPARK.on)(()=>{
   const SC=()=>CAMPPARK.S,G=(lx,lz)=>[CAMPPARK.CX+lx*SC(),CAMPPARK.CZ+lz*SC()];

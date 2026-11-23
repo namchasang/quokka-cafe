@@ -236,6 +236,7 @@
 188-camppark-look-lab.js
 188-campfish-quest.js
 188-campfun-look-lab.js
+188-cafe-area-settle.js
 188-bay-boats-look-lab-toon.js
 188-build-smooth-look-lab-toon.js
 188-meadow-tufts-look-lab-toon.js

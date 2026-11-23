@@ -18,6 +18,13 @@ if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='un
     const lite=typeof GFX!=='undefined'&&GFX&&GFX.level==='low';
     /* the land: Stream & Falls Engine with a levelled camp clearing (Paul 23 Nov 2026: the Camp Kit goes on this map) */
     const E=CAMPPARK.E=STREAMS_ENGINE.create({gammaOut:true,lite,camp:{r:12}});E.root.scale.setScalar(S);E.root.position.set(CX,0,CZ);E.root.traverse(o=>{o.__pxSkip=1;});G.add(E.root);G.__pxSkip=1;
+    /* mist round the map (Paul 23 Nov 2026: "พื้นที่นอก map เปลี่ยนจากฉากสีฟ้า เป็นหมอกเทาๆ ขาวๆ ให้ทึบมองไม่เห็น"): an opaque grey-white
+       wall of mist just past the edge Kip can reach and mist ground outside (thin veils inside it looked like glass panels, so none) */
+    {const H0=-20,H1=140,half=79*S,mk2=(hw,op)=>{const g=new THREE.PlaneGeometry(hw*2,H1-H0,1,8);const c=[],P=g.attributes.position;for(let i=0;i<P.count;i++){const t=(P.getY(i)+(H1-H0)/2)/(H1-H0);const v=new THREE.Color(0xc9ced2).lerp(new THREE.Color(0xf1f3f4),Math.min(1,t*1.6));c.push(v.r,v.g,v.b);}
+        g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));return new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,fog:false,side:THREE.DoubleSide,transparent:op<1,opacity:op,depthWrite:op>=1}));};
+      const mist=new THREE.Group();mist.name='campMist';mist.__pxSkip=1;G.add(mist);
+      [[half+.6,1]].forEach(([r,op])=>{[[0,-1],[0,1],[1,0],[-1,0]].forEach(([dx,dz])=>{const m=mk2(r,op);m.position.set(CX+dx*r,(H0+H1)/2,CZ+dz*r);m.rotation.y=dx?Math.PI/2:0;m.renderOrder=op<1?5:0;m.__pxSkip=1;mist.add(m);});});
+      const fl=new THREE.Mesh(new THREE.RingGeometry(half,half*6,4,1,Math.PI/4),new THREE.MeshBasicMaterial({color:0xd3d7da,fog:false,side:THREE.DoubleSide}));fl.rotation.x=-Math.PI/2;fl.position.set(CX,-.5,CZ);fl.scale.set(1.414,1.414,1);fl.__pxSkip=1;mist.add(fl);}
     const L=(x,z)=>[(x-CX)/S,(z-CZ)/S],W=(lx,lz)=>[CX+lx*S,CZ+lz*S];
     const TB=new Map();E.trees.forEach(t=>{const kk=Math.floor(t[0]/6)+','+Math.floor(t[2]/6);(TB.get(kk)||TB.set(kk,[]).get(kk)).push(t);});
     const trunk=(lx,lz)=>{for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const A=TB.get((Math.floor(lx/6)+a)+','+(Math.floor(lz/6)+b));if(A)for(const t of A)if(Math.hypot(lx-t[0],lz-t[2])<.75)return true;}return false;};

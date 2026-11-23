@@ -5,13 +5,13 @@
 // are more patient. Reading of "enough seats": when a customer sits down and at least one more seat is still free, the café is
 // not crowded and they wait 20% longer; under a bought umbrella they wait another 10% (shade). Still to do: the Island Builder
 // draws the same café model as the game.
-var CAFE2_LIVE=false;
+var CAFE2_LIVE=true;/* live: Paul, 23 Nov 2026 'ขึ้นเกมได้: ร้านคาเฟ่ชุดร่ม' */
 const CAFE2={on:CAFE2_LIVE||/[?&#]cafe2\b/.test(location.search+location.hash),max:6,price:{yellow:150,blue:150},
   col:{yellow:['#f2c230','#fff6dc'],blue:['#2f78c8','#f4f8ff']},slots:[],sets:[],done:false};
 if(CAFE2.on){
   const FLOOR_Z=-1.0;/* local z where the roofed floor ends (counter at -2.55, Kip serves at about -1.65) */
   const inFront=(x,z)=>x>DECK.x1&&x<DECK.x2&&z>DECK.z1&&z<DECK.z2&&z>IWz(0,FLOOR_Z);
-  const _gy=groundY;groundY=function(x,z){if(CAFE2.done&&inFront(x,z))return .02;return _gy(x,z);};
+  const _gy=groundY;groundY=function(x,z){if(CAFE2.done&&inFront(x,z)){let g=.02;try{if(IBMAP.done)g=Math.max(g,IBMAP.groundAt(x,z));}catch(e){}return g;}return _gy(x,z);};
   function umbrellaTex(c){const k=mk(32,8),x=k.getContext('2d');for(let i=0;i<8;i++){x.fillStyle=i%2?c[1]:c[0];x.fillRect(i*4,0,4,8);}x.fillStyle='rgba(0,0,0,.15)';x.fillRect(0,7,32,1);return k;}
   const MAT={};const mat=(k,c)=>MAT[k]||(MAT[k]=new THREE.MeshLambertMaterial({color:new THREE.Color(c)}));
   function makeSet(slot,colour){const g=new THREE.Group(),C=CAFE2.col[colour];const add=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o;};
