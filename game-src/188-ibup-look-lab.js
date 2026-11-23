@@ -5,7 +5,7 @@
 // saves the island and comes back here with ?resume=<slot>&open=cafe|jetty; this part then opens that panel once the save is
 // running. Coins, levels and the models on the island stay the game's own (applyCafe / applyJetty). Off for players:
 // IBUP_LIVE=false, ?ibup (or #ibup) turns it on.
-var IBUP_LIVE=false;
+var IBUP_LIVE=true;/* live: Paul, 23 Nov 2026 'อัปเกรดร้านและท่าเรือจาก Island Builder เลย' */
 const IBUP={on:IBUP_LIVE||/[?&#]ibup\b/.test(location.search+location.hash),open:(location.search.match(/[?&]open=(cafe|jetty)\b/)||[])[1]||''};
 if(IBUP.on||IBUP.open){
   // the builder button in the game menu passes &up=1 (the button is made by part 188-rebuild-quests, which runs next; this part must come before it so it reads ?open= before that part clears the address)

@@ -214,7 +214,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-island-tidy-and-gfx.js | 19566-19601 | 5 | ISLAND_STORE |
 | 188-menu-groups.js | 19602-19628 | 4 |  |
 | 188-prologue-newgame.js | 19629-19642 | 1 |  |
-| 188-ibup-look-lab.js | 19643-19660 | 1 | IBUP_LIVE, IBUP |
+| 188-ibup-look-lab.js | 19643-19660 | 2 | IBUP_LIVE, IBUP |
 | 188-qgate-look-lab.js | 19661-19688 | 2 | QGATE_LIVE, QGATE |
 | 188-rebuild-quests.js | 19689-19720 | 4 | REBUILD |
 | 188-island-fun.js | 19721-19830 | 16 | FUN |
