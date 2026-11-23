@@ -33,6 +33,9 @@ const RUNS = [
   ['camppark', '?pnew=6#camppark', 90],   // Serpentine Falls camp built by the Stream & Falls Engine (lab, 23 Nov 2026)
   ['roundmap', '?pnew=6#roundmap', 70],   // round minimap (lab, 23 Nov 2026)
   ['vpmap', '?shot=520,10,17,0,6,0.6&vpmap'],   // Victoria Park built with the engines (lab, 20 Nov 2026)
+  ['spmap', '?shot=150,7,10,0,1,0&spmap'],   // South Perth built with the engines (lab, 24 Nov 2026)
+  ['spmap-wide', '?shot=150,10,17,0,6,0.6&spmap'],
+  ['sp-wide', '?shot=150,10,17,0,6,0.6'],
 ].filter(r => !only || only.split(',').includes(r[0]));
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',
   '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json', '.mp3': 'audio/mpeg' };

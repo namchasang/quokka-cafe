@@ -69,7 +69,7 @@ if(VPMAP.on)(()=>{
   let I=null,grp=null,SKY=null,skyG=null,keep=null;
   const yOf=h=>WL+h*.6;
   function keepSet(){const S=new Set();try{TOON.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}try{CRIT3.list.forEach(e=>e.model&&S.add(e.model));}catch(e){}try{MORE3D.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}
-    try{S.add(player.g||player.mesh||player.sprite);}catch(e){}if(grp)S.add(grp);if(skyG)S.add(skyG);if(window.__IBMAP&&__IBMAP.grp)S.add(__IBMAP.grp);try{const fm=scene.getObjectByName('freomap');if(fm)S.add(fm);const fs=scene.getObjectByName('fmSky');if(fs)S.add(fs);}catch(e){}return S;}
+    try{S.add(player.g||player.mesh||player.sprite);}catch(e){}if(grp)S.add(grp);if(skyG)S.add(skyG);if(window.__IBMAP&&__IBMAP.grp)S.add(__IBMAP.grp);try{const fm=scene.getObjectByName('freomap');if(fm)S.add(fm);const fs=scene.getObjectByName('fmSky');if(fs)S.add(fs);['spmap','smSky'].forEach(n=>{const o=scene.getObjectByName(n);if(o)S.add(o);});}catch(e){}return S;}
   const BX=new THREE.Box3();
   function hideOld(){if(!keep)keep=keepSet();const sx=scene.scale.x;scene.scale.x=1;scene.updateMatrixWorld(true);let n=0;
     const visit=o=>{if(o.__vmSeen||keep.has(o))return;o.__vmSeen=1;if(o.isLight||o.isCamera)return;if(o===terrain)return;

@@ -75,7 +75,7 @@ if(FREOMAP.on)(()=>{
   let I=null,grp=null,sea=null,SKY=null,skyG=null,keep=null;
   const yOf=h=>WL+h*.6;/* map height (sea 0) to game y: the sea sits at WL */
   function keepSet(){const S=new Set();try{TOON.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}try{CRIT3.list.forEach(e=>e.model&&S.add(e.model));}catch(e){}try{MORE3D.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}
-    try{S.add(player.g||player.mesh||player.sprite);}catch(e){}if(grp)S.add(grp);if(skyG)S.add(skyG);if(window.__IBMAP&&__IBMAP.grp)S.add(__IBMAP.grp);if(window.__IBMAP&&__IBMAP.sky)try{S.add(scene.getObjectByName('ibSky'));}catch(e){}return S;}
+    try{S.add(player.g||player.mesh||player.sprite);}catch(e){}if(grp)S.add(grp);if(skyG)S.add(skyG);if(window.__IBMAP&&__IBMAP.grp)S.add(__IBMAP.grp);if(window.__IBMAP&&__IBMAP.sky)try{S.add(scene.getObjectByName('ibSky'));}catch(e){}try{['spmap','smSky','vpmap','vmSky'].forEach(n=>{const o=scene.getObjectByName(n);if(o)S.add(o);});}catch(e){}/* the other engine towns' maps reach into this box */return S;}
   const BX=new THREE.Box3();
   function hideOld(){if(!keep)keep=keepSet();/* boxes in scene space: the scene is mirrored while the camera is on Rottnest */const sx=scene.scale.x;scene.scale.x=1;scene.updateMatrixWorld(true);let n=0;
     const visit=o=>{if(o.__fmSeen||keep.has(o))return;o.__fmSeen=1;if(o.isLight||o.isCamera)return;if(o===terrain)return;
