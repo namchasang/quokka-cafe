@@ -142,7 +142,7 @@ window.__IBMAP=IBMAP;
     x.fillStyle='#a8744a';}{const j=JETTY;x.fillRect(m.X(j.x2),m.Z(j.z1),Math.abs(m.X(j.x1)-m.X(j.x2)),Math.abs(m.Z(j.z2)-m.Z(j.z1))+1);}
     x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
     if(SIMPLE&&!all){MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(!mini)return;x.font='700 '+Math.round(8*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=2.5*s;x.strokeStyle='rgba(255,255,255,.9)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#5a646e';x.fillText(t,m.X(lx),m.Z(lz));});return c;}
-    MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(!all&&!mini)return;x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
+    MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(all||!mini)return;/* big map: names only on tap (part 067) */x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
     x.font='800 '+Math.round(9*s)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',6*s,10*s);x.fillStyle='#ffd34d';x.fillText('N↑',6*s,10*s);return c;};
   /* story spots, quest targets and NPC places written for the old island: a spot that now falls in the sea walks up the beach
      onto dry land (phase 2) */

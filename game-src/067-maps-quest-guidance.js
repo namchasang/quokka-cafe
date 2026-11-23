@@ -29,7 +29,7 @@ function renderMapBase(W,H,s,all){const c=mk(W,H),x=c.getContext('2d'),m=mapper(
   [[33.5,-6.3,1.4],[46.5,-4.5,.85]].forEach(([ox,oz,r])=>{const lx=IWx(ox,oz),lz=IWz(ox,oz);x.fillStyle='#f3efe6';x.beginPath();x.arc(m.X(lx),m.Z(lz),m.U*r,0,6.283);x.fill();x.fillStyle='#c9473f';x.beginPath();x.arc(m.X(lx),m.Z(lz),m.U*r*.45,0,6.283);x.fill();});
   x.fillStyle='#f3efe6';x.fillRect(m.X(IWx(-22.8,5.9)),m.Z(IWz(-22.8,5.9)),m.U*4.6,m.U*1.8);
   x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
-  MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(!all&&!mini)return;x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
+  MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(all||!mini)return;/* big map: no names, tap a place to see it (Paul 23 Nov 2026) */x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
   x.font='800 '+Math.round(9*s)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',6*s,10*s);x.fillStyle='#ffd34d';x.fillText('N↑',6*s,10*s);
   if(all){const bar=m.U*5;x.fillStyle='rgba(245,236,216,.9)';x.fillRect(W-bar-14*s,H-12*s,bar,2*s);x.textAlign='center';x.font='700 '+Math.round(8*s)+'px "M PLUS Rounded 1c", sans-serif';x.strokeText('50 m',W-bar/2-14*s,H-20*s);x.fillText('50 m',W-bar/2-14*s,H-20*s);}
   return c;}
@@ -85,6 +85,13 @@ function openMap(){if(!running||overlay)return;mapMode='zone';ftSel=null;$('#ftH
 {const _om=openMap;openMap=function(){_om.apply(this,arguments);const b=$('#mapOW');if(b)b.hidden=!(typeof isGM==='function'&&isGM()&&typeof OW3D_ON!=='undefined'&&OW3D_ON&&!VISIT&&typeof openWorld==='function');};
   const b=$('#mapOW');if(b)b.addEventListener('click',()=>{if(!isGM()||VISIT||typeof openWorld!=='function')return;hideOverlays();setTimeout(()=>openWorld(zoneOf(player.x),'e'),60);});}
 $('#mm').addEventListener('click',()=>openMap());
+/* big map (Paul, 23 Nov 2026: the names crowded each other): names are not drawn; tapping near a place shows its name in a bubble */
+{const c=$('#bigMap'),tip=document.createElement('div');tip.id='mapTip';tip.style.cssText='position:absolute;z-index:5;pointer-events:none;transform:translate(-50%,-130%);padding:5px 10px;border-radius:999px;background:rgba(16,22,34,.92);color:#fff;font:800 13px "M PLUS Rounded 1c",system-ui,sans-serif;white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.35);border:2px solid #e2c27c;display:none';
+  let tipT=0;c.addEventListener('click',e=>{if(typeof mapMode!=='undefined'&&mapMode!=='zone')return;if(zoneOf(player.x)!=='island')return;const host=c.parentElement;if(tip.parentElement!==host){if(getComputedStyle(host).position==='static')host.style.position='relative';host.appendChild(tip);}
+    const rc=c.getBoundingClientRect(),mx=(e.clientX-rc.left)/rc.width*c.width,my=(e.clientY-rc.top)/rc.height*c.height,m=mapper(c.width,c.height);let best=null,bd=1e9;
+    MAP_LABELS.forEach(L=>{const d=Math.hypot(m.X(L[1])-mx,m.Z(L[2])-my);if(d<bd){bd=d;best=L;}});if(!best||bd>c.width*.045){tip.style.display='none';return;}
+    const hr=host.getBoundingClientRect();tip.textContent=best[0];tip.style.left=(rc.left-hr.left+m.X(best[1])/c.width*rc.width)+'px';tip.style.top=(rc.top-hr.top+m.Z(best[2])/c.height*rc.height)+'px';tip.style.display='block';
+    clearTimeout(tipT);tipT=setTimeout(()=>{tip.style.display='none';},3500);});}
 // Paul (13 Nov 2026): zoom the minimap in and out (buttons, mouse wheel); remembered between visits
 const MMZ={z:1};try{MMZ.z=+localStorage.getItem('qc-mmz')||1;}catch(e){}
 {const zoom=f=>{MMZ.z=Math.max(.35,Math.min(3,MMZ.z*f));mmT=0;try{localStorage.setItem('qc-mmz',MMZ.z);}catch(e){}};const host=mmC.parentElement;if(getComputedStyle(host).position==='static')host.style.position='relative';
