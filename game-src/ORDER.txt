@@ -220,6 +220,7 @@
 188-engine-life.js
 188-engine-waterlife.js
 188-engine-sky.js
+188-engine-streams.js
 188-engine-islandmap.js
 188-engmap-look-lab.js
 188-ibmap-look-lab.js
@@ -230,6 +231,7 @@
 188-boat-race.js
 188-island-transport-fix.js
 188-cafe2-look-lab.js
+188-camppark-look-lab.js
 188-bay-boats-look-lab-toon.js
 188-build-smooth-look-lab-toon.js
 188-meadow-tufts-look-lab-toon.js
