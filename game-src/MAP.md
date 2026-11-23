@@ -242,15 +242,16 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-cafe2-look-lab.js | 22807-22873 | 8 | CAFE2_LIVE, CAFE2 |
 | 188-camppark-look-lab.js | 22874-22920 | 6 | CAMPPARK_LIVE, CAMPPARK |
 | 188-campfish-quest.js | 22921-22971 | 6 |  |
-| 188-bay-boats-look-lab-toon.js | 22972-22993 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 22994-23053 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 23054-23103 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 23104-23136 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 23137-23209 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 23210-23240 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 23241-23257 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 23258-23268 | 2 |  |
-| 188-auth.js | 23269-23347 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 23348-23383 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 23384-23427 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23428-23449 | 3 | SHOT |
+| 188-campfun-look-lab.js | 22972-23066 | 13 | CAMPFUN_LIVE, CAMPFUN |
+| 188-bay-boats-look-lab-toon.js | 23067-23088 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 23089-23148 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 23149-23198 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 23199-23231 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 23232-23304 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 23305-23335 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 23336-23352 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 23353-23363 | 2 |  |
+| 188-auth.js | 23364-23442 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 23443-23478 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 23479-23522 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23523-23544 | 3 | SHOT |
