@@ -32,15 +32,16 @@ const tile=(()=>{const c=document.createElement('canvas');c.width=c.height=256;c
 const gnd=new THREE.Mesh(new THREE.PlaneGeometry(120,120),new THREE.MeshLambertMaterial({map:tile}));gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;scene.add(gnd);
 const ring=new THREE.Mesh(new THREE.RingGeometry(7.6,8.6,96),new THREE.MeshLambertMaterial({color:new THREE.Color(0xd8784a).convertSRGBToLinear()}));ring.rotation.x=-Math.PI/2;ring.position.y=.01;ring.receiveShadow=true;scene.add(ring);
 // cast
-const ids=Object.keys(ANIME_CHARS.CAST),C=ids.map(k=>{const c=ANIME_CHARS.create(ANIME_CHARS.CAST[k]);c.id=k;scene.add(c.root);return c;});
+const ids=Object.keys(ANIME_CHARS.CAST);let HUMAN=Q.has('human'),C=[];
+function buildCast(){C.forEach(c=>scene.remove(c.root));C=ids.map(k=>{const c=ANIME_CHARS.create(ANIME_CHARS.CAST[k],{human:HUMAN});c.id=k;scene.add(c.root);return c;});}buildCast();
 let mode=Q.get('move')||'idle',view=Q.get('view')||'line',who=Q.get('who')||'kip',T=0;
 function lineUp(){C.forEach((c,i)=>{c.root.position.set((i-(C.length-1)/2)*1.25,0,0);c.root.rotation.y=0;c.ang=null;});}
 lineUp();
-function setView(v){view=v;const c=C.find(q=>q.id===who)||C[0];
-  if(v==='close'){const p=c.root.position,h=c.spec.h;ctl.target.set(p.x,h*.78,p.z);cam.position.set(p.x+h*.5,h*.95,p.z+h*1.45);}
-  else if(v==='body'){const p=c.root.position,h=c.spec.h;ctl.target.set(p.x,h*.55,p.z);cam.position.set(p.x+h*.9,h*.9,p.z+h*2.6);}
+function setView(v){view=v;const c=C.find(q=>q.id===who)||C[0];const hh=HUMAN?c.spec.h:(c.spec.ah||c.spec.h*.8);
+  if(v==='close'){const p=c.root.position,h=hh;ctl.target.set(p.x,h*.78,p.z);cam.position.set(p.x+h*.5,h*.95,p.z+h*1.45);}
+  else if(v==='body'){const p=c.root.position,h=hh;ctl.target.set(p.x,h*.55,p.z);cam.position.set(p.x+h*.9,h*.9,p.z+h*2.6);}
   else if(v==='game'){ctl.target.set(0,.6,7.5);cam.position.set(0,6.2,13.2);}/* the game looks down from high up */
-  else {ctl.target.set(0,.85,0);cam.position.set(0,1.7,13.5);}ctl.update();}
+  else {ctl.target.set(0,HUMAN?.85:.6,0);cam.position.set(0,HUMAN?1.7:1.5,HUMAN?13.5:14);}ctl.update();}
 setView(view);
 const ui=$('#ui');const B=(t,f,on)=>{const b=document.createElement('button');b.textContent=t;if(on)b.classList.add('on');b.onclick=()=>f(b);ui.appendChild(b);return b;};
 const grp=(list)=>{const bs=[];list.forEach(([t,f,on])=>{const b=B(t,()=>{bs.forEach(x=>x.classList.remove('on'));b.classList.add('on');f();},on);bs.push(b);});};
@@ -48,6 +49,7 @@ grp([['🧍 ยืน',()=>{mode='idle';lineUp();},mode==='idle'],['🚶 เด�
 grp([['👥 เรียงแถว',()=>setView('line'),view==='line'],['🎮 มุมกล้องในเกม',()=>setView('game'),view==='game'],['🔍 หน้าใกล้',()=>setView('close'),view==='close'],['🧍 ทั้งตัว',()=>setView('body'),view==='body']]);
 const sel=document.createElement('select');sel.style.cssText='padding:7px 10px;border-radius:999px;border:2px solid #e8c37a;background:#1d2a3a;color:#f6efe0;font:700 12px system-ui';
 C.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.spec.name+' · '+c.spec.role;o.selected=c.id===who;sel.appendChild(o);});sel.onchange=()=>{who=sel.value;if(view==='line'||view==='game')setView('close');else setView(view);};ui.appendChild(sel);
+B('🐾 ตัวเป็นสัตว์',b=>{HUMAN=!HUMAN;b.textContent=HUMAN?'🧑 ตัวแบบคน (เดิม)':'🐾 ตัวเป็นสัตว์';buildCast();if(mode==='idle')lineUp();setView(view);},!HUMAN);
 B('✒️ เส้นขอบ',b=>{const u=ANIME_CHARS.ink.uniforms.uW;u.value=u.value?0:.011;b.classList.toggle('on',!!u.value);},true);
 B('✨ แสงขอบ',b=>{const r=ANIME_CHARS.rim;r.value=r.value?0:.32;b.classList.toggle('on',!!r.value);},true);
 $('#info').textContent=C.map(c=>c.spec.name).join(' · ');
@@ -56,10 +58,10 @@ function loop(){requestAnimationFrame(loop);const dt=Math.min(.05,clock.getDelta
   const sp=mode==='walk'?1:mode==='run'?2:0;
   C.forEach((c,i)=>{if(sp){const r=8.1,w=(sp===1?1.25:3.2)/r;c.ang=(c.ang==null?i/C.length*6.283:c.ang)+dt*w;c.root.position.set(Math.cos(c.ang)*r,0,Math.sin(c.ang)*r);c.root.rotation.y=-c.ang;}
     c.update(dt,sp);});
-  if(sp&&(view==='close'||view==='body')){const c=C.find(q=>q.id===who);if(c){const p=c.root.position,d=ctl.target.clone();ctl.target.set(p.x,c.spec.h*(view==='close'?.78:.55),p.z);cam.position.add(ctl.target.clone().sub(d));}}
+  if(sp&&(view==='close'||view==='body')){const c=C.find(q=>q.id===who);if(c){const p=c.root.position,d=ctl.target.clone();ctl.target.set(p.x,(HUMAN?c.spec.h:(c.spec.ah||c.spec.h*.8))*(view==='close'?.78:.55),p.z);cam.position.add(ctl.target.clone().sub(d));}}
   ctl.update();R.render(scene,cam);}
 loop();addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();R.setSize(innerWidth,innerHeight);});
-window.LAB={C,setView,scene};
+window.LAB={get C(){return C;},setView,scene};
 })();
 </script>
 </body></html>
