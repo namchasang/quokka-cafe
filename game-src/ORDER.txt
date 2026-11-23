@@ -66,6 +66,7 @@
 064-customers.js
 065-movement.js
 066-overlays.js
+066-round-minimap.js
 067-maps-quest-guidance.js
 068-island-scale-spread-island-out-runs-on.js
 069-camera-render.js
@@ -233,6 +234,7 @@
 188-island-transport-fix.js
 188-cafe2-look-lab.js
 188-camppark-look-lab.js
+188-campfish-quest.js
 188-bay-boats-look-lab-toon.js
 188-build-smooth-look-lab-toon.js
 188-meadow-tufts-look-lab-toon.js

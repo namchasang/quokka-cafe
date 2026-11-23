@@ -5497,6 +5497,15 @@ $('#againBtn').addEventListener('click',()=>{hideOverlays();fadeTarget=0;running
 renderTitle();
 S.wx=0;
 
+// ---------- Round minimap (Look Lab ?roundmap, Paul 23 Nov 2026: "mini-map ให้เปลี่ยนเป็นวงกลม") ----------
+// Runs before the minimap code (part 067) reads the canvas size: the canvas becomes square, so the map window is square, and CSS
+// clips it to a circle with a grey rim; the island is drawn flat and simple like Paul's example (pale sea, light land, white roads,
+// grey buildings, soft green trees, an orange arrow for Kip). The legend, hint and zoom buttons stay as they are.
+var ROUNDMM_LIVE=false;
+const ROUNDMM={on:ROUNDMM_LIVE||/[?&#]roundmap\b/.test(location.search+location.hash)};
+if(ROUNDMM.on)(()=>{const c=document.getElementById('mm');if(!c)return;c.width=c.height=220;const box=c.parentElement;box.classList.add('mmRound');
+  const st=document.createElement('style');st.textContent='.mm.mmRound #mm{width:150px;height:150px;margin:2px auto 4px;border-radius:50%;box-shadow:0 0 0 4px #6b6f74,0 3px 10px rgba(0,0,0,.35)}'+
+    '@media (max-width:700px),(max-height:520px){.mm.mmRound #mm{width:108px;height:108px}}';document.head.appendChild(st);})();
 // ---------- maps + quest guidance ----------
 const mmC=$('#mm'),mmX=mmC.getContext('2d'),mmW=mmC.width,mmH=mmC.height;
 const MM={x1:-22,x2:99,z1:-22.6,z2:25.6};const MM_WIN=90;
@@ -5552,7 +5561,7 @@ function drawMapDynamic(x,W,H,s,t,q,B){const m=mapper(W,H,B);const sp=B!==MM&&!B
     x.fillStyle='#ff5d5d';x.beginPath();x.arc(QX,QZ-6*s,4*s,0,6.283);x.fill();x.fillStyle='#fff';x.beginPath();x.arc(QX,QZ-6*s,1.6*s,0,6.283);x.fill();}
   let ang=Math.atan2(-Math.cos(yaw),-Math.sin(yaw));if(m.mir)ang=Math.PI-ang;
   x.fillStyle='rgba(255,233,160,.2)';x.beginPath();x.moveTo(PX,PZ);x.arc(PX,PZ,26*s,ang-.45,ang+.45);x.closePath();x.fill();
-  x.save();x.translate(PX,PZ);x.rotate(ang);x.fillStyle='#ffd34d';x.strokeStyle='#2a1d1a';x.lineWidth=1.5*s;x.beginPath();x.moveTo(7*s,0);x.lineTo(-5*s,-5*s);x.lineTo(-2*s,0);x.lineTo(-5*s,5*s);x.closePath();x.fill();x.stroke();x.restore();}
+  x.save();x.translate(PX,PZ);x.rotate(ang);x.fillStyle=ROUNDMM.on?'#f39a2b':'#ffd34d';x.strokeStyle=ROUNDMM.on?'#ffffff':'#2a1d1a';x.lineWidth=1.5*s;x.beginPath();x.moveTo(7*s,0);x.lineTo(-5*s,-5*s);x.lineTo(-2*s,0);x.lineTo(-5*s,5*s);x.closePath();x.fill();x.stroke();x.restore();}
 const PIN_ROWS=["..ooooo..",".orrrrro.","orrwwrrro","orrwwrrro","orrrrrrro",".orrrrro.","..orrro..","..orrro..","...oro...","...oro...","....o...."];
 const questPin=spriteMesh([pix(PIN_ROWS,{o:'#3a1418',r:'#ff5d5d',w:'#ffffff'})],.5,.62,{basic:true,shadow:false});questPin.visible=false;scene.add(questPin);
 function questTarget(){const zq=zoneOf(player.x);if(zq==='hi'||zq==='vp'||zq==='cbd'){if(S.track==='vpfood'&&zq==='vp'){const tt=trackTarget('vpfood');if(tt)return tt;}const c=nearestPostcard();return c||{x:BUS_STOPS[zq].x,z:BUS_STOPS[zq].z+.6,label:'Bus back to South Perth'};}
@@ -5575,7 +5584,7 @@ function questTarget(){const zq=zoneOf(player.x);if(zq==='hi'||zq==='vp'||zq==='
 let mmT=0,curQuest=null;const mmLbl=$('#mmT');let lastMmLbl='';
 function updateQuestUI(dt,t){curQuest=running?questTarget():null;
   const q=curQuest,far=q&&Math.hypot(q.x-player.x,q.z-player.z)>1.7;questPin.visible=!!far;if(far)questPin.position.set(q.x,2.15+Math.sin(t*3)*.12,q.z);
-  mmT-=dt;if(mmT>0||ui.hud.hidden)return;mmT=.1;const zq=zoneOf(player.x);if(zq==='island'){const FW=mmBase.width,FH=mmBase.height,ww=(MM.x2-MM.x1)*mmW/FW/MMZ.z,wh=ww*mmH/mmW;const cl=(v,a,b)=>a>b?(a+b)/2:clamp(v,a,b);let cx=cl(player.x,MM.x1+ww/2,MM.x2-ww/2),cz=cl(player.z,MM.z1+wh/2,MM.z2-wh/2);const LB={mir:true,x1:cx-ww/2,x2:cx+ww/2,z1:cz-wh/2,z2:cz+wh/2};const sx=(MM.x2-LB.x2)/(MM.x2-MM.x1)*FW,sz=(LB.z1-MM.z1)/(MM.z2-MM.z1)*FH;mmX.fillStyle='#2a8db2';mmX.fillRect(0,0,mmW,mmH);mmX.drawImage(mmBase,sx,sz,mmW/MMZ.z,mmH/MMZ.z,0,0,mmW,mmH);drawMapDynamic(mmX,mmW,mmH,1,t,q,LB);}else{mmX.drawImage(zoneBase(zq,false),0,0);drawMapDynamic(mmX,mmW,mmH,1,t,q,ZONE_B(zq));}
+  mmT-=dt;if(mmT>0||ui.hud.hidden)return;mmT=.1;const zq=zoneOf(player.x);if(zq==='island'){const FW=mmBase.width,FH=mmBase.height,ww=(MM.x2-MM.x1)*mmW/FW/MMZ.z,wh=ww*mmH/mmW;const cl=(v,a,b)=>a>b?(a+b)/2:clamp(v,a,b);let cx=cl(player.x,MM.x1+ww/2,MM.x2-ww/2),cz=cl(player.z,MM.z1+wh/2,MM.z2-wh/2);const LB={mir:true,x1:cx-ww/2,x2:cx+ww/2,z1:cz-wh/2,z2:cz+wh/2};const sx=(MM.x2-LB.x2)/(MM.x2-MM.x1)*FW,sz=(LB.z1-MM.z1)/(MM.z2-MM.z1)*FH;mmX.fillStyle=ROUNDMM.on?'#a9d6ec':'#2a8db2';mmX.fillRect(0,0,mmW,mmH);mmX.drawImage(mmBase,sx,sz,mmW/MMZ.z,mmH/MMZ.z,0,0,mmW,mmH);drawMapDynamic(mmX,mmW,mmH,1,t,q,LB);}else{mmX.drawImage(zoneBase(zq,false),0,0);drawMapDynamic(mmX,mmW,mmH,1,t,q,ZONE_B(zq));}
   const lbl=q?'→ '+q.label+' · '+Math.round(Math.hypot(q.x-player.x,q.z-player.z)*10)+' m':'All quests done · explore freely';if(lbl!==lastMmLbl){lastMmLbl=lbl;mmLbl.textContent=lbl;}}
 function openMap(){if(!running||overlay)return;mapMode='zone';ftSel=null;$('#ftHint').hidden=true;$('#ftGo').hidden=true;$('#mapOv .legend').hidden=false;$('#mapQuest').hidden=false;if($('#mapPerth'))$('#mapPerth').textContent='Perth map';const c=$('#bigMap'),x=c.getContext('2d');const zq=zoneOf(player.x);if(zq==='island'){if(!bigBase)bigBase=renderMapBase(c.width,c.height,2.6,true);x.drawImage(bigBase,0,0);}else x.drawImage(zoneBase(zq,true),0,0);drawMapDynamic(x,c.width,c.height,2.6,performance.now()/1000,questTarget(),ZONE_B(zq));const ZN={island:['Island map','Rottnest Island \u00b7 Western Australia'],sp:['South Perth','Mends Street Jetty \u00b7 Swan River'],freo:['Fremantle','Port city \u00b7 Fremantle'],hi:[ZONE_DEF.hi.title,ZONE_DEF.hi.eb],vp:[ZONE_DEF.vp.title,ZONE_DEF.vp.eb],cbd:[ZONE_DEF.cbd.title,ZONE_DEF.cbd.eb]}[zq]||[ZONE_DEF[zq]?ZONE_DEF[zq].title:'Map',ZONE_DEF[zq]?ZONE_DEF[zq].eb:''];$('#mapOv h2').textContent=ZN[0];$('#mapOv .eyebrow').textContent=ZN[1];
   document.querySelectorAll('#mapOv .lg-sp').forEach(e=>e.hidden=zq!=='sp');
@@ -22167,18 +22176,26 @@ window.__IBMAP=IBMAP;
   function veilOff(){veilP(100,250);vPct.textContent='100%';setTimeout(()=>{veil.style.opacity='0';setTimeout(()=>veil.remove(),900);},300);}setTimeout(()=>{if(document.body.contains(veil))veilOff();},30000);
   /* the minimap and the big map draw the new island (Paul, 15 Nov 2026, phase 2): land, beaches and the sea from the island's
      shore field, the map's roads, paths, rail and buildings, then the usual place names */
-  let MMR=null;function mmRaster(){if(MMR)return MMR;const S=2,W=Math.ceil((TB.x2-TB.x1)*S),H=Math.ceil((TB.z2-TB.z1)*S),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),im=x.createImageData(W,H),A=im.data;
+  const SIMPLE=typeof ROUNDMM!=='undefined'&&ROUNDMM.on;let MMR=null;function mmRaster(){if(MMR)return MMR;const S=2,W=Math.ceil((TB.x2-TB.x1)*S),H=Math.ceil((TB.z2-TB.z1)*S),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),im=x.createImageData(W,H),A=im.data;
     for(let j=0;j<H;j++)for(let i=0;i<W;i++){const d=IBMAP.landD(TB.x1+(i+.5)/S,TB.z1+(j+.5)/S),k=(j*W+i)*4;let r,g,b,a=255;
-      if(d<-.05){if(d>-1.6){r=120;g=214;b=208;}else if(d>-5){r=72;g=180;b=196;}else a=0;}else if(d<1.1){r=242;g=230;b=196;}else{const t=Math.min(1,(d-1.1)/8);r=126-26*t;g=178-22*t;b=92-18*t;}A[k]=r;A[k+1]=g;A[k+2]=b;A[k+3]=a;}
+      if(SIMPLE){/* round minimap (Paul 23 Nov 2026): a plain flat map, pale sea, light land, sand edge */if(d<-.05){if(d>-1.6){r=196;g=228;b=240;}else a=0;}else if(d<1.1){r=240;g=234;b=218;}else{r=230;g=232;b=226;}}
+      else if(d<-.05){if(d>-1.6){r=120;g=214;b=208;}else if(d>-5){r=72;g=180;b=196;}else a=0;}else if(d<1.1){r=242;g=230;b=196;}else{const t=Math.min(1,(d-1.1)/8);r=126-26*t;g=178-22*t;b=92-18*t;}A[k]=r;A[k+1]=g;A[k+2]=b;A[k+3]=a;}
     x.putImageData(im,0,0);MMR=c;return c;}
-  const _rmb=renderMapBase;renderMapBase=function(W,H,s,all){if(!IBMAP.done||!IBMAP.doc)return _rmb(W,H,s,all);const c=mk(W,H),x=c.getContext('2d'),m=mapper(W,H);x.imageSmoothingEnabled=true;x.fillStyle='#2a8db2';x.fillRect(0,0,W,H);
+  const _rmb=renderMapBase;renderMapBase=function(W,H,s,all){if(!IBMAP.done||!IBMAP.doc)return _rmb(W,H,s,all);const c=mk(W,H),x=c.getContext('2d'),m=mapper(W,H);x.imageSmoothingEnabled=true;x.fillStyle=SIMPLE?'#a9d6ec':'#2a8db2';x.fillRect(0,0,W,H);
     const tx=m.X(TB.x2),tz=m.Z(TB.z1),tw=m.X(TB.x1)-tx,th=m.Z(TB.z2)-tz;x.save();x.translate(tx+tw,tz);x.scale(-1,1);x.drawImage(mmRaster(),0,0,tw,th);x.restore();
     const D=IBMAP.doc,P=(xb,zb)=>{const g=toGame(xb,zb);return[m.X(g[0]),m.Z(g[1])];},line=(pts,w,col)=>{if(!pts||pts.length<2)return;x.strokeStyle=col;x.lineWidth=Math.max(1,w*m.U/K);x.lineCap=x.lineJoin='round';x.beginPath();pts.forEach((p,i)=>{const q=P(p[0],p[1]);if(i)x.lineTo(q[0],q[1]);else x.moveTo(q[0],q[1]);});x.stroke();};
-    (D.paths||[]).forEach(p=>line(p.pts,(p.w||1.2)*1.2,'#e9dcc0'));(D.roads||[]).forEach(r=>line(r.pts,r.type==='lane'?1.8:2.6,r.type==='lane'?'#c9a27a':'#8d8d92'));line(D.rail,1,'#6b5a4a');
+    if(SIMPLE){/* flat and quiet: soft green where the trees are, white roads with a grey edge, white paths, grey buildings */
+      x.fillStyle='#b9d99a';(D.trees||[]).forEach(t=>{const q=P(t.x,t.z);x.beginPath();x.arc(q[0],q[1],m.U*1.1,0,6.283);x.fill();});
+      (D.roads||[]).forEach(r=>line(r.pts,(r.type==='lane'?1.8:2.6)+.9,'#c8cacd'));(D.roads||[]).forEach(r=>line(r.pts,r.type==='lane'?1.8:2.6,'#ffffff'));
+      (D.paths||[]).forEach(p=>line(p.pts,(p.w||1.2)*1.1,'#ffffff'));line(D.rail,.8,'#9aa0a6');
+      (D.bld||[]).forEach(b=>{const q=P(b.x,b.z);x.fillStyle='#b4b8be';x.fillRect(q[0]-m.U*1.6,q[1]-m.U*1.2,m.U*3.2,m.U*2.4);});
+      x.fillStyle='#c9c4ba';}
+    else{(D.paths||[]).forEach(p=>line(p.pts,(p.w||1.2)*1.2,'#e9dcc0'));(D.roads||[]).forEach(r=>line(r.pts,r.type==='lane'?1.8:2.6,r.type==='lane'?'#c9a27a':'#8d8d92'));line(D.rail,1,'#6b5a4a');
     x.fillStyle='#e2584f';(D.bld||[]).forEach(b=>{const q=P(b.x,b.z);x.fillRect(q[0]-m.U*1.6,q[1]-m.U*1.2,m.U*3.2,m.U*2.4);});
     x.fillStyle='rgba(26,56,32,.75)';(D.trees||[]).forEach(t=>{const q=P(t.x,t.z);x.beginPath();x.arc(q[0],q[1],m.U*.5,0,6.283);x.fill();});
-    x.fillStyle='#a8744a';{const j=JETTY;x.fillRect(m.X(j.x2),m.Z(j.z1),Math.abs(m.X(j.x1)-m.X(j.x2)),Math.abs(m.Z(j.z2)-m.Z(j.z1))+1);}
+    x.fillStyle='#a8744a';}{const j=JETTY;x.fillRect(m.X(j.x2),m.Z(j.z1),Math.abs(m.X(j.x1)-m.X(j.x2)),Math.abs(m.Z(j.z2)-m.Z(j.z1))+1);}
     x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
+    if(SIMPLE&&!all){MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(!mini)return;x.font='700 '+Math.round(8*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=2.5*s;x.strokeStyle='rgba(255,255,255,.9)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#5a646e';x.fillText(t,m.X(lx),m.Z(lz));});return c;}
     MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(!all&&!mini)return;x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
     x.font='800 '+Math.round(9*s)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',6*s,10*s);x.fillStyle='#ffd34d';x.fillText('N↑',6*s,10*s);return c;};
   /* story spots, quest targets and NPC places written for the old island: a spot that now falls in the sea walks up the beach
@@ -22857,8 +22874,8 @@ if(CAFE2.on){
 // The Camp Kit (Camp Kit Engine, part 188-engine-campkit.js) stands on a levelled clearing the Stream & Falls Engine keeps free; Kip wades
 // across the streams (Paul, 23 Nov 2026) but not into the deep plunge pools. With ?camppark Kip is taken there once the
 // game runs; "Drive home" by the camp sign brings him back to the café. Graphics Low builds the lighter version (fewer tufts and stones).
-var CAMPPARK_LIVE=false;
-const CAMPPARK={on:CAMPPARK_LIVE||/[?&#]camppark\b/.test(location.search+location.hash),S:.55,CX:1790,CZ:0,E:null};
+var CAMPPARK_LIVE=true;/* live: Paul, 23 Nov 2026 'map สวยมากครับ ... ให้ขึ้นเกมส์ได้เลย'; players reach it through Marlo's fishing quest (part 188-campfish-quest.js) */
+const CAMPPARK={on:CAMPPARK_LIVE||/[?&#]camppark\b/.test(location.search+location.hash),lab:/[?&#]camppark\b/.test(location.search+location.hash),S:.55,CX:1790,CZ:0,E:null};
 if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='undefined'&&typeof CAMPKIT_ENGINE!=='undefined')(()=>{
   const k='srp',T=TRIPS[k]={x1:1730,x2:1850,z1:-45,z2:45,tour:null,name:'Serpentine Falls',title:'Serpentine Falls · camp',bg:'#5e7a3a'};
   const G=new THREE.Group();G.name='trip_'+k;G.visible=false;scene.add(G);T.G=G;
@@ -22885,16 +22902,67 @@ if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='un
     K.zone.labels=[[T.title,kx,kz-5,1]];SAFE_SPOTS[k]=[K.arrive];
     const _pa=new THREE.Vector3();K.tick=(dt,t)=>{E.update(dt);_pa.set(player.x,groundY(player.x,player.z)+.8,player.z);E.setCut(_pa,camera.position,.8);CK.tick(dt,typeof NIGHT!=='undefined'?NIGHT:0,camera);};
     K.targets=TT=>{for(let i=TT.length-1;i>=0;i--)if(/^Tour van|^Ask the guide/.test(TT[i].label||''))TT.splice(i,1);/* no tour van here: Kip drove */
-      TT.push({x:vx,z:vz,r:1.8,label:'Drive home · back to the café',act:()=>campHome()});
+      TT.push({x:vx,z:vz,r:1.8,label:'Ride home with Marlo · back to Rottnest',act:()=>campHome()});
       {const [fx,fz]=P(0,0);TT.push({x:fx,z:fz,r:1.6,label:'Campfire',act:()=>{const st=CK.fireState=((CK.fireState==null?1:CK.fireState)+1)%3;CK.setFire(st);toast(['\u{1F525} Fire out','\u{1F525} The fire is burning','\u{1F525} Glowing embers'][st],2);}});}
       {const [tx,tz]=P(4.4,-3.2);TT.push({x:tx,z:tz,r:1.6,label:'Tent',act:()=>{CK.pitch();toast('⛺ Tent',1.5);}});}
       const qq=E.big;if(qq){const [px,pz]=W(qq.land?qq.land.x:qq.x,qq.land?qq.land.z:qq.z);TT.push({x:px,z:pz,r:5,label:'Serpentine Falls',act:()=>toast('\u{1F4A6} Serpentine Falls: the water slides down polished granite into the pool.',3)});}};
     window.__CAMPPARK=CAMPPARK;};
-  function campHome(){transit=true;fadeTarget=.95;setTimeout(()=>{const sp=freeNear(...SAFE_SPOTS.island[0]);player.x=sp[0];player.z=sp[1];S.time+=30;updateCamera(0,true);fadeTarget=0;transit=false;toast('Home at the café',2);save();},700);}
+  function campHome(){transit=true;fadeTarget=.95;setTimeout(()=>{const sp=(CAMPPARK.homeSpot&&CAMPPARK.homeSpot())||freeNear(...SAFE_SPOTS.island[0]);player.x=sp[0];player.z=sp[1];S.time+=30;updateCamera(0,true);fadeTarget=0;transit=false;toast('Back on Rottnest',2);save();},700);}
   CAMPPARK.enter=function(){if(transit||VISIT)return;transit=true;fadeTarget=.95;toast('Driving to Serpentine Falls…',1.8);
     setTimeout(()=>{tripEnsure(k);player.bike=false;player.carry=null;player.lying=false;player.x=K.arrive[0];player.z=K.arrive[1];updateCamera(0,true);hideOverlays();fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[k]=1;toast('Serpentine Falls · camp',2.6);},800);};
   /* the lab: once a game is running, take Kip to the camp (once per page load) */
-  (function go(){try{if(running&&!overlay&&!dlgOpen()&&!transit&&typeof player!=='undefined'&&!CAMPPARK.went&&(typeof IBMAP==='undefined'||!IBMAP.on||IBMAP.done)){CAMPPARK.went=1;CAMPPARK.enter();return;}}catch(e){}setTimeout(go,800);})();
+  (function go(){if(!CAMPPARK.lab)return;/* the Look Lab link ?camppark drops Kip at the camp; players ride with Marlo */try{if(running&&!overlay&&!dlgOpen()&&!transit&&typeof player!=='undefined'&&!CAMPPARK.went&&(typeof IBMAP==='undefined'||!IBMAP.on||IBMAP.done)){CAMPPARK.went=1;CAMPPARK.enter();return;}}catch(e){}setTimeout(go,800);})();
+})();
+// ---------- Marlo's camper van and the fishing round (Paul, 23 Nov 2026) ----------
+// "ให้สร้างตัวละครใหม่เป็น NPC ที่ยืนอยู่ข้าง camper van ใน map rottnest เพื่อคุย ทำเควสตกปลารอบเกาะเควสนึงก็จะปลดล็อค camppark map"
+// Marlo, a travelling quokka (fictional), has parked her motorhome (the Camp Kit van) near Kip's café. Side quest "Fishing Round the
+// Island": catch a fish at every fishing spot on Rottnest, then show her. Done: she drives Kip to the Serpentine Falls camp (zone srp)
+// whenever he asks, and brings him back to her van. Fishing has to be open first (Gus's rod).
+(()=>{if(typeof CAMPPARK==='undefined'||!CAMPPARK.on||typeof CAMPKIT_ENGINE==='undefined')return;
+  const CF={van:null,npc:null,spot:null,q:null};window.__CAMPFISH=CF;
+  const S_=.6;/* van size on Rottnest */
+  function findSpot(){const C=IW(0,0);let best=null;
+    for(let r=13;r<=30&&!best;r+=1.5)for(let a=0;a<32&&!best;a++){const t=a/32*6.283+.3,x=C.x+Math.cos(t)*r,z=C.z+Math.sin(t)*r;let ok=true;
+      for(const [dx,dz] of [[0,0],[2.4,0],[-2.4,0],[0,2],[0,-2],[2.4,2],[-2.4,-2],[2.4,-2],[-2.4,2],[0,3.6],[1.5,3.6]])if(blocked(x+dx,z+dz)){ok=false;break;}
+      if(ok&&FISH_SPOTS.some(f=>Math.hypot(f.x-x,f.z-z)<6))ok=false;if(ok&&Math.hypot(JETTY.x1-x,JETTY.z1-z)<8)ok=false;if(ok)best={x,z};}
+    return best;}
+  function build(){const sp=findSpot();if(!sp)return false;CF.spot=sp;
+    const CK=CAMPKIT_ENGINE.create({gammaOut:true});const van=CK.POINTS.van;CK.root.children.forEach(c=>{if(c!==van)c.visible=false;});
+    /* the van sits at sp: the kit puts it at (-6.4,-3.6) from its centre */
+    CK.root.scale.setScalar(S_);CK.root.position.set(sp.x+6.4*S_,groundY(sp.x,sp.z),sp.z+3.6*S_);CK.root.traverse(o=>{o.__pxSkip=1;});scene.add(CK.root);CF.van=CK;
+    CK.setAwn(true);
+    /* Marlo stands by the door, facing the café side */
+    const m=spriteMesh(quokkaFrames('#d8634a',1.12),1.08,1.08);const nx=sp.x+1.2,nz=sp.z+2.4;m.position.set(nx,groundY(nx,nz),nz);scene.add(m);blob(.8).position.set(nx,groundY(nx,nz)+.03,nz);CF.npc={x:nx,z:nz,m};
+    /* Kip walks round the van, not through it */
+    const _b=blocked;blocked=function(x,z){if(Math.abs(x-sp.x)<2.1&&Math.abs(z-sp.z)<1.6)return true;return _b(x,z);};
+    return true;}
+  /* the quest: one step per island fishing spot (shore spots only, no boat or deep-sea spots) */
+  function makeQuest(){const spots=FISH_SPOTS.filter(f=>f.zone==='island'&&!f.boat&&!f.deep).slice(0,5);S.campFish=S.campFish||{};
+    const at=f=>()=>({x:f.x,z:f.z});const vanAt=()=>CF.npc?{x:CF.npc.x,z:CF.npc.z}:null;
+    const q={id:'campfish',zone:'island',mood:'heart',title:'Fishing Round the Island',giver:'Marlo the camper',coins:60,
+      desc:'Marlo drives her motorhome all over the state and camps by every waterfall she can find. She will take Kip to her favourite, Serpentine Falls, once he can catch his own dinner anywhere on the island.',
+      steps:[{l:'Talk to Marlo by her camper van',pos:vanAt,chk:()=>unlocked('fishing'),say:[{who:'Marlo',text:'G’day! You must be the café quokka. I’m Marlo. That van is my house, my kitchen and my best friend.'},
+          {who:'Marlo',text:'I camp by a waterfall in the hills: Serpentine Falls. Granite, a pool under the falls, a creek you can wade across. Best spot in the state.'},
+          {who:'Marlo',text:'I’ll take you there. One rule at my camp: everyone catches their own dinner. Land a fish at every fishing spot round this island and show me.'}]}]
+        .concat(spots.map(f=>({l:'Catch a fish at '+f.name,pos:at(f),chk:()=>!!(S.campFish&&S.campFish[f.name]),say:['Kip: One fish from '+f.name+'. Marlo will want to hear about this one.']})))
+        .concat([{l:'Show Marlo your catch',pos:vanAt,say:[{who:'Marlo',text:'Every spot on the island? Look at you. Rod skills like that, you’ll never go hungry at camp.'},
+          {who:'Marlo',text:'Serpentine Falls it is. Hop in whenever you like, I’m always up for the drive. Bring marshmallows.'}]}]),
+      outro:'Serpentine Falls camp is open: talk to Marlo at her van to ride there.'};
+    SIDEQ.push(q);CF.q=q;}
+  const _sp=sqPos;sqPos=function(st){if(st&&st.pos)return st.pos();return _sp(st);};
+  /* catches count for the quest wherever they land on the island */
+  const _ef=endFishing;endFishing=function(ok){const g=fishG;const r=_ef.apply(this,arguments);try{if(ok&&g&&g.f&&!g.f.junk&&g.spot&&g.spot.zone==='island'&&g.spot.name){S.campFish=S.campFish||{};
+      if(!S.campFish[g.spot.name]){S.campFish[g.spot.name]=1;if(CF.q&&sqStep(CF.q)>=1&&sqStep(CF.q)<CF.q.steps.length){const left=CF.q.steps.filter(st=>st.l.startsWith('Catch')&&!st.chk()).length;toast(left?'\u{1F3A3} Marlo’s round: '+left+' fishing spot'+(left>1?'s':'')+' to go':'\u{1F3A3} Every spot done! Go and show Marlo.',3);}save();}}}catch(e){}return r;};
+  CAMPPARK.ready=()=>!!(CF.q&&sqStep(CF.q)>=CF.q.steps.length)||(typeof isGM==='function'&&isGM());
+  /* Marlo: chat before the quest, the ride once it is done */
+  const _bt=buildTargets;buildTargets=function(){const T=_bt.apply(this,arguments);try{if(CF.npc&&zoneOf(player.x)==='island'&&!VISIT){const n=CF.npc;
+      if(CAMPPARK.ready())T.push({x:n.x,z:n.z,r:1.6,label:'Ride to Serpentine Falls with Marlo',act:()=>{say([{who:'Marlo',text:pick(['Buckle up! Creek’s running nicely this week.','Got the marshmallows? Let’s roll.','Off to the falls. Windows down!'])}],()=>CAMPPARK.enter());}});
+      else if(CF.q&&sqStep(CF.q)>=1)T.push({x:n.x,z:n.z,r:1.4,label:'Talk to Marlo',act:()=>{const left=CF.q.steps.filter(st=>st.l.startsWith('Catch')&&!st.chk()).map(st=>st.l.replace('Catch a fish at ',''));say([{who:'Marlo',text:left.length?'Still to fish: '+left.join(', ')+'. The fish won’t catch themselves!':'Come here and show me that catch!'}]);}});
+      else if(!unlocked('fishing'))T.push({x:n.x,z:n.z,r:1.4,label:'Talk to Marlo',act:()=>say([{who:'Marlo',text:'G’day! I’d ask you fishing, but you haven’t got a rod yet. Captain Gus has an old one he never uses. Come back when he lends it to you.'}])});}}catch(e){}return T;};
+  /* home from the camp: back to Marlo's van */
+  CAMPPARK.homeSpot=()=>CF.spot?freeNear(CF.spot.x+1.6,CF.spot.z+3.2):null;
+  (function wait(){let ok=false;try{ok=ISL.done&&(!IBMAP.on||IBMAP.done)&&!!S&&running;}catch(e){}if(!ok){setTimeout(wait,700);return;}
+    try{if(!CF.van&&!build()){setTimeout(wait,3000);return;}if(!CF.q)makeQuest();}catch(e){console.error('campfish',e);}})();
 })();
 // ---------- Boats at anchor in Thomson Bay (Paul, 13 Nov 2026, from the Water Sea Engine lab and his bay photo) ----------
 // Motor yachts with pointed hulls, stepped white decks, dark window strips, some with a flybridge and a navy or black band, plus

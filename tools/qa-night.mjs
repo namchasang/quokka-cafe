@@ -31,6 +31,7 @@ const RUNS = [
   ['ibup', '?pnew=6#ibup'],   // café/jetty upgrades from the Island Builder (lab, 19 Nov 2026); deep check: tools/qa-ibup.mjs cafe|jetty
   ['cafe2', '?shot=-122.9,-31,10,0,1.6,0&cafe2&c2demo'],   // café without the deck + umbrella seat sets (lab, 23 Nov 2026)
   ['camppark', '?pnew=6#camppark', 90],   // Serpentine Falls camp built by the Stream & Falls Engine (lab, 23 Nov 2026)
+  ['roundmap', '?pnew=6#roundmap', 70],   // round minimap (lab, 23 Nov 2026)
   ['vpmap', '?shot=520,10,17,0,6,0.6&vpmap'],   // Victoria Park built with the engines (lab, 20 Nov 2026)
 ].filter(r => !only || only.split(',').includes(r[0]));
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json',

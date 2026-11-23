@@ -122,18 +122,26 @@ window.__IBMAP=IBMAP;
   function veilOff(){veilP(100,250);vPct.textContent='100%';setTimeout(()=>{veil.style.opacity='0';setTimeout(()=>veil.remove(),900);},300);}setTimeout(()=>{if(document.body.contains(veil))veilOff();},30000);
   /* the minimap and the big map draw the new island (Paul, 15 Nov 2026, phase 2): land, beaches and the sea from the island's
      shore field, the map's roads, paths, rail and buildings, then the usual place names */
-  let MMR=null;function mmRaster(){if(MMR)return MMR;const S=2,W=Math.ceil((TB.x2-TB.x1)*S),H=Math.ceil((TB.z2-TB.z1)*S),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),im=x.createImageData(W,H),A=im.data;
+  const SIMPLE=typeof ROUNDMM!=='undefined'&&ROUNDMM.on;let MMR=null;function mmRaster(){if(MMR)return MMR;const S=2,W=Math.ceil((TB.x2-TB.x1)*S),H=Math.ceil((TB.z2-TB.z1)*S),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),im=x.createImageData(W,H),A=im.data;
     for(let j=0;j<H;j++)for(let i=0;i<W;i++){const d=IBMAP.landD(TB.x1+(i+.5)/S,TB.z1+(j+.5)/S),k=(j*W+i)*4;let r,g,b,a=255;
-      if(d<-.05){if(d>-1.6){r=120;g=214;b=208;}else if(d>-5){r=72;g=180;b=196;}else a=0;}else if(d<1.1){r=242;g=230;b=196;}else{const t=Math.min(1,(d-1.1)/8);r=126-26*t;g=178-22*t;b=92-18*t;}A[k]=r;A[k+1]=g;A[k+2]=b;A[k+3]=a;}
+      if(SIMPLE){/* round minimap (Paul 23 Nov 2026): a plain flat map, pale sea, light land, sand edge */if(d<-.05){if(d>-1.6){r=196;g=228;b=240;}else a=0;}else if(d<1.1){r=240;g=234;b=218;}else{r=230;g=232;b=226;}}
+      else if(d<-.05){if(d>-1.6){r=120;g=214;b=208;}else if(d>-5){r=72;g=180;b=196;}else a=0;}else if(d<1.1){r=242;g=230;b=196;}else{const t=Math.min(1,(d-1.1)/8);r=126-26*t;g=178-22*t;b=92-18*t;}A[k]=r;A[k+1]=g;A[k+2]=b;A[k+3]=a;}
     x.putImageData(im,0,0);MMR=c;return c;}
-  const _rmb=renderMapBase;renderMapBase=function(W,H,s,all){if(!IBMAP.done||!IBMAP.doc)return _rmb(W,H,s,all);const c=mk(W,H),x=c.getContext('2d'),m=mapper(W,H);x.imageSmoothingEnabled=true;x.fillStyle='#2a8db2';x.fillRect(0,0,W,H);
+  const _rmb=renderMapBase;renderMapBase=function(W,H,s,all){if(!IBMAP.done||!IBMAP.doc)return _rmb(W,H,s,all);const c=mk(W,H),x=c.getContext('2d'),m=mapper(W,H);x.imageSmoothingEnabled=true;x.fillStyle=SIMPLE?'#a9d6ec':'#2a8db2';x.fillRect(0,0,W,H);
     const tx=m.X(TB.x2),tz=m.Z(TB.z1),tw=m.X(TB.x1)-tx,th=m.Z(TB.z2)-tz;x.save();x.translate(tx+tw,tz);x.scale(-1,1);x.drawImage(mmRaster(),0,0,tw,th);x.restore();
     const D=IBMAP.doc,P=(xb,zb)=>{const g=toGame(xb,zb);return[m.X(g[0]),m.Z(g[1])];},line=(pts,w,col)=>{if(!pts||pts.length<2)return;x.strokeStyle=col;x.lineWidth=Math.max(1,w*m.U/K);x.lineCap=x.lineJoin='round';x.beginPath();pts.forEach((p,i)=>{const q=P(p[0],p[1]);if(i)x.lineTo(q[0],q[1]);else x.moveTo(q[0],q[1]);});x.stroke();};
-    (D.paths||[]).forEach(p=>line(p.pts,(p.w||1.2)*1.2,'#e9dcc0'));(D.roads||[]).forEach(r=>line(r.pts,r.type==='lane'?1.8:2.6,r.type==='lane'?'#c9a27a':'#8d8d92'));line(D.rail,1,'#6b5a4a');
+    if(SIMPLE){/* flat and quiet: soft green where the trees are, white roads with a grey edge, white paths, grey buildings */
+      x.fillStyle='#b9d99a';(D.trees||[]).forEach(t=>{const q=P(t.x,t.z);x.beginPath();x.arc(q[0],q[1],m.U*1.1,0,6.283);x.fill();});
+      (D.roads||[]).forEach(r=>line(r.pts,(r.type==='lane'?1.8:2.6)+.9,'#c8cacd'));(D.roads||[]).forEach(r=>line(r.pts,r.type==='lane'?1.8:2.6,'#ffffff'));
+      (D.paths||[]).forEach(p=>line(p.pts,(p.w||1.2)*1.1,'#ffffff'));line(D.rail,.8,'#9aa0a6');
+      (D.bld||[]).forEach(b=>{const q=P(b.x,b.z);x.fillStyle='#b4b8be';x.fillRect(q[0]-m.U*1.6,q[1]-m.U*1.2,m.U*3.2,m.U*2.4);});
+      x.fillStyle='#c9c4ba';}
+    else{(D.paths||[]).forEach(p=>line(p.pts,(p.w||1.2)*1.2,'#e9dcc0'));(D.roads||[]).forEach(r=>line(r.pts,r.type==='lane'?1.8:2.6,r.type==='lane'?'#c9a27a':'#8d8d92'));line(D.rail,1,'#6b5a4a');
     x.fillStyle='#e2584f';(D.bld||[]).forEach(b=>{const q=P(b.x,b.z);x.fillRect(q[0]-m.U*1.6,q[1]-m.U*1.2,m.U*3.2,m.U*2.4);});
     x.fillStyle='rgba(26,56,32,.75)';(D.trees||[]).forEach(t=>{const q=P(t.x,t.z);x.beginPath();x.arc(q[0],q[1],m.U*.5,0,6.283);x.fill();});
-    x.fillStyle='#a8744a';{const j=JETTY;x.fillRect(m.X(j.x2),m.Z(j.z1),Math.abs(m.X(j.x1)-m.X(j.x2)),Math.abs(m.Z(j.z2)-m.Z(j.z1))+1);}
+    x.fillStyle='#a8744a';}{const j=JETTY;x.fillRect(m.X(j.x2),m.Z(j.z1),Math.abs(m.X(j.x1)-m.X(j.x2)),Math.abs(m.Z(j.z2)-m.Z(j.z1))+1);}
     x.textAlign='center';x.textBaseline='middle';x.lineJoin='round';
+    if(SIMPLE&&!all){MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(!mini)return;x.font='700 '+Math.round(8*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=2.5*s;x.strokeStyle='rgba(255,255,255,.9)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#5a646e';x.fillText(t,m.X(lx),m.Z(lz));});return c;}
     MAP_LABELS.forEach(([t,lx,lz,mini])=>{if(!all&&!mini)return;x.font='800 '+Math.round(9*s)+'px "M PLUS Rounded 1c", sans-serif';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText(t,m.X(lx),m.Z(lz));x.fillStyle='#f5ecd8';x.fillText(t,m.X(lx),m.Z(lz));});
     x.font='800 '+Math.round(9*s)+'px "Pixelify Sans", monospace';x.textAlign='left';x.lineWidth=3*s;x.strokeStyle='rgba(15,20,38,.85)';x.strokeText('N↑',6*s,10*s);x.fillStyle='#ffd34d';x.fillText('N↑',6*s,10*s);return c;};
   /* story spots, quest targets and NPC places written for the old island: a spot that now falls in the sea walks up the beach

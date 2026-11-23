@@ -6,8 +6,8 @@
 // The Camp Kit (Camp Kit Engine, part 188-engine-campkit.js) stands on a levelled clearing the Stream & Falls Engine keeps free; Kip wades
 // across the streams (Paul, 23 Nov 2026) but not into the deep plunge pools. With ?camppark Kip is taken there once the
 // game runs; "Drive home" by the camp sign brings him back to the café. Graphics Low builds the lighter version (fewer tufts and stones).
-var CAMPPARK_LIVE=false;
-const CAMPPARK={on:CAMPPARK_LIVE||/[?&#]camppark\b/.test(location.search+location.hash),S:.55,CX:1790,CZ:0,E:null};
+var CAMPPARK_LIVE=true;/* live: Paul, 23 Nov 2026 'map สวยมากครับ ... ให้ขึ้นเกมส์ได้เลย'; players reach it through Marlo's fishing quest (part 188-campfish-quest.js) */
+const CAMPPARK={on:CAMPPARK_LIVE||/[?&#]camppark\b/.test(location.search+location.hash),lab:/[?&#]camppark\b/.test(location.search+location.hash),S:.55,CX:1790,CZ:0,E:null};
 if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='undefined'&&typeof CAMPKIT_ENGINE!=='undefined')(()=>{
   const k='srp',T=TRIPS[k]={x1:1730,x2:1850,z1:-45,z2:45,tour:null,name:'Serpentine Falls',title:'Serpentine Falls · camp',bg:'#5e7a3a'};
   const G=new THREE.Group();G.name='trip_'+k;G.visible=false;scene.add(G);T.G=G;
@@ -34,14 +34,14 @@ if(CAMPPARK.on&&typeof TRIPS!=='undefined'&&TRIP_ON&&typeof STREAMS_ENGINE!=='un
     K.zone.labels=[[T.title,kx,kz-5,1]];SAFE_SPOTS[k]=[K.arrive];
     const _pa=new THREE.Vector3();K.tick=(dt,t)=>{E.update(dt);_pa.set(player.x,groundY(player.x,player.z)+.8,player.z);E.setCut(_pa,camera.position,.8);CK.tick(dt,typeof NIGHT!=='undefined'?NIGHT:0,camera);};
     K.targets=TT=>{for(let i=TT.length-1;i>=0;i--)if(/^Tour van|^Ask the guide/.test(TT[i].label||''))TT.splice(i,1);/* no tour van here: Kip drove */
-      TT.push({x:vx,z:vz,r:1.8,label:'Drive home · back to the café',act:()=>campHome()});
+      TT.push({x:vx,z:vz,r:1.8,label:'Ride home with Marlo · back to Rottnest',act:()=>campHome()});
       {const [fx,fz]=P(0,0);TT.push({x:fx,z:fz,r:1.6,label:'Campfire',act:()=>{const st=CK.fireState=((CK.fireState==null?1:CK.fireState)+1)%3;CK.setFire(st);toast(['\u{1F525} Fire out','\u{1F525} The fire is burning','\u{1F525} Glowing embers'][st],2);}});}
       {const [tx,tz]=P(4.4,-3.2);TT.push({x:tx,z:tz,r:1.6,label:'Tent',act:()=>{CK.pitch();toast('⛺ Tent',1.5);}});}
       const qq=E.big;if(qq){const [px,pz]=W(qq.land?qq.land.x:qq.x,qq.land?qq.land.z:qq.z);TT.push({x:px,z:pz,r:5,label:'Serpentine Falls',act:()=>toast('\u{1F4A6} Serpentine Falls: the water slides down polished granite into the pool.',3)});}};
     window.__CAMPPARK=CAMPPARK;};
-  function campHome(){transit=true;fadeTarget=.95;setTimeout(()=>{const sp=freeNear(...SAFE_SPOTS.island[0]);player.x=sp[0];player.z=sp[1];S.time+=30;updateCamera(0,true);fadeTarget=0;transit=false;toast('Home at the café',2);save();},700);}
+  function campHome(){transit=true;fadeTarget=.95;setTimeout(()=>{const sp=(CAMPPARK.homeSpot&&CAMPPARK.homeSpot())||freeNear(...SAFE_SPOTS.island[0]);player.x=sp[0];player.z=sp[1];S.time+=30;updateCamera(0,true);fadeTarget=0;transit=false;toast('Back on Rottnest',2);save();},700);}
   CAMPPARK.enter=function(){if(transit||VISIT)return;transit=true;fadeTarget=.95;toast('Driving to Serpentine Falls…',1.8);
     setTimeout(()=>{tripEnsure(k);player.bike=false;player.carry=null;player.lying=false;player.x=K.arrive[0];player.z=K.arrive[1];updateCamera(0,true);hideOverlays();fadeTarget=0;transit=false;S.seenZ=S.seenZ||{};S.seenZ[k]=1;toast('Serpentine Falls · camp',2.6);},800);};
   /* the lab: once a game is running, take Kip to the camp (once per page load) */
-  (function go(){try{if(running&&!overlay&&!dlgOpen()&&!transit&&typeof player!=='undefined'&&!CAMPPARK.went&&(typeof IBMAP==='undefined'||!IBMAP.on||IBMAP.done)){CAMPPARK.went=1;CAMPPARK.enter();return;}}catch(e){}setTimeout(go,800);})();
+  (function go(){if(!CAMPPARK.lab)return;/* the Look Lab link ?camppark drops Kip at the camp; players ride with Marlo */try{if(running&&!overlay&&!dlgOpen()&&!transit&&typeof player!=='undefined'&&!CAMPPARK.went&&(typeof IBMAP==='undefined'||!IBMAP.on||IBMAP.done)){CAMPPARK.went=1;CAMPPARK.enter();return;}}catch(e){}setTimeout(go,800);})();
 })();
