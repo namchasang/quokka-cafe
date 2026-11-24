@@ -242,19 +242,19 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-island-transport-fix.js | 22923-22945 | 2 |  |
 | 188-cafe2-look-lab.js | 22946-23012 | 8 | CAFE2_LIVE, CAFE2 |
 | 188-camppark-look-lab.js | 23013-23066 | 8 | CAMPPARK_LIVE, CAMPPARK |
-| 188-campfish-quest.js | 23067-23117 | 6 |  |
-| 188-campfun-look-lab.js | 23118-23212 | 14 | CAMPFUN_LIVE, CAMPFUN |
-| 188-cafe-area-settle.js | 23213-23231 | 2 |  |
-| 188-camp-atv.js | 23232-23260 | 3 |  |
-| 188-bay-boats-look-lab-toon.js | 23261-23282 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 23283-23342 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 23343-23392 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 23393-23425 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 23426-23498 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 23499-23529 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 23530-23546 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 23547-23557 | 2 |  |
-| 188-auth.js | 23558-23636 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 23637-23672 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 23673-23716 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23717-23738 | 3 | SHOT |
+| 188-campfish-quest.js | 23067-23121 | 6 |  |
+| 188-campfun-look-lab.js | 23122-23216 | 14 | CAMPFUN_LIVE, CAMPFUN |
+| 188-cafe-area-settle.js | 23217-23235 | 2 |  |
+| 188-camp-atv.js | 23236-23264 | 3 |  |
+| 188-bay-boats-look-lab-toon.js | 23265-23286 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 23287-23346 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 23347-23396 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 23397-23429 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 23430-23502 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 23503-23533 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 23534-23550 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 23551-23561 | 2 |  |
+| 188-auth.js | 23562-23640 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 23641-23676 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 23677-23720 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23721-23742 | 3 | SHOT |
