@@ -9,7 +9,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 001-part.html | 42-272 | 24 |  |
 | 002-phones-and-touch-screens-dialog-sits-i.css | 273-363 | 8 |  |
 | 003-studio-mode-hide-every-panel-so-only-i.css | 364-461 | 10 |  |
-| 004-home-screen-2-look-lab-home2-paul-nov.js | 462-832 | 21 | HOME2_LIVE |
+| 004-home-screen-2-look-lab-home2-paul-nov.js | 462-832 | 22 | HOME2_LIVE |
 | 005-part.html | 833-859 | 3 | $, THAI_READY, LANG, TH, TH_CAP, trS, trNode, trWalk, trObs, setLang |
 | 006-thload-check-your-mailbox-nbsp-nbsp-lo.js | 860-860 | 481 | embedded data, do not open |
 | 007-trstart-document-queryselectorall-lang.js | 861-936 | 3 | mulberry32, R, mk, clamp, lerp, QK_TOP, QK_LEGS, HU_HEAD, HU_HAT, HU_REST |
