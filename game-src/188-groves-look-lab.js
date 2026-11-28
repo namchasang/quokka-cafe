@@ -41,7 +41,7 @@ if(GROVES.on)(()=>{
   function clear(){while(G.children.length){const m=G.children.pop();try{m.geometry.dispose();}catch(e){}}}
   function build(){const t0=performance.now();clear();seed=7;const I=IBMAP.I;
     const kind=(x,z)=>{const m=IBMAP.toMap(x,z);return I.kindAt(m[0],m[1]);};const cafe=IW(0,0);
-    const ok=(x,z)=>{if(kind(x,z)!=='grass')return false;if(blocked(x,z))return false;if(Math.hypot(x-cafe.x,z-cafe.z)<13)return false;
+    const ok=(x,z)=>{if(kind(x,z)!=='grass')return false;if(blocked(x,z))return false;if(Math.hypot(x-cafe.x,z-cafe.z)<13)return false;const V=window.__CAMPFISH&&__CAMPFISH.spot;if(V&&Math.hypot(x-V.x-1,z-V.z-1)<7)return false;/* not on Marlo's van */
       for(const [dx,dz] of [[1.3,0],[-1.3,0],[0,1.3],[0,-1.3]])if(kind(x+dx,z+dz)!=='grass')return false;/* keep a crown's width off paths and sand */
       try{if(IBMAP.onPathMap&&IBMAP.onPathMap(...IBMAP.toMap(x,z),1.6))return false;}catch(e){}return true;};
     const shoreD=(x,z)=>{try{return IBMAP.landD(x,z);}catch(e){return 10;}};
@@ -70,6 +70,6 @@ if(GROVES.on)(()=>{
     if(!G.parent)scene.add(G);GROVES.trees=trees.length;GROVES.pines=trees.filter(t=>t.pine).length;GROVES.cells=cells.size;GROVES.ms=Math.round(performance.now()-t0);
     console.log('GROVES: '+trees.length+' trees ('+GROVES.pines+' pines) in '+cells.size+' cells, '+GROVES.ms+' ms');}
   (function loop(){let ok=false;try{ok=IBMAP.done&&!!IBMAP.I;}catch(e){}
-    if(ok&&builtFor!==IBMAP.I){builtFor=IBMAP.I;try{build();}catch(e){GROVES.err=String(e&&e.stack||e).slice(0,300);console.warn('groves',e);}}
+    const vk=(window.__CAMPFISH&&__CAMPFISH.spot)?Math.round(__CAMPFISH.spot.x)+','+Math.round(__CAMPFISH.spot.z):'';if(ok&&(builtFor!==IBMAP.I||vk!==GROVES.vk)){builtFor=IBMAP.I;GROVES.vk=vk;/* rebuilt when the island or the van's spot changes */try{build();}catch(e){GROVES.err=String(e&&e.stack||e).slice(0,300);console.warn('groves',e);}}
     try{G.visible=zoneOf(camTarget.x)==='island'&&!VISIT;}catch(e){}setTimeout(loop,1000);})();
 })();
