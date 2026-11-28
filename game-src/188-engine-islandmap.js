@@ -175,6 +175,8 @@ function create(o){
   if(o.merge){E.merged=0;['bld','props','rail'].forEach(k=>{try{E.merged+=mergeStatic(G[k]);}catch(e){console.warn('islandmap merge',k,e);}});}
   /* island folk on the paths, quokkas, kangaroos, gulls, butterflies, pelicans and dolphins (Life Engine; counts from the map's life
      settings, lifeScale to thin them on phones) */
+  /* folk, joggers and cyclists stand on the road surface, which sits a little above the ground (Paul, 29 Nov 2026: bikes ran below the road) */
+  const RL=new Map(),RLC=.5,lifeH=(x,z)=>{const k=Math.round(x/RLC)+','+Math.round(z/RLC);let l=RL.get(k);if(l===undefined){l=0;for(const r of doc.roads){if(r.type==='bridge')continue;if(lineD(x,z,rpts(r,5*CS))<(RW[r.type]||3)/2+.1){l=.08;break;}}RL.set(k,l);}return Hg(x,z)+l;};
   if(o.life!==false&&typeof LifeEngine!=='undefined'){G.life=new THREE.Group();G.life.name='im_life';par.add(G.life);
     try{E.life=LifeEngine.create(Object.assign({scene:G.life,heightAt:Hg,kindAt,paths:doc.paths.map(p=>rndP(p.pts,5*CS)),water:(x,z)=>Hg(x,z)<SEA,bounds:[-55*CS,-55*CS,55*CS,55*CS]},G0));
       const LSC=o.lifeScale==null?1:o.lifeScale;Object.keys(doc.life||{}).forEach(k=>{const n=Math.round((doc.life[k]|0)*LSC);if(!n)return;if(!doc.paths.length&&(k==='walker'||k==='jogger'||k==='cyclist'))return;if(o.lifeSkip&&o.lifeSkip[k])return;try{E.life.spawn(k,n);}catch(e){console.warn('life',k,e);}});}catch(e){console.warn('islandmap life',e);}}

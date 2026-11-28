@@ -65,7 +65,7 @@ function create(o){GAMMA=!!o.gammaOut;const scene=o.scene,H=o.heightAt,K=o.kindA
   const bushG=crown(.55,26,.45,5),bM=swayMat(leafTex(pal.bush,11),{U,bend:'.05',h:1,pow:1,crown:true,cy:'.45',key:'b',mat:{emissive:lin('#0a1406')}});
   const spinM=swayMat(tuftTex(false,Object.assign({},pal,{blades:['#9aa878','#b8c08e','#8a9a6a','#c8c89a','#a8b080']})),{U,bend:'.35',h:.5*TH,pow:1.4,key:'sp'+(TH!==1?TH:'')});
   const wildM=swayMat(tuftTex(true,Object.assign({},pal,{flowers:['#f2c94a','#f2c94a','#e85a6a','#c9a2f0','#ffffff','#f08a3c']})),{U,bend:'.3',h:.5*TH,pow:1.6,key:'wf'+(TH!==1?TH:'')});
-  const reedG=cards(3,.12,1.3*TH),reedM=swayMat(tuftTex(false,Object.assign({},pal,{blades:['#6a7a3a','#8a8a4a','#5a6a32','#a09a5a']})),{U,bend:'.45',h:1.3*TH,pow:1.3,key:'rd'+(TH!==1?TH:'')});/* tall grass and reeds follow tuftH too */
+  const RH=TH<1?TH*.8:1;/* tall grass stays below a quokka's head when grass is lowered */const reedG=cards(3,.12,1.3*RH),reedM=swayMat(tuftTex(false,Object.assign({},pal,{blades:['#6a7a3a','#8a8a4a','#5a6a32','#a09a5a']})),{U,bend:'.45',h:1.3*RH,pow:1.3,key:'rd'+(TH!==1?RH:'')});/* tall grass and reeds follow tuftH too */
   const heathG=crown(.5,22,.35,7),heathM=swayMat(leafTex(['#8a9a88','#a8b4a0','#6f7f6a','#b8c0a8'],13),{U,bend:'.05',h:1,pow:1,crown:true,cy:'.35',key:'hz'});
   const sapG=crown(.35,16,.9,9);sapG.merge?0:0;const sapM=swayMat(leafTex(pal.pepper,17),{U,bend:'.12',h:1.2,pow:1.5,crown:true,cy:'.9',key:'sa'});const sapT=new THREE.CylinderGeometry(.03,.05,.9,6);sapT.translate(0,.45,0);
   const litG=new THREE.PlaneGeometry(.18,.1);litG.rotateX(-Math.PI/2);const litM=new THREE.MeshLambertMaterial({color:0xffffff,vertexColors:false});const litCols=['#a0662e','#c08a3a','#8a5a2a','#b8742e','#7a6a3a'].map(c=>lin(c));

@@ -56,13 +56,16 @@ if(GROVES.on)(()=>{
     const tg=new THREE.CylinderGeometry(.09,.16,1,6).translate(0,.5,0),d=new THREE.Object3D();
     cells.forEach(L=>{const P=[],N=[],U=[],Ix=[];const stems=[];
       L.forEach(t=>{if(t.pine){crown(t.x,t.y+t.ht*.52,t.z,t.ht*.24,t.ht*.48,170,t.ht*.12,[2,3],P,N,U,Ix,true);stems.push([t.x,t.y,t.z,t.ht*.45,.0,0,1.25,barkPine]);/* dense column almost to the ground, a short trunk */}
-        else{const nc=3+(rnd()*3|0);for(let c=0;c<nc;c++){const a=rnd()*6.283,dd=t.ht*(.12+rnd()*.26);/* a lumpy crown of 3-5 clumps, not one ball */
-          crown(t.x+Math.cos(a)*dd,t.y+t.ht*(.5+rnd()*.16),t.z+Math.sin(a)*dd,t.ht*(.26+rnd()*.1),t.ht*(.16+rnd()*.06),68,t.ht*.14,[0,0,1],P,N,U,Ix,false);}const k=2+(rnd()*2|0);/* leaning multi-stem tea tree */
-          for(let s=0;s<k;s++){const a=rnd()*6.283;stems.push([t.x+Math.cos(a)*.25,t.y,t.z+Math.sin(a)*.25,t.ht*.5,Math.cos(a)*.45,Math.sin(a)*.45,1,barkTea]);}}});
+        else{/* leaning multi-stem tea tree: each stem ends inside its own clump of leaves, so no trunk sticks out of the crown (Paul, 29 Nov 2026) */
+          const k=2+(rnd()*3|0),E=new THREE.Euler(),up=new THREE.Vector3();
+          for(let s=0;s<k;s++){const a=rnd()*6.283,lean=.25+rnd()*.3,h=t.ht*(.5+rnd()*.12),bx=t.x+Math.cos(a)*.2,bz=t.z+Math.sin(a)*.2,rx=Math.sin(a)*lean,rz=-Math.cos(a)*lean;
+            stems.push([bx,t.y,bz,h,rx,rz,1,barkTea]);E.set(rx,0,rz);up.set(0,h,0).applyEuler(E);
+            crown(bx+up.x,t.y+up.y+t.ht*.04,bz+up.z,t.ht*(.26+rnd()*.08),t.ht*(.16+rnd()*.05),70,t.ht*.14,[0,0,1],P,N,U,Ix,false);}
+          crown(t.x,t.y+t.ht*.62,t.z,t.ht*.3,t.ht*.17,60,t.ht*.14,[0,0,1],P,N,U,Ix,false);/* and one in the middle to close the crown */}});
       const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(Ix);g.computeBoundingSphere();
       const cm=new THREE.Mesh(g,leafMat);cm.customDepthMaterial=leafDepth;cm.castShadow=cm.receiveShadow=true;cm.__pxSkip=1;G.add(cm);
       [barkTea,barkPine].forEach(mat=>{const S=stems.filter(s=>s[7]===mat);if(!S.length)return;const im=new THREE.InstancedMesh(tg,mat,S.length);
-        S.forEach(([x,y,z,h,rx,rz,th],i)=>{d.position.set(x,y-.1,z);d.rotation.set(rx,rnd()*6,rz);d.scale.set(th,h,th);d.updateMatrix();im.setMatrixAt(i,d.matrix);});
+        S.forEach(([x,y,z,h,rx,rz,th],i)=>{d.position.set(x,y-.1,z);d.rotation.set(rx,0,rz);d.scale.set(th,h,th);d.updateMatrix();im.setMatrixAt(i,d.matrix);});
         im.castShadow=true;im.receiveShadow=true;im.__pxSkip=1;im.computeBoundingSphere&&im.computeBoundingSphere();G.add(im);});});
     if(!G.parent)scene.add(G);GROVES.trees=trees.length;GROVES.pines=trees.filter(t=>t.pine).length;GROVES.cells=cells.size;GROVES.ms=Math.round(performance.now()-t0);
     console.log('GROVES: '+trees.length+' trees ('+GROVES.pines+' pines) in '+cells.size+' cells, '+GROVES.ms+' ms');}

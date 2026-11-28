@@ -45,6 +45,7 @@ const RUNS = [
   ['van', '?shot=-108,-27,10,0,1.4,0'],   // Marlo's camper van and the ice-cream caravan by the café (28 Nov 2026)
   ['van-lush', '?shot=-108,-27,10,0,1.4,0&lushisland&fast'],
   ['groves-close', '?shot=-60,0,9.6,0,1,0'],
+  ['beach-path', '?shot=-100,-20,9,0,1.3,0'],
   ['groves-mid', '?shot=-60,0,9.6,0,2.6,0'],   // groves at the game's own zoom (28 Nov 2026)
   ['groves-west', '?shot=-60,0,10,0,1.4,0&groves&fast'],   // Rottnest groves (lab, 28 Nov 2026)
   ['groves-wide', '?shot=-80,0,12,0,4,0.6&groves&fast'],
