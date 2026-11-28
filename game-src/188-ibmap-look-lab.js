@@ -47,7 +47,7 @@ window.__IBMAP=IBMAP;
      and jetty, the train, the sea, the sky, and this map */
   let keep=null,cafeZ=[];
   function keepSet(){const S=new Set();try{TOON.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}try{CRIT3.list.forEach(e=>e.model&&S.add(e.model));}catch(e){}try{MORE3D.list.forEach(e=>e.g&&S.add(e.g));}catch(e){}
-    try{[WEST.train,WEST.car2].forEach(o=>o&&S.add(o));(WEST.boats||[]).forEach(o=>o&&S.add(o.g||o));}catch(e){}try{S.add(player.g||player.mesh||player.sprite);}catch(e){}S.add(IBMAP.grp);if(skyG)S.add(skyG);if(window.__ENGMAP&&__ENGMAP.grp)S.add(__ENGMAP.grp);return S;}
+    try{[WEST.train,WEST.car2].forEach(o=>o&&S.add(o));(WEST.boats||[]).forEach(o=>o&&S.add(o.g||o));}catch(e){}try{S.add(player.g||player.mesh||player.sprite);}catch(e){}S.add(IBMAP.grp);if(skyG)S.add(skyG);if(window.__ENGMAP&&__ENGMAP.grp)S.add(__ENGMAP.grp);scene.children.forEach(o=>{if(o.__islKeep)S.add(o);});/* things the game places on the new island later (Marlo's van, bought businesses) */return S;}
   function cafeZones(){const c=IW(0,-.7),j=IW(-17,5);return[[c.x,c.z,7.5],[j.x,j.z,6]];/* just the café, its deck and the jetty */}
   const inCafe=(x,z)=>cafeZ.some(([a,b,r])=>Math.hypot(x-a,z-b)<r)||(x>JETTY.x1-1.2&&x<DECK.x1+1&&z>JETTY.z1-1.6&&z<JETTY.z2+1.6)/* the jetty walk, any harbour level */;
   const B=new THREE.Box3();
@@ -178,7 +178,7 @@ window.__IBMAP=IBMAP;
   (function loop(){requestAnimationFrame(loop);if(!IBMAP.done||!IBMAP.grp)return;const on=typeof zoneOf==='function'&&zoneOf(camTarget.x)==='island';IBMAP.grp.visible=on;if(skyG)skyG.visible=on;if(IBMAP.gmBtn)IBMAP.gmBtn.style.display=on&&!document.body.classList.contains('studio')?'':'none';if(!on)return;
     const t=(performance.now()-tStart)/1000,c=toMap(camTarget.x,camTarget.z),p=toMap(player.x,player.z);IBMAP.player=player;
     const nt=typeof NIGHT!=='undefined'?NIGHT:0;IBMAP.I.update(t,c[0],c[1],{push:p,reveal:[p[0],p[1],2.6*K],night:nt});skyTick(t,nt);
-    if((IBMAP.k=(IBMAP.k||0)+1)%180===0){IBMAP.hidden.forEach(o=>{o.visible=false;});keep=keepSet();/* 3D models made after the island */hideOld();}})();
+    if((IBMAP.k=(IBMAP.k||0)+1)%180===0){{const back=IBMAP.hidden.filter(o=>o.__islKeep);if(back.length){IBMAP.hidden=IBMAP.hidden.filter(o=>!o.__islKeep);back.forEach(o=>{o.visible=true;o.__ibHid=0;});try{applyBiz();}catch(e){}}}IBMAP.hidden.forEach(o=>{o.visible=false;});keep=keepSet();/* 3D models made after the island */hideOld();}})();
   (function wait(){const a=typeof SEA4!=='undefined'&&SEA4.built,b=typeof GROUND3D!=='undefined'&&GROUND3D.done,c=typeof ISL!=='undefined'&&ISL.done;
     try{IBMAP.veilP&&IBMAP.veilP(12+(a?18:0)+(b?15:0)+(c?15:0));}catch(e){}
     if(a&&b&&c){/* as soon as the sea and ground are ready (Paul, 15 Nov 2026: New Game still showed the old island for the first seconds) */

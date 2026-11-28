@@ -234,7 +234,7 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-engine-islandmap.js | 21852-22039 | 28 | N, segD, mergeStatic, sandOf, weldPaths, RNDC, RNDT, lineD, RW, coastFix |
 | 188-lushisland-look-lab.js | 22040-22123 | 11 | LUSH_LIVE, LUSH |
 | 188-engmap-look-lab.js | 22124-22181 | 9 | ENGMAP_LIVE, ENGMAP |
-| 188-ibmap-look-lab.js | 22182-22371 | 104 | embedded data, do not open |
+| 188-ibmap-look-lab.js | 22182-22371 | 105 | embedded data, do not open |
 | 188-freomap-look-lab.js | 22372-22493 | 17 | FREOMAP_LIVE, FREOMAP_GM, FREOMAP |
 | 188-spmap-look-lab.js | 22494-22624 | 16 | SPMAP_LIVE, SPMAP |
 | 188-vpmap-look-lab.js | 22625-22729 | 12 | VPMAP_LIVE, VPMAP |
@@ -244,19 +244,20 @@ Find code: `grep -n 'name' game-src/*`.
 | 188-island-transport-fix.js | 23038-23060 | 2 |  |
 | 188-cafe2-look-lab.js | 23061-23127 | 8 | CAFE2_LIVE, CAFE2 |
 | 188-camppark-look-lab.js | 23128-23181 | 8 | CAMPPARK_LIVE, CAMPPARK |
-| 188-campfish-quest.js | 23182-23236 | 6 |  |
-| 188-campfun-look-lab.js | 23237-23331 | 14 | CAMPFUN_LIVE, CAMPFUN |
-| 188-cafe-area-settle.js | 23332-23350 | 2 |  |
-| 188-camp-atv.js | 23351-23379 | 3 |  |
-| 188-bay-boats-look-lab-toon.js | 23380-23401 | 3 |  |
-| 188-build-smooth-look-lab-toon.js | 23402-23461 | 7 | BSMOOTH_LIVE, BSMOOTH |
-| 188-meadow-tufts-look-lab-toon.js | 23462-23511 | 7 | MEADOW_LIVE, MEADOW |
-| 188-rocks-look-lab-toon.js | 23512-23544 | 4 | ROCK3_LIVE, ROCK3 |
-| 188-critters-look-lab-toon.js | 23545-23617 | 10 | CRIT3_LIVE, CRIT3 |
-| 188-basin-lookout-look-lab-toon.js | 23618-23648 | 2 | BASIN_LIVE, BASIN |
-| 188-rail-clear-look-lab-toon.js | 23649-23665 | 2 | RAILCLR |
-| 188-island-only-look-lab-toon.js | 23666-23676 | 2 |  |
-| 188-auth.js | 23677-23755 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
-| 188-ibcloud-look-lab.js | 23756-23791 | 3 | IBCLOUD_LIVE, IBCLOUD |
-| 189b-island-builder.js | 23792-23835 | 7 | IB_LIVE |
-| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23836-23857 | 3 | SHOT |
+| 188-campfish-quest.js | 23182-23244 | 8 |  |
+| 188-offroad.js | 23245-23262 | 2 |  |
+| 188-campfun-look-lab.js | 23263-23357 | 14 | CAMPFUN_LIVE, CAMPFUN |
+| 188-cafe-area-settle.js | 23358-23376 | 2 |  |
+| 188-camp-atv.js | 23377-23405 | 3 |  |
+| 188-bay-boats-look-lab-toon.js | 23406-23427 | 3 |  |
+| 188-build-smooth-look-lab-toon.js | 23428-23487 | 7 | BSMOOTH_LIVE, BSMOOTH |
+| 188-meadow-tufts-look-lab-toon.js | 23488-23537 | 7 | MEADOW_LIVE, MEADOW |
+| 188-rocks-look-lab-toon.js | 23538-23570 | 4 | ROCK3_LIVE, ROCK3 |
+| 188-critters-look-lab-toon.js | 23571-23643 | 10 | CRIT3_LIVE, CRIT3 |
+| 188-basin-lookout-look-lab-toon.js | 23644-23674 | 2 | BASIN_LIVE, BASIN |
+| 188-rail-clear-look-lab-toon.js | 23675-23691 | 2 | RAILCLR |
+| 188-island-only-look-lab-toon.js | 23692-23702 | 2 |  |
+| 188-auth.js | 23703-23781 | 12 | authLoad, authKeep, signIn, signOut, CLOUD, acTab, acEl, acBtn, acMsg, acBuild |
+| 188-ibcloud-look-lab.js | 23782-23817 | 3 | IBCLOUD_LIVE, IBCLOUD |
+| 189b-island-builder.js | 23818-23861 | 7 | IB_LIVE |
+| 189-photo-mode-shot-x-z-hour-weather-zoom.js | 23862-23883 | 3 | SHOT |

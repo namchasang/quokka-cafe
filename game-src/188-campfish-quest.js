@@ -8,22 +8,25 @@
 (()=>{if(typeof CAMPPARK==='undefined'||!CAMPPARK.on||typeof CAMPKIT_ENGINE==='undefined')return;
   const CF={van:null,npc:null,spot:null,q:null};window.__CAMPFISH=CF;
   const S_=.6;/* van size on Rottnest */
+  /* the island map's own ground: roads, paths and water are no place for a parked van */
+  const offLand=(x,z)=>{try{const m=IBMAP.toMap(x,z),k=IBMAP.I.kindAt(m[0],m[1]);return k==='path'||k==='water';}catch(e){return false;}};CF.offLand=offLand;
   function findSpot(){const C=IW(0,0);let best=null;
     for(let r=13;r<=30&&!best;r+=1.5)for(let a=0;a<32&&!best;a++){const t=a/32*6.283+.3,x=C.x+Math.cos(t)*r,z=C.z+Math.sin(t)*r;let ok=true;
       for(const [dx,dz] of [[0,0],[2.4,0],[-2.4,0],[0,2],[0,-2],[2.4,2],[-2.4,-2],[2.4,-2],[-2.4,2],[0,3.6],[1.5,3.6]])if(blocked(x+dx,z+dz)){ok=false;break;}
+      if(ok&&[[0,0],[2.4,0],[-2.4,0],[0,2],[0,-2],[2.4,2],[-2.4,-2],[2.4,-2],[-2.4,2]].some(([dx,dz])=>offLand(x+dx,z+dz)))ok=false;/* never on a road, path or bike lane (Paul, 28 Nov 2026) */
       if(ok&&FISH_SPOTS.some(f=>Math.hypot(f.x-x,f.z-z)<6))ok=false;if(ok&&Math.hypot(JETTY.x1-x,JETTY.z1-z)<8)ok=false;if(ok)best={x,z};}
     return best;}
   function build(){const sp=findSpot();if(!sp)return false;CF.spot=sp;
     const CK=CAMPKIT_ENGINE.create({gammaOut:true});const van=CK.POINTS.van;CK.root.children.forEach(c=>{if(c!==van)c.visible=false;});
     /* the van sits at sp: the kit puts it at (-6.4,-3.6) from its centre */
-    CK.root.scale.setScalar(S_);CK.root.position.set(sp.x+6.4*S_,groundY(sp.x,sp.z),sp.z+3.6*S_);CK.root.traverse(o=>{o.__pxSkip=1;});scene.add(CK.root);CF.van=CK;
+    CK.root.scale.setScalar(S_);CK.root.position.set(sp.x+6.4*S_,groundY(sp.x,sp.z),sp.z+3.6*S_);CK.root.traverse(o=>{o.__pxSkip=1;});CK.root.__islKeep=1;/* the island map's old-scenery pass leaves it alone */scene.add(CK.root);CF.van=CK;
     CK.setAwn(true);
     /* Marlo stands by the door, facing the café side */
-    const m=spriteMesh(quokkaFrames('#d8634a',1.12),1.08,1.08);const nx=sp.x+1.2,nz=sp.z+2.4;m.position.set(nx,groundY(nx,nz),nz);scene.add(m);blob(.8).position.set(nx,groundY(nx,nz)+.03,nz);CF.npc={x:nx,z:nz,m};
+    const m=spriteMesh(quokkaFrames('#d8634a',1.12),1.08,1.08);const nx=sp.x+1.2,nz=sp.z+2.4;m.position.set(nx,groundY(nx,nz),nz);scene.add(m);CF.blob=blob(.8);CF.blob.position.set(nx,groundY(nx,nz)+.03,nz);CF.npc={x:nx,z:nz,m};
     /* the van door spot for the ride, on the side away from Marlo so the two taps don't overlap */
     CF.door=[[-1.3,2.3],[-2.2,2.1],[-1.3,3],[0,3.4]].map(([a,b])=>({x:sp.x+a,z:sp.z+b})).find(p=>!blocked(p.x,p.z)&&Math.hypot(p.x-nx,p.z-nz)>2)||{x:sp.x-1.3,z:sp.z+2.6};
     /* Kip walks round the van, not through it */
-    const _b=blocked;blocked=function(x,z){if(Math.abs(x-sp.x)<2.1&&Math.abs(z-sp.z)<1.6)return true;return _b(x,z);};
+    const _b=blocked;blocked=function(x,z){const p=CF.spot;if(p&&Math.abs(x-p.x)<2.1&&Math.abs(z-p.z)<1.6)return true;return _b(x,z);};
     return true;}
   /* the quest: one step per island fishing spot (shore spots only, no boat or deep-sea spots) */
   function makeQuest(){const spots=FISH_SPOTS.filter(f=>f.zone==='island'&&!f.boat&&!f.deep).slice(0,5);S.campFish=S.campFish||{};
@@ -50,6 +53,11 @@
       else if(!unlocked('fishing'))T.push({x:n.x,z:n.z,r:1.4,label:'Talk to Marlo',act:()=>say([{who:'Marlo',text:'G’day! I’d ask you fishing, but you haven’t got a rod yet. Captain Gus has an old one he never uses. Come back when he lends it to you.'}])});}}catch(e){}return T;};
   /* home from the camp: back to Marlo's van */
   CAMPPARK.homeSpot=()=>CF.spot?freeNear(CF.spot.x+1.6,CF.spot.z+3.2):null;
+  /* park somewhere else: after the Island Builder changes the island, the van may stand on a new road */
+  function moveTo(sp){const o=CF.spot;CF.spot=null;const dx=sp.x-o.x,dz=sp.z-o.z;CF.spot=sp;const R=CF.van.root;R.position.set(sp.x+6.4*S_,groundY(sp.x,sp.z),sp.z+3.6*S_);
+    const n=CF.npc;n.x+=dx;n.z+=dz;n.m.position.set(n.x,groundY(n.x,n.z),n.z);if(CF.blob)CF.blob.position.set(n.x,groundY(n.x,n.z)+.03,n.z);if(CF.door){CF.door.x+=dx;CF.door.z+=dz;}}
+  CF.check=()=>{if(!CF.van||!CF.spot)return;const p=CF.spot;if(![[0,0],[2.4,0],[-2.4,0],[0,2],[0,-2]].some(([dx,dz])=>offLand(p.x+dx,p.z+dz)))return;const o=CF.spot;CF.spot=null;const sp=findSpot();CF.spot=o;if(sp)moveTo(sp);};
+  setInterval(()=>{try{if(IBMAP.done)CF.check();if(CF.van&&!CF.van.root.visible)CF.van.root.visible=true;}catch(e){}},4000);
   (function wait(){let ok=false;try{ok=ISL.done&&(!IBMAP.on||IBMAP.done)&&!!S&&running;}catch(e){}if(!ok){setTimeout(wait,700);return;}
     try{if(!CF.van&&!build()){setTimeout(wait,3000);return;}if(!CF.q)makeQuest();}catch(e){console.error('campfish',e);}})();
 })();

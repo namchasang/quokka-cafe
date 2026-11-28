@@ -238,6 +238,7 @@
 188-cafe2-look-lab.js
 188-camppark-look-lab.js
 188-campfish-quest.js
+188-offroad.js
 188-campfun-look-lab.js
 188-cafe-area-settle.js
 188-camp-atv.js

@@ -8,8 +8,8 @@
 // 3. more trees and bushes from the Foliage Engine (2x trees, 2x bushes) so the woodland reads as woodland; the extra trees keep off
 //    paths and the café front, and the leaves between Kip and the camera thin out (like the camp's see-through trees).
 // Off for players: ?lushisland turns it on. Works on top of ?fast.
-var LUSH_LIVE=false;
-const LUSH={on:LUSH_LIVE||/[?&#]lushisland\b/.test(location.search+location.hash),pieces:0,patched:0};
+var LUSH_LIVE=true;/* live (Paul, 28 Nov 2026: 'ขึ้นเกมได้: lushisland'); ?nolush shows the old lawn */
+const LUSH={on:(LUSH_LIVE||/[?&#]lushisland\b/.test(location.search+location.hash))&&!/[?&#]nolush\b/.test(location.search+location.hash),pieces:0,patched:0};
 window.__LUSH=LUSH;
 if(LUSH.on)(()=>{
   // ---- 3. more trees and bushes: the Rottnest island map only (towns and camps keep theirs) ----
