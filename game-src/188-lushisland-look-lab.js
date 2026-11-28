@@ -15,7 +15,7 @@ if(LUSH.on)(()=>{
   // ---- 3. more trees and bushes: the Rottnest island map only (towns and camps keep theirs) ----
   if(!/lushnofol/.test(location.search+location.hash))(function hook(){if(typeof IslandMap==='undefined'){setTimeout(hook,100);return;}const _c=IslandMap.create;
     IslandMap.create=function(o){try{const d=o&&o.doc;if(d&&!d.town&&/rottnest/i.test(d.name||'Rottnest')&&d.fol){o=Object.assign({},o,{doc:Object.assign({},d,{fol:Object.assign({},d.fol,{tree:(d.fol.tree||.006)*(window.__GROVES&&__GROVES.on?1:2),tuft:(d.fol.tuft||1)*.6,flower:(d.fol.flower||.3)*.8,/* fewer grass tufts: lighter to build as the camera moves (Paul, 28 Nov 2026) *//* with the groves the engine's own trees stay as they were */bush:(d.fol.bush||.03)*2})})});}}catch(e){}
-      const rb=rottBuild;try{rottBuild=!!(o&&o.doc&&!o.doc.town);return _c.call(this,o);}finally{rottBuild=rb;}};})();
+      const rb=rottBuild;try{rottBuild=!!(o&&o.doc&&!o.doc.town);if(rottBuild)o=Object.assign({},o,{fol:Object.assign({},o.fol||{},{tuftH:.5})});/* grass half as tall (Paul, 28 Nov 2026) */return _c.call(this,o);}finally{rottBuild=rb;}};})();
   /* the extra trees keep off paths and the café front (grass still grows there): wrap the Foliage Engine's tree keep-out while the island map builds */
   let rottBuild=false;(function hookF(){if(typeof FoliageEngine==='undefined'){setTimeout(hookF,100);return;}const _f=FoliageEngine.create;
     FoliageEngine.create=function(o){if(rottBuild&&o&&o.treeKeepOut){const k0=o.treeKeepOut;o=Object.assign({},o,{treeKeepOut:(x,z)=>{if(k0(x,z))return true;
@@ -67,9 +67,9 @@ if(LUSH.on)(()=>{
     for(;J.i<end;J.i++){const a=Math.random()*6.283,r=Math.sqrt(Math.random())*J.R,x=J.cx+Math.cos(a)*r,z=J.cz+Math.sin(a)*r,m=IBMAP.toMap(x,z),q=Math.random();
       let k=T&&T.groundKind?T.groundKind(m[0],m[1]):'grass';/* the ground's own baked field: water / sand / grass, ~100x cheaper than the map's kindAt */
       if(k==='water')continue;if(blocked(x,z))continue;const y=groundY(x,z);
-      if(k==='sand'){if(q<.35)J.shell.push([x,y,z,.04+Math.random()*.07]);else if(q<.45)J.peb.push([x,y,z,.05+Math.random()*.08,1]);continue;}
+      if(k==='sand'){if(q<.35)J.shell.push([x,y,z,.04+Math.random()*.07]);continue;}/* no stones on the beach either (Paul, 28 Nov 2026: 'เอากรวด ก้อนหินออกจากพื้นให้หมด') */
       const p=nz(x,z);if(p>.15&&q<.55){if(IBMAP.onPathMap&&IBMAP.onPathMap(m[0],m[1],.4))continue;/* no leaves on paths (only checked for leaves) */J.lit.push([x,y,z,.9+Math.random()*1.3]);}
-      else if(q<.3+Math.max(0,-p)*.3)J.peb.push([x,y,z,.05+Math.random()*.12,0]);}
+}
     if(J.i<J.n)return;job=null;commit(J);}
   function commit(J){const lit=J.lit,peb=J.peb,shell=J.shell;
     const CAP=Math.round(24*24*3.14*2.6)+10;/* pools keep their first size */const put=(key,geo,mat,L,f)=>{const im=pool(key,geo,mat,CAP);const n=Math.min(L.length,CAP);for(let i=0;i<n;i++){f(L[i]);d.updateMatrix();im.setMatrixAt(i,d.matrix);}
@@ -83,7 +83,7 @@ if(LUSH.on)(()=>{
     /* see-through: the Foliage Engine thins leaves round one point; put it between Kip and the camera instead of on Kip */
     try{const I=IBMAP.I;if(!I.__lushUp){I.__lushUp=1;const _u=I.update;I.update=function(t,x,z,op){try{if(op&&op.reveal&&zoneOf(player.x)==='island'){const cl=camera.position.x*scene.scale.x,cz=camera.position.z,
         px=player.x+(cl-player.x)*.22,pz=player.z+(cz-player.z)*.22,m=IBMAP.toMap(px,pz);op=Object.assign({},op,{reveal:[m[0],m[1],Math.max(op.reveal[2]||2.6,4.5*(IBMAP.K||1))]});}}catch(e){}return _u.call(this,t,x,z,op);};}}catch(e){}
-    try{const T=IBMAP.I.E&&IBMAP.I.E.terr;if(T&&T.material&&!T.material.__lush)patch(T.material);}catch(e){}/* the island is rebuilt after the Island Builder: patch the new ground too */
+    try{const T=IBMAP.I.E&&IBMAP.I.E.terr;if(T&&T.material&&!T.material.__lush){patch(T.material);try{T.setLayer('pebbles',false);}catch(e){}/* the ground's 3D pebbles and painted pebbles go too */}}catch(e){}/* the island is rebuilt after the Island Builder: patch the new ground too */
     if(!G.parent)scene.add(G);const on=zoneOf(camTarget.x)==='island'&&!VISIT;G.visible=on;if(!on)return;
     if(!at||Math.hypot(camTarget.x-at[0],camTarget.z-at[1])>8){at=[camTarget.x,camTarget.z];rebuild(at[0],at[1]);}try{step();}catch(e){job=null;console.warn('lush',e);}})();
   console.log('LUSH lab on: natural ground, ground detail round the camera, more trees');
