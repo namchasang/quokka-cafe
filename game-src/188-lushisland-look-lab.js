@@ -14,7 +14,7 @@ window.__LUSH=LUSH;
 if(LUSH.on)(()=>{
   // ---- 3. more trees and bushes: the Rottnest island map only (towns and camps keep theirs) ----
   if(!/lushnofol/.test(location.search+location.hash))(function hook(){if(typeof IslandMap==='undefined'){setTimeout(hook,100);return;}const _c=IslandMap.create;
-    IslandMap.create=function(o){try{const d=o&&o.doc;if(d&&!d.town&&/rottnest/i.test(d.name||'Rottnest')&&d.fol){o=Object.assign({},o,{doc:Object.assign({},d,{fol:Object.assign({},d.fol,{tree:(d.fol.tree||.006)*(window.__GROVES&&__GROVES.on?1:2),/* with the groves the engine's own trees stay as they were */bush:(d.fol.bush||.03)*2})})});}}catch(e){}
+    IslandMap.create=function(o){try{const d=o&&o.doc;if(d&&!d.town&&/rottnest/i.test(d.name||'Rottnest')&&d.fol){o=Object.assign({},o,{doc:Object.assign({},d,{fol:Object.assign({},d.fol,{tree:(d.fol.tree||.006)*(window.__GROVES&&__GROVES.on?1:2),tuft:(d.fol.tuft||1)*.6,flower:(d.fol.flower||.3)*.8,/* fewer grass tufts: lighter to build as the camera moves (Paul, 28 Nov 2026) *//* with the groves the engine's own trees stay as they were */bush:(d.fol.bush||.03)*2})})});}}catch(e){}
       const rb=rottBuild;try{rottBuild=!!(o&&o.doc&&!o.doc.town);return _c.call(this,o);}finally{rottBuild=rb;}};})();
   /* the extra trees keep off paths and the café front (grass still grows there): wrap the Foliage Engine's tree keep-out while the island map builds */
   let rottBuild=false;(function hookF(){if(typeof FoliageEngine==='undefined'){setTimeout(hookF,100);return;}const _f=FoliageEngine.create;
@@ -58,15 +58,21 @@ if(LUSH.on)(()=>{
   const nz=(x,z)=>Math.sin(x*.21+Math.sin(z*.13)*2)*.5+Math.sin(z*.17-x*.07)*.5;/* patches: litter and pebbles cluster instead of a flat sprinkle */
   /* one instanced mesh per kind, made once at full size; each rebuild only rewrites matrices and the count (no new meshes, nothing freed) */
   const POOL={};function pool(key,geo,mat,cap){let im=POOL[key];if(!im){im=new THREE.InstancedMesh(geo,mat,cap);/* no per-instance colour: a material shared by instanced meshes with and without colours breaks three r128's program reuse */im.receiveShadow=true;im.castShadow=false;im.frustumCulled=false;im.__pxSkip=1;G.add(im);POOL[key]=im;}return im;}
-  function rebuild(cx,cz){
-    const gq=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),R=gq.startsWith('l')?12:gq.startsWith('m')?18:24,dens=gq.startsWith('l')?.5:gq.startsWith('m')?.8:1;
-    const lit=[],peb=[],shell=[],n=Math.round(R*R*3.14*2.6*dens);
-    for(let i=0;i<n;i++){const a=Math.random()*6.283,r=Math.sqrt(Math.random())*R,x=cx+Math.cos(a)*r,z=cz+Math.sin(a)*r;let k='grass';
-      try{const m=IBMAP.toMap(x,z);k=IBMAP.I.kindAt(m[0],m[1]);}catch(e){}if(k==='water'||k==='none')continue;if(blocked(x,z))continue;const y=groundY(x,z),p=nz(x,z),q=Math.random();
-      if(k==='sand'){if(q<.35)shell.push([x,y,z,.04+Math.random()*.07]);else if(q<.45)peb.push([x,y,z,.05+Math.random()*.08,1]);continue;}
-      if(k==='path'){if(q<.18)peb.push([x,y,z,.04+Math.random()*.06,1]);continue;}
-      if(p>.15&&q<.55)lit.push([x,y,z,.9+Math.random()*1.3]);else if(q<.3+Math.max(0,-p)*.3)peb.push([x,y,z,.05+Math.random()*.12,0]);}
-    const CAP=Math.round(24*24*3.14*2.6)+10;const put=(key,geo,mat,L,f)=>{const im=pool(key,geo,mat,CAP);const n=Math.min(L.length,CAP);for(let i=0;i<n;i++){f(L[i]);d.updateMatrix();im.setMatrixAt(i,d.matrix);}
+  /* sampled a slice per frame (Paul, 28 Nov 2026: 'รู้สึกมันกระตุก'): one whole rebuild took ~80 ms of map lookups in a single frame on a
+     desktop, more on a phone, every time the camera moved 7 units; now ~350 samples a frame, swapped in when complete, at 60% of the density */
+  let job=null;
+  function rebuild(cx,cz){const gq=String((typeof GFX!=='undefined'&&GFX.level)||'').toLowerCase(),R=gq.startsWith('l')?12:gq.startsWith('m')?17:22,dens=gq.startsWith('l')?.5:gq.startsWith('m')?.75:1;
+    job={cx,cz,R,n:Math.round(R*R*3.14*1.6*dens),i:0,lit:[],peb:[],shell:[]};}
+  function step(){if(!job)return;const J=job,I=IBMAP.I,T=I.E&&I.E.terr,end=Math.min(J.n,J.i+350);
+    for(;J.i<end;J.i++){const a=Math.random()*6.283,r=Math.sqrt(Math.random())*J.R,x=J.cx+Math.cos(a)*r,z=J.cz+Math.sin(a)*r,m=IBMAP.toMap(x,z),q=Math.random();
+      let k=T&&T.groundKind?T.groundKind(m[0],m[1]):'grass';/* the ground's own baked field: water / sand / grass, ~100x cheaper than the map's kindAt */
+      if(k==='water')continue;if(blocked(x,z))continue;const y=groundY(x,z);
+      if(k==='sand'){if(q<.35)J.shell.push([x,y,z,.04+Math.random()*.07]);else if(q<.45)J.peb.push([x,y,z,.05+Math.random()*.08,1]);continue;}
+      const p=nz(x,z);if(p>.15&&q<.55){if(IBMAP.onPathMap&&IBMAP.onPathMap(m[0],m[1],.4))continue;/* no leaves on paths (only checked for leaves) */J.lit.push([x,y,z,.9+Math.random()*1.3]);}
+      else if(q<.3+Math.max(0,-p)*.3)J.peb.push([x,y,z,.05+Math.random()*.12,0]);}
+    if(J.i<J.n)return;job=null;commit(J);}
+  function commit(J){const lit=J.lit,peb=J.peb,shell=J.shell;
+    const CAP=Math.round(24*24*3.14*2.6)+10;/* pools keep their first size */const put=(key,geo,mat,L,f)=>{const im=pool(key,geo,mat,CAP);const n=Math.min(L.length,CAP);for(let i=0;i<n;i++){f(L[i]);d.updateMatrix();im.setMatrixAt(i,d.matrix);}
       im.count=n;im.instanceMatrix.needsUpdate=true;};
     put('lit',decalGeo,litM,lit,([x,y,z,s])=>{d.position.set(x,y+.02,z);d.rotation.set(0,Math.random()*6.28,0);d.scale.setScalar(s);c.setHSL(.09+Math.random()*.03,.25,.78+Math.random()*.25);});
     put('pebG',pebGeo,pebM,peb.filter(e=>!e[4]),([x,y,z,s])=>{d.position.set(x,y+s*.2,z);d.rotation.set(Math.random()*3,Math.random()*6,Math.random()*3);d.scale.set(s*(1+Math.random()*.5),s*.55,s);});/* pale grey limestone on the grass; creamier on the beach and paths (pebS) */
@@ -79,6 +85,6 @@ if(LUSH.on)(()=>{
         px=player.x+(cl-player.x)*.22,pz=player.z+(cz-player.z)*.22,m=IBMAP.toMap(px,pz);op=Object.assign({},op,{reveal:[m[0],m[1],Math.max(op.reveal[2]||2.6,4.5*(IBMAP.K||1))]});}}catch(e){}return _u.call(this,t,x,z,op);};}}catch(e){}
     try{const T=IBMAP.I.E&&IBMAP.I.E.terr;if(T&&T.material&&!T.material.__lush)patch(T.material);}catch(e){}/* the island is rebuilt after the Island Builder: patch the new ground too */
     if(!G.parent)scene.add(G);const on=zoneOf(camTarget.x)==='island'&&!VISIT;G.visible=on;if(!on)return;
-    if(!at||Math.hypot(camTarget.x-at[0],camTarget.z-at[1])>7){at=[camTarget.x,camTarget.z];try{rebuild(at[0],at[1]);}catch(e){console.warn('lush',e);}}})();
+    if(!at||Math.hypot(camTarget.x-at[0],camTarget.z-at[1])>8){at=[camTarget.x,camTarget.z];rebuild(at[0],at[1]);}try{step();}catch(e){job=null;console.warn('lush',e);}})();
   console.log('LUSH lab on: natural ground, ground detail round the camera, more trees');
 })();
