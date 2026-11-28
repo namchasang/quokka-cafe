@@ -14,7 +14,7 @@ window.__LUSH=LUSH;
 if(LUSH.on)(()=>{
   // ---- 3. more trees and bushes: the Rottnest island map only (towns and camps keep theirs) ----
   if(!/lushnofol/.test(location.search+location.hash))(function hook(){if(typeof IslandMap==='undefined'){setTimeout(hook,100);return;}const _c=IslandMap.create;
-    IslandMap.create=function(o){try{const d=o&&o.doc;if(d&&!d.town&&/rottnest/i.test(d.name||'Rottnest')&&d.fol){o=Object.assign({},o,{doc:Object.assign({},d,{fol:Object.assign({},d.fol,{tree:(d.fol.tree||.006)*2,bush:(d.fol.bush||.03)*2})})});}}catch(e){}
+    IslandMap.create=function(o){try{const d=o&&o.doc;if(d&&!d.town&&/rottnest/i.test(d.name||'Rottnest')&&d.fol){o=Object.assign({},o,{doc:Object.assign({},d,{fol:Object.assign({},d.fol,{tree:(d.fol.tree||.006)*(window.__GROVES&&__GROVES.on?1:2),/* with the groves the engine's own trees stay as they were */bush:(d.fol.bush||.03)*2})})});}}catch(e){}
       const rb=rottBuild;try{rottBuild=!!(o&&o.doc&&!o.doc.town);return _c.call(this,o);}finally{rottBuild=rb;}};})();
   /* the extra trees keep off paths and the café front (grass still grows there): wrap the Foliage Engine's tree keep-out while the island map builds */
   let rottBuild=false;(function hookF(){if(typeof FoliageEngine==='undefined'){setTimeout(hookF,100);return;}const _f=FoliageEngine.create;

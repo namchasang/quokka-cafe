@@ -226,6 +226,7 @@
 188-engine-campkit.js
 188-engine-islandmap.js
 188-lushisland-look-lab.js
+188-groves-look-lab.js
 188-engmap-look-lab.js
 188-ibmap-look-lab.js
 188-freomap-look-lab.js
