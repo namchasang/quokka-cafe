@@ -6,6 +6,7 @@ P={'terrain':('Terrain Engine','terrain/terrain.js'),'foliage':('Foliage Engine'
  'building':('Building Kit','building/building.js'),'props':('Props Engine','props/props.js'),'vehicle':('Vehicle Engine','vehicle/vehicle.js'),
  'life':('Life Engine','life/life.js'),'waterlife':('Water Life','water-sea/waterlife.js'),'sky':('Sky & Weather Engine','sky/sky.js'),
  'streams':('Stream & Falls Engine','streams/streams.js'),'campkit':('Camp Kit Engine','campkit/campkit.js'),
+ 'anime':('Anime Character Engine','characters/anime.js'),
  'islandmap':('Island Map loader','islandmap/islandmap.js')}
 root=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 order=open(os.path.join(root,'game-src/ORDER.txt')).read().split('\n')
