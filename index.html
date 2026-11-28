@@ -22399,8 +22399,8 @@ if(LUSH.on)(()=>{
 // - Rottnest tea tree: low, leaning multi-stem trunks, a wide flat dense crown of small dark olive leaves; thickets near the coast;
 // - Rottnest island pine: a straight trunk and a narrow cone of fine dark-green foliage; stands inland, often by the salt lakes.
 // Built after the island map and again after the Island Builder changes it. Off for players: ?groves turns it on.
-var GROVES_LIVE=false;
-const GROVES={on:GROVES_LIVE||/[?&#]groves\b/.test(location.search+location.hash),trees:0,ms:0};
+var GROVES_LIVE=true;/* live (Paul, 28 Nov 2026: "ขึ้นเกมได้: groves"); ?nogroves = without */
+const GROVES={on:(GROVES_LIVE||/[?&#]groves\b/.test(location.search+location.hash))&&!/[?&#]nogroves\b/.test(location.search+location.hash),trees:0,ms:0};
 window.__GROVES=GROVES;
 if(GROVES.on)(()=>{
   const cnv=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.LinearEncoding;t.anisotropy=4;return t;};
