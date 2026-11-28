@@ -202,6 +202,7 @@
 188-paint-look-look-lab-toon.js
 188-sea-beach-look-lab-toon.js
 188-sea-real-engine-look-lab-sea4.js
+188-fast-look-lab.js
 188-ground3d-look-lab.js
 188-more3d-look-lab.js
 188-island-tidy-and-gfx.js
